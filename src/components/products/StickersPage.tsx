@@ -32,7 +32,7 @@ const productData = {
     // Variants are based on pack size for this product
     packSizes: ['10', '25', '50', '100'],
     // Images are the same for all variants, assuming 4 showcase images
-    images: Array.from({ length: 6 }, (_, i) => `ReformStickersMain${i + 1}.webp`)
+    images: Array.from({ length: 6 }, (_, i) => `StickerToteWater/ReformStickersMain${i + 1}.webp`)
   },
   variants: {
     801: { id: 801, packSize: '10', price: 6.99, inStock: true, stockCount: 100, rating: 5, reviews: 234 },
