@@ -48,6 +48,11 @@ function App() {
     window.scrollTo(0, 0);
   };
 
+  const handleShopClick = () => {
+    setCurrentPage('shop');
+    window.scrollTo(0, 0);
+  };
+
   const handleCheckoutClick = () => {
     setCurrentPage('checkout');
     window.scrollTo(0, 0);
@@ -101,7 +106,7 @@ function App() {
         return (
           <>
             <UrgencyBar />
-            <Hero />
+            <Hero onShopClick={handleShopClick} />
             <TopSellers onProductClick={handleProductClick} onViewAllClick={handleViewAllClick} />
             <MovementSection />
             <ProductBundles />
