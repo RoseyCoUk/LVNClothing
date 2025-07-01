@@ -16,8 +16,6 @@ import {
   Mail,
   Phone,
   Calendar,
-  Eye,
-  EyeOff,
   X
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
@@ -30,7 +28,6 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
   const { cartItems, getTotalPrice, clearCart } = useCart();
   
   const [currentStep, setCurrentStep] = useState(1);
-  const [showCardDetails, setShowCardDetails] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   
@@ -55,9 +52,21 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
     saveCard: false
   });
   
-  // Email validation state
+  // Validation states
   const [emailError, setEmailError] = useState('');
   const [emailTouched, setEmailTouched] = useState(false);
+  
+  const [cardErrors, setCardErrors] = useState({
+    cardNumber: '',
+    expiryDate: '',
+    cvv: ''
+  });
+  
+  const [cardTouched, setCardTouched] = useState({
+    cardNumber: false,
+    expiryDate: false,
+    cvv: false
+  });
   
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
@@ -77,6 +86,72 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  };
+  
+  // Card validation functions
+  const formatCardNumber = (value: string): string => {
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+    // Limit to 16 digits
+    const limitedDigits = digits.slice(0, 16);
+    // Add spaces every 4 digits
+    return limitedDigits.replace(/(\d{4})(?=\d)/g, '$1 ');
+  };
+  
+  const validateCardNumber = (cardNumber: string): boolean => {
+    const digits = cardNumber.replace(/\D/g, '');
+    return digits.length === 16;
+  };
+  
+  const formatExpiryDate = (value: string): string => {
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+    // Limit to 4 digits
+    const limitedDigits = digits.slice(0, 4);
+    // Add slash after 2 digits
+    if (limitedDigits.length >= 2) {
+      return limitedDigits.slice(0, 2) + '/' + limitedDigits.slice(2);
+    }
+    return limitedDigits;
+  };
+  
+  const validateExpiryDate = (expiryDate: string): boolean => {
+    const regex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+    if (!regex.test(expiryDate)) return false;
+    
+    const [month, year] = expiryDate.split('/');
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear() % 100; // Get last 2 digits
+    const currentMonth = currentDate.getMonth() + 1;
+    
+    const expMonth = parseInt(month, 10);
+    const expYear = parseInt(year, 10);
+    
+    // Check if the expiry date is in the future
+    if (expYear > currentYear) return true;
+    if (expYear === currentYear && expMonth >= currentMonth) return true;
+    
+    return false;
+  };
+  
+  const getCardType = (cardNumber: string): 'amex' | 'other' => {
+    const digits = cardNumber.replace(/\D/g, '');
+    // American Express cards start with 34 or 37
+    if (digits.startsWith('34') || digits.startsWith('37')) {
+      return 'amex';
+    }
+    return 'other';
+  };
+  
+  const validateCVV = (cvv: string, cardNumber: string): boolean => {
+    const digits = cvv.replace(/\D/g, '');
+    const cardType = getCardType(cardNumber);
+    
+    if (cardType === 'amex') {
+      return digits.length === 4;
+    } else {
+      return digits.length === 3;
+    }
   };
   
   // Handle email input changes with validation
@@ -108,6 +183,82 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
     }
   };
   
+  // Handle card input changes with validation
+  const handleCardInputChange = (field: string, value: string) => {
+    let formattedValue = value;
+    let error = '';
+    
+    if (field === 'cardNumber') {
+      formattedValue = formatCardNumber(value);
+      if (cardTouched.cardNumber) {
+        if (!formattedValue.trim()) {
+          error = 'Card number is required';
+        } else if (!validateCardNumber(formattedValue)) {
+          error = 'Card number must be 16 digits';
+        }
+      }
+    } else if (field === 'expiryDate') {
+      formattedValue = formatExpiryDate(value);
+      if (cardTouched.expiryDate) {
+        if (!formattedValue.trim()) {
+          error = 'Expiry date is required';
+        } else if (!validateExpiryDate(formattedValue)) {
+          error = 'Please enter a valid future date (MM/YY)';
+        }
+      }
+    } else if (field === 'cvv') {
+      // Only allow digits for CVV
+      formattedValue = value.replace(/\D/g, '');
+      const cardType = getCardType(paymentInfo.cardNumber);
+      const maxLength = cardType === 'amex' ? 4 : 3;
+      formattedValue = formattedValue.slice(0, maxLength);
+      
+      if (cardTouched.cvv) {
+        if (!formattedValue.trim()) {
+          error = 'CVV is required';
+        } else if (!validateCVV(formattedValue, paymentInfo.cardNumber)) {
+          const expectedLength = cardType === 'amex' ? '4' : '3';
+          error = `CVV must be ${expectedLength} digits${cardType === 'amex' ? ' (Amex)' : ' (Visa/Mastercard)'}`;
+        }
+      }
+    }
+    
+    setPaymentInfo(prev => ({ ...prev, [field]: formattedValue }));
+    setCardErrors(prev => ({ ...prev, [field]: error }));
+  };
+  
+  // Handle card field blur
+  const handleCardBlur = (field: string) => {
+    setCardTouched(prev => ({ ...prev, [field]: true }));
+    
+    const value = paymentInfo[field as keyof typeof paymentInfo] as string;
+    let error = '';
+    
+    if (field === 'cardNumber') {
+      if (!value.trim()) {
+        error = 'Card number is required';
+      } else if (!validateCardNumber(value)) {
+        error = 'Card number must be 16 digits';
+      }
+    } else if (field === 'expiryDate') {
+      if (!value.trim()) {
+        error = 'Expiry date is required';
+      } else if (!validateExpiryDate(value)) {
+        error = 'Please enter a valid future date (MM/YY)';
+      }
+    } else if (field === 'cvv') {
+      if (!value.trim()) {
+        error = 'CVV is required';
+      } else if (!validateCVV(value, paymentInfo.cardNumber)) {
+        const cardType = getCardType(paymentInfo.cardNumber);
+        const expectedLength = cardType === 'amex' ? '4' : '3';
+        error = `CVV must be ${expectedLength} digits${cardType === 'amex' ? ' (Amex)' : ' (Visa/Mastercard)'}`;
+      }
+    }
+    
+    setCardErrors(prev => ({ ...prev, [field]: error }));
+  };
+  
   const handleInputChange = (section: 'shipping' | 'payment', field: string, value: string) => {
     if (section === 'shipping') {
       if (field === 'email') {
@@ -116,7 +267,11 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
         setShippingInfo(prev => ({ ...prev, [field]: value }));
       }
     } else {
-      setPaymentInfo(prev => ({ ...prev, [field]: value }));
+      if (['cardNumber', 'expiryDate', 'cvv'].includes(field)) {
+        handleCardInputChange(field, value);
+      } else {
+        setPaymentInfo(prev => ({ ...prev, [field]: value }));
+      }
     }
   };
   
@@ -138,20 +293,39 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
              shippingInfo.address && shippingInfo.city && shippingInfo.postcode;
     }
     if (step === 2) {
-      return paymentInfo.cardNumber && paymentInfo.expiryDate && paymentInfo.cvv && paymentInfo.nameOnCard;
+      const isCardNumberValid = validateCardNumber(paymentInfo.cardNumber);
+      const isExpiryValid = validateExpiryDate(paymentInfo.expiryDate);
+      const isCvvValid = validateCVV(paymentInfo.cvv, paymentInfo.cardNumber);
+      const isNameValid = paymentInfo.nameOnCard.trim().length > 0;
+      
+      return isCardNumberValid && isExpiryValid && isCvvValid && isNameValid;
     }
     return true;
   };
   
+  const hasPaymentErrors = () => {
+    return Object.values(cardErrors).some(error => error !== '');
+  };
+  
   const handleNext = () => {
-    // Force email validation check before proceeding
     if (currentStep === 1) {
       setEmailTouched(true);
       handleEmailBlur();
       
-      // Wait a moment for state to update, then check validation
       setTimeout(() => {
         if (validateStep(currentStep) && !emailError) {
+          setCurrentStep(prev => prev + 1);
+        }
+      }, 100);
+    } else if (currentStep === 2) {
+      // Force validation of all card fields
+      setCardTouched({ cardNumber: true, expiryDate: true, cvv: true });
+      handleCardBlur('cardNumber');
+      handleCardBlur('expiryDate');
+      handleCardBlur('cvv');
+      
+      setTimeout(() => {
+        if (validateStep(currentStep) && !hasPaymentErrors()) {
           setCurrentStep(prev => prev + 1);
         }
       }, 100);
@@ -419,7 +593,6 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                   </div>
                 </div>
                 
-                {/* Enhanced Continue Button with Better Error Handling */}
                 <div className="mt-6">
                   {emailError && (
                     <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -458,53 +631,118 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Card Number</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Card Number <span className="text-red-500">*</span>
+                    </label>
                     <div className="relative">
                       <input
-                        type={showCardDetails ? 'text' : 'password'}
+                        type="text"
                         value={paymentInfo.cardNumber}
                         onChange={(e) => handleInputChange('payment', 'cardNumber', e.target.value)}
-                        className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                        onBlur={() => handleCardBlur('cardNumber')}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors ${
+                          cardErrors.cardNumber ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                        }`}
                         placeholder="1234 5678 9012 3456"
                         maxLength={19}
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowCardDetails(!showCardDetails)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        {showCardDetails ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
+                      {cardErrors.cardNumber && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <AlertCircle className="w-5 h-5 text-red-500" />
+                        </div>
+                      )}
                     </div>
+                    {cardErrors.cardNumber && (
+                      <div className="mt-2 flex items-start space-x-2 text-red-600">
+                        <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm">{cardErrors.cardNumber}</span>
+                      </div>
+                    )}
+                    {!cardErrors.cardNumber && paymentInfo.cardNumber && validateCardNumber(paymentInfo.cardNumber) && (
+                      <div className="mt-2 flex items-center space-x-2 text-green-600">
+                        <Check className="w-4 h-4" />
+                        <span className="text-sm">Valid card number</span>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
-                      <input
-                        type="text"
-                        value={paymentInfo.expiryDate}
-                        onChange={(e) => handleInputChange('payment', 'expiryDate', e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
-                        placeholder="MM/YY"
-                        maxLength={5}
-                      />
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Expiry Date <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={paymentInfo.expiryDate}
+                          onChange={(e) => handleInputChange('payment', 'expiryDate', e.target.value)}
+                          onBlur={() => handleCardBlur('expiryDate')}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors ${
+                            cardErrors.expiryDate ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                          }`}
+                          placeholder="MM/YY"
+                          maxLength={5}
+                        />
+                        {cardErrors.expiryDate && (
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <AlertCircle className="w-5 h-5 text-red-500" />
+                          </div>
+                        )}
+                      </div>
+                      {cardErrors.expiryDate && (
+                        <div className="mt-2 flex items-start space-x-2 text-red-600">
+                          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">{cardErrors.expiryDate}</span>
+                        </div>
+                      )}
+                      {!cardErrors.expiryDate && paymentInfo.expiryDate && validateExpiryDate(paymentInfo.expiryDate) && (
+                        <div className="mt-2 flex items-center space-x-2 text-green-600">
+                          <Check className="w-4 h-4" />
+                          <span className="text-sm">Valid expiry date</span>
+                        </div>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">CVV</label>
-                      <input
-                        type="password"
-                        value={paymentInfo.cvv}
-                        onChange={(e) => handleInputChange('payment', 'cvv', e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
-                        placeholder="123"
-                        maxLength={4}
-                      />
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        CVV <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="password"
+                          value={paymentInfo.cvv}
+                          onChange={(e) => handleInputChange('payment', 'cvv', e.target.value)}
+                          onBlur={() => handleCardBlur('cvv')}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors ${
+                            cardErrors.cvv ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                          }`}
+                          placeholder={getCardType(paymentInfo.cardNumber) === 'amex' ? '1234' : '123'}
+                          maxLength={getCardType(paymentInfo.cardNumber) === 'amex' ? 4 : 3}
+                        />
+                        {cardErrors.cvv && (
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <AlertCircle className="w-5 h-5 text-red-500" />
+                          </div>
+                        )}
+                      </div>
+                      {cardErrors.cvv && (
+                        <div className="mt-2 flex items-start space-x-2 text-red-600">
+                          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">{cardErrors.cvv}</span>
+                        </div>
+                      )}
+                      {!cardErrors.cvv && paymentInfo.cvv && validateCVV(paymentInfo.cvv, paymentInfo.cardNumber) && (
+                        <div className="mt-2 flex items-center space-x-2 text-green-600">
+                          <Check className="w-4 h-4" />
+                          <span className="text-sm">Valid CVV</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Name on Card</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Name on Card <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="text"
                       value={paymentInfo.nameOnCard}
@@ -525,20 +763,45 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                   </label>
                 </div>
                 
-                <div className="flex space-x-4 mt-6">
-                  <button
-                    onClick={() => setCurrentStep(1)}
-                    className="flex-1 border-2 border-gray-300 text-gray-700 hover:border-gray-400 font-bold py-3 px-6 rounded-lg transition-colors"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    disabled={!validateStep(2)}
-                    className="flex-1 bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-300 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-                  >
-                    Review Order
-                  </button>
+                <div className="mt-6">
+                  {hasPaymentErrors() && (
+                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-start space-x-3">
+                        <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <h4 className="text-sm font-medium text-red-800 mb-1">Please fix the following errors:</h4>
+                          <ul className="text-sm text-red-700 space-y-1">
+                            {Object.entries(cardErrors).map(([field, error]) => 
+                              error && <li key={field}>• {error}</li>
+                            )}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="flex space-x-4">
+                    <button
+                      onClick={() => setCurrentStep(1)}
+                      className="flex-1 border-2 border-gray-300 text-gray-700 hover:border-gray-400 font-bold py-3 px-6 rounded-lg transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={handleNext}
+                      disabled={!validateStep(2) || hasPaymentErrors()}
+                      className="flex-1 bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                    >
+                      <span>Review Order</span>
+                      {validateStep(2) && !hasPaymentErrors() && <Check className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  
+                  {(!validateStep(2) || hasPaymentErrors()) && (
+                    <p className="mt-2 text-sm text-gray-600 text-center">
+                      Please fill in all payment fields with valid information to continue
+                    </p>
+                  )}
                 </div>
               </div>
             )}
