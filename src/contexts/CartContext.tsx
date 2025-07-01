@@ -1,18 +1,26 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
+export interface BundleContent {
+  name: string;
+  variant: string;
+  image: string;
+}
+
 export interface CartItem {
-  id: number;
+  id: number | string;
   name: string;
   price: number;
   image: string;
   quantity: number;
+  isBundle?: boolean;
+  bundleContents?: BundleContent[];
 }
 
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (product: Omit<CartItem, 'quantity'>) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  removeFromCart: (productId: number | string) => void;
+  updateQuantity: (productId: number | string, quantity: number) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
@@ -52,11 +60,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     });
   };
 
-  const removeFromCart = (productId: number) => {
+  const removeFromCart = (productId: number | string) => {
     setCartItems(prev => prev.filter(item => item.id !== productId));
   };
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const updateQuantity = (productId: number | string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
       return;

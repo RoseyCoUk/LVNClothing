@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react';
+import { X, Plus, Minus, ShoppingBag, Trash2, Package } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 
 interface CartDrawerProps {
@@ -66,37 +66,66 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
             ) : (
               <div className="space-y-4">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="flex items-center space-x-4 bg-gray-50 rounded-lg p-4">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded-lg"
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
-                      <p className="text-[#009fe3] font-bold">£{item.price.toFixed(2)}</p>
-                    </div>
-                    <div className="flex items-center space-x-2">
+                  <div key={item.id} className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center space-x-4 mb-3">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
+                        <p className="text-[#009fe3] font-bold">£{item.price.toFixed(2)}</p>
+                        {item.isBundle && (
+                          <div className="flex items-center space-x-1 mt-1">
+                            <Package className="w-3 h-3 text-green-600" />
+                            <span className="text-xs text-green-600 font-medium">Bundle Deal</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                        onClick={() => removeFromCart(item.id)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
                       >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="w-8 text-center font-semibold">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="p-1 hover:bg-gray-200 rounded-full transition-colors"
-                      >
-                        <Plus className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    
+                    {/* Bundle Contents */}
+                    {item.isBundle && item.bundleContents && (
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <p className="text-xs font-medium text-gray-700 mb-2">Bundle includes:</p>
+                        <div className="space-y-1">
+                          {item.bundleContents.map((content, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <img 
+                                src={content.image} 
+                                alt={content.name}
+                                className="w-6 h-6 object-cover rounded"
+                              />
+                              <span className="text-xs text-gray-600">
+                                {content.name} ({content.variant})
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
