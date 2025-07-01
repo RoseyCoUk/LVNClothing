@@ -2,7 +2,11 @@ import React from 'react';
 import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 
-const CartDrawer = () => {
+interface CartDrawerProps {
+  onCheckoutClick: () => void;
+}
+
+const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
   const { 
     cartItems, 
     isCartOpen, 
@@ -12,6 +16,11 @@ const CartDrawer = () => {
     getTotalPrice,
     clearCart
   } = useCart();
+
+  const handleCheckout = () => {
+    setIsCartOpen(false);
+    onCheckoutClick();
+  };
 
   if (!isCartOpen) return null;
 
@@ -103,7 +112,10 @@ const CartDrawer = () => {
               </div>
               
               <div className="space-y-3">
-                <button className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                <button 
+                  onClick={handleCheckout}
+                  className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                >
                   Proceed to Checkout
                 </button>
                 <button

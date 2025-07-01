@@ -12,6 +12,7 @@ import Footer from './components/Footer';
 import ShopPage from './components/ShopPage';
 import AboutPage from './components/AboutPage';
 import ContactPage from './components/ContactPage';
+import CheckoutPage from './components/CheckoutPage';
 import CartDrawer from './components/CartDrawer';
 import CartPopup from './components/CartPopup';
 
@@ -44,6 +45,16 @@ function App() {
 
   const handleViewAllClick = () => {
     setCurrentPage('shop');
+    window.scrollTo(0, 0);
+  };
+
+  const handleCheckoutClick = () => {
+    setCurrentPage('checkout');
+    window.scrollTo(0, 0);
+  };
+
+  const handleBackFromCheckout = () => {
+    setCurrentPage('home');
     window.scrollTo(0, 0);
   };
 
@@ -81,6 +92,8 @@ function App() {
         return <AboutPage />;
       case 'contact':
         return <ContactPage />;
+      case 'checkout':
+        return <CheckoutPage onBack={handleBackFromCheckout} />;
       case 'product':
         return renderProductPage();
       case 'home':
@@ -105,7 +118,7 @@ function App() {
         <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
         {renderPage()}
         <Footer />
-        <CartDrawer />
+        <CartDrawer onCheckoutClick={handleCheckoutClick} />
         <CartPopup />
       </div>
     </CartProvider>
