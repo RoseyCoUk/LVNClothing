@@ -45,11 +45,11 @@ const productData = {
       rating: 4,
       reviews: 156,
       images: [
-        "/MugMouse/ReformMug1.webp",
-        "/MugMouse/ReformMug2.webp",
-        "/MugMouse/ReformMug3.webp",
-        "/MugMouse/ReformMug4.webp",
-        "/MugMouse/ReformMug5.webp"
+        "MugMouse/ReformMug1.webp",
+        "MugMouse/ReformMug2.webp",
+        "MugMouse/ReformMug3.webp",
+        "MugMouse/ReformMug4.webp",
+        "MugMouse/ReformMug5.webp"
       ]
     }
   }
