@@ -32,7 +32,7 @@ const productData = {
     // Variants are based on set size for this product
     setSizes: ['5', '10', '25', '50'],
     // Images are the same for all variants, assuming 4 showcase images
-    images: Array.from({ length: 5 }, (_, i) => `ReformBadgeSetMain${i + 1}.webp`)
+    images: Array.from({ length: 5 }, (_, i) => `Badge/ReformBadgeSetMain${i + 1}.webp`)
   },
   variants: {
     901: { id: 901, setSize: '5', price: 8.99, inStock: true, stockCount: 50, rating: 5, reviews: 203 },
