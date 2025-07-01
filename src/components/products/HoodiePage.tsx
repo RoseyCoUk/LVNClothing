@@ -38,21 +38,21 @@ const productData = {
   },
   variants: {
     // Men's Hoodies - 5 images each
-    101: { id: 101, gender: 'Men', color: 'White', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `ReformMenHoodieWhite${i + 1}.webp`) },
-    102: { id: 102, gender: 'Men', color: 'Light Grey', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `ReformMenHoodieLightGrey${i + 1}.webp`) },
-    103: { id: 103, gender: 'Men', color: 'Ash Grey', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `ReformMenHoodieAshGrey${i + 1}.webp`) },
-    104: { id: 104, gender: 'Men', color: 'Charcoal', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `ReformMenHoodieCharcoal${i + 1}.webp`) },
-    105: { id: 105, gender: 'Men', color: 'Black', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `ReformMenHoodieBlack${i + 1}.webp`) },
-    106: { id: 106, gender: 'Men', color: 'Royal Blue', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `ReformMenHoodieBlue${i + 1}.webp`) },
-    107: { id: 107, gender: 'Men', color: 'Red', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `ReformMenHoodieRed${i + 1}.webp`) },
+    101: { id: 101, gender: 'Men', color: 'White', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `Hoodie/Men/ReformMenHoodieWhite${i + 1}.webp`) },
+    102: { id: 102, gender: 'Men', color: 'Light Grey', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `Hoodie/Men/ReformMenHoodieLightGrey${i + 1}.webp`) },
+    103: { id: 103, gender: 'Men', color: 'Ash Grey', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `Hoodie/Men/ReformMenHoodieAshGrey${i + 1}.webp`) },
+    104: { id: 104, gender: 'Men', color: 'Charcoal', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `Hoodie/Men/ReformMenHoodieCharcoal${i + 1}.webp`) },
+    105: { id: 105, gender: 'Men', color: 'Black', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `Hoodie/Men/ReformMenHoodieBlack${i + 1}.webp`) },
+    106: { id: 106, gender: 'Men', color: 'Royal Blue', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `Hoodie/Men/ReformMenHoodieBlue${i + 1}.webp`) },
+    107: { id: 107, gender: 'Men', color: 'Red', price: 34.99, inStock: true, stockCount: 15, rating: 5, reviews: 127, images: Array.from({ length: 6 }, (_, i) => `Hoodie/Men/ReformMenHoodieRed${i + 1}.webp`) },
     // Women's Hoodies - 5 images each
-    111: { id: 111, gender: 'Women', color: 'White', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `ReformWomenHoodieWhite${i + 1}.webp`) },
-    112: { id: 112, gender: 'Women', color: 'Light Grey', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `ReformWomenHoodieLightGrey${i + 1}.webp`) },
-    113: { id: 113, gender: 'Women', color: 'Ash Grey', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `ReformWomenHoodieAshGrey${i + 1}.webp`) },
-    114: { id: 114, gender: 'Women', color: 'Charcoal', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `ReformWomenHoodieCharcoal${i + 1}.webp`) },
-    115: { id: 115, gender: 'Women', color: 'Black', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `ReformWomenHoodieBlack${i + 1}.webp`) },
-    116: { id: 116, gender: 'Women', color: 'Royal Blue', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `ReformWomenHoodieBlue${i + 1}.webp`) },
-    117: { id: 117, gender: 'Women', color: 'Red', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `ReformWomenHoodieRed${i + 1}.webp`) },
+    111: { id: 111, gender: 'Women', color: 'White', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `Hoodie/Women/ReformWomenHoodieWhite${i + 1}.webp`) },
+    112: { id: 112, gender: 'Women', color: 'Light Grey', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `Hoodie/Women/ReformWomenHoodieLightGrey${i + 1}.webp`) },
+    113: { id: 113, gender: 'Women', color: 'Ash Grey', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `Hoodie/Women/ReformWomenHoodieAshGrey${i + 1}.webp`) },
+    114: { id: 114, gender: 'Women', color: 'Charcoal', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `Hoodie/Women/ReformWomenHoodieCharcoal${i + 1}.webp`) },
+    115: { id: 115, gender: 'Women', color: 'Black', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `Hoodie/Women/ReformWomenHoodieBlack${i + 1}.webp`) },
+    116: { id: 116, gender: 'Women', color: 'Royal Blue', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `Hoodie/Women/ReformWomenHoodieBlue${i + 1}.webp`) },
+    117: { id: 117, gender: 'Women', color: 'Red', price: 34.99, inStock: true, stockCount: 12, rating: 5, reviews: 115, images: Array.from({ length: 5 }, (_, i) => `Hoodie/Women/ReformWomenHoodieRed${i + 1}.webp`) },
   }
 };
 
