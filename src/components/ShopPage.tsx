@@ -25,9 +25,9 @@ interface ShopPageProps {
 
 // --- Combined and updated product data for the shop grid ---
 const apparelProducts = [
-  { id: 1, name: "Reform UK Hoodie", price: 34.99, image: "ReformMenHoodieBlack1.webp", hoverImage: "ReformMenHoodieWhite2.webp", rating: 5, reviews: 127, category: 'apparel', tags: ['bestseller'], shipping: "Ships in 24H", description: "Premium quality hoodie", dateAdded: '2025-06-15' },
-  { id: 2, name: "Reform UK T-Shirt", price: 19.99, image: "ReformMenTshirtBlack1.webp", hoverImage: "ReformMenTshirtRed2.webp", rating: 5, reviews: 89, category: 'apparel', tags: ['bestseller'], shipping: "Ships in 24H", description: "Comfortable cotton t-shirt", dateAdded: '2025-06-16' },
-  { id: 3, name: "Reform UK Cap", price: 24.99, image: "ReformCapBlack1.webp", hoverImage: "ReformCapBlack2.webp", rating: 5, reviews: 92, category: 'apparel', tags: ['new'], shipping: "Ships in 24H", description: "Adjustable cap with logo", dateAdded: '2025-07-01' },
+  { id: 1, name: "Reform UK Hoodie", price: 34.99, image: "Hoodie/Men/ReformMenHoodieBlack1.webp", hoverImage: "Hoodie/Men/ReformMenHoodieBlack2.webp", rating: 5, reviews: 127, category: 'apparel', tags: ['bestseller'], shipping: "Ships in 24H", description: "Premium quality hoodie", dateAdded: '2025-06-15' },
+  { id: 2, name: "Reform UK T-Shirt", price: 19.99, image: "Tshirt/Men/ReformMenTshirtWhite1.webp", hoverImage: "Tshirt/Men/ReformMenTshirtWhite2.webp", rating: 5, reviews: 89, category: 'apparel', tags: ['bestseller'], shipping: "Ships in 24H", description: "Comfortable cotton t-shirt", dateAdded: '2025-06-16' },
+  { id: 3, name: "Reform UK Cap", price: 24.99, image: "Cap/ReformCapBlue1.webp", hoverImage: "Cap/ReformCapBlack2.webp", rating: 5, reviews: 92, category: 'apparel', tags: ['new'], shipping: "Ships in 24H", description: "Adjustable cap with logo", dateAdded: '2025-07-01' },
 ];
 
 const gearProducts = [
