@@ -36,7 +36,7 @@ const gearProducts = [
   { id: 6, name: "Reform UK Mug", price: 12.99, image: "MugMouse/ReformMug1.webp", hoverImage: "MugMouse/ReformMug5.webp", rating: 4, reviews: 156, category: 'gear', tags: ['bestseller'], shipping: "Ships in 24H", description: "Ceramic coffee mug", dateAdded: '2025-05-10' },
   { id: 7, name: "Reform UK Mouse Pad", price: 14.99, image: "MugMouse/ReformMousePadWhite1.webp", hoverImage: "MugMouse/ReformMousePadWhite2.webp", rating: 4, reviews: 78, category: 'gear', tags: [], shipping: "Ships in 24H", description: "High-quality mouse pad", dateAdded: '2025-06-25' },
   { id: 8, name: "Reform UK Stickers", price: 6.99, image: "StickerToteWater/ReformStickersMain1.webp", hoverImage: "StickerToteWater/ReformStickersMain2.webp", rating: 5, reviews: 234, category: 'gear', tags: ['bestseller'], shipping: "Ships in 24H", description: "Weatherproof sticker set", dateAdded: '2025-05-01' },
-  { id: 9, name: "Reform UK Badge Set", price: 8.99, image: "ReformBadgeSetMain1.webp", hoverImage: "ReformBadgeSetMain2.webp", rating: 5, reviews: 203, category: 'gear', tags: ['new'], shipping: "Ships in 24H", description: "Premium enamel badges", dateAdded: '2025-07-03' }
+  { id: 9, name: "Reform UK Badge Set", price: 8.99, image: "Badge/ReformBadgeSetMain3.webp", hoverImage: "Badge/ReformBadgeSetMain5.webp", rating: 5, reviews: 203, category: 'gear', tags: ['new'], shipping: "Ships in 24H", description: "Premium enamel badges", dateAdded: '2025-07-03' }
 ];
 
 const allProducts = [...apparelProducts, ...gearProducts];
