@@ -45,7 +45,7 @@ const productData = {
       stockCount: 30,
       rating: 5,
       reviews: 203,
-      images: Array.from({ length: 4 }, (_, i) => `ReformWaterBottleWhite${i + 1}.webp`)
+      images: Array.from({ length: 4 }, (_, i) => `StickerToteWater/ReformWaterBottleWhite${i + 1}.webp`)
     }
   }
 };
