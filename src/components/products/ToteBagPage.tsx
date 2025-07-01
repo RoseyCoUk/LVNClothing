@@ -45,7 +45,7 @@ const productData = {
       stockCount: 22,
       rating: 4,
       reviews: 156,
-      images: Array.from({ length: 3 }, (_, i) => `ReformToteBagBlack${i + 1}.webp`)
+      images: Array.from({ length: 3 }, (_, i) => `StickerToteWater/ReformToteBagBlack${i + 1}.webp`)
     }
   }
 };
