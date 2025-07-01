@@ -40,6 +40,10 @@ function App() {
     setCurrentPage('shop');
   };
 
+  const handleViewAllClick = () => {
+    setCurrentPage('shop');
+  };
+
   const renderProductPage = () => {
     if (!selectedProductId) {
       return <ShopPage onProductClick={handleProductClick} />;
@@ -82,7 +86,7 @@ function App() {
           <>
             <UrgencyBar />
             <Hero />
-            <TopSellers onProductClick={handleProductClick} />
+            <TopSellers onProductClick={handleProductClick} onViewAllClick={handleViewAllClick} />
             <MovementSection />
             <ProductBundles />
             <Testimonials />
