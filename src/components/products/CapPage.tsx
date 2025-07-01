@@ -36,12 +36,12 @@ const productData = {
   },
   variants: {
     // Each color is a variant. Assuming 3 images per cap color.
-    301: { id: 301, color: 'White', price: 24.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `ReformCapWhite${i + 1}.webp`) },
-    302: { id: 302, color: 'Light Blue', price: 24.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `ReformCapBlue${i + 1}.webp`) },
-    303: { id: 303, color: 'Charcoal', price: 24.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `ReformCapCharcoal${i + 1}.webp`) },
-    304: { id: 304, color: 'Navy', price: 24.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `ReformCapNavy${i + 1}.webp`) },
-    305: { id: 305, color: 'Black', price: 24.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `ReformCapBlack${i + 1}.webp`) },
-    306: { id: 306, color: 'Red', price: 24.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `ReformCapRed${i + 1}.webp`) },
+    301: { id: 301, color: 'White', price: 24.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `Cap/ReformCapWhite${i + 1}.webp`) },
+    302: { id: 302, color: 'Light Blue', price: 24.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `Cap/ReformCapBlue${i + 1}.webp`) },
+    303: { id: 303, color: 'Charcoal', price: 24.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `Cap/ReformCapCharcoal${i + 1}.webp`) },
+    304: { id: 304, color: 'Navy', price: 24.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `Cap/ReformCapNavy${i + 1}.webp`) },
+    305: { id: 305, color: 'Black', price: 24.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `Cap/ReformCapBlack${i + 1}.webp`) },
+    306: { id: 306, color: 'Red', price: 24.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `Cap/ReformCapRed${i + 1}.webp`) },
   }
 };
 
