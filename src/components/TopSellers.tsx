@@ -15,8 +15,8 @@ const TopSellers = ({ onProductClick }: TopSellersProps) => {
       id: 1,
       name: "Reform UK Hoodie",
       price: 34.99,
-      image: "ReformMenHoodieBlack1.webp",
-      hoverImage: "ReformMenHoodieWhite2.webp",
+      image: "Hoodie/Men/ReformMenHoodieBlack1.webp",
+      hoverImage: "Hoodie/Men/ReformMenHoodieBlack2.webp",
       rating: 5,
       shipping: "Ships in 24H"
     },
@@ -24,8 +24,8 @@ const TopSellers = ({ onProductClick }: TopSellersProps) => {
       id: 2,
       name: "Reform UK T-Shirt",
       price: 19.99,
-      image: "ReformMenTshirtBlack1.webp",
-      hoverImage: "ReformMenTshirtRed2.webp",
+      image: "Tshirt/Men/ReformMenTshirtWhite1.webp",
+      hoverImage: "Tshirt/Men/ReformMenTshirtWhite2.webp",
       rating: 5,
       shipping: "Ships in 24H"
     },
@@ -33,8 +33,8 @@ const TopSellers = ({ onProductClick }: TopSellersProps) => {
       id: 3,
       name: "Reform UK Cap",
       price: 24.99,
-      image: "ReformCapBlack1.webp",
-      hoverImage: "ReformCapBlue2.webp",
+      image: "Cap/ReformCapBlack1.webp",
+      hoverImage: "Cap/ReformCapBlue2.webp",
       rating: 5,
       shipping: "Ships in 24H"
     }
@@ -45,8 +45,8 @@ const TopSellers = ({ onProductClick }: TopSellersProps) => {
       id: 6,
       name: "Reform UK Mug",
       price: 12.99,
-      image: "/ReformMug1.png",
-      hoverImage: "/ReformMug2.png",
+      image: "MugMouse/ReformMug1.webp",
+      hoverImage: "MugMouse/ReformMug5.webp",
       rating: 4,
       shipping: "Ships in 24H"
     },
@@ -54,8 +54,8 @@ const TopSellers = ({ onProductClick }: TopSellersProps) => {
       id: 8,
       name: "Reform UK Stickers",
       price: 6.99,
-      image: "ReformStickersMain1.webp",
-      hoverImage: "ReformStickersMain2.webp",
+      image: "StickerToteWater/ReformStickersMain2.webp",
+      hoverImage: "StickerToteWater/ReformStickersMain3.webp",
       rating: 5,
       shipping: "Ships in 24H"
     },
@@ -63,8 +63,8 @@ const TopSellers = ({ onProductClick }: TopSellersProps) => {
       id: 9,
       name: "Reform UK Badge Set",
       price: 8.99,
-      image: "ReformBadgeSetMain1.webp",
-      hoverImage: "ReformBadgeSetMain2.webp",
+      image: "Badge/ReformBadgeSetMain3.webp",
+      hoverImage: "Badge/ReformBadgeSetMain5.webp",
       rating: 5,
       shipping: "Ships in 24H"
     }
