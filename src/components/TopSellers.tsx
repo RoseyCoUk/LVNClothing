@@ -33,8 +33,8 @@ const TopSellers = ({ onProductClick }: TopSellersProps) => {
       id: 3,
       name: "Reform UK Cap",
       price: 24.99,
-      image: "Cap/ReformCapBlack1.webp",
-      hoverImage: "Cap/ReformCapBlue2.webp",
+      image: "Cap/ReformCapBlue1.webp",
+      hoverImage: "Cap/ReformCapBlack2.webp",
       rating: 5,
       shipping: "Ships in 24H"
     }
