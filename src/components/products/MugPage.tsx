@@ -45,10 +45,11 @@ const productData = {
       rating: 4,
       reviews: 156,
       images: [
-        "/ReformMug1.png",
-        "/ReformMug2.png",
-        "/ReformMug3.png",
-        "/ReformMug4.png"
+        "/MugMouse/ReformMug1.webp",
+        "/MugMouse/ReformMug2.webp",
+        "/MugMouse/ReformMug3.webp",
+        "/MugMouse/ReformMug4.webp",
+        "/MugMouse/ReformMug5.webp"
       ]
     }
   }
