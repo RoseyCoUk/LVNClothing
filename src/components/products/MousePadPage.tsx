@@ -45,7 +45,7 @@ const productData = {
       stockCount: 45, 
       rating: 4, 
       reviews: 78, 
-      images: Array.from({ length: 2 }, (_, i) => `ReformMousePadWhite${i + 1}.webp`) 
+      images: Array.from({ length: 2 }, (_, i) => `MugMouse/ReformMousePadWhite${i + 1}.webp`) 
     },
   }
 };
