@@ -352,7 +352,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Order Confirmed!</h2>
           <p className="text-gray-600 mb-6">
-            Thank you for supporting Reform UK. Your order has been confirmed and will be shipped within 24 hours.
+            Thank you for supporting Reform UK. Your order has been confirmed and will be shipped within 48 hours.
           </p>
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <p className="text-sm text-gray-600">Order Number</p>
@@ -968,7 +968,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Package className="w-4 h-4 text-purple-500" />
-                  <span>Ships Within 24 Hours</span>
+                  <span>Ships Within 48 Hours</span>
                 </div>
               </div>
             </div>
