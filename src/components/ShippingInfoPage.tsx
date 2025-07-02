@@ -45,7 +45,7 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
                 <Truck className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Free UK Shipping</h3>
-              <p className="text-sm text-gray-600">On orders over £30</p>
+              <p className="text-sm text-gray-600">On orders over £50</p>
             </div>
 
             <div className="text-center">
