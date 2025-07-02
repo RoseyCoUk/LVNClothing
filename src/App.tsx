@@ -19,6 +19,7 @@ import ReturnsExchangesPage from './components/ReturnsExchangesPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
 import TermsOfServicePage from './components/TermsOfServicePage';
 import CookiePolicyPage from './components/CookiePolicyPage';
+import AccessibilityPage from './components/AccessibilityPage';
 import FAQPage from './components/FAQPage';
 import TrackOrderPage from './components/TrackOrderPage';
 import CartDrawer from './components/CartDrawer';
@@ -129,6 +130,8 @@ function App() {
         return <TermsOfServicePage onBack={handleBackToHome} />;
       case 'cookie-policy':
         return <CookiePolicyPage onBack={handleBackToHome} />;
+      case 'accessibility':
+        return <AccessibilityPage onBack={handleBackToHome} />;
       case 'faq':
         return <FAQPage onBack={handleBackToHome} />;
       case 'track-order':
