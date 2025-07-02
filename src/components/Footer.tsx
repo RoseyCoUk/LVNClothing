@@ -1,5 +1,5 @@
 import React from 'react';
-import { Facebook, Instagram, Shield, Truck, CreditCard, Phone, Mail, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Shield, Truck, CreditCard, Mail, MapPin, MessageCircle } from 'lucide-react';
 
 interface FooterProps {
   onPageNavigation?: (page: string) => void;
@@ -96,12 +96,16 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
             <h3 className="font-semibold mb-4">Get in Touch</h3>
             <div className="space-y-3 text-sm">
               <div className="flex items-center space-x-2">
-                <Phone className="w-4 h-4 text-[#009fe3]" />
-                <span className="text-gray-400">0800 123 4567</span>
+                <MessageCircle className="w-4 h-4 text-[#009fe3]" />
+                <a href="https://wa.me/447405853303" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                  WhatsApp Support
+                </a>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4 text-[#009fe3]" />
-                <span className="text-gray-400">shop@reformuk.com</span>
+                <a href="mailto:support@backreform.co.uk" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                  support@backreform.co.uk
+                </a>
               </div>
               <div className="flex items-start space-x-2">
                 <MapPin className="w-4 h-4 text-[#009fe3] mt-0.5" />
