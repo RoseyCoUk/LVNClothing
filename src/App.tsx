@@ -16,6 +16,7 @@ import CheckoutPage from './components/CheckoutPage';
 import SizeGuidePage from './components/SizeGuidePage';
 import ShippingInfoPage from './components/ShippingInfoPage';
 import ReturnsExchangesPage from './components/ReturnsExchangesPage';
+import PrivacyPolicyPage from './components/PrivacyPolicyPage';
 import FAQPage from './components/FAQPage';
 import TrackOrderPage from './components/TrackOrderPage';
 import CartDrawer from './components/CartDrawer';
@@ -120,6 +121,8 @@ function App() {
         return <ShippingInfoPage onBack={handleBackToHome} />;
       case 'returns-exchanges':
         return <ReturnsExchangesPage onBack={handleBackToHome} />;
+      case 'privacy-policy':
+        return <PrivacyPolicyPage onBack={handleBackToHome} />;
       case 'faq':
         return <FAQPage onBack={handleBackToHome} />;
       case 'track-order':
