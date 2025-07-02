@@ -13,6 +13,11 @@ import ShopPage from './components/ShopPage';
 import AboutPage from './components/AboutPage';
 import ContactPage from './components/ContactPage';
 import CheckoutPage from './components/CheckoutPage';
+import SizeGuidePage from './components/SizeGuidePage';
+import ShippingInfoPage from './components/ShippingInfoPage';
+import ReturnsExchangesPage from './components/ReturnsExchangesPage';
+import FAQPage from './components/FAQPage';
+import TrackOrderPage from './components/TrackOrderPage';
 import CartDrawer from './components/CartDrawer';
 import CartPopup from './components/CartPopup';
 
@@ -63,6 +68,16 @@ function App() {
     window.scrollTo(0, 0);
   };
 
+  const handlePageNavigation = (page: string) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
+  };
+
+  const handleBackToHome = () => {
+    setCurrentPage('home');
+    window.scrollTo(0, 0);
+  };
+
   const renderProductPage = () => {
     if (!selectedProductId) {
       return <ShopPage onProductClick={handleProductClick} />;
@@ -99,6 +114,16 @@ function App() {
         return <ContactPage />;
       case 'checkout':
         return <CheckoutPage onBack={handleBackFromCheckout} />;
+      case 'size-guide':
+        return <SizeGuidePage onBack={handleBackToHome} />;
+      case 'shipping-info':
+        return <ShippingInfoPage onBack={handleBackToHome} />;
+      case 'returns-exchanges':
+        return <ReturnsExchangesPage onBack={handleBackToHome} />;
+      case 'faq':
+        return <FAQPage onBack={handleBackToHome} />;
+      case 'track-order':
+        return <TrackOrderPage onBack={handleBackToHome} />;
       case 'product':
         return renderProductPage();
       case 'home':
@@ -122,7 +147,7 @@ function App() {
       <div className="min-h-screen">
         <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
         {renderPage()}
-        <Footer />
+        <Footer onPageNavigation={handlePageNavigation} />
         <CartDrawer onCheckoutClick={handleCheckoutClick} />
         <CartPopup />
       </div>
