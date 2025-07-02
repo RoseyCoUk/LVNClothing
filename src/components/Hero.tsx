@@ -89,7 +89,7 @@ const Hero = ({ onShopClick }: HeroProps) => {
         </div>
         
         <div className="text-gray-200">
-          <p className="text-sm drop-shadow-lg">🇬🇧 Proudly printed in the UK • Free shipping over £30</p>
+          <p className="text-sm drop-shadow-lg">🇬🇧 Proudly printed in the UK • Free shipping over £50</p>
         </div>
       </div>
       

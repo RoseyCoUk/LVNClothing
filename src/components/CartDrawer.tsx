@@ -156,7 +156,7 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
               </div>
               
               <p className="text-xs text-gray-500 text-center">
-                🇬🇧 Free UK shipping over £30 • Secure checkout
+                🇬🇧 Free UK shipping over £50 • Secure checkout
               </p>
             </div>
           )}

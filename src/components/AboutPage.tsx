@@ -322,7 +322,7 @@ const AboutPage = () => {
             </div>
             
             <p className="text-sm text-gray-300">
-              🇬🇧 Free UK shipping over £30 • Secure checkout • Easy returns
+              🇬🇧 Free UK shipping over £50 • Secure checkout • Easy returns
             </p>
           </div>
         </div>
@@ -338,7 +338,7 @@ const AboutPage = () => {
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Truck className="w-5 h-5 text-blue-400" />
-              <span>Free UK Shipping Over £30</span>
+              <span>Free UK Shipping Over £50</span>
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <CreditCard className="w-5 h-5 text-purple-400" />

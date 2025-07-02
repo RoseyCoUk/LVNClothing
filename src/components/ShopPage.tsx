@@ -305,7 +305,7 @@ const ShopPage = ({ onProductClick }: ShopPageProps) => {
         <div className="max-w-7xl mx-auto px-4">
             <div className="flex flex-wrap justify-center md:justify-between items-center gap-6">
                 <div className="flex items-center space-x-2 text-sm"><Shield className="w-5 h-5 text-green-400" /><span>Secure Checkout</span></div>
-                <div className="flex items-center space-x-2 text-sm"><Truck className="w-5 h-5 text-blue-400" /><span>Free UK Shipping Over £30</span></div>
+                <div className="flex items-center space-x-2 text-sm"><Truck className="w-5 h-5 text-blue-400" /><span>Free UK Shipping Over £50</span></div>
                 <div className="flex items-center space-x-2 text-sm"><Package className="w-5 h-5 text-purple-400" /><span>Easy Returns</span></div>
                 <div className="flex items-center space-x-2 text-sm"><span className="text-yellow-400">🇬🇧</span><span>Made in Britain</span></div>
             </div>

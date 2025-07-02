@@ -24,7 +24,7 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
             </div>
             <div className="flex items-center space-x-2 text-sm">
               <Truck className="w-5 h-5 text-blue-400" />
-              <span>Free UK Shipping Over £30</span>
+              <span>Free UK Shipping Over £50</span>
             </div>
             <div className="flex items-center space-x-2 text-sm">
               <CreditCard className="w-5 h-5 text-purple-400" />

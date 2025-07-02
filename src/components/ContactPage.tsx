@@ -366,7 +366,7 @@ const ContactPage = () => {
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Truck className="w-5 h-5 text-blue-400" />
-              <span>Easy Returns</span>
+              <span>Free UK Shipping Over £50</span>
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Users className="w-5 h-5 text-purple-400" />

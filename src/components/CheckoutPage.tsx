@@ -73,12 +73,12 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
   const [shippingMethod, setShippingMethod] = useState('standard');
   
   const subtotal = getTotalPrice();
-  const shipping = shippingMethod === 'express' ? 4.99 : (subtotal >= 30 ? 0 : 3.99);
+  const shipping = shippingMethod === 'express' ? 4.99 : (subtotal >= 50 ? 0 : 3.99);
   const promoDiscount = appliedPromo === 'REFORM10' ? subtotal * 0.1 : 0;
   const total = subtotal + shipping - promoDiscount;
   
   const shippingOptions = [
-    { id: 'standard', name: 'Standard Delivery', time: '3-5 business days', price: subtotal >= 30 ? 0 : 3.99 },
+    { id: 'standard', name: 'Standard Delivery', time: '3-5 business days', price: subtotal >= 50 ? 0 : 3.99 },
     { id: 'express', name: 'Express Delivery', time: '1-2 business days', price: 4.99 }
   ];
   
@@ -964,7 +964,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Truck className="w-4 h-4 text-blue-500" />
-                  <span>Free UK Shipping Over £30</span>
+                  <span>Free UK Shipping Over £50</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Package className="w-4 h-4 text-purple-500" />
