@@ -26,6 +26,7 @@ import OrdersPage from './components/OrdersPage';
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
 import SuccessPage from './components/SuccessPage';
+import TestPaymentFlow from './components/TestPaymentFlow';
 import CartDrawer from './components/CartDrawer';
 import CartPopup from './components/CartPopup';
 
@@ -51,6 +52,10 @@ function App() {
       setCurrentPage('success');
       // Clean up the URL
       window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    // Check for test parameter to show test page
+    if (urlParams.get('test') === 'payment') {
+      setCurrentPage('test-payment');
     }
   }, []);
 
@@ -168,6 +173,8 @@ function App() {
         return <SignupPage onBack={handleBackToHome} onLoginClick={handleLoginClick} />;
       case 'success':
         return <SuccessPage onBackToShop={handleBackToHome} />;
+      case 'test-payment':
+        return <TestPaymentFlow />;
       case 'product':
         return renderProductPage();
       case 'home':
@@ -196,7 +203,7 @@ function App() {
           onSignupClick={handleSignupClick}
         />
         {renderPage()}
-        {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'success' && (
+        {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'success' && currentPage !== 'test-payment' && (
           <Footer onPageNavigation={handlePageNavigation} />
         )}
         <CartDrawer onCheckoutClick={handleCheckoutClick} />
