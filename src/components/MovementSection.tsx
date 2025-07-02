@@ -74,7 +74,7 @@ const MovementSection = () => {
                   "Reform UK merchandise isn't just clothing – it's a badge of hope for everyone 
                   who believes Britain can do better."
                 </p>
-                <p className="text-sm font-semibold text-center mt-2">— Richard Tice, Party Leader</p>
+                <p className="text-sm font-semibold text-center mt-2">— Nigel Farage, Party Leader</p>
               </div>
             </div>
           </div>
