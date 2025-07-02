@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CartProvider } from './contexts/CartContext';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -22,6 +22,10 @@ import CookiePolicyPage from './components/CookiePolicyPage';
 import AccessibilityPage from './components/AccessibilityPage';
 import FAQPage from './components/FAQPage';
 import TrackOrderPage from './components/TrackOrderPage';
+import OrdersPage from './components/OrdersPage';
+import LoginPage from './components/LoginPage';
+import SignupPage from './components/SignupPage';
+import SuccessPage from './components/SuccessPage';
 import CartDrawer from './components/CartDrawer';
 import CartPopup from './components/CartPopup';
 
@@ -39,6 +43,16 @@ import BadgeSetPage from './components/products/BadgeSetPage';
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+
+  // Check for success parameter on app load
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      setCurrentPage('success');
+      // Clean up the URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   const handleProductClick = (productId: number) => {
     setSelectedProductId(productId);
@@ -79,6 +93,16 @@ function App() {
 
   const handleBackToHome = () => {
     setCurrentPage('home');
+    window.scrollTo(0, 0);
+  };
+
+  const handleLoginClick = () => {
+    setCurrentPage('login');
+    window.scrollTo(0, 0);
+  };
+
+  const handleSignupClick = () => {
+    setCurrentPage('signup');
     window.scrollTo(0, 0);
   };
 
@@ -136,6 +160,14 @@ function App() {
         return <FAQPage onBack={handleBackToHome} />;
       case 'track-order':
         return <TrackOrderPage onBack={handleBackToHome} />;
+      case 'orders':
+        return <OrdersPage onBack={handleBackToHome} />;
+      case 'login':
+        return <LoginPage onBack={handleBackToHome} onSignupClick={handleSignupClick} />;
+      case 'signup':
+        return <SignupPage onBack={handleBackToHome} onLoginClick={handleLoginClick} />;
+      case 'success':
+        return <SuccessPage onBackToShop={handleBackToHome} />;
       case 'product':
         return renderProductPage();
       case 'home':
@@ -157,9 +189,16 @@ function App() {
   return (
     <CartProvider>
       <div className="min-h-screen">
-        <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <Header 
+          currentPage={currentPage} 
+          setCurrentPage={setCurrentPage}
+          onLoginClick={handleLoginClick}
+          onSignupClick={handleSignupClick}
+        />
         {renderPage()}
-        <Footer onPageNavigation={handlePageNavigation} />
+        {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'success' && (
+          <Footer onPageNavigation={handlePageNavigation} />
+        )}
         <CartDrawer onCheckoutClick={handleCheckoutClick} />
         <CartPopup />
       </div>

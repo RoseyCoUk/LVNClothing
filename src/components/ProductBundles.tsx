@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { Tag, Clock, ShoppingCart, Star, AlertTriangle, ChevronDown } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { products } from '../stripe-config';
+import { createCheckoutSession } from '../lib/stripe';
+import { supabase } from '../lib/supabase';
 
 const ProductBundles = () => {
   const { addToCart } = useCart();
   const [activeBundle, setActiveBundle] = useState('starter');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Variant selection states for each bundle
   const [bundleSelections, setBundleSelections] = useState({
@@ -62,16 +66,24 @@ const ProductBundles = () => {
     }
   };
 
+  // Get bundle products from stripe config
+  const bundleProducts = {
+    starter: products.find(p => p.name === 'Starter Bundle'),
+    champion: products.find(p => p.name === 'Champion Bundle'),
+    activist: products.find(p => p.name === 'Activist Bundle'),
+  };
+
   const bundles = {
     starter: {
       id: 1,
       name: "Starter Bundle",
       originalPrice: "£39.97",
-      bundlePrice: "£29.99",
-      savings: "Save £9.98",
+      bundlePrice: bundleProducts.starter?.price || 34.99,
+      savings: "Save £4.98",
       image: "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=600",
       urgency: "Limited Time Offer",
       popular: false,
+      product: bundleProducts.starter,
       items: [
         {
           type: 'tshirt',
@@ -80,18 +92,11 @@ const ProductBundles = () => {
           baseImage: 'Tshirt/Men/ReformMenTshirtBlack1.webp'
         },
         {
-          type: 'mug',
-          name: 'Reform UK Mug',
-          variant: 'White',
+          type: 'totebag',
+          name: 'Reform UK Tote Bag',
+          variant: 'Black',
           customizable: false,
-          baseImage: 'MugMouse/ReformMug1.webp'
-        },
-        {
-          type: 'stickers',
-          name: 'Reform UK Stickers',
-          variant: 'Pack of 10',
-          customizable: false,
-          baseImage: 'StickerToteWater/ReformStickersMain2.webp'
+          baseImage: 'StickerToteWater/ReformToteBagBlack1.webp'
         }
       ]
     },
@@ -99,11 +104,12 @@ const ProductBundles = () => {
       id: 2,
       name: "Champion Bundle",
       originalPrice: "£95.96",
-      bundlePrice: "£69.99",
+      bundlePrice: bundleProducts.champion?.price || 139.99,
       savings: "Save £25.97",
       image: "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=600",
       urgency: "Most Popular",
       popular: true,
+      product: bundleProducts.champion,
       items: [
         {
           type: 'hoodie',
@@ -136,12 +142,13 @@ const ProductBundles = () => {
     activist: {
       id: 3,
       name: "Activist Bundle",
-      originalPrice: "£159.91",
-      bundlePrice: "£99.99",
-      savings: "Save £59.92",
+      originalPrice: "£299.91",
+      bundlePrice: bundleProducts.activist?.price || 199.99,
+      savings: "Save £99.92",
       image: "https://images.pexels.com/photos/1124465/pexels-photo-1124465.jpeg?auto=compress&cs=tinysrgb&w=600",
       urgency: "Best Value",
       popular: false,
+      product: bundleProducts.activist,
       items: [
         {
           type: 'hoodie',
@@ -279,6 +286,41 @@ const ProductBundles = () => {
     </button>
   );
 
+  const handleBuyNow = async () => {
+    if (!currentBundle.product) {
+      console.error('Product not found for bundle:', activeBundle);
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // Redirect to login if not authenticated
+        alert('Please sign in to purchase items');
+        setIsLoading(false);
+        return;
+      }
+
+      const { url } = await createCheckoutSession({
+        price_id: currentBundle.product.priceId,
+        success_url: `${window.location.origin}?success=true`,
+        cancel_url: window.location.href,
+        mode: currentBundle.product.mode,
+      });
+
+      window.location.href = url;
+    } catch (error: any) {
+      console.error('Error creating checkout session:', error);
+      alert(error.message || 'Failed to start checkout process');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAddBundleToCart = () => {
     // Generate bundle contents with selected variants
     const bundleContents = currentBundle.items.map(item => ({
@@ -290,7 +332,7 @@ const ProductBundles = () => {
     const bundleItem = {
       id: `bundle-${activeBundle}-${Date.now()}`,
       name: currentBundle.name,
-      price: parseFloat(currentBundle.bundlePrice.replace('£', '')),
+      price: currentBundle.bundlePrice,
       image: currentBundle.image,
       quantity: 1,
       isBundle: true,
@@ -371,7 +413,7 @@ const ProductBundles = () => {
                     <span className="text-lg text-gray-500 line-through">{currentBundle.originalPrice}</span>
                     <span className="text-green-600 font-semibold">{currentBundle.savings}</span>
                   </div>
-                  <div className="text-3xl font-bold text-[#009fe3]">{currentBundle.bundlePrice}</div>
+                  <div className="text-3xl font-bold text-[#009fe3]">£{currentBundle.bundlePrice.toFixed(2)}</div>
                 </div>
                 
                 {/* Bundle Items with Variant Selection */}
@@ -464,11 +506,26 @@ const ProductBundles = () => {
                 
                 <div className="space-y-3">
                   <button 
-                    onClick={handleAddBundleToCart}
-                    className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+                    onClick={handleBuyNow}
+                    disabled={isLoading}
+                    className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
                   >
-                    <ShoppingCart className="w-5 h-5 mr-2" />
-                    Add Bundle to Cart
+                    {isLoading ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-5 h-5 mr-2" />
+                        Buy Now - £{currentBundle.bundlePrice.toFixed(2)}
+                      </>
+                    )}
+                  </button>
+                  
+                  <button 
+                    onClick={handleAddBundleToCart}
+                    className="w-full border-2 border-[#009fe3] text-[#009fe3] hover:bg-[#009fe3] hover:text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    <span>Add Bundle to Cart</span>
                   </button>
                 </div>
                 
