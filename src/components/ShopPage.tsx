@@ -37,6 +37,7 @@ const gearProducts = [
   { id: 7, name: "Reform UK Mouse Pad", price: 14.99, image: "MugMouse/ReformMousePadWhite1.webp", hoverImage: "MugMouse/ReformMousePadWhite2.webp", rating: 4, reviews: 78, category: 'gear', tags: [], shipping: "Ships in 24H", description: "High-quality mouse pad", dateAdded: '2025-06-25' },
   { id: 8, name: "Reform UK Stickers", price: 6.99, image: "StickerToteWater/ReformStickersMain2.webp", hoverImage: "StickerToteWater/ReformStickersMain3.webp", rating: 5, reviews: 234, category: 'gear', tags: ['bestseller'], shipping: "Ships in 24H", description: "Weatherproof sticker set", dateAdded: '2025-05-01' },
   { id: 9, name: "Reform UK Badge Set", price: 8.99, image: "Badge/ReformBadgeSetMain3.webp", hoverImage: "Badge/ReformBadgeSetMain5.webp", rating: 5, reviews: 203, category: 'gear', tags: ['new'], shipping: "Ships in 24H", description: "Premium enamel badges", dateAdded: '2025-07-03' }
+  { id: 9, name: "Reform UK Badge Set", price: 9.99, image: "Badge/ReformBadgeSetMain3.webp", hoverImage: "Badge/ReformBadgeSetMain5.webp", rating: 5, reviews: 203, category: 'gear', tags: ['new'], shipping: "Ships in 24H", description: "Premium enamel badges", dateAdded: '2025-07-03' }
 ];
 
 const allProducts = [...apparelProducts, ...gearProducts];

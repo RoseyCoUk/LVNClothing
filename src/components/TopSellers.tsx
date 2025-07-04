@@ -63,7 +63,7 @@ const TopSellers = ({ onProductClick, onViewAllClick }: TopSellersProps) => {
     {
       id: 9,
       name: "Reform UK Badge Set",
-      price: 8.99,
+      price: 9.99,
       image: "Badge/ReformBadgeSetMain3.webp",
       hoverImage: "Badge/ReformBadgeSetMain5.webp",
       rating: 5,
