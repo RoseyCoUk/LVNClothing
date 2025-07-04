@@ -40,7 +40,7 @@ const productData = {
     401: {
       id: 401,
       color: 'Black',
-      price: 16.99,
+      price: 19.99,
       inStock: true,
       stockCount: 22,
       rating: 4,

@@ -40,7 +40,7 @@ const productData = {
     701: { 
       id: 701, 
       color: 'White', 
-      price: 14.99, 
+      price: 14.99,
       inStock: true, 
       stockCount: 45, 
       rating: 4, 

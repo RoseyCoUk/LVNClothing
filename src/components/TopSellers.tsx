@@ -15,7 +15,7 @@ const TopSellers = ({ onProductClick, onViewAllClick }: TopSellersProps) => {
     {
       id: 1,
       name: "Reform UK Hoodie",
-      price: 34.99,
+      price: 49.99,
       image: "Hoodie/Men/ReformMenHoodieBlack1.webp",
       hoverImage: "Hoodie/Men/ReformMenHoodieBlack2.webp",
       rating: 5,
@@ -33,7 +33,7 @@ const TopSellers = ({ onProductClick, onViewAllClick }: TopSellersProps) => {
     {
       id: 3,
       name: "Reform UK Cap",
-      price: 48.99,
+      price: 19.99,
       image: "Cap/ReformCapBlue1.webp",
       hoverImage: "Cap/ReformCapBlack2.webp",
       rating: 5,
@@ -45,7 +45,7 @@ const TopSellers = ({ onProductClick, onViewAllClick }: TopSellersProps) => {
     {
       id: 6,
       name: "Reform UK Mug",
-      price: 12.99,
+      price: 19.99,
       image: "MugMouse/ReformMug1.webp",
       hoverImage: "MugMouse/ReformMug5.webp",
       rating: 4,

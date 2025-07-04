@@ -40,7 +40,7 @@ const productData = {
     501: {
       id: 501,
       color: 'White',
-      price: 18.99,
+      price: 24.99,
       inStock: true,
       stockCount: 30,
       rating: 5,

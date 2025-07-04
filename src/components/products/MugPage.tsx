@@ -39,7 +39,7 @@ const productData = {
     // Only one variant for the mug
     601: {
       id: 601,
-      price: 12.99,
+      price: 19.99,
       inStock: true,
       stockCount: 8,
       rating: 4,

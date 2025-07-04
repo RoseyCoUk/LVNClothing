@@ -55,7 +55,7 @@ const generateVariants = () => {
                 id,
                 gender,
                 color: color.name,
-                price: 34.99,
+                price: 49.99,
                 inStock: true,
                 stockCount: gender === 'Men' ? 15 : 12,
                 rating: 5,
