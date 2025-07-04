@@ -19,6 +19,7 @@ import {
   X
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { createCheckoutSession } from '../lib/stripe';
 
 interface CheckoutPageProps {
   onBack: () => void;

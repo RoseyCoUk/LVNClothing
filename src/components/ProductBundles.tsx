@@ -3,6 +3,7 @@ import { Tag, Clock, ShoppingCart, Star, AlertTriangle, ChevronDown } from 'luci
 import { useCart } from '../contexts/CartContext';
 import { products } from '../stripe-config';
 import { createCheckoutSession } from '../lib/stripe';
+import { createCheckoutSession } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
 
 const ProductBundles = () => {

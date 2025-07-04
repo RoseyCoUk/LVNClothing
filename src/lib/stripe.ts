@@ -4,7 +4,7 @@ export interface CheckoutSessionRequest {
   price_id: string;
   success_url: string;
   cancel_url: string;
-  mode: 'payment'; // only 'payment' is used now
+  mode: 'payment' | 'subscription';
 }
 
 export interface CheckoutSessionResponse {
@@ -37,15 +37,39 @@ export async function createCheckoutSession(request: CheckoutSessionRequest): Pr
 }
 
 export async function getUserOrders() {
-  const { data, error } = await supabase
-    .from('stripe_user_orders') // make sure this view exists
-    .select('*')
-    .order('order_date', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('stripe_user_orders')
+      .select('*')
+      .order('order_date', { ascending: false });
 
-  if (error) {
-    console.error('Error fetching orders:', error);
+    if (error) {
+      console.error('Error fetching orders:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getUserOrders:', error);
     return [];
   }
+}
 
-  return data || [];
+export async function getUserSubscription() {
+  try {
+    const { data, error } = await supabase
+      .from('stripe_user_subscriptions')
+      .select('*')
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching subscription:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in getUserSubscription:', error);
+    return null;
+  }
 }

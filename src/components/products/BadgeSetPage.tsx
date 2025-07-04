@@ -16,6 +16,7 @@ import {
   Clock
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
+import { createCheckoutSession } from '../../lib/stripe';
 
 // --- Data moved OUTSIDE the component to prevent re-creation on render ---
 const productData = {
@@ -36,9 +37,9 @@ const productData = {
   },
   variants: {
     901: { id: 901, packSize: '5', price: 9.99, inStock: true, stockCount: 50, rating: 5, reviews: 203 },
-    902: { id: 902, setSize: '10', price: 15.99, inStock: true, stockCount: 40, rating: 5, reviews: 203 },
-    903: { id: 903, setSize: '25', price: 35.99, inStock: true, stockCount: 20, rating: 5, reviews: 203 },
-    904: { id: 904, setSize: '50', price: 64.99, inStock: true, stockCount: 10, rating: 5, reviews: 203 },
+    902: { id: 902, packSize: '10', price: 15.99, inStock: true, stockCount: 40, rating: 5, reviews: 203 },
+    903: { id: 903, packSize: '25', price: 35.99, inStock: true, stockCount: 20, rating: 5, reviews: 203 },
+    904: { id: 904, packSize: '50', price: 64.99, inStock: true, stockCount: 10, rating: 5, reviews: 203 },
   }
 };
 
@@ -49,12 +50,13 @@ interface BadgeSetPageProps {
 const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   const defaultVariant = productData.variants[productData.defaultVariant];
 
   // State
   const [currentVariant, setCurrentVariant] = useState(defaultVariant);
-  const [selectedSetSize, setSelectedSetSize] = useState(defaultVariant.setSize);
+  const [selectedSetSize, setSelectedSetSize] = useState(defaultVariant.packSize);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
@@ -63,7 +65,7 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
   // Effect to update the variant when set size changes
   useEffect(() => {
     const newVariant = Object.values(productData.variants).find(
-      variant => variant.setSize === selectedSetSize
+      variant => variant.packSize === selectedSetSize
     );
     // Only update state if the variant has actually changed
     if (newVariant && newVariant.id !== currentVariant.id) {
@@ -79,13 +81,37 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
     
     const itemToAdd = {
       id: currentVariant.id,
-      name: `${productData.name} (Set of ${currentVariant.setSize})`,
+      name: `${productData.name} (Set of ${currentVariant.packSize})`,
       price: currentVariant.price,
       image: productData.variantDetails.images[0],
       setSize: currentVariant.setSize,
       quantity: quantity
     };
     addToCart(itemToAdd);
+  };
+  
+  const handleBuyNow = async () => {
+    if (!selectedPackSize) {
+      alert('Please select a pack size.');
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const { url } = await createCheckoutSession({
+        price_id: 'price_1Rh4zOFJg5cU61Wl7LSOaVrW', // Reform UK Badge Set
+        success_url: `${window.location.origin}?success=true`,
+        cancel_url: window.location.href,
+        mode: 'payment'
+      });
+      
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const handleBuyNow = async () => {
@@ -218,7 +244,7 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">Set Size</label>
               <div className="flex flex-wrap gap-2">
-                {productData.variantDetails.setSizes.map((setSize) => (
+                {productData.variantDetails.setSizes.map((packSize) => (
                   <button 
                     key={setSize} 
                     onClick={() => setSelectedSetSize(setSize)} 
@@ -244,9 +270,9 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
             <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
               <h4 className="font-semibold text-gray-900 mb-3">Your Selection:</h4>
               <div className="space-y-2 text-sm text-gray-700">
-                <p>Set Size: <span className="font-medium text-gray-900">{currentVariant.setSize} Badges</span></p>
+                <p>Set Size: <span className="font-medium text-gray-900">{currentVariant.packSize} Badges</span></p>
                 <p>Quantity: <span className="font-medium text-gray-900">{quantity} set{quantity > 1 ? 's' : ''}</span></p>
-                <p>Total Badges: <span className="font-medium text-gray-900">{quantity * parseInt(currentVariant.setSize)}</span></p>
+                <p>Total Badges: <span className="font-medium text-gray-900">{quantity * parseInt(currentVariant.packSize)}</span></p>
               </div>
             </div>
 
@@ -254,6 +280,18 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
             <div className="space-y-3 pt-4">
               <button 
                 onClick={handleBuyNow}
+                disabled={isLoading}
+                className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+              >
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    Buy Now - £{currentVariant.price.toFixed(2)}
+                  </>
+                )}
+              </button>
                 disabled={isLoading}
                 className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
               >
