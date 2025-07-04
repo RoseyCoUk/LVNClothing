@@ -119,7 +119,8 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
         price_id: priceId,
         success_url: `${window.location.origin}?success=true`,
         cancel_url: window.location.href,
-        mode: 'payment'
+        mode: 'payment',
+        customer_email: await promptForEmail()
       });
       
       window.location.href = url;
@@ -137,6 +138,29 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
     }
   };
   
+  // Helper function to prompt for email if user is not logged in
+  const promptForEmail = async (): Promise<string> => {
+    // Check if user is logged in via Supabase
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.user?.email) {
+      return data.session.user.email;
+    }
+    
+    // If not logged in, prompt for email
+    const email = prompt('Please enter your email address to receive order confirmation:');
+    if (!email) {
+      throw new Error('Email is required for checkout');
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new Error('Please enter a valid email address');
+    }
+    
+    return email;
+  };
+
   // All variants use the same images
   const images = productData.variantDetails.images;
 

@@ -43,16 +43,17 @@ Deno.serve(async (req) => {
       return corsResponse({ error: 'Method not allowed' }, 405);
     }
 
-    const { price_id, success_url, cancel_url, mode } = await req.json();
+    const { price_id, success_url, cancel_url, mode, customer_email } = await req.json();
 
     // Validate required parameters
     const error = validateParameters(
-      { price_id, success_url, cancel_url, mode },
+      { price_id, success_url, cancel_url, mode, customer_email },
       {
         cancel_url: 'string',
         price_id: 'string',
         success_url: 'string',
         mode: { values: ['payment', 'subscription'] },
+        customer_email: 'string',
       },
     );
 
@@ -130,6 +131,7 @@ Deno.serve(async (req) => {
     // create Checkout Session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
+      customer_email: !customerId ? customer_email : undefined, // Only use customer_email for guest checkout
       payment_method_types: ['card'],
       line_items: [
         {

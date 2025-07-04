@@ -103,7 +103,8 @@ const TestPaymentFlow = () => {
         price_id: testPriceId,
         success_url: `${window.location.origin}?success=true&test=true`,
         cancel_url: `${window.location.origin}?canceled=true&test=true`,
-        mode: 'payment'
+        mode: 'payment',
+        customer_email: checkoutType === 'guest' ? 'test@example.com' : undefined
       };
       
       addTestResult('Step 3', 'info', 'Calling createCheckoutSession...', checkoutData);

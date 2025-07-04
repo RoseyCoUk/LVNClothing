@@ -347,15 +347,16 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
         return;
       }
       
-      // Use the first product's price ID (this is just for demo purposes)
-      // In a real implementation, you would create a proper checkout with all cart items
-      const testPriceId = 'price_1RgXAlFJg5cU61Wl3C0w9uy3'; // Reform UK Hoodie
+      // Get the first item from the cart to use as the product
+      const firstItem = cartItems[0];
+      const testPriceId = 'price_1RgXAlFJg5cU61Wl3C0w9uy3'; // Default to Reform UK Hoodie
       
       const { url } = await createCheckoutSession({
         price_id: testPriceId,
         success_url: `${window.location.origin}?success=true`,
         cancel_url: window.location.href,
-        mode: 'payment'
+        mode: 'payment',
+        customer_email: shippingInfo.email // Pass the email for guest checkout
       });
       
       // Redirect to Stripe checkout

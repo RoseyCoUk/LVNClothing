@@ -5,6 +5,7 @@ export interface CheckoutSessionRequest {
   success_url: string;
   cancel_url: string;
   mode: 'payment' | 'subscription';
+  customer_email?: string;
 }
 
 export interface CheckoutSessionResponse {
