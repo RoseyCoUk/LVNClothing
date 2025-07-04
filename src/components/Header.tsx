@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Menu, X, User, LogOut, Package } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { supabase } from '../lib/supabase';
-import { getUserSubscription } from '../lib/stripe';
 import { products } from '../stripe-config';
 
 interface HeaderProps {
@@ -54,15 +53,6 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
 
     return () => authSubscription.unsubscribe();
   }, []);
-
-  const loadUserSubscription = async () => {
-    try {
-      const subscriptionData = await getUserSubscription();
-      setSubscription(subscriptionData);
-    } catch (error) {
-      console.error('Error loading subscription:', error);
-    }
-  };
 
   const handleNavigation = (page: string) => {
     setCurrentPage(page);
