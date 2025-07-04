@@ -13,7 +13,7 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center space-x-4">
             <button
-              onClick={onBackSupport the movement. Wear the movement.}
+              onClick={onBack}
               className="flex items-center space-x-2 text-gray-600 hover:text-[#009fe3] transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
