@@ -20,25 +20,20 @@
 */
 
 -- Create stripe_customers table
--- This table links your auth.users to Stripe Customer IDs
+-- This table links your auth.users to Stripe Customer IDs.
+-- Constraints are defined inline for atomicity and idempotency.
 CREATE TABLE IF NOT EXISTS public.stripe_customers (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid NOT NULL,
-    customer_id text NOT NULL,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id uuid NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+    customer_id text NOT NULL UNIQUE,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
-
--- Add constraints for stripe_customers
-ALTER TABLE public.stripe_customers ADD CONSTRAINT stripe_customers_pkey PRIMARY KEY (id);
-ALTER TABLE public.stripe_customers ADD CONSTRAINT stripe_customers_customer_id_key UNIQUE (customer_id);
-ALTER TABLE public.stripe_customers ADD CONSTRAINT stripe_customers_user_id_key UNIQUE (user_id);
-ALTER TABLE public.stripe_customers ADD CONSTRAINT stripe_customers_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 -- Create stripe_orders table (replaces stripe_user_orders)
 -- This table stores order data for both guests and logged-in users.
 CREATE TABLE IF NOT EXISTS public.stripe_orders (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    customer_id text, -- Nullable because a guest won't have a customer object initially
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    customer_id text REFERENCES public.stripe_customers(customer_id) ON DELETE SET NULL, -- Nullable for guests
     session_id text,  -- Used to identify guest user orders
     amount_subtotal integer,
     amount_total integer,
@@ -46,10 +41,6 @@ CREATE TABLE IF NOT EXISTS public.stripe_orders (
     payment_status text NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
-
--- Add constraints for stripe_orders
-ALTER TABLE public.stripe_orders ADD CONSTRAINT stripe_orders_pkey PRIMARY KEY (id);
-ALTER TABLE public.stripe_orders ADD CONSTRAINT stripe_orders_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.stripe_customers(customer_id) ON DELETE SET NULL;
 
 
 -- Enable Row Level Security on all tables
