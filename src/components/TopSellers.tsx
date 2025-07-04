@@ -19,7 +19,7 @@ const TopSellers = ({ onProductClick, onViewAllClick }: TopSellersProps) => {
       image: "Hoodie/Men/ReformMenHoodieBlack1.webp",
       hoverImage: "Hoodie/Men/ReformMenHoodieBlack2.webp",
       rating: 5,
-      shipping: "Ships in 24H"
+      shipping: "Ships in 48H"
     },
     {
       id: 2,
@@ -28,16 +28,16 @@ const TopSellers = ({ onProductClick, onViewAllClick }: TopSellersProps) => {
       image: "Tshirt/Men/ReformMenTshirtWhite1.webp",
       hoverImage: "Tshirt/Men/ReformMenTshirtWhite2.webp",
       rating: 5,
-      shipping: "Ships in 24H"
+      shipping: "Ships in 48H"
     },
     {
       id: 3,
       name: "Reform UK Cap",
-      price: 24.99,
+      price: 48.99,
       image: "Cap/ReformCapBlue1.webp",
       hoverImage: "Cap/ReformCapBlack2.webp",
       rating: 5,
-      shipping: "Ships in 24H"
+      shipping: "Ships in 48H"
     }
   ];
 
@@ -49,7 +49,7 @@ const TopSellers = ({ onProductClick, onViewAllClick }: TopSellersProps) => {
       image: "MugMouse/ReformMug1.webp",
       hoverImage: "MugMouse/ReformMug5.webp",
       rating: 4,
-      shipping: "Ships in 24H"
+      shipping: "Ships in 48H"
     },
     {
       id: 8,
@@ -58,7 +58,7 @@ const TopSellers = ({ onProductClick, onViewAllClick }: TopSellersProps) => {
       image: "StickerToteWater/ReformStickersMain2.webp",
       hoverImage: "StickerToteWater/ReformStickersMain3.webp",
       rating: 5,
-      shipping: "Ships in 24H"
+      shipping: "Ships in 48H"
     },
     {
       id: 9,
@@ -67,7 +67,7 @@ const TopSellers = ({ onProductClick, onViewAllClick }: TopSellersProps) => {
       image: "Badge/ReformBadgeSetMain3.webp",
       hoverImage: "Badge/ReformBadgeSetMain5.webp",
       rating: 5,
-      shipping: "Ships in 24H"
+      shipping: "Ships in 48H"
     }
   ];
 
