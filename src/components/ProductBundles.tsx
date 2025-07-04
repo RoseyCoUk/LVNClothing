@@ -392,6 +392,7 @@ const ProductBundles = () => {
   };
 
   return (
+    <>
     <section className="py-16 bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
@@ -590,7 +591,7 @@ const ProductBundles = () => {
         </div>
       </div>
     </section>
-    
+
     {/* Order Overview Modal */}
     {showOrderOverview && orderToConfirm && (
       <OrderOverviewModal
@@ -599,6 +600,7 @@ const ProductBundles = () => {
         onConfirm={handleConfirmCheckout}
       />
     )}
+    </>
   );
 };
 
