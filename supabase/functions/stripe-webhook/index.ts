@@ -2,8 +2,17 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 
-const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY')!;
-const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
+const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || '';
+const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') || '';
+
+if (!stripeSecret) {
+  console.error('STRIPE_SECRET_KEY environment variable is not set');
+}
+
+if (!stripeWebhookSecret) {
+  console.error('STRIPE_WEBHOOK_SECRET environment variable is not set');
+}
+
 const stripe = new Stripe(stripeSecret, {
   appInfo: {
     name: 'Bolt Integration',
@@ -15,6 +24,14 @@ const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPAB
 
 Deno.serve(async (req) => {
   try {
+    // Check if Stripe API key is available
+    if (!stripeSecret || !stripeWebhookSecret) {
+      return new Response(JSON.stringify({ error: 'Stripe API keys are not configured' }), { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    
     // Handle OPTIONS request for CORS preflight
     if (req.method === 'OPTIONS') {
       return new Response(null, { status: 204 });

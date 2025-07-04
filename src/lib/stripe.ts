@@ -13,15 +13,25 @@ export interface CheckoutSessionResponse {
 }
 
 export async function createCheckoutSession(request: CheckoutSessionRequest): Promise<CheckoutSessionResponse> {
-  const { data, error } = await supabase.functions.invoke('stripe-checkout', {
-    body: request,
-  });
+  try {
+    const { data, error } = await supabase.functions.invoke('stripe-checkout', {
+      body: request,
+    });
 
-  if (error) {
-    throw new Error(error.error || 'Failed to create checkout session');
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw new Error(error.message || 'Failed to create checkout session');
+    }
+
+    if (!data) {
+      throw new Error('No data returned from checkout function');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in createCheckoutSession:', error);
+    throw new Error(error instanceof Error ? error.message : 'Failed to create checkout session');
   }
-
-  return data;
 }
 
 export async function getUserOrders() {

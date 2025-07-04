@@ -3,7 +3,12 @@ import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 
 const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
-const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY')!;
+const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || '';
+
+if (!stripeSecret) {
+  console.error('STRIPE_SECRET_KEY environment variable is not set');
+}
+
 const stripe = new Stripe(stripeSecret, {
   appInfo: {
     name: 'Bolt Integration',
@@ -35,6 +40,11 @@ function corsResponse(body: string | object | null, status = 200) {
 
 Deno.serve(async (req) => {
   try {
+    // Check if Stripe API key is available
+    if (!stripeSecret) {
+      return corsResponse({ error: 'Stripe API key is not configured' }, 500);
+    }
+    
     if (req.method === 'OPTIONS') {
       return corsResponse({}, 204);
     }

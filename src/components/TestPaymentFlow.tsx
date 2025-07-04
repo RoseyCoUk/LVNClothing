@@ -93,6 +93,7 @@ const TestPaymentFlow = () => {
   const testStep3_CreateCheckout = async () => {
     setCurrentStep(3);
     addTestResult('Step 3', 'info', 'Testing checkout session creation...');
+    addTestResult('Step 3', 'info', 'Note: This test will fail if Stripe environment variables are not configured');
     
     try {
       // Use a test product from our Stripe config
@@ -107,16 +108,27 @@ const TestPaymentFlow = () => {
       
       addTestResult('Step 3', 'info', 'Calling createCheckoutSession...', checkoutData);
       
-      const response = await createCheckoutSession(checkoutData);
-      
-      addTestResult('Step 3', 'success', 'Checkout session created successfully!', {
-        sessionId: response.sessionId,
-        url: response.url
-      });
-      
-      addTestResult('Step 3', 'info', 'In a real scenario, user would be redirected to Stripe checkout');
-      
-      return response;
+      try {
+        const response = await createCheckoutSession(checkoutData);
+        
+        addTestResult('Step 3', 'success', 'Checkout session created successfully!', {
+          sessionId: response.sessionId,
+          url: response.url
+        });
+        
+        addTestResult('Step 3', 'info', 'In a real scenario, user would be redirected to Stripe checkout');
+        
+        return response;
+      } catch (error: any) {
+        // Handle specific Stripe configuration errors
+        if (error.message && error.message.includes('Stripe API key is not configured')) {
+          addTestResult('Step 3', 'error', 'Stripe API key is not configured in Supabase Edge Functions');
+          addTestResult('Step 3', 'info', 'To fix this, add STRIPE_SECRET_KEY to your Supabase project environment variables');
+        } else {
+          addTestResult('Step 3', 'error', 'Failed to create checkout session', error.message);
+        }
+        return null;
+      }
       
     } catch (error: any) {
       addTestResult('Step 3', 'error', 'Failed to create checkout session', error.message);

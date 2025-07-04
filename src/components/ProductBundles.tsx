@@ -303,9 +303,15 @@ const ProductBundles = () => {
       });
 
       window.location.href = url;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error creating checkout session:', error);
-      alert(error.message || 'Failed to start checkout process');
+      
+      // Show a more user-friendly error message
+      if (error instanceof Error && error.message.includes('Stripe API key is not configured')) {
+        alert('Stripe payment is not configured. This is expected in development environment.');
+      } else {
+        alert('Failed to start checkout process. Please try again later.');
+      }
     } finally {
       setIsLoading(false);
     }
