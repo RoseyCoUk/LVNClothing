@@ -90,31 +90,7 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
   };
   
   const handleBuyNow = async () => {
-    if (!selectedPackSize) {
-      alert('Please select a pack size.');
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      const { url } = await createCheckoutSession({
-        price_id: 'price_1Rh4zOFJg5cU61Wl7LSOaVrW', // Reform UK Badge Set
-        success_url: `${window.location.origin}?success=true`,
-        cancel_url: window.location.href,
-        mode: 'payment'
-      });
-      
-      window.location.href = url;
-    } catch (error) {
-      console.error('Error creating checkout session:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const handleBuyNow = async () => {
-    if (!selectedPackSize) {
+    if (!selectedSetSize) {
       alert('Please select a pack size.');
       return;
     }
@@ -245,11 +221,11 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
               <div className="flex flex-wrap gap-2">
                 {productData.variantDetails.setSizes.map((packSize) => (
                   <button 
-                    key={setSize} 
-                    onClick={() => setSelectedSetSize(setSize)} 
-                    className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${selectedSetSize === setSize ? 'border-[#009fe3] bg-[#009fe3] text-white' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'}`}
+                    key={packSize} 
+                    onClick={() => setSelectedSetSize(packSize)} 
+                    className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${selectedSetSize === packSize ? 'border-[#009fe3] bg-[#009fe3] text-white' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'}`}
                   >
-                    Set of {setSize}
+                    Set of {packSize}
                   </button>
                 ))}
               </div>
@@ -279,18 +255,6 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
             <div className="space-y-3 pt-4">
               <button 
                 onClick={handleBuyNow}
-                disabled={isLoading}
-                className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
-              >
-                {isLoading ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                ) : (
-                  <>
-                    <ShoppingCart className="w-5 h-5 mr-2" />
-                    Buy Now - £{currentVariant.price.toFixed(2)}
-                  </>
-                )}
-              </button>
                 disabled={isLoading}
                 className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
               >
