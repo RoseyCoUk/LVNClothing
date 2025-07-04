@@ -4,7 +4,6 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  mode: 'payment' | 'subscription';
 }
 
 export const products: Product[] = [
@@ -12,89 +11,78 @@ export const products: Product[] = [
     id: 'prod_SbkxrgVbUEI3WA',
     priceId: 'price_1RgXRkFJg5cU61Wla3cNcSaE',
     name: 'Activist Bundle',
-    description: 'The ultimate Reform UK supporter pack: hoodie, T-shirt, cap, tote bag, water bottle, mug, mouse pad, stickers, and badge set. Everything you need to show your commitment. Activist Bundle — includes: • Reform UK Hoodie • Reform UK T-Shirt • Reform UK Cap • Reform UK Tote Bag • Reform UK Water Bottle • Reform UK Mug • Reform UK Mouse Pad • Reform UK Stickers • Reform UK Badge Set',
-    price: 199.99,
-    mode: 'payment'
+    description: 'The ultimate Reform UK supporter pack: hoodie, T-shirt, cap, tote bag, water bottle, mug, mouse pad, stickers, and badge set.',
+    price: 199.99
   },
   {
     id: 'prod_SbkxbofJx7pXla',
     priceId: 'price_1RgXRFFJg5cU61WlSbBv5kS8',
     name: 'Champion Bundle',
-    description: 'Step up your support with a hoodie, cap, tote bag, and water bottle. The perfect set for active campaigners. Champion Bundle — includes: • Reform UK Hoodie • Reform UK Cap • Reform UK Tote Bag • Reform UK Water Bottle',
-    price: 139.99,
-    mode: 'payment'
+    description: 'Includes: Hoodie, Cap, Tote Bag, Water Bottle.',
+    price: 139.99
   },
   {
     id: 'prod_SbkvIN1vLCPAvC',
     priceId: 'price_1RgXQ3FJg5cU61WlXkyfNBVd',
     name: 'Starter Bundle',
-    description: 'Kickstart your Reform UK collection with a T-shirt and tote bag—ideal for new supporters. Starter Bundle — includes: • Reform UK T-Shirt • Reform UK Tote Bag',
-    price: 34.99,
-    mode: 'payment'
+    description: 'Includes: T-shirt and Tote Bag.',
+    price: 34.99
   },
   {
     id: 'prod_SbktKQUHo30fKV',
     priceId: 'price_1RgXO9FJg5cU61WlospNv7xa',
     name: 'Reform UK Stickers',
-    description: 'A collection of Reform UK badges, perfect for jackets, bags, or lanyards. Show your support wherever you go.',
-    price: 9.99,
-    mode: 'payment'
+    description: 'A collection of Reform UK badges.',
+    price: 9.99
   },
   {
     id: 'prod_Sbkof9dwS5zSSm',
     priceId: 'price_1RgXIpFJg5cU61WlXPXptulv',
     name: 'Reform UK Mouse Pad',
-    description: 'Upgrade your workspace with a smooth, durable Reform UK mouse pad. Non-slip base and high-quality print for everyday use.',
-    price: 14.99,
-    mode: 'payment'
+    description: 'Non-slip base, high-quality print.',
+    price: 14.99
   },
   {
     id: 'prod_SbknNgx48tCq1O',
     priceId: 'price_1RgXHSFJg5cU61Wl0rmObyrH',
     name: 'Reform UK Mug',
-    description: 'Enjoy your favorite hot drink in this ceramic Reform UK mug. Dishwasher and microwave safe with a vibrant logo print.',
-    price: 19.99,
-    mode: 'payment'
+    description: 'Dishwasher and microwave safe.',
+    price: 19.99
   },
   {
     id: 'prod_Sbkmra8VcN7GWM',
     priceId: 'price_1RgXGqFJg5cU61Wlrevf8XiX',
     name: 'Reform UK Water Bottle',
-    description: 'Stay hydrated on the go with this reusable Reform UK water bottle. BPA-free, leak-proof, and featuring the official logo.',
-    price: 24.99,
-    mode: 'payment'
+    description: 'Reusable, leak-proof, BPA-free.',
+    price: 24.99
   },
   {
     id: 'prod_Sbkmg8par1Xbtk',
     priceId: 'price_1RgXGTFJg5cU61WlsbgPrVvk',
     name: 'Reform UK Tote Bag',
-    description: 'Eco-friendly and spacious, this Reform UK tote bag is perfect for shopping, events, or daily use. Features sturdy handles and a bold printed design.',
-    price: 19.99,
-    mode: 'payment'
+    description: 'Eco-friendly, sturdy handles.',
+    price: 19.99
   },
   {
     id: 'prod_SbklLbgz6JcmlT',
     priceId: 'price_1RgXG3FJg5cU61Wl5POUKwFs',
     name: 'Reform UK Cap',
-    description: 'Stay cool and represent Reform UK with this adjustable, high-quality cap. Embroidered logo and durable construction for all-day comfort.',
-    price: 19.99,
-    mode: 'payment'
+    description: 'Adjustable, embroidered logo.',
+    price: 19.99
   },
   {
     id: 'prod_SbklFNHsNDuSDH',
     priceId: 'price_1RgXFZFJg5cU61Wl0raeYVBN',
     name: 'Reform UK T-Shirt',
-    description: 'A classic, comfortable tee with the Reform UK logo. Made from 100% cotton for everyday wear and statement-making support.',
-    price: 19.99,
-    mode: 'payment'
+    description: '100% cotton, logo printed.',
+    price: 19.99
   },
   {
     id: 'prod_SbkgnTJ7PGycVE',
     priceId: 'price_1RgXAlFJg5cU61Wl3C0w9uy3',
     name: 'Reform UK Hoodie',
-    description: 'Show your support in style and comfort with this premium Reform UK hoodie. Features a soft fleece lining, adjustable drawstring hood, and bold Reform UK branding.',
-    price: 49.99,
-    mode: 'payment'
+    description: 'Fleece-lined, adjustable hood.',
+    price: 49.99
   }
 ];
 
