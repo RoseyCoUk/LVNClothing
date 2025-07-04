@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
+import { supabase } from '../../lib/supabase';
+import OrderOverviewModal from '../OrderOverviewModal';
 
 // --- FIX: Cap data is moved OUTSIDE the component to ensure it's a stable constant ---
 const productData = {
@@ -53,6 +55,8 @@ interface CapPageProps {
 const CapPage = ({ onBack }: CapPageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
+  const [showOrderOverview, setShowOrderOverview] = useState(false);
+  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
   
   const defaultVariant = productData.variants[productData.defaultVariant];
 
@@ -98,12 +102,30 @@ const CapPage = ({ onBack }: CapPageProps) => {
       alert('Please select a color.');
       return;
     }
+
+    // Set up the order details for confirmation
+    setOrderToConfirm({
+      productName: `${productData.name} - ${selectedColor}`,
+      productImage: currentVariant.images[0],
+      price: currentVariant.price,
+      quantity: quantity,
+      priceId: 'price_1RgXG3FJg5cU61Wl5POUKwFs', // Reform UK Cap
+      variants: {
+        color: selectedColor,
+        size: 'One Size'
+      }
+    });
     
+    setShowOrderOverview(true);
+  };
+
+  const handleConfirmCheckout = async () => {
+    setShowOrderOverview(false);
     setIsLoading(true);
     
     try {
       const { url } = await createCheckoutSession({
-        price_id: 'price_1RgXG3FJg5cU61Wl5POUKwFs', // Reform UK Cap
+        price_id: orderToConfirm.priceId,
         success_url: `${window.location.origin}?success=true`,
         cancel_url: window.location.href,
         mode: 'payment',
@@ -374,6 +396,15 @@ const CapPage = ({ onBack }: CapPageProps) => {
         </div>
       </div>
     </div>
+    
+    {/* Order Overview Modal */}
+    {showOrderOverview && orderToConfirm && (
+      <OrderOverviewModal
+        productDetails={orderToConfirm}
+        onClose={() => setShowOrderOverview(false)}
+        onConfirm={handleConfirmCheckout}
+      />
+    )}
   );
 };
 

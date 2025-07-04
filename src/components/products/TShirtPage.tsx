@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
+import { supabase } from '../../lib/supabase';
+import OrderOverviewModal from '../OrderOverviewModal';
 
 // --- FIX: T-Shirt data is moved OUTSIDE the component to ensure it's a stable constant ---
 const productData = {
@@ -64,6 +66,8 @@ interface TShirtPageProps {
 const TShirtPage = ({ onBack }: TShirtPageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
+  const [showOrderOverview, setShowOrderOverview] = useState(false);
+  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
   
   const defaultVariant = productData.variants[productData.defaultVariant];
 
@@ -120,12 +124,31 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
       alert('Please select a size.');
       return;
     }
+
+    // Set up the order details for confirmation
+    setOrderToConfirm({
+      productName: `${productData.name} - ${currentVariant.gender}'s ${currentVariant.color}`,
+      productImage: currentVariant.images[0],
+      price: currentVariant.price,
+      quantity: quantity,
+      priceId: 'price_1RgXFZFJg5cU61Wl0raeYVBN', // Reform UK T-Shirt
+      variants: {
+        gender: currentVariant.gender,
+        color: currentVariant.color,
+        size: selectedSize
+      }
+    });
     
+    setShowOrderOverview(true);
+  };
+
+  const handleConfirmCheckout = async () => {
+    setShowOrderOverview(false);
     setIsLoading(true);
     
     try {
       const { url } = await createCheckoutSession({
-        price_id: 'price_1RgXFZFJg5cU61Wl0raeYVBN', // Reform UK T-Shirt
+        price_id: orderToConfirm.priceId,
         success_url: `${window.location.origin}?success=true`,
         cancel_url: window.location.href,
         mode: 'payment',
@@ -421,6 +444,15 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
         </div>
       </div>
     </div>
+    
+    {/* Order Overview Modal */}
+    {showOrderOverview && orderToConfirm && (
+      <OrderOverviewModal
+        productDetails={orderToConfirm}
+        onClose={() => setShowOrderOverview(false)}
+        onConfirm={handleConfirmCheckout}
+      />
+    )}
   );
 };
 

@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
+import { supabase } from '../../lib/supabase';
+import OrderOverviewModal from '../OrderOverviewModal';
 
 // Sticker pack price IDs for different quantities
 const STICKER_PRICE_IDS = {
@@ -56,6 +58,8 @@ interface StickersPageProps {
 const StickersPage = ({ onBack }: StickersPageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
+  const [showOrderOverview, setShowOrderOverview] = useState(false);
+  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
   
   const defaultVariant = productData.variants[productData.defaultVariant];
 
@@ -100,21 +104,37 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
       alert('Please select a pack size.');
       return;
     }
-    
-    setIsLoading(true);
-    
+
     // Get the correct price ID based on the selected pack size
     const priceId = STICKER_PRICE_IDS[selectedPackSize as keyof typeof STICKER_PRICE_IDS];
     
     if (!priceId) {
       alert('Invalid pack size selected.');
-      setIsLoading(false);
       return;
     }
     
+    // Set up the order details for confirmation
+    setOrderToConfirm({
+      productName: `${productData.name} (Pack of ${selectedPackSize})`,
+      productImage: images[0],
+      price: currentVariant.price,
+      quantity: quantity,
+      priceId: priceId,
+      variants: {
+        packSize: selectedPackSize
+      }
+    });
+    
+    setShowOrderOverview(true);
+  };
+
+  const handleConfirmCheckout = async () => {
+    setShowOrderOverview(false);
+    setIsLoading(true);
+    
     try {
       const { url } = await createCheckoutSession({
-        price_id: priceId,
+        price_id: orderToConfirm.priceId,
         success_url: `${window.location.origin}?success=true`,
         cancel_url: window.location.href,
         mode: 'payment',
@@ -392,6 +412,15 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
         </div>
       </div>
     </div>
+    
+    {/* Order Overview Modal */}
+    {showOrderOverview && orderToConfirm && (
+      <OrderOverviewModal
+        productDetails={orderToConfirm}
+        onClose={() => setShowOrderOverview(false)}
+        onConfirm={handleConfirmCheckout}
+      />
+    )}
   );
 };
 

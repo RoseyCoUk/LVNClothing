@@ -4,11 +4,14 @@ import { useCart } from '../contexts/CartContext';
 import { products } from '../stripe-config';
 import { createCheckoutSession } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
+import OrderOverviewModal from './OrderOverviewModal';
 
 const ProductBundles = () => {
   const { addToCart } = useCart();
   const [activeBundle, setActiveBundle] = useState('starter');
   const [isLoading, setIsLoading] = useState(false);
+  const [showOrderOverview, setShowOrderOverview] = useState(false);
+  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
 
   // Variant selection states for each bundle
   const [bundleSelections, setBundleSelections] = useState({
@@ -292,11 +295,37 @@ const ProductBundles = () => {
       return;
     }
 
+    // Generate bundle contents with selected variants
+    const bundleContents = currentBundle.items.map(item => ({
+      name: item.name,
+      variant: getVariantText(item),
+      image: getImageForSelection(item)
+    }));
+
+    // Set up the order details for confirmation
+    setOrderToConfirm({
+      productName: currentBundle.name,
+      productImage: currentBundle.image,
+      price: currentBundle.bundlePrice,
+      quantity: 1,
+      priceId: currentBundle.product.priceId,
+      variants: {
+        // Include any relevant variant information
+      },
+      isBundle: true,
+      bundleContents
+    });
+    
+    setShowOrderOverview(true);
+  };
+
+  const handleConfirmCheckout = async () => {
+    setShowOrderOverview(false);
     setIsLoading(true);
 
     try {
       const { url } = await createCheckoutSession({
-        price_id: currentBundle.product.priceId,
+        price_id: orderToConfirm.priceId,
         success_url: `${window.location.origin}?success=true`,
         cancel_url: window.location.href,
         mode: 'payment',
@@ -561,6 +590,15 @@ const ProductBundles = () => {
         </div>
       </div>
     </section>
+    
+    {/* Order Overview Modal */}
+    {showOrderOverview && orderToConfirm && (
+      <OrderOverviewModal
+        productDetails={orderToConfirm}
+        onClose={() => setShowOrderOverview(false)}
+        onConfirm={handleConfirmCheckout}
+      />
+    )}
   );
 };
 

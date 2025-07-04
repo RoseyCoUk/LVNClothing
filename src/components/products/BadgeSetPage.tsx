@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
+import { supabase } from '../../lib/supabase';
+import OrderOverviewModal from '../OrderOverviewModal';
 
 // Badge set price IDs for different quantities
 const BADGE_PRICE_IDS = {
@@ -58,6 +60,8 @@ interface BadgeSetPageProps {
 const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
+  const [showOrderOverview, setShowOrderOverview] = useState(false);
+  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
   
   const defaultVariant = productData.variants[productData.defaultVariant];
 
@@ -102,21 +106,37 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
       alert('Please select a pack size.');
       return;
     }
-    
-    setIsLoading(true);
-    
+
     // Get the correct price ID based on the selected set size
     const priceId = BADGE_PRICE_IDS[selectedSetSize as keyof typeof BADGE_PRICE_IDS];
     
     if (!priceId) {
       alert('Invalid set size selected.');
-      setIsLoading(false);
       return;
     }
     
+    // Set up the order details for confirmation
+    setOrderToConfirm({
+      productName: `${productData.name} (Set of ${selectedSetSize})`,
+      productImage: images[0],
+      price: currentVariant.price,
+      quantity: quantity,
+      priceId: priceId,
+      variants: {
+        setSize: selectedSetSize
+      }
+    });
+    
+    setShowOrderOverview(true);
+  };
+
+  const handleConfirmCheckout = async () => {
+    setShowOrderOverview(false);
+    setIsLoading(true);
+    
     try {
       const { url } = await createCheckoutSession({
-        price_id: priceId,
+        price_id: orderToConfirm.priceId,
         success_url: `${window.location.origin}?success=true`,
         cancel_url: window.location.href,
         mode: 'payment',
@@ -400,6 +420,15 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
         </div>
       </div>
     </div>
+    
+    {/* Order Overview Modal */}
+    {showOrderOverview && orderToConfirm && (
+      <OrderOverviewModal
+        productDetails={orderToConfirm}
+        onClose={() => setShowOrderOverview(false)}
+        onConfirm={handleConfirmCheckout}
+      />
+    )}
   );
 };
 
