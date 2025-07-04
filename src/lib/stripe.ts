@@ -1,3 +1,5 @@
+import { supabase } from './supabase';
+
 export interface CheckoutSessionRequest {
   price_id: string;
   success_url: string;
@@ -11,20 +13,15 @@ export interface CheckoutSessionResponse {
 }
 
 export async function createCheckoutSession(request: CheckoutSessionRequest): Promise<CheckoutSessionResponse> {
-  const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(request),
+  const { data, error } = await supabase.functions.invoke('stripe-checkout', {
+    body: request,
   });
 
-  if (!response.ok) {
-    const error = await response.json();
+  if (error) {
     throw new Error(error.error || 'Failed to create checkout session');
   }
 
-  return response.json();
+  return data;
 }
 
 export async function getUserOrders() {
