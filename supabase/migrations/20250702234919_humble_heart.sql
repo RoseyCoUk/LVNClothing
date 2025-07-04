@@ -10,7 +10,8 @@
   2. Security Policies (RLS):
      - Enables Row Level Security on the `stripe_orders` table.
      - Creates a single policy that allows users to view their own orders,
-       whether they are logged in (checking `user_id`) or a guest (checking `session_id`).
+       whether they are logged in (checking `user_id` via the `stripe_customers` table)
+       or a guest (checking `session_id`).
 
   3. Secure Views:
      - `stripe_user_orders`: Provides a secure view for querying orders. In this view,
@@ -33,30 +34,27 @@ CREATE POLICY "Allow users (authenticated or guest) to view their own orders"
   ON stripe_orders
   FOR SELECT
   USING (
-    -- Case 1: The user is authenticated, and their UID matches the order's user_id
+    -- Case 1: The user is authenticated, and their UID matches the user_id in the customers table
     (auth.uid() IS NOT NULL AND customer_id IN (SELECT customer_id FROM stripe_customers WHERE user_id = auth.uid())) OR
     -- Case 2: The user is a guest, and their session ID matches the order's session_id
     (auth.uid() IS NULL AND session_id = current_setting('request.jwt.claims.session_id', true))
   );
 
--- Drop the view if it exists, so we can reliably create it with the new column names.
+-- Drop the view if it exists, so we can reliably create it with the correct columns.
 DROP VIEW IF EXISTS stripe_user_orders;
 
 -- Create the view with an explicit column alias.
--- We are selecting all columns from stripe_orders, but renaming 'customer_id' to 'id'.
+-- NOTE: We are NOT selecting 'user_id' as it does not exist on the 'stripe_orders' table.
 CREATE VIEW stripe_user_orders AS
 SELECT
-  customer_id AS id, -- This is the change: explicitly aliasing the column
+  customer_id AS id,
   amount_subtotal,
   amount_total,
   currency,
-  -- Add all other columns from your stripe_orders table here
-  -- For example:
-  -- metadata,
-  -- payment_status,
-  -- created_at,
-  user_id,
+  payment_status,
   session_id
+  -- Add any other columns that exist on your 'stripe_orders' table here.
+  -- e.g., metadata, created_at, etc.
 FROM
   stripe_orders;
 
