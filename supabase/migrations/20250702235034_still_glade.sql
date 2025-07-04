@@ -50,6 +50,7 @@ ALTER TABLE public.stripe_orders ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for stripe_customers
 -- Users should be able to view their own customer data.
+DROP POLICY IF EXISTS "Users can read own customer data" ON public.stripe_customers;
 CREATE POLICY "Users can read own customer data"
     ON public.stripe_customers
     FOR SELECT
@@ -59,6 +60,7 @@ CREATE POLICY "Users can read own customer data"
 
 -- Create policies for stripe_orders
 -- This single policy handles both authenticated and guest users.
+DROP POLICY IF EXISTS "Allow users (authenticated or guest) to view their own orders" ON public.stripe_orders;
 CREATE POLICY "Allow users (authenticated or guest) to view their own orders"
     ON public.stripe_orders
     FOR SELECT
@@ -78,6 +80,7 @@ GRANT SELECT ON public.stripe_orders TO authenticated, anon;
 -- It is recommended to use the service_role for all INSERT, UPDATE, DELETE operations
 -- from a secure backend environment (e.g., Stripe webhook handler).
 -- Example policy for service_role (optional, as service_role bypasses RLS by default)
+DROP POLICY IF EXISTS "Service role can manage all data" ON public.stripe_orders;
 CREATE POLICY "Service role can manage all data"
     ON public.stripe_orders
     FOR ALL
@@ -85,6 +88,7 @@ CREATE POLICY "Service role can manage all data"
     USING (true)
     WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Service role can manage all customer data" ON public.stripe_customers;
 CREATE POLICY "Service role can manage all customer data"
     ON public.stripe_customers
     FOR ALL
