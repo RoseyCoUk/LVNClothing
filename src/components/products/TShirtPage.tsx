@@ -16,6 +16,7 @@ import {
   Clock
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
+import { createCheckoutSession } from '../../lib/stripe';
 
 // --- FIX: T-Shirt data is moved OUTSIDE the component to ensure it's a stable constant ---
 const productData = {
@@ -62,6 +63,7 @@ interface TShirtPageProps {
 
 const TShirtPage = ({ onBack }: TShirtPageProps) => {
   const { addToCart } = useCart();
+  const [isLoading, setIsLoading] = useState(false);
   
   const defaultVariant = productData.variants[productData.defaultVariant];
 
@@ -107,6 +109,41 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
       quantity: quantity
     };
     addToCart(itemToAdd);
+  };
+
+  const handleBuyNow = async () => {
+    if (!selectedColor) {
+      alert('Please select a color.');
+      return;
+    }
+    if (!selectedSize) {
+      alert('Please select a size.');
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const { url } = await createCheckoutSession({
+        price_id: 'price_1RgXFZFJg5cU61Wl0raeYVBN', // Reform UK T-Shirt
+        success_url: `${window.location.origin}?success=true`,
+        cancel_url: window.location.href,
+        mode: 'payment'
+      });
+      
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      
+      // Show a more user-friendly error message
+      if (error instanceof Error && error.message.includes('Stripe API key is not configured')) {
+        alert('Stripe payment is not configured. This is expected in development environment.');
+      } else {
+        alert('Failed to start checkout process. Please try again later.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const nextImage = () => {
@@ -260,6 +297,21 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
 
             {/* Add to Cart & Actions */}
             <div className="space-y-3">
+              <button 
+                onClick={handleBuyNow}
+                disabled={isLoading}
+                className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+              >
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    Buy Now - £{currentVariant.price.toFixed(2)}
+                  </>
+                )}
+              </button>
+              
               <button onClick={handleAddToCart} className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
                 <ShoppingCart className="w-5 h-5" />
                 <span>Add to Cart - £{(currentVariant.price * quantity).toFixed(2)}</span>
