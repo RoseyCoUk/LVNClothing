@@ -1,6 +1,7 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
+import { sendOrderEmail } from '../_shared/email.ts';
 
 const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY')!;
 const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
@@ -92,16 +93,18 @@ async function handleEvent(event: Stripe.Event) {
     } else if (mode === 'payment' && payment_status === 'paid') {
       try {
         // Extract the necessary information from the session
+        const session = stripeData as Stripe.Checkout.Session;
         const {
           id: checkout_session_id,
           payment_intent,
           amount_subtotal,
           amount_total,
           currency,
-        } = stripeData as Stripe.Checkout.Session;
+          customer_email,
+        } = session;
 
         // Insert the order into the stripe_orders table
-        const { error: orderError } = await supabase.from('stripe_orders').insert({
+        const { data: orderData, error: orderError } = await supabase.from('stripe_orders').insert({
           checkout_session_id,
           payment_intent_id: payment_intent,
           customer_id: customerId,
@@ -110,12 +113,35 @@ async function handleEvent(event: Stripe.Event) {
           currency,
           payment_status,
           status: 'completed', // assuming we want to mark it as completed since payment is successful
-        });
+        }).select().single();
 
         if (orderError) {
           console.error('Error inserting order:', orderError);
           return;
         }
+        
+        // Send order notification email to support
+        try {
+          // Call the send-order-email function
+          const emailResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-order-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+            },
+            body: JSON.stringify({
+              orderId: orderData.id,
+              customerEmail: customer_email || 'Unknown',
+            }),
+          });
+          
+          if (!emailResponse.ok) {
+            console.error('Failed to send order notification email:', await emailResponse.text());
+          }
+        } catch (emailError) {
+          console.error('Error sending order notification email:', emailError);
+        }
+        
         console.info(`Successfully processed one-time payment for session: ${checkout_session_id}`);
       } catch (error) {
         console.error('Error processing one-time payment:', error);
