@@ -295,21 +295,11 @@ const ProductBundles = () => {
     setIsLoading(true);
 
     try {
-      // Check if user is authenticated
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        // Redirect to login if not authenticated
-        alert('Please sign in to purchase items');
-        setIsLoading(false);
-        return;
-      }
-
       const { url } = await createCheckoutSession({
         price_id: currentBundle.product.priceId,
         success_url: `${window.location.origin}?success=true`,
         cancel_url: window.location.href,
-        mode: currentBundle.product.mode,
+        mode: 'payment',
       });
 
       window.location.href = url;

@@ -74,7 +74,7 @@ async function handleEvent(event: Stripe.Event) {
   if (!customerId || typeof customerId !== 'string') {
     console.error(`No customer received on event: ${JSON.stringify(event)}`);
   } else {
-    let isSubscription = true;
+    let isSubscription = false;
 
     if (event.type === 'checkout.session.completed') {
       const { mode } = stripeData as Stripe.Checkout.Session;
@@ -89,7 +89,7 @@ async function handleEvent(event: Stripe.Event) {
     if (isSubscription) {
       console.info(`Starting subscription sync for customer: ${customerId}`);
       await syncCustomerFromStripe(customerId);
-    } else if (mode === 'payment' && payment_status === 'paid') {
+    } else if ((mode === 'payment' || !mode) && payment_status === 'paid') {
       try {
         // Extract the necessary information from the session
         const {
