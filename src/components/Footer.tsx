@@ -127,7 +127,7 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
               <button onClick={() => handlePageClick('accessibility')} className="hover:text-white transition-colors">Accessibility</button>
             </div>
             <div className="text-sm text-gray-400 text-center md:text-right">
-              <p>© 2024 Back Reform. All rights reserved.</p>
+              <p>© 2025 Back Reform. All rights reserved.</p>
               <p className="mt-1">
                 Support the movement. Wear the movement.
               </p>
