@@ -85,7 +85,7 @@ const Hero = ({ onShopClick }: HeroProps) => {
         {/* Trust Badge */}
         <div className="bg-black/40 backdrop-blur-md border border-white/30 rounded-lg px-6 py-3 inline-flex items-center space-x-3 mb-8 shadow-xl">
           <Heart className="w-5 h-5 text-red-400 fill-current" />
-          <span className="text-white font-semibold">100% of proceeds support Reform UK initiatives</span>
+          <span className="text-white font-semibold">Support the movement. Wear the movement.</span>
         </div>
         
         <div className="text-gray-200">
