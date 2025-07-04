@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Menu, X, User, LogOut, Package } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { supabase } from '../lib/supabase';
-import { products } from '../stripe-config';
 
 interface HeaderProps {
   currentPage: string;
@@ -15,7 +14,6 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [subscription, setSubscription] = useState<any>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { getTotalItems, setIsCartOpen } = useCart();
 
@@ -34,20 +32,12 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        loadUserSubscription();
-      }
     });
 
     // Listen for auth changes
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setUser(session?.user ?? null);
-        if (session?.user) {
-          loadUserSubscription();
-        } else {
-          setSubscription(null);
-        }
       }
     );
 
@@ -70,13 +60,6 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
     setIsUserMenuOpen(false);
   };
 
-  const getSubscriptionPlanName = () => {
-    if (!subscription?.price_id) return null;
-    
-    const product = products.find(p => p.priceId === subscription.price_id);
-    return product?.name || 'Unknown Plan';
-  };
-
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${
       isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-white shadow-md'
@@ -84,13 +67,13 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <button 
+          <button
             onClick={() => handleNavigation('home')}
             className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
           >
-            <img 
-              src="/BackReformLogo.png" 
-              alt="Reform UK" 
+            <img
+              src="/BackReformLogo.png"
+              alt="Reform UK"
               className="h-8 w-auto"
             />
             <span className="font-bold text-xl text-gray-900">Back Reform</span>
@@ -98,31 +81,31 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <button 
+            <button
               onClick={() => handleNavigation('shop')}
               className={`font-medium transition-colors ${
-                currentPage === 'shop' 
-                  ? 'text-[#009fe3]' 
+                currentPage === 'shop'
+                  ? 'text-[#009fe3]'
                   : 'text-gray-700 hover:text-[#009fe3]'
               }`}
             >
               Shop
             </button>
-            <button 
+            <button
               onClick={() => handleNavigation('about')}
               className={`font-medium transition-colors ${
-                currentPage === 'about' 
-                  ? 'text-[#009fe3]' 
+                currentPage === 'about'
+                  ? 'text-[#009fe3]'
                   : 'text-gray-700 hover:text-[#009fe3]'
               }`}
             >
               About
             </button>
-            <button 
+            <button
               onClick={() => handleNavigation('contact')}
               className={`font-medium transition-colors ${
-                currentPage === 'contact' 
-                  ? 'text-[#009fe3]' 
+                currentPage === 'contact'
+                  ? 'text-[#009fe3]'
                   : 'text-gray-700 hover:text-[#009fe3]'
               }`}
             >
@@ -152,13 +135,6 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                         {user.user_metadata?.full_name || user.email}
                       </p>
                       <p className="text-xs text-gray-500">{user.email}</p>
-                      {subscription && getSubscriptionPlanName() && (
-                        <div className="mt-1">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#009fe3] text-white">
-                            {getSubscriptionPlanName()}
-                          </span>
-                        </div>
-                      )}
                     </div>
                     
                     <button
@@ -201,7 +177,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
             )}
 
             {/* Cart Button */}
-            <button 
+            <button
               onClick={handleCartClick}
               className="relative p-2 text-gray-700 hover:text-[#009fe3] transition-colors group"
             >
@@ -214,7 +190,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
             </button>
             
             {/* Mobile menu button */}
-            <button 
+            <button
               className="md:hidden p-2 text-gray-700"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
@@ -227,31 +203,31 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t bg-white/95 backdrop-blur-md">
             <nav className="flex flex-col space-y-4">
-              <button 
+              <button
                 onClick={() => handleNavigation('shop')}
                 className={`text-left font-medium transition-colors py-2 ${
-                  currentPage === 'shop' 
-                    ? 'text-[#009fe3]' 
+                  currentPage === 'shop'
+                    ? 'text-[#009fe3]'
                     : 'text-gray-700 hover:text-[#009fe3]'
                 }`}
               >
                 Shop
               </button>
-              <button 
+              <button
                 onClick={() => handleNavigation('about')}
                 className={`text-left font-medium transition-colors py-2 ${
-                  currentPage === 'about' 
-                    ? 'text-[#009fe3]' 
+                  currentPage === 'about'
+                    ? 'text-[#009fe3]'
                     : 'text-gray-700 hover:text-[#009fe3]'
                 }`}
               >
                 About
               </button>
-              <button 
+              <button
                 onClick={() => handleNavigation('contact')}
                 className={`text-left font-medium transition-colors py-2 ${
-                  currentPage === 'contact' 
-                    ? 'text-[#009fe3]' 
+                  currentPage === 'contact'
+                    ? 'text-[#009fe3]'
                     : 'text-gray-700 hover:text-[#009fe3]'
                 }`}
               >
@@ -287,11 +263,6 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                     <p className="text-sm font-medium text-gray-900">
                       {user.user_metadata?.full_name || user.email}
                     </p>
-                    {subscription && getSubscriptionPlanName() && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#009fe3] text-white mt-1">
-                        {getSubscriptionPlanName()}
-                      </span>
-                    )}
                   </div>
                   <button
                     onClick={() => {
