@@ -50,7 +50,6 @@ interface BadgeSetPageProps {
 const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   
   const defaultVariant = productData.variants[productData.defaultVariant];
 
