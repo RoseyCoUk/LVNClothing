@@ -18,6 +18,14 @@ import {
 import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 
+// Badge set price IDs for different quantities
+const BADGE_PRICE_IDS = {
+  '5': 'price_1Rh4zOFJg5cU61Wl7LSOaVrW',
+  '10': 'price_1RhDxWFJg5cU61Wl2Zfo2Q7Q',
+  '25': 'price_1RhDxWFJg5cU61Wle9qxqzYe',
+  '50': 'price_1RhDxWFJg5cU61WlKcAQzgCs'
+};
+
 // --- Data moved OUTSIDE the component to prevent re-creation on render ---
 const productData = {
   id: 9,
@@ -97,9 +105,18 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
     
     setIsLoading(true);
     
+    // Get the correct price ID based on the selected set size
+    const priceId = BADGE_PRICE_IDS[selectedSetSize as keyof typeof BADGE_PRICE_IDS];
+    
+    if (!priceId) {
+      alert('Invalid set size selected.');
+      setIsLoading(false);
+      return;
+    }
+    
     try {
       const { url } = await createCheckoutSession({
-        price_id: 'price_1Rh4zOFJg5cU61Wl7LSOaVrW', // Reform UK Badge Set
+        price_id: priceId,
         success_url: `${window.location.origin}?success=true`,
         cancel_url: window.location.href,
         mode: 'payment'
