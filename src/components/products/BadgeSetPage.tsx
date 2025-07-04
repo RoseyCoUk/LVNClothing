@@ -21,7 +21,7 @@ import { useCart } from '../../contexts/CartContext';
 const productData = {
   id: 9,
   name: "Reform UK Badge Set",
-  description: "Premium enamel badges featuring various Reform UK designs. High-quality construction with secure pin backs, perfect for showing your support.",
+  description: "A collection of Reform UK badges, perfect for jackets, bags, or lanyards. Show your support wherever you go.",
   features: ["Premium enamel finish", "Secure pin backs", "Collectible quality", "Vibrant colors", "Durable construction", "Multiple designs per set"],
   careInstructions: "Wipe clean with soft cloth.",
   materials: "Metal with enamel finish",
@@ -35,7 +35,7 @@ const productData = {
     images: Array.from({ length: 5 }, (_, i) => `Badge/ReformBadgeSetMain${i + 1}.webp`)
   },
   variants: {
-    901: { id: 901, setSize: '5', price: 8.99, inStock: true, stockCount: 50, rating: 5, reviews: 203 },
+    901: { id: 901, packSize: '5', price: 9.99, inStock: true, stockCount: 50, rating: 5, reviews: 203 },
     902: { id: 902, setSize: '10', price: 15.99, inStock: true, stockCount: 40, rating: 5, reviews: 203 },
     903: { id: 903, setSize: '25', price: 35.99, inStock: true, stockCount: 20, rating: 5, reviews: 203 },
     904: { id: 904, setSize: '50', price: 64.99, inStock: true, stockCount: 10, rating: 5, reviews: 203 },
@@ -48,6 +48,7 @@ interface BadgeSetPageProps {
 
 const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
   const { addToCart } = useCart();
+  const [isLoading, setIsLoading] = useState(false);
   
   const defaultVariant = productData.variants[productData.defaultVariant];
 
@@ -85,6 +86,37 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
       quantity: quantity
     };
     addToCart(itemToAdd);
+  };
+  
+  const handleBuyNow = async () => {
+    if (!selectedPackSize) {
+      alert('Please select a pack size.');
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const { url } = await createCheckoutSession({
+        price_id: 'price_1Rh4zOFJg5cU61Wl7LSOaVrW', // Reform UK Badge Set
+        success_url: `${window.location.origin}?success=true`,
+        cancel_url: window.location.href,
+        mode: 'payment'
+      });
+      
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      
+      // Show a more user-friendly error message
+      if (error instanceof Error && error.message.includes('Stripe API key is not configured')) {
+        alert('Stripe payment is not configured. This is expected in development environment.');
+      } else {
+        alert('Failed to start checkout process. Please try again later.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // All variants use the same images
@@ -219,7 +251,22 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
             </div>
 
             {/* Add to Cart & Actions */}
-            <div className="space-y-3">
+            <div className="space-y-3 pt-4">
+              <button 
+                onClick={handleBuyNow}
+                disabled={isLoading}
+                className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+              >
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    Buy Now - £{currentVariant.price.toFixed(2)}
+                  </>
+                )}
+              </button>
+              
               <button onClick={handleAddToCart} className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
                 <ShoppingCart className="w-5 h-5" />
                 <span>Add to Cart - £{(currentVariant.price * quantity).toFixed(2)}</span>
@@ -233,6 +280,12 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
                   <Share2 className="w-4 h-4" />
                 </button>
               </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Product ID:</strong> prod_ScJcQ8ipTKmWu9
+              </p>
             </div>
 
             {/* Trust Badges */}

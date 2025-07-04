@@ -8,6 +8,13 @@ export interface Product {
 
 export const products: Product[] = [
   {
+    id: 'prod_ScJcQ8ipTKmWu9',
+    priceId: 'price_1Rh4zOFJg5cU61Wl7LSOaVrW',
+    name: 'Reform UK Badge Set',
+    description: 'A collection of Reform UK badges, perfect for jackets, bags, or lanyards.',
+    price: 9.99
+  },
+  {
     id: 'prod_SbkxrgVbUEI3WA',
     priceId: 'price_1RgXRkFJg5cU61Wla3cNcSaE',
     name: 'Activist Bundle',

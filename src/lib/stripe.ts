@@ -30,7 +30,9 @@ export async function createCheckoutSession(request: CheckoutSessionRequest): Pr
     return data;
   } catch (error) {
     console.error('Error in createCheckoutSession:', error);
-    throw new Error(error instanceof Error ? error.message : 'Failed to create checkout session');
+    throw error instanceof Error 
+      ? error 
+      : new Error('Failed to create checkout session');
   }
 }
 
