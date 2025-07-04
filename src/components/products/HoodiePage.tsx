@@ -213,7 +213,8 @@ const HoodiePage = ({ onBack }: HoodiePageProps) => {
   const reviews = [ { id: 1, name: "Sarah M.", rating: 5, date: "2 weeks ago", comment: "Excellent quality and fast shipping. Love the design!", verified: true }, { id: 2, name: "James T.", rating: 5, date: "1 month ago", comment: "Perfect fit and great material. Highly recommend!", verified: true }, { id: 3, name: "Emma L.", rating: 4, date: "3 weeks ago", comment: "Good quality, exactly as described. Will order again.", verified: true } ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <nav className="text-sm text-gray-600">
@@ -386,16 +387,17 @@ const HoodiePage = ({ onBack }: HoodiePageProps) => {
           </div>
         </div>
       </div>
-    </div>
-    
-    {/* Order Overview Modal */}
-    {showOrderOverview && orderToConfirm && (
-      <OrderOverviewModal
-        productDetails={orderToConfirm}
-        onClose={() => setShowOrderOverview(false)}
-        onConfirm={handleConfirmCheckout}
-      />
-    )}
+      </div>
+      
+      {/* Order Overview Modal */}
+      {showOrderOverview && orderToConfirm && (
+        <OrderOverviewModal
+          productDetails={orderToConfirm}
+          onClose={() => setShowOrderOverview(false)}
+          onConfirm={handleConfirmCheckout}
+        />
+      )}
+    </>
   );
 };
 

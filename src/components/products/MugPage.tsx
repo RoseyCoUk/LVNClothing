@@ -185,7 +185,8 @@ const MugPage = ({ onBack }: MugPageProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <div className="min-h-screen bg-gray-50">
       {/* Breadcrumb */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -385,16 +386,17 @@ const MugPage = ({ onBack }: MugPageProps) => {
           </div>
         </div>
       </div>
-    </div>
-    
-    {/* Order Overview Modal */}
-    {showOrderOverview && orderToConfirm && (
-      <OrderOverviewModal
-        productDetails={orderToConfirm}
-        onClose={() => setShowOrderOverview(false)}
-        onConfirm={handleConfirmCheckout}
-      />
-    )}
+      </div>
+      
+      {/* Order Overview Modal */}
+      {showOrderOverview && orderToConfirm && (
+        <OrderOverviewModal
+          productDetails={orderToConfirm}
+          onClose={() => setShowOrderOverview(false)}
+          onConfirm={handleConfirmCheckout}
+        />
+      )}
+    </>
   );
 };
 
