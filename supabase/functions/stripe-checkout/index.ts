@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
         price_id: 'string',
         success_url: 'string',
         mode: { values: ['payment', 'subscription'] },
-        customer_email: 'string',
+        customer_email: 'optional_string',
       },
     );
 
@@ -155,8 +155,9 @@ Deno.serve(async (req) => {
 
 type ExpectedType = 'string' | { values: string[] };
 type Expectations<T> = { [K in keyof T]: ExpectedType };
+type OptionalExpectations<T> = { [K in keyof T]: ExpectedType | 'optional_string' };
 
-function validateParameters<T extends Record<string, any>>(values: T, expected: Expectations<T>): string | undefined {
+function validateParameters<T extends Record<string, any>>(values: T, expected: OptionalExpectations<T>): string | undefined {
   for (const parameter in values) {
     const expectation = expected[parameter];
     const value = values[parameter];
@@ -166,6 +167,10 @@ function validateParameters<T extends Record<string, any>>(values: T, expected: 
         return `Missing required parameter ${parameter}`;
       }
       if (typeof value !== 'string') {
+        return `Expected parameter ${parameter} to be a string got ${JSON.stringify(value)}`;
+      }
+    } else if (expectation === 'optional_string') {
+      if (value != null && typeof value !== 'string') {
         return `Expected parameter ${parameter} to be a string got ${JSON.stringify(value)}`;
       }
     } else {

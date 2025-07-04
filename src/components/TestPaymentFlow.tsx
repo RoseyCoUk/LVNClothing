@@ -10,6 +10,7 @@ const TestPaymentFlow = () => {
   const [testResults, setTestResults] = useState<any[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [checkoutType, setCheckoutType] = useState<'user' | 'guest'>('user');
+  const [testEmail, setTestEmail] = useState('test@example.com');
 
   const testProducts = [
     {
@@ -103,8 +104,8 @@ const TestPaymentFlow = () => {
         price_id: testPriceId,
         success_url: `${window.location.origin}?success=true&test=true`,
         cancel_url: `${window.location.origin}?canceled=true&test=true`,
-        mode: 'payment',
-        customer_email: checkoutType === 'guest' ? 'test@example.com' : undefined
+        mode: 'payment' as const,
+        customer_email: checkoutType === 'guest' ? testEmail : undefined
       };
       
       addTestResult('Step 3', 'info', 'Calling createCheckoutSession...', checkoutData);
@@ -143,17 +144,36 @@ const TestPaymentFlow = () => {
     
     // Simulate what happens when Stripe sends a webhook
     const mockWebhookData = {
+      id: `cs_test_${Date.now()}`,
       event_type: 'checkout.session.completed',
       session_id: 'cs_test_123456789',
       customer_id: 'cus_test_123456789',
       payment_status: 'paid',
       amount_total: 4999, // £49.99 in pence
-      currency: 'gbp'
+      currency: 'gbp',
+      customer_email: checkoutType === 'guest' ? testEmail : undefined
     };
     
     addTestResult('Step 4', 'success', 'Mock webhook data created', mockWebhookData);
     addTestResult('Step 4', 'info', 'In production, this would trigger order creation in database');
     addTestResult('Step 4', 'info', 'User would receive confirmation email');
+    addTestResult('Step 4', 'info', 'Order notification email would be sent to support@backreform.co.uk');
+    
+    // Simulate the email notification content
+    const emailContent = {
+      to: 'support@backreform.co.uk',
+      subject: `New Order #${mockWebhookData.id} - Reform UK Shop`,
+      orderDetails: {
+        orderId: mockWebhookData.id,
+        customerId: mockWebhookData.customer_id,
+        customerEmail: mockWebhookData.customer_email || 'Unknown',
+        amount: `£${(mockWebhookData.amount_total / 100).toFixed(2)}`,
+        status: mockWebhookData.payment_status,
+        date: new Date().toISOString()
+      }
+    };
+    
+    addTestResult('Step 4', 'success', 'Order notification email simulation', emailContent);
   };
 
   const runFullTest = async () => {
@@ -282,6 +302,31 @@ const TestPaymentFlow = () => {
               </div>
             </div>
           </div>
+          
+          {/* Guest Email Input */}
+          {checkoutType === 'guest' && (
+            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-semibold text-blue-900 mb-2">Guest Checkout Email</h4>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="email"
+                  value={testEmail}
+                  onChange={(e) => setTestEmail(e.target.value)}
+                  placeholder="Enter test email address"
+                  className="flex-1 px-3 py-2 border border-blue-300 rounded-lg text-sm focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                />
+                <button
+                  onClick={() => setTestEmail('test@example.com')}
+                  className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm"
+                >
+                  Reset
+                </button>
+              </div>
+              <p className="mt-2 text-xs text-blue-700">
+                This email will be used for guest checkout and order confirmation emails
+              </p>
+            </div>
+          )}
 
           {/* Test Progress */}
           <div className="mb-8">
