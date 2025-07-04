@@ -129,7 +129,7 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
             <div className="text-sm text-gray-400 text-center md:text-right">
               <p>© 2024 Back Reform. All rights reserved.</p>
               <p className="mt-1">
-                <span className="text-[#009fe3]">100% of proceeds</span> support Reform UK initiatives
+                Support the movement. Wear the movement.
               </p>
             </div>
           </div>
