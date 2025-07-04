@@ -54,7 +54,7 @@ const TopSellers = ({ onProductClick, onViewAllClick }: TopSellersProps) => {
     {
       id: 8,
       name: "Reform UK Stickers",
-      price: 6.99,
+      price: 9.99,
       image: "StickerToteWater/ReformStickersMain2.webp",
       hoverImage: "StickerToteWater/ReformStickersMain3.webp",
       rating: 5,

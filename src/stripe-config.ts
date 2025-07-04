@@ -66,10 +66,34 @@ export const products: Product[] = [
   },
   {
     id: 'prod_SbktKQUHo30fKV',
-    priceId: 'price_1RgXO9FJg5cU61WlospNv7xa',
-    name: 'Reform UK Stickers',
-    description: 'A collection of Reform UK badges, perfect for jackets, bags, or lanyards. Show your support wherever you go.',
+    priceId: 'price_1RgXO9FJg5cU61WlospNv7xa', // 10 pack
+    name: 'Reform UK Stickers (10 Pack)',
+    description: 'Set of weatherproof Reform UK stickers. Perfect for laptops, water bottles, cars, and more.',
     price: 9.99,
+    mode: 'payment'
+  },
+  {
+    id: 'prod_SbktKQUHo30fKV_25',
+    priceId: 'price_1RhE7YFJg5cU61WlnSf4FSP4', // 25 pack
+    name: 'Reform UK Stickers (25 Pack)',
+    description: 'Set of 25 weatherproof Reform UK stickers. Perfect for laptops, water bottles, cars, and more.',
+    price: 19.99,
+    mode: 'payment'
+  },
+  {
+    id: 'prod_SbktKQUHo30fKV_50',
+    priceId: 'price_1RhE7mFJg5cU61WlUR34bEIZ', // 50 pack
+    name: 'Reform UK Stickers (50 Pack)',
+    description: 'Set of 50 weatherproof Reform UK stickers. Perfect for laptops, water bottles, cars, and more.',
+    price: 34.99,
+    mode: 'payment'
+  },
+  {
+    id: 'prod_SbktKQUHo30fKV_100',
+    priceId: 'price_1RhE81FJg5cU61WlIBZkgK2d', // 100 pack
+    name: 'Reform UK Stickers (100 Pack)',
+    description: 'Set of 100 weatherproof Reform UK stickers. Perfect for laptops, water bottles, cars, and more.',
+    price: 59.99,
     mode: 'payment'
   },
   {

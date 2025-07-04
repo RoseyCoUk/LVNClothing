@@ -16,6 +16,15 @@ import {
   Clock
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
+import { createCheckoutSession } from '../../lib/stripe';
+
+// Sticker pack price IDs for different quantities
+const STICKER_PRICE_IDS = {
+  '10': 'price_1RgXO9FJg5cU61WlospNv7xa',
+  '25': 'price_1RhE7YFJg5cU61WlnSf4FSP4',
+  '50': 'price_1RhE7mFJg5cU61WlUR34bEIZ',
+  '100': 'price_1RhE81FJg5cU61WlIBZkgK2d'
+};
 
 // --- Data moved OUTSIDE the component to prevent re-creation on render ---
 const productData = {
@@ -29,16 +38,14 @@ const productData = {
   shipping: "Ships in 24H",
   defaultVariant: 801, // Default to the 10-pack
   variantDetails: {
-    // Variants are based on pack size for this product
     packSizes: ['10', '25', '50', '100'],
-    // Images are the same for all variants, assuming 4 showcase images
     images: Array.from({ length: 6 }, (_, i) => `StickerToteWater/ReformStickersMain${i + 1}.webp`)
   },
   variants: {
-    801: { id: 801, packSize: '10', price: 6.99, inStock: true, stockCount: 100, rating: 5, reviews: 234 },
-    802: { id: 802, packSize: '25', price: 14.99, inStock: true, stockCount: 80, rating: 5, reviews: 234 },
-    803: { id: 803, packSize: '50', price: 27.99, inStock: true, stockCount: 50, rating: 5, reviews: 234 },
-    804: { id: 804, packSize: '100', price: 49.99, inStock: true, stockCount: 30, rating: 5, reviews: 234 },
+    801: { id: 801, packSize: '10', price: 9.99, inStock: true, stockCount: 100, rating: 5, reviews: 234 },
+    802: { id: 802, packSize: '25', price: 19.99, inStock: true, stockCount: 80, rating: 5, reviews: 234 },
+    803: { id: 803, packSize: '50', price: 34.99, inStock: true, stockCount: 50, rating: 5, reviews: 234 },
+    804: { id: 804, packSize: '100', price: 59.99, inStock: true, stockCount: 30, rating: 5, reviews: 234 },
   }
 };
 
@@ -48,6 +55,7 @@ interface StickersPageProps {
 
 const StickersPage = ({ onBack }: StickersPageProps) => {
   const { addToCart } = useCart();
+  const [isLoading, setIsLoading] = useState(false);
   
   const defaultVariant = productData.variants[productData.defaultVariant];
 
@@ -85,6 +93,46 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
       quantity: quantity
     };
     addToCart(itemToAdd);
+  };
+
+  const handleBuyNow = async () => {
+    if (!selectedPackSize) {
+      alert('Please select a pack size.');
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    // Get the correct price ID based on the selected pack size
+    const priceId = STICKER_PRICE_IDS[selectedPackSize as keyof typeof STICKER_PRICE_IDS];
+    
+    if (!priceId) {
+      alert('Invalid pack size selected.');
+      setIsLoading(false);
+      return;
+    }
+    
+    try {
+      const { url } = await createCheckoutSession({
+        price_id: priceId,
+        success_url: `${window.location.origin}?success=true`,
+        cancel_url: window.location.href,
+        mode: 'payment'
+      });
+      
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      
+      // Show a more user-friendly error message
+      if (error instanceof Error && error.message.includes('Stripe API key is not configured')) {
+        alert('Stripe payment is not configured. This is expected in development environment.');
+      } else {
+        alert('Failed to start checkout process. Please try again later.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // All variants use the same images
@@ -220,6 +268,21 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
 
             {/* Add to Cart & Actions */}
             <div className="space-y-3">
+              <button 
+                onClick={handleBuyNow}
+                disabled={isLoading}
+                className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+              >
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    Buy Now - £{currentVariant.price.toFixed(2)}
+                  </>
+                )}
+              </button>
+              
               <button onClick={handleAddToCart} className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
                 <ShoppingCart className="w-5 h-5" />
                 <span>Add to Cart - £{(currentVariant.price * quantity).toFixed(2)}</span>
