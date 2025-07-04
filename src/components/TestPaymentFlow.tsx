@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CreditCard, ShoppingCart, CheckCircle, AlertTriangle, Package, Clock } from 'lucide-react';
+import { CreditCard, ShoppingCart, CheckCircle, AlertTriangle, Package, Clock, User, UserX, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { createCheckoutSession } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
@@ -9,6 +9,7 @@ const TestPaymentFlow = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [testResults, setTestResults] = useState<any[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
+  const [checkoutType, setCheckoutType] = useState<'user' | 'guest'>('user');
 
   const testProducts = [
     {
@@ -60,6 +61,12 @@ const TestPaymentFlow = () => {
   const testStep2_AuthCheck = async () => {
     setCurrentStep(2);
     addTestResult('Step 2', 'info', 'Testing authentication status...');
+    
+    // If guest checkout is selected, skip auth check
+    if (checkoutType === 'guest') {
+      addTestResult('Step 2', 'success', 'Authentication check skipped for guest checkout');
+      return true;
+    }
     
     try {
       const { data: { session }, error } = await supabase.auth.getSession();
@@ -141,6 +148,19 @@ const TestPaymentFlow = () => {
     setTestResults([]);
     setCurrentStep(0);
     
+    // If guest checkout is selected, sign out first to ensure no active session
+    if (checkoutType === 'guest') {
+      addTestResult('Test Start', 'info', 'Preparing for guest checkout test...');
+      try {
+        await supabase.auth.signOut();
+        addTestResult('Test Start', 'success', 'Signed out any existing user for guest checkout test');
+      } catch (error: any) {
+        addTestResult('Test Start', 'error', 'Error signing out user', error.message);
+      }
+    } else {
+      addTestResult('Test Start', 'info', 'Preparing for user checkout test...');
+    }
+    
     addTestResult('Test Start', 'info', 'Beginning full payment flow test...');
     
     // Step 1: Add to Cart
@@ -151,7 +171,7 @@ const TestPaymentFlow = () => {
     const isAuthenticated = await testStep2_AuthCheck();
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    if (!isAuthenticated) {
+    if (!isAuthenticated && checkoutType === 'user') {
       addTestResult('Test End', 'error', 'Test stopped - authentication required');
       setIsProcessing(false);
       return;
@@ -197,9 +217,57 @@ const TestPaymentFlow = () => {
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="text-center mb-8">
-            <CreditCard className="w-12 h-12 text-[#009fe3] mx-auto mb-4" />
+            <div className="flex justify-center mb-4">
+              {checkoutType === 'user' ? (
+                <User className="w-12 h-12 text-[#009fe3]" />
+              ) : (
+                <UserX className="w-12 h-12 text-[#009fe3]" />
+              )}
+            </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Payment Flow Test</h1>
             <p className="text-gray-600">Test the complete payment integration from cart to completion</p>
+          </div>
+
+          {/* Checkout Type Selector */}
+          <div className="mb-8">
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <h3 className="font-semibold text-gray-900 mb-4">Checkout Type</h3>
+              <div className="flex items-center justify-center space-x-6">
+                <button
+                  onClick={() => setCheckoutType('user')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                    checkoutType === 'user' 
+                      ? 'bg-[#009fe3] text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <User className="w-5 h-5" />
+                  <span>User Checkout</span>
+                  {checkoutType === 'user' && <CheckCircle className="w-4 h-4 ml-1" />}
+                </button>
+                
+                <button
+                  onClick={() => setCheckoutType('guest')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                    checkoutType === 'guest' 
+                      ? 'bg-[#009fe3] text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <UserX className="w-5 h-5" />
+                  <span>Guest Checkout</span>
+                  {checkoutType === 'guest' && <CheckCircle className="w-4 h-4 ml-1" />}
+                </button>
+              </div>
+              
+              <div className="mt-4 text-sm text-gray-600 text-center">
+                {checkoutType === 'user' ? (
+                  <p>Testing checkout flow with user authentication</p>
+                ) : (
+                  <p>Testing checkout flow without user authentication (guest mode)</p>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Test Progress */}
@@ -320,8 +388,12 @@ const TestPaymentFlow = () => {
           {/* Instructions */}
           <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <h4 className="font-semibold text-yellow-900 mb-2">Test Instructions</h4>
-            <div className="text-yellow-800 text-sm space-y-2">
-              <p>1. <strong>Sign in first</strong> - The payment flow requires authentication</p>
+            <div className="text-yellow-800 text-sm space-y-2">              
+              {checkoutType === 'user' ? (
+                <p>1. <strong>Sign in first</strong> - User checkout requires authentication</p>
+              ) : (
+                <p>1. <strong>No sign-in needed</strong> - Guest checkout works without authentication</p>
+              )}
               <p>2. <strong>Run Full Test</strong> - This will test the complete flow automatically</p>
               <p>3. <strong>Individual Tests</strong> - Use the buttons above to test specific components</p>
               <p>4. <strong>Check Results</strong> - Review the detailed test results below</p>
