@@ -1,23 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  Filter,
   Search,
   Grid,
   List,
   Star,
   Heart,
   Eye,
-  ChevronDown,
   X,
   SlidersHorizontal,
   Clock,
   ArrowRight,
-  Truck,
-  Shield,
-  Package,
   RotateCcw
 } from 'lucide-react';
-import { useCart } from '../contexts/CartContext';
 
 interface ShopPageProps {
   onProductClick: (productId: number) => void;
@@ -26,7 +20,7 @@ interface ShopPageProps {
 // --- Combined and updated product data for the shop grid ---
 const apparelProducts = [
   { id: 1, name: "Reform UK Hoodie", price: 49.99, image: "Hoodie/Men/ReformMenHoodieBlack1.webp", hoverImage: "Hoodie/Men/ReformMenHoodieBlack2.webp", rating: 5, reviews: 127, category: 'apparel', tags: ['bestseller'], shipping: "Ships in 24H", description: "Premium quality hoodie", dateAdded: '2025-06-15' },
-  { id: 2, name: "Reform UK T-Shirt", price: 19.99, image: "Tshirt/Men/ReformMenTshirtWhite1.webp", hoverImage: "Tshirt/Men/ReformMenTshirtWhite2.webp", rating: 5, reviews: 89, category: 'apparel', tags: ['bestseller'], shipping: "Ships in 24H", description: "Comfortable cotton t-shirt", dateAdded: '2025-06-16' },
+  { id: 2, name: "Reform UK T-Shirt", price: 24.99, image: "Tshirt/Men/ReformMenTshirtWhite1.webp", hoverImage: "Tshirt/Men/ReformMenTshirtWhite2.webp", rating: 5, reviews: 89, category: 'apparel', tags: ['bestseller'], shipping: "Ships in 24H", description: "Comfortable cotton t-shirt", dateAdded: '2025-06-16' },
   { id: 3, name: "Reform UK Cap", price: 19.99, image: "Cap/ReformCapBlue1.webp", hoverImage: "Cap/ReformCapBlack2.webp", rating: 5, reviews: 92, category: 'apparel', tags: ['new'], shipping: "Ships in 24H", description: "Adjustable cap with logo", dateAdded: '2025-07-01' },
 ];
 
@@ -295,22 +289,109 @@ const ShopPage = ({ onProductClick }: ShopPageProps) => {
                 <h3 className="font-bold text-gray-900">Filters</h3>
                 <div className="flex items-center space-x-3">{hasActiveFilters() && (<button onClick={clearFilters} className="text-sm text-[#009fe3] hover:text-blue-600 flex items-center space-x-1"><RotateCcw className="w-3 h-3" /><span>Clear</span></button>)}<button onClick={() => setIsFilterOpen(false)}><X className="w-6 h-6" /></button></div>
             </div>
-            {/* ... Mobile filter content ... */}
+            
+            {/* Mobile filter content */}
+            <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input 
+                        type="text" 
+                        value={searchQuery} 
+                        onChange={(e) => setSearchQuery(e.target.value)} 
+                        placeholder="Search products..." 
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent" 
+                    />
+                </div>
+            </div>
+            
+            <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <div className="space-y-2">
+                    {categories.map(category => (
+                        <button 
+                            key={category.id} 
+                            onClick={() => toggleCategory(category.id)} 
+                            className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                                selectedCategories.includes(category.id) 
+                                    ? 'bg-[#009fe3] text-white' 
+                                    : 'text-gray-700 hover:bg-gray-100'
+                            }`}
+                        >
+                            <span>{category.name}</span>
+                            <span className="float-right text-sm opacity-75">({category.count})</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+            
+            <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Price Range: £{priceRange[0]} - £{priceRange[1]}
+                </label>
+                <input 
+                    type="range" 
+                    min="0" 
+                    max="100" 
+                    value={priceRange[1]} 
+                    onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])} 
+                    className="w-full" 
+                />
+            </div>
+            
+            <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">Tags</label>
+                <div className="flex flex-wrap gap-2">
+                    {tags.map(tag => (
+                        <button 
+                            key={tag.id} 
+                            onClick={() => toggleTag(tag.id)} 
+                            className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 ${
+                                selectedTags.includes(tag.id) 
+                                    ? `${tag.color} text-white shadow-lg scale-105` 
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                        >
+                            {tag.name}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            
+            <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                <select 
+                    value={sortBy} 
+                    onChange={(e) => setSortBy(e.target.value)} 
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                >
+                    {sortOptions.map(option => (
+                        <option key={option.id} value={option.id}>{option.name}</option>
+                    ))}
+                </select>
+            </div>
+            
+            <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">View Mode</label>
+                <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+                    <button 
+                        onClick={() => setViewMode('grid')} 
+                        className={`flex-1 p-2 ${viewMode === 'grid' ? 'bg-[#009fe3] text-white' : 'text-gray-700'}`}
+                    >
+                        <Grid className="w-4 h-4 mx-auto" />
+                    </button>
+                    <button 
+                        onClick={() => setViewMode('list')} 
+                        className={`flex-1 p-2 ${viewMode === 'list' ? 'bg-[#009fe3] text-white' : 'text-gray-700'}`}
+                    >
+                        <List className="w-4 h-4 mx-auto" />
+                    </button>
+                </div>
+            </div>
           </div>
         </div>
       )}
       
-      {/* Trust Badges Footer */}
-      <section className="bg-white border-t py-8">
-        <div className="max-w-7xl mx-auto px-4">
-            <div className="flex flex-wrap justify-center md:justify-between items-center gap-6">
-                <div className="flex items-center space-x-2 text-sm"><Shield className="w-5 h-5 text-green-400" /><span>Secure Checkout</span></div>
-                <div className="flex items-center space-x-2 text-sm"><Truck className="w-5 h-5 text-blue-400" /><span>Free UK Shipping Over £50</span></div>
-                <div className="flex items-center space-x-2 text-sm"><Package className="w-5 h-5 text-purple-400" /><span>Easy Returns</span></div>
-                <div className="flex items-center space-x-2 text-sm"><span className="text-yellow-400">🇬🇧</span><span>Made in Britain</span></div>
-            </div>
-        </div>
-      </section>
     </div>
   );
 };

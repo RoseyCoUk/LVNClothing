@@ -24,7 +24,7 @@ const TopSellers = ({ onProductClick, onViewAllClick }: TopSellersProps) => {
     {
       id: 2,
       name: "Reform UK T-Shirt",
-      price: 19.99,
+      price: 24.99,
       image: "Tshirt/Men/ReformMenTshirtWhite1.webp",
       hoverImage: "Tshirt/Men/ReformMenTshirtWhite2.webp",
       rating: 5,

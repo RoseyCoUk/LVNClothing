@@ -76,21 +76,21 @@ const productData = {
   },
   variants: {
     // Men's T-Shirts - 6 images each
-    201: { id: 201, gender: 'Men', color: 'White', price: 19.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtWhite${i + 1}.webp`) },
-    202: { id: 202, gender: 'Men', color: 'Light Grey', price: 19.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtLightGrey${i + 1}.webp`) },
-    203: { id: 203, gender: 'Men', color: 'Ash Grey', price: 19.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtAshGrey${i + 1}.webp`) },
-    204: { id: 204, gender: 'Men', color: 'Charcoal', price: 19.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtCharcoal${i + 1}.webp`) },
-    205: { id: 205, gender: 'Men', color: 'Black', price: 19.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtBlack${i + 1}.webp`) },
-    206: { id: 206, gender: 'Men', color: 'Royal Blue', price: 19.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtBlue${i + 1}.webp`) },
-    207: { id: 207, gender: 'Men', color: 'Red', price: 19.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtRed${i + 1}.webp`) },
+    201: { id: 201, gender: 'Men', color: 'White', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtWhite${i + 1}.webp`) },
+    202: { id: 202, gender: 'Men', color: 'Light Grey', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtLightGrey${i + 1}.webp`) },
+    203: { id: 203, gender: 'Men', color: 'Ash Grey', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtAshGrey${i + 1}.webp`) },
+    204: { id: 204, gender: 'Men', color: 'Charcoal', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtCharcoal${i + 1}.webp`) },
+    205: { id: 205, gender: 'Men', color: 'Black', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtBlack${i + 1}.webp`) },
+    206: { id: 206, gender: 'Men', color: 'Royal Blue', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtBlue${i + 1}.webp`) },
+    207: { id: 207, gender: 'Men', color: 'Red', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtRed${i + 1}.webp`) },
     // Women's T-Shirts - 5 images each
-    211: { id: 211, gender: 'Women', color: 'White', price: 19.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtWhite${i + 1}.webp`) },
-    212: { id: 212, gender: 'Women', color: 'Light Grey', price: 19.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtLightGrey${i + 1}.webp`) },
-    213: { id: 213, gender: 'Women', color: 'Ash Grey', price: 19.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtAshGrey${i + 1}.webp`) },
-    214: { id: 214, gender: 'Women', color: 'Charcoal', price: 19.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtCharcoal${i + 1}.webp`) },
-    215: { id: 215, gender: 'Women', color: 'Black', price: 19.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtBlack${i + 1}.webp`) },
-    216: { id: 216, gender: 'Women', color: 'Royal Blue', price: 19.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtBlue${i + 1}.webp`) },
-    217: { id: 217, gender: 'Women', color: 'Red', price: 19.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtRed${i + 1}.webp`) },
+    211: { id: 211, gender: 'Women', color: 'White', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtWhite${i + 1}.webp`) },
+    212: { id: 212, gender: 'Women', color: 'Light Grey', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtLightGrey${i + 1}.webp`) },
+    213: { id: 213, gender: 'Women', color: 'Ash Grey', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtAshGrey${i + 1}.webp`) },
+    214: { id: 214, gender: 'Women', color: 'Charcoal', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtCharcoal${i + 1}.webp`) },
+    215: { id: 215, gender: 'Women', color: 'Black', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtBlack${i + 1}.webp`) },
+    216: { id: 216, gender: 'Women', color: 'Royal Blue', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtBlue${i + 1}.webp`) },
+    217: { id: 217, gender: 'Women', color: 'Red', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtRed${i + 1}.webp`) },
   } as Variants // Fix 3: Add proper typing to variants object
 };
 

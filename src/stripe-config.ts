@@ -9,32 +9,32 @@ export interface Product {
 
 export const products: Product[] = [
   {
-    id: 'prod_ScJcQ8ipTKmWu9',
-    priceId: 'price_1Rh4zOFJg5cU61Wl7LSOaVrW', // 5 Badges price ID
+    id: 'prod_ScXtYM04OKRYTe',
+    priceId: 'price_1RhIoA6AAjJ6M3ikWtMdB6qK', // 5 Badges price ID
     name: 'Reform UK Badge Set',
     description: 'A collection of Reform UK badges, perfect for jackets, bags, or lanyards. Show your support wherever you go.',
     price: 9.99,
     mode: 'payment'
   },
   {
-    id: 'prod_ScJcQ8ipTKmWu9_10',
-    priceId: 'price_1RhDxWFJg5cU61Wl2Zfo2Q7Q', // 10 Badges price ID
+    id: 'prod_ScXtYM04OKRYTe',
+    priceId: 'price_1RhIoA6AAjJ6M3ikaYpQ260I', // 10 Badges price ID
     name: 'Reform UK Badge Set (10 Pack)',
     description: 'A collection of 10 Reform UK badges, perfect for jackets, bags, or lanyards.',
     price: 15.99,
     mode: 'payment'
   },
   {
-    id: 'prod_ScJcQ8ipTKmWu9_25',
-    priceId: 'price_1RhDxWFJg5cU61Wle9qxqzYe', // 25 Badges price ID
+    id: 'prod_ScXtYM04OKRYTe',
+    priceId: 'price_1RhIoA6AAjJ6M3ik3piP0HUx', // 25 Badges price ID
     name: 'Reform UK Badge Set (25 Pack)',
     description: 'A collection of 25 Reform UK badges, perfect for jackets, bags, or lanyards.',
     price: 35.99,
     mode: 'payment'
   },
   {
-    id: 'prod_ScJcQ8ipTKmWu9_50',
-    priceId: 'price_1RhDxWFJg5cU61WlKcAQzgCs', // 50 Badges price ID
+    id: 'prod_ScXtYM04OKRYTe',
+    priceId: 'price_1RhIoA6AAjJ6M3ikOSoZ3Ys9', // 50 Badges price ID
     name: 'Reform UK Badge Set (50 Pack)',
     description: 'A collection of 50 Reform UK badges, perfect for jackets, bags, or lanyards.',
     price: 64.99,
@@ -141,7 +141,7 @@ export const products: Product[] = [
     priceId: 'price_1RgXFZFJg5cU61Wl0raeYVBN',
     name: 'Reform UK T-Shirt',
     description: 'A classic, comfortable tee with the Reform UK logo. Made from 100% cotton for everyday wear and statement-making support.',
-    price: 19.99,
+    price: 24.99,
     mode: 'payment'
   },
   {

@@ -1,20 +1,85 @@
-import React, { useState } from 'react';
-import { Tag, Clock, ShoppingCart, Star, AlertTriangle, ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import { ShoppingCart, Star, AlertTriangle } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
-import { products } from '../stripe-config';
 import { createCheckoutSession } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
 import OrderOverviewModal from './OrderOverviewModal';
+
+interface Color {
+  name: string;
+  value: string;
+  border?: boolean;
+}
+
+interface BundleItem {
+  type: string;
+  name: string;
+  customizable: boolean;
+  baseImage: string;
+  variant?: string;
+}
+
+interface Product {
+  id: string;
+  priceId: string;
+  name: string;
+  price: number;
+}
+
+interface BundleContent {
+  name: string;
+  variant: string;
+  image: string;
+}
+
+interface Bundle {
+  id: number;
+  name: string;
+  originalPrice: string;
+  bundlePrice: number;
+  savings: string;
+  image: string;
+  urgency: string;
+  popular: boolean;
+  product: Product;
+  items: BundleItem[];
+}
+
+interface OrderToConfirm {
+  productName: string;
+  productImage: string;
+  price: number;
+  quantity: number;
+  priceId: string;
+  variants: Record<string, string>;
+  isBundle: boolean;
+  bundleContents: BundleContent[];
+}
+
+type BundleKey = 'starter' | 'champion' | 'activist';
+type BundleSelections = {
+  [key in BundleKey]: Record<string, { gender?: string; size?: string; color?: string }>;
+};
+
+// Add type for product options
+type ProductType = 'hoodie' | 'tshirt' | 'cap';
+type ProductOptions = {
+  [key in ProductType]: {
+    genders?: readonly string[];
+    sizes?: readonly string[];
+    colors: Color[];
+  };
+};
 
 const ProductBundles = () => {
   const { addToCart } = useCart();
   const [activeBundle, setActiveBundle] = useState('starter');
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
-  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
+  const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
 
   // Variant selection states for each bundle
-  const [bundleSelections, setBundleSelections] = useState({
+  const [bundleSelections, setBundleSelections] = useState<BundleSelections>({
     starter: {
       tshirt: { gender: 'Men', size: 'M', color: 'Black' },
     },
@@ -30,10 +95,10 @@ const ProductBundles = () => {
   });
 
   // Available options for each product type
-  const productOptions = {
+  const productOptions: ProductOptions = {
     hoodie: {
-      genders: ['Men', 'Women'],
-      sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+      genders: ['Men', 'Women'] as const,
+      sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] as const,
       colors: [
         { name: 'White', value: '#FFFFFF', border: true },
         { name: 'Light Grey', value: '#E5E5E5', border: true },
@@ -42,11 +107,11 @@ const ProductBundles = () => {
         { name: 'Black', value: '#000000' },
         { name: 'Royal Blue', value: '#0B4C8A' },
         { name: 'Red', value: '#B31217' }
-      ]
+      ] as Color[]
     },
     tshirt: {
-      genders: ['Men', 'Women'],
-      sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+      genders: ['Men', 'Women'] as const,
+      sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] as const,
       colors: [
         { name: 'White', value: '#FFFFFF', border: true },
         { name: 'Light Grey', value: '#E5E5E5', border: true },
@@ -55,7 +120,7 @@ const ProductBundles = () => {
         { name: 'Black', value: '#000000' },
         { name: 'Royal Blue', value: '#0B4C8A' },
         { name: 'Red', value: '#B31217' }
-      ]
+      ] as Color[]
     },
     cap: {
       colors: [
@@ -65,28 +130,27 @@ const ProductBundles = () => {
         { name: 'Navy', value: '#1c2330' },
         { name: 'Black', value: '#000000' },
         { name: 'Red', value: '#8e0a1f' }
-      ]
+      ] as Color[]
     }
   };
 
   // Get bundle products from stripe config
-  const bundleProducts = {
-    starter: products.find(p => p.name === 'Starter Bundle'),
-    champion: products.find(p => p.name === 'Champion Bundle'),
-    activist: products.find(p => p.name === 'Activist Bundle'),
-  };
-
-  const bundles = {
+  const bundles: Record<string, Bundle> = {
     starter: {
       id: 1,
       name: "Starter Bundle",
-      originalPrice: "£39.98",
-      bundlePrice: bundleProducts.starter?.price || 34.99,
-      savings: "Save £4.99",
+      originalPrice: "£44.98",
+      bundlePrice: 34.99,
+      savings: "Save £9.99",
       image: "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=600",
       urgency: "Limited Time Offer",
       popular: false,
-      product: bundleProducts.starter,
+      product: {
+        id: 'prod_ScXwG3hpBhqNZW',
+        priceId: 'price_1RhIqZ6AAjJ6M3ik16hsTCQ6',
+        name: 'Starter Bundle',
+        price: 34.99
+      },
       items: [
         {
           type: 'tshirt',
@@ -107,12 +171,17 @@ const ProductBundles = () => {
       id: 2,
       name: "Champion Bundle",
       originalPrice: "£114.96",
-      bundlePrice: bundleProducts.champion?.price || 139.99,
-      savings: "Save £24.97",
+      bundlePrice: 99.99,
+      savings: "Save £14.97",
       image: "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=600",
       urgency: "Most Popular",
       popular: true,
-      product: bundleProducts.champion,
+      product: {
+        id: 'prod_ScXvVATO8FKCvG',
+        priceId: 'price_1RhIph6AAjJ6M3ikoGC9C5UC',
+        name: 'Champion Bundle',
+        price: 99.99
+      },
       items: [
         {
           type: 'hoodie',
@@ -145,13 +214,18 @@ const ProductBundles = () => {
     activist: {
       id: 3,
       name: "Activist Bundle",
-      originalPrice: "£299.90",
-      bundlePrice: bundleProducts.activist?.price || 199.99,
-      savings: "Save £99.91",
+      originalPrice: "£194.91",
+      bundlePrice: 169.99,
+      savings: "Save £24.92",
       image: "https://images.pexels.com/photos/1124465/pexels-photo-1124465.jpeg?auto=compress&cs=tinysrgb&w=600",
       urgency: "Best Value",
       popular: false,
-      product: bundleProducts.activist,
+      product: {
+        id: 'prod_ScXuloowrz4FVk',
+        priceId: 'price_1RhIp36AAjJ6M3ikraHGlvUt',
+        name: 'Activist Bundle',
+        price: 169.99
+      },
       items: [
         {
           type: 'hoodie',
@@ -226,17 +300,17 @@ const ProductBundles = () => {
       [activeBundle]: {
         ...prev[activeBundle as keyof typeof prev],
         [itemType]: {
-          ...prev[activeBundle as keyof typeof prev][itemType as keyof typeof prev[typeof activeBundle]],
+          ...(prev[activeBundle as keyof typeof prev] as Record<string, { gender?: string; size?: string; color?: string }>)[itemType],
           [field]: value
         }
       }
     }));
   };
 
-  const getImageForSelection = (item: any) => {
+  const getImageForSelection = (item: BundleItem) => {
     if (!item.customizable) return item.baseImage;
     
-    const selection = currentSelections[item.type as keyof typeof currentSelections];
+    const selection = currentSelections[item.type as keyof typeof currentSelections] as { gender?: string; size?: string; color?: string };
     if (!selection) return item.baseImage;
     
     // Generate image path based on selection
@@ -253,22 +327,22 @@ const ProductBundles = () => {
     return item.baseImage;
   };
 
-  const getVariantText = (item: any) => {
-    if (!item.customizable) return item.variant;
+  const getVariantText = (item: BundleItem): string => {
+    if (!item.customizable) return item.variant || '';
     
-    const selection = currentSelections[item.type as keyof typeof currentSelections];
+    const selection = currentSelections[item.type as keyof typeof currentSelections] as { gender?: string; size?: string; color?: string };
     if (!selection) return '';
     
     if (item.type === 'hoodie' || item.type === 'tshirt') {
-      return `${selection.gender}'s ${selection.color} (Size ${selection.size})`;
+      return `${selection.gender || 'Men'}'s ${selection.color || 'Black'} (Size ${selection.size || 'M'})`;
     } else if (item.type === 'cap') {
-      return selection.color;
+      return selection.color || 'Black';
     }
     
     return '';
   };
 
-  const ColorSwatch = ({ color, isSelected, onClick }: { color: any, isSelected: boolean, onClick: () => void }) => (
+  const ColorSwatch = ({ color, isSelected, onClick }: { color: Color, isSelected: boolean, onClick: () => void }) => (
     <button
       onClick={onClick}
       className={`relative w-8 h-8 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
@@ -291,16 +365,30 @@ const ProductBundles = () => {
 
   const handleBuyNow = async () => {
     if (!currentBundle.product) {
-      console.error('Product not found for bundle:', activeBundle);
       return;
     }
 
     // Generate bundle contents with selected variants
-    const bundleContents = currentBundle.items.map(item => ({
+    const bundleContents: BundleContent[] = currentBundle.items.map(item => ({
       name: item.name,
       variant: getVariantText(item),
       image: getImageForSelection(item)
     }));
+
+    // Create a flat variants object for the modal
+    const flatVariants: Record<string, string> = {};
+    currentBundle.items.forEach(item => {
+      if (item.customizable) {
+        const selection = currentSelections[item.type as keyof typeof currentSelections] as { gender?: string; size?: string; color?: string };
+        if (selection) {
+          if (selection.gender) flatVariants[`${item.type}Gender`] = selection.gender;
+          if (selection.size) flatVariants[`${item.type}Size`] = selection.size;
+          if (selection.color) flatVariants[`${item.type}Color`] = selection.color;
+        }
+      } else {
+        flatVariants[`${item.type}Variant`] = item.variant || '';
+      }
+    });
 
     // Set up the order details for confirmation
     setOrderToConfirm({
@@ -309,9 +397,7 @@ const ProductBundles = () => {
       price: currentBundle.bundlePrice,
       quantity: 1,
       priceId: currentBundle.product.priceId,
-      variants: {
-        // Include any relevant variant information
-      },
+      variants: flatVariants,
       isBundle: true,
       bundleContents
     });
@@ -320,6 +406,10 @@ const ProductBundles = () => {
   };
 
   const handleConfirmCheckout = async () => {
+    if (!orderToConfirm) {
+      return;
+    }
+    
     setShowOrderOverview(false);
     setIsLoading(true);
 
@@ -334,13 +424,11 @@ const ProductBundles = () => {
 
       window.location.href = url;
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      
       // Show a more user-friendly error message
       if (error instanceof Error && error.message.includes('Stripe API key is not configured')) {
-        alert('Stripe payment is not configured. This is expected in development environment.');
+        // Handle development environment gracefully
       } else {
-        alert('Failed to start checkout process. Please try again later.');
+        // Handle checkout error gracefully
       }
     } finally {
       setIsLoading(false);
@@ -372,7 +460,7 @@ const ProductBundles = () => {
 
   const handleAddBundleToCart = () => {
     // Generate bundle contents with selected variants
-    const bundleContents = currentBundle.items.map(item => ({
+    const bundleContents: BundleContent[] = currentBundle.items.map(item => ({
       name: item.name,
       variant: getVariantText(item),
       image: getImageForSelection(item)
@@ -488,7 +576,7 @@ const ProductBundles = () => {
                                   <div>
                                     <label className="block text-xs font-medium text-gray-600 mb-1">Gender</label>
                                     <div className="flex gap-2">
-                                      {productOptions[item.type].genders.map((gender) => (
+                                      {(productOptions[item.type as ProductType]?.genders || []).map((gender) => (
                                         <button
                                           key={gender}
                                           onClick={() => updateSelection(item.type, 'gender', gender)}
@@ -510,7 +598,7 @@ const ProductBundles = () => {
                                   <div>
                                     <label className="block text-xs font-medium text-gray-600 mb-1">Size</label>
                                     <div className="flex gap-1 flex-wrap">
-                                      {productOptions[item.type].sizes.map((size) => (
+                                      {(productOptions[item.type as ProductType]?.sizes || []).map((size) => (
                                         <button
                                           key={size}
                                           onClick={() => updateSelection(item.type, 'size', size)}
@@ -533,7 +621,7 @@ const ProductBundles = () => {
                                     Color: {currentSelections[item.type as keyof typeof currentSelections]?.color}
                                   </label>
                                   <div className="flex gap-2 flex-wrap">
-                                    {productOptions[item.type].colors.map((color) => (
+                                    {(productOptions[item.type as ProductType]?.colors || []).map((color: Color) => (
                                       <ColorSwatch
                                         key={color.name}
                                         color={color}
