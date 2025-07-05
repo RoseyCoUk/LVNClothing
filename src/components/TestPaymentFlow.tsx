@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CreditCard, ShoppingCart, CheckCircle, AlertTriangle, Package, Clock, User, UserX, ToggleLeft, ToggleRight } from 'lucide-react';
+import { CreditCard, ShoppingCart, CheckCircle, AlertTriangle, Package, Clock, User, UserX } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { createCheckoutSession } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
@@ -7,7 +7,13 @@ import { supabase } from '../lib/supabase';
 const TestPaymentFlow = () => {
   const { addToCart, cartItems, getTotalPrice, clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [testResults, setTestResults] = useState<any[]>([]);
+  const [testResults, setTestResults] = useState<Array<{
+    step: string;
+    status: 'success' | 'error' | 'info';
+    message: string;
+    details?: unknown;
+    timestamp: string;
+  }>>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [checkoutType, setCheckoutType] = useState<'user' | 'guest'>('user');
   const [testEmail, setTestEmail] = useState('test@example.com');
@@ -27,7 +33,7 @@ const TestPaymentFlow = () => {
     }
   ];
 
-  const addTestResult = (step: string, status: 'success' | 'error' | 'info', message: string, details?: any) => {
+  const addTestResult = (step: string, status: 'success' | 'error' | 'info', message: string, details?: unknown) => {
     setTestResults(prev => [...prev, {
       step,
       status,
@@ -54,8 +60,9 @@ const TestPaymentFlow = () => {
       
       addTestResult('Step 1', 'success', `Cart now has ${cartItems.length + testProducts.length} items, total: £${(getTotalPrice() + testProducts.reduce((sum, p) => sum + p.price, 0)).toFixed(2)}`);
       
-    } catch (error: any) {
-      addTestResult('Step 1', 'error', 'Failed to add items to cart', error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      addTestResult('Step 1', 'error', 'Failed to add items to cart', errorMessage);
     }
   };
 
@@ -85,8 +92,9 @@ const TestPaymentFlow = () => {
         addTestResult('Step 2', 'error', 'User not authenticated - please sign in first');
         return false;
       }
-    } catch (error: any) {
-      addTestResult('Step 2', 'error', 'Auth check exception', error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      addTestResult('Step 2', 'error', 'Auth check exception', errorMessage);
       return false;
     }
   };
@@ -98,7 +106,7 @@ const TestPaymentFlow = () => {
     
     try {
       // Use a test product from our Stripe config
-      const testPriceId = 'price_1RgXAlFJg5cU61Wl3C0w9uy3'; // Reform UK Hoodie
+      const testPriceId = 'price_1RhJBT6AAjJ6M3ikQfCpKWMu'; // Reform UK Hoodie
       
       const checkoutData = {
         price_id: testPriceId,
@@ -121,19 +129,21 @@ const TestPaymentFlow = () => {
         addTestResult('Step 3', 'info', 'In a real scenario, user would be redirected to Stripe checkout');
         
         return response;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         // Handle specific Stripe configuration errors
-        if (error.message && error.message.includes('Stripe API key is not configured')) {
+        if (errorMessage && errorMessage.includes('Stripe API key is not configured')) {
           addTestResult('Step 3', 'error', 'Stripe API key is not configured in Supabase Edge Functions');
           addTestResult('Step 3', 'info', 'To fix this, add STRIPE_SECRET_KEY to your Supabase project environment variables');
         } else {
-          addTestResult('Step 3', 'error', 'Failed to create checkout session', error.message);
+          addTestResult('Step 3', 'error', 'Failed to create checkout session', errorMessage);
         }
         return null;
       }
       
-    } catch (error: any) {
-      addTestResult('Step 3', 'error', 'Failed to create checkout session', error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      addTestResult('Step 3', 'error', 'Failed to create checkout session', errorMessage);
       return null;
     }
   };
@@ -187,8 +197,9 @@ const TestPaymentFlow = () => {
       try {
         await supabase.auth.signOut();
         addTestResult('Test Start', 'success', 'Signed out any existing user for guest checkout test');
-      } catch (error: any) {
-        addTestResult('Test Start', 'error', 'Error signing out user', error.message);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        addTestResult('Test Start', 'error', 'Error signing out user', errorMessage);
       }
     } else {
       addTestResult('Test Start', 'info', 'Preparing for user checkout test...');
@@ -410,7 +421,7 @@ const TestPaymentFlow = () => {
                           <span className="text-xs opacity-75">{result.timestamp}</span>
                         </div>
                         <p className="text-sm mt-1">{result.message}</p>
-                        {result.details && (
+                        {result.details !== undefined && (
                           <details className="mt-2">
                             <summary className="text-xs cursor-pointer opacity-75">View Details</summary>
                             <pre className="text-xs mt-1 p-2 bg-black/10 rounded overflow-x-auto">
