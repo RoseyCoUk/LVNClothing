@@ -2,6 +2,14 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 
+// Declare Deno global for TypeScript
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+  serve(handler: (req: Request) => Response | Promise<Response>): void;
+};
+
 const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
 const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY')!;
 const stripe = new Stripe(stripeSecret, {
@@ -147,17 +155,17 @@ Deno.serve(async (req) => {
     console.log(`Created checkout session ${session.id} for customer ${customerId}`);
 
     return corsResponse({ sessionId: session.id, url: session.url });
-  } catch (error: any) {
-    console.error(`Checkout error: ${error.message}`);
-    return corsResponse({ error: error.message }, 500);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error(`Checkout error: ${errorMessage}`);
+    return corsResponse({ error: errorMessage }, 500);
   }
 });
 
 type ExpectedType = 'string' | { values: string[] };
-type Expectations<T> = { [K in keyof T]: ExpectedType };
 type OptionalExpectations<T> = { [K in keyof T]: ExpectedType | 'optional_string' };
 
-function validateParameters<T extends Record<string, any>>(values: T, expected: OptionalExpectations<T>): string | undefined {
+function validateParameters<T extends Record<string, unknown>>(values: T, expected: OptionalExpectations<T>): string | undefined {
   for (const parameter in values) {
     const expectation = expected[parameter];
     const value = values[parameter];
@@ -174,7 +182,7 @@ function validateParameters<T extends Record<string, any>>(values: T, expected: 
         return `Expected parameter ${parameter} to be a string got ${JSON.stringify(value)}`;
       }
     } else {
-      if (!expectation.values.includes(value)) {
+      if (!expectation.values.includes(value as string)) {
         return `Expected parameter ${parameter} to be one of ${expectation.values.join(', ')}`;
       }
     }
