@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Star,
   ShoppingCart,
@@ -52,13 +52,25 @@ interface CapPageProps {
   onBack: () => void;
 }
 
+interface OrderToConfirm {
+  productName: string;
+  productImage: string;
+  price: number;
+  quantity: number;
+  priceId: string;
+  variants: {
+    color: string;
+    size: string;
+  };
+}
+
 const CapPage = ({ onBack }: CapPageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
-  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
+  const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
   
-  const defaultVariant = productData.variants[productData.defaultVariant];
+  const defaultVariant = productData.variants[productData.defaultVariant as keyof typeof productData.variants];
 
   // State
   const [currentVariant, setCurrentVariant] = useState(defaultVariant);
@@ -109,7 +121,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
       productImage: currentVariant.images[0],
       price: currentVariant.price,
       quantity: quantity,
-      priceId: 'price_1RgXG3FJg5cU61Wl5POUKwFs', // Reform UK Cap
+      priceId: 'price_1RhJ576AAjJ6M3iklCrTfgiC', // Reform UK Cap
       variants: {
         color: selectedColor,
         size: 'One Size'
@@ -120,6 +132,11 @@ const CapPage = ({ onBack }: CapPageProps) => {
   };
 
   const handleConfirmCheckout = async () => {
+    if (!orderToConfirm) {
+      console.error('No order to confirm');
+      return;
+    }
+    
     setShowOrderOverview(false);
     setIsLoading(true);
     
@@ -332,6 +349,13 @@ const CapPage = ({ onBack }: CapPageProps) => {
               <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Free UK Shipping Over £30</p></div>
               <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
               <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
+            </div>
+            
+            {/* Product ID */}
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Product ID:</strong> prod_ScYBkdFJcV0wbo
+              </p>
             </div>
           </div>
         </div>

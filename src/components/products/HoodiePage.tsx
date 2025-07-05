@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Star,
   ShoppingCart,
@@ -12,13 +12,29 @@ import {
   ChevronLeft,
   ChevronRight,
   Check,
-  Info,
   Clock
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
+
+// Fix 1: Add proper types for variants
+interface Variant {
+  id: number;
+  gender: string;
+  color: string;
+  price: number;
+  inStock: boolean;
+  stockCount: number;
+  rating: number;
+  reviews: number;
+  images: string[];
+}
+
+interface Variants {
+  [key: number]: Variant;
+}
 
 // --- Data defined once, outside the component ---
 const baseProductData = {
@@ -29,7 +45,7 @@ const baseProductData = {
   careInstructions: "Machine wash cold with like colors. Tumble dry low. Do not bleach. Iron on low heat if needed.",
   materials: "80% organic cotton, 20% recycled polyester",
   category: 'apparel',
-  shipping: "Ships in 24H",
+  shipping: "Ships in 48H",
   defaultVariant: 105, // Default to Men's Black
   variantDetails: {
     genders: ['Men', 'Women'],
@@ -38,12 +54,12 @@ const baseProductData = {
         { name: 'White', value: '#FFFFFF', border: true }, { name: 'Light Grey', value: '#E5E5E5', border: true }, { name: 'Ash Grey', value: '#B0B0B0' }, { name: 'Charcoal', value: '#333333' }, { name: 'Black', value: '#000000' }, { name: 'Royal Blue', value: '#0B4C8A' }, { name: 'Red', value: '#B31217' }
     ]
   },
-  variants: {} // Variants will be generated below
+  variants: {} as Variants // Fix 2: Add proper typing
 };
 
-// --- FIX: Programmatically generate all variants to prevent typos and ensure consistency ---
-const generateVariants = () => {
-    const variants = {};
+// Fix 3: Add proper return type
+const generateVariants = (): Variants => {
+    const variants: Variants = {};
     let menIdCounter = 101;
     let womenIdCounter = 111;
 
@@ -75,21 +91,34 @@ const productData = {
     variants: generateVariants()
 };
 
-
 interface HoodiePageProps {
   onBack: () => void;
+}
+
+interface OrderToConfirm {
+  productName: string;
+  productImage: string;
+  price: number;
+  quantity: number;
+  priceId: string;
+  variants: {
+    gender: string;
+    color: string;
+    size: string;
+  };
 }
 
 const HoodiePage = ({ onBack }: HoodiePageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
-  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
+  const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
 
-  const defaultVariant = productData.variants[productData.defaultVariant];
+  // Fix 4: Add proper type assertion
+  const defaultVariant = productData.variants[productData.defaultVariant as keyof typeof productData.variants];
 
-  // State
-  const [currentVariant, setCurrentVariant] = useState(defaultVariant);
+  // Fix 5: Add proper typing for state
+  const [currentVariant, setCurrentVariant] = useState<Variant>(defaultVariant);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('M');
@@ -98,10 +127,10 @@ const HoodiePage = ({ onBack }: HoodiePageProps) => {
   const [activeTab, setActiveTab] = useState('description');
   const [isWishlisted, setIsWishlisted] = useState(false);
 
-  // Effect to update the variant when color or gender changes
+  // Fix 6: Add proper typing for useEffect
   useEffect(() => {
     const newVariant = Object.values(productData.variants).find(
-      variant => variant.gender === selectedGender && variant.color === selectedColor
+      (variant: Variant) => variant.gender === selectedGender && variant.color === selectedColor
     );
     if (newVariant && newVariant.id !== currentVariant.id) {
       setCurrentVariant(newVariant);
@@ -140,7 +169,7 @@ const HoodiePage = ({ onBack }: HoodiePageProps) => {
       productImage: currentVariant.images[0],
       price: currentVariant.price,
       quantity: quantity,
-      priceId: 'price_1RgXAlFJg5cU61Wl3C0w9uy3', // Reform UK Hoodie
+      priceId: 'price_1RhJBT6AAjJ6M3ikQfCpKWMu', // Updated Reform UK Hoodie Price ID
       variants: {
         gender: currentVariant.gender,
         color: currentVariant.color,
@@ -152,6 +181,11 @@ const HoodiePage = ({ onBack }: HoodiePageProps) => {
   };
 
   const handleConfirmCheckout = async () => {
+    if (!orderToConfirm) {
+      console.error('No order to confirm');
+      return;
+    }
+    
     setShowOrderOverview(false);
     setIsLoading(true);
     
@@ -368,6 +402,20 @@ const HoodiePage = ({ onBack }: HoodiePageProps) => {
                 </button>
               </div>
             </div>
+
+            {/* Trust Badges */}
+            <div className="grid grid-cols-3 gap-4 pt-6 border-t">
+              <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Free UK Shipping Over £30</p></div>
+              <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
+              <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
+            </div>
+
+            {/* Product ID */}
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Product ID:</strong> prod_ScYIIZ9DhL3XEQ
+              </p>
+            </div>
           </div>
         </div>
 
@@ -383,7 +431,75 @@ const HoodiePage = ({ onBack }: HoodiePageProps) => {
             </nav>
           </div>
           <div className="py-8">
-            {/* Tab Content */}
+            {activeTab === 'description' && (
+              <div className="prose max-w-none">
+                <p className="text-gray-700 leading-relaxed">{productData.description}</p>
+                <div className="mt-6">
+                  <h4 className="font-semibold text-gray-900 mb-2">Materials:</h4>
+                  <p className="text-gray-700">{productData.materials}</p>
+                </div>
+              </div>
+            )}
+            {activeTab === 'features' && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Features</h3>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {productData.features.map((feature, index) => (
+                    <li key={index} className="flex items-center space-x-2">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <span className="text-gray-700">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {activeTab === 'reviews' && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900">Customer Reviews</h3>
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`w-4 h-4 ${i < currentVariant.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                      ))}
+                    </div>
+                    <span className="text-sm text-gray-600">({currentVariant.reviews} reviews)</span>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  {reviews.map((review) => (
+                    <div key={review.id} className="border-b border-gray-200 pb-6">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-semibold text-gray-900">{review.name}</span>
+                          {review.verified && (
+                            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Verified Purchase</span>
+                          )}
+                        </div>
+                        <span className="text-sm text-gray-500">{review.date}</span>
+                      </div>
+                      <div className="flex items-center mb-2">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                        ))}
+                      </div>
+                      <p className="text-gray-700">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeTab === 'care' && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Care Instructions</h3>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start space-x-2">
+                    <div className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5">ℹ️</div>
+                    <p className="text-blue-800">{productData.careInstructions}</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

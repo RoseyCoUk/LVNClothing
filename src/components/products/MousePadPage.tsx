@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Star,
   ShoppingCart,
@@ -20,6 +20,39 @@ import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
 
+interface Color {
+  name: string;
+  value: string;
+  border?: boolean;
+}
+
+interface Variant {
+  id: number;
+  color: string;
+  price: number;
+  inStock: boolean;
+  stockCount: number;
+  rating: number;
+  reviews: number;
+  images: string[];
+}
+
+interface Variants {
+  [key: number]: Variant;
+}
+
+interface OrderToConfirm {
+  productName: string;
+  productImage: string;
+  price: number;
+  quantity: number;
+  priceId: string;
+  variants: {
+    color: string;
+    size: string;
+  };
+}
+
 // --- Data moved OUTSIDE the component and updated for a SINGLE WHITE VARIANT ---
 const productData = {
   id: 7,
@@ -29,7 +62,7 @@ const productData = {
   careInstructions: "Wipe clean with damp cloth.",
   materials: "Polyester fabric, rubber base",
   category: 'gear',
-  shipping: "Ships in 24H",
+  shipping: "Ships in 48H",
   defaultVariant: 701, // The ID of the single, default variant
   variantDetails: {
     // Only one color and size available for this product
@@ -50,11 +83,11 @@ const productData = {
       reviews: 78, 
       images: Array.from({ length: 2 }, (_, i) => `MugMouse/ReformMousePadWhite${i + 1}.webp`) 
     },
-  }
+  } as Variants
 };
 
 // A small component to display the color swatch consistently
-const ColorSwatch = ({ color }) => (
+const ColorSwatch = ({ color }: { color: Color }) => (
     <div
       className="relative w-12 h-12 rounded-full border-2 border-gray-300"
       style={{ backgroundColor: color.value }}
@@ -74,10 +107,10 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
-  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
+  const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
   
   // Since there's only one variant, we can set it directly as a constant.
-  const currentVariant = productData.variants[productData.defaultVariant];
+  const currentVariant = productData.variants[productData.defaultVariant as keyof typeof productData.variants];
   
   // State
   const [selectedImage, setSelectedImage] = useState(0);
@@ -97,13 +130,18 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
   };
 
   const handleBuyNow = async () => {
+    if (!currentVariant) {
+      console.error('No variant selected');
+      return;
+    }
+    
     // Set up the order details for confirmation
     setOrderToConfirm({
       productName: productData.name,
       productImage: currentVariant.images[0],
       price: currentVariant.price,
       quantity: quantity,
-      priceId: 'price_1RgXIpFJg5cU61WlXPXptulv', // Reform UK Mouse Pad
+      priceId: 'price_1RhIwH6AAjJ6M3ikuyhu48AJ',
       variants: {
         color: 'White',
         size: 'Standard'
@@ -114,6 +152,11 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
   };
 
   const handleConfirmCheckout = async () => {
+    if (!orderToConfirm) {
+      console.error('No order to confirm');
+      return;
+    }
+    
     setShowOrderOverview(false);
     setIsLoading(true);
     
@@ -229,7 +272,7 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
 
             {currentVariant.images.length > 1 && (
               <div className="flex space-x-2 overflow-x-auto pb-2">
-                {currentVariant.images.map((image, index) => (
+                {currentVariant.images.map((image: string, index: number) => (
                   <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
                     <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                   </button>
@@ -319,6 +362,17 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
               <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
               <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
             </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+              <div className="flex items-center space-x-2">
+                <Info className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">Product ID: prod_ScY2YhK8VvZTsQ</span>
+              </div>
+              <div className="flex items-center space-x-2 mt-1">
+                <Info className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">Price ID: price_1RhIwH6AAjJ6M3ikuyhu48AJ</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -344,7 +398,7 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Features</h3>
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {productData.features.map((feature, index) => (<li key={index} className="flex items-center space-x-2"><Check className="w-4 h-4 text-green-500 flex-shrink-0" /><span className="text-gray-700">{feature}</span></li>))}
+                  {productData.features.map((feature: string, index: number) => (<li key={index} className="flex items-center space-x-2"><Check className="w-4 h-4 text-green-500 flex-shrink-0" /><span className="text-gray-700">{feature}</span></li>))}
                 </ul>
               </div>
             )}
