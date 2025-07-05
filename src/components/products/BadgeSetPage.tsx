@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Star,
   ShoppingCart,
@@ -22,10 +22,10 @@ import OrderOverviewModal from '../OrderOverviewModal';
 
 // Badge set price IDs for different quantities
 const BADGE_PRICE_IDS = {
-  '5': 'price_1Rh4zOFJg5cU61Wl7LSOaVrW',
-  '10': 'price_1RhDxWFJg5cU61Wl2Zfo2Q7Q',
-  '25': 'price_1RhDxWFJg5cU61Wle9qxqzYe',
-  '50': 'price_1RhDxWFJg5cU61WlKcAQzgCs'
+  '5': 'price_1RhIoA6AAjJ6M3ikWtMdB6qK',
+  '10': 'price_1RhIoA6AAjJ6M3ikaYpQ260I',
+  '25': 'price_1RhIoA6AAjJ6M3ik3piP0HUx',
+  '50': 'price_1RhIoA6AAjJ6M3ikOSoZ3Ys9'
 };
 
 // --- Data moved OUTSIDE the component to prevent re-creation on render ---
@@ -37,7 +37,7 @@ const productData = {
   careInstructions: "Wipe clean with soft cloth.",
   materials: "Metal with enamel finish",
   category: 'gear',
-  shipping: "Ships in 24H",
+  shipping: "Ships in 48H",
   defaultVariant: 901, // Default to the 5-pack
   variantDetails: {
     // Variants are based on set size for this product
@@ -57,13 +57,24 @@ interface BadgeSetPageProps {
   onBack: () => void;
 }
 
+interface OrderToConfirm {
+  productName: string;
+  productImage: string;
+  price: number;
+  quantity: number;
+  priceId: string;
+  variants: {
+    packSize: string;
+  };
+}
+
 const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
-  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
+  const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
   
-  const defaultVariant = productData.variants[productData.defaultVariant];
+  const defaultVariant = productData.variants[productData.defaultVariant as keyof typeof productData.variants];
 
   // State
   const [currentVariant, setCurrentVariant] = useState(defaultVariant);
@@ -95,7 +106,7 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
       name: `${productData.name} (Set of ${currentVariant.packSize})`,
       price: currentVariant.price,
       image: productData.variantDetails.images[0],
-      setSize: currentVariant.setSize,
+      packSize: currentVariant.packSize,
       quantity: quantity
     };
     addToCart(itemToAdd);
@@ -118,12 +129,12 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
     // Set up the order details for confirmation
     setOrderToConfirm({
       productName: `${productData.name} (Set of ${selectedSetSize})`,
-      productImage: images[0],
+      productImage: productData.variantDetails.images[0],
       price: currentVariant.price,
       quantity: quantity,
       priceId: priceId,
       variants: {
-        setSize: selectedSetSize
+        packSize: selectedSetSize
       }
     });
     
@@ -131,6 +142,11 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
   };
 
   const handleConfirmCheckout = async () => {
+    if (!orderToConfirm) {
+      console.error('No order to confirm');
+      return;
+    }
+    
     setShowOrderOverview(false);
     setIsLoading(true);
     
@@ -347,7 +363,7 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
             
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Product ID:</strong> prod_ScJcQ8ipTKmWu9
+                <strong>Product ID:</strong> prod_ScXtYM04OKRYTe
               </p>
             </div>
 
