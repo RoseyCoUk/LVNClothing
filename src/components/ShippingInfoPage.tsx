@@ -53,7 +53,7 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
                 <Clock className="w-8 h-8 text-blue-600" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Fast Processing</h3>
-              <p className="text-sm text-gray-600">Ships within 24 hours</p>
+              <p className="text-sm text-gray-600">Ships within 48 hours</p>
             </div>
 
             <div className="text-center">
@@ -73,13 +73,52 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
             </div>
           </div>
 
+          <div className="bg-gray-50 rounded-lg p-6 mb-8">
+            <h3 className="font-semibold text-gray-900 mb-4">Shipping Options & Rates</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
+                <div>
+                  <h4 className="font-medium text-gray-900">Standard Delivery</h4>
+                  <p className="text-sm text-gray-600">3-5 business days</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-semibold text-gray-900">£3.99</p>
+                  <p className="text-xs text-green-600">Free over £50</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
+                <div>
+                  <h4 className="font-medium text-gray-900">Express Delivery</h4>
+                  <p className="text-sm text-gray-600">2-3 business days</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-semibold text-gray-900">£5.99</p>
+                  <p className="text-xs text-blue-600">Priority shipping</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                <div>
+                  <h4 className="font-medium text-green-900">Free Shipping</h4>
+                  <p className="text-sm text-green-700">On orders over £50</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-semibold text-green-900">£0.00</p>
+                  <p className="text-xs text-green-600">Standard delivery</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="font-semibold text-blue-900 mb-2">Detailed Shipping Information Coming Soon</h3>
-            <p className="text-blue-800">
-              We're preparing comprehensive shipping information including delivery timeframes, 
-              tracking details, and international shipping options. This page will be updated with 
-              all the details you need about our shipping policies and procedures.
-            </p>
+            <h3 className="font-semibold text-blue-900 mb-2">Processing & Delivery Information</h3>
+            <div className="text-blue-800 space-y-2">
+              <p><strong>Processing Time:</strong> All orders are processed and shipped within 48 hours of purchase.</p>
+              <p><strong>Tracking:</strong> You'll receive a tracking email once your order has been dispatched.</p>
+              <p><strong>Business Days:</strong> Delivery times are based on business days (Monday-Friday, excluding bank holidays).</p>
+              <p><strong>International Shipping:</strong> Currently available for UK addresses only. International shipping coming soon.</p>
+            </div>
           </div>
 
           <div className="mt-8 text-center">

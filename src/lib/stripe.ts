@@ -6,6 +6,7 @@ export interface CheckoutSessionRequest {
   cancel_url: string;
   mode: 'payment' | 'subscription';
   customer_email?: string;
+  shipping_rate_id?: string;
 }
 
 export interface CheckoutSessionResponse {

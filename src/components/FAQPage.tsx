@@ -33,6 +33,10 @@ const FAQPage = ({ onBack }: FAQPageProps) => {
     {
       question: "What payment methods do you accept?",
       answer: "We accept all major credit and debit cards including Visa, Mastercard, and American Express. All payments are processed securely."
+    },
+    {
+      question: "How long does shipping take?",
+      answer: "All orders are processed and shipped within 48 hours of purchase. You'll receive a tracking email once your order has been dispatched."
     }
   ];
 

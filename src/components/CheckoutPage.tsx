@@ -74,13 +74,25 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
   const [shippingMethod, setShippingMethod] = useState('standard');
   
   const subtotal = getTotalPrice();
-  const shipping = shippingMethod === 'express' ? 4.99 : (subtotal >= 50 ? 0 : 3.99);
+  const shipping = shippingMethod === 'express' ? 5.99 : (subtotal >= 50 ? 0 : 3.99);
   const promoDiscount = appliedPromo === 'REFORM10' ? subtotal * 0.1 : 0;
   const total = subtotal + shipping - promoDiscount;
   
   const shippingOptions = [
-    { id: 'standard', name: 'Standard Delivery', time: '3-5 business days', price: subtotal >= 50 ? 0 : 3.99 },
-    { id: 'express', name: 'Express Delivery', time: '1-2 business days', price: 4.99 }
+    { 
+      id: 'standard', 
+      name: 'Standard Delivery', 
+      time: '3-5 business days', 
+      price: subtotal >= 50 ? 0 : 3.99,
+      stripeId: subtotal >= 50 ? 'shr_1RhaDI6AAjJ6M3ikqtd1sdZh' : 'shr_1Rha9a6AAjJ6M3ikQJMEmw8B'
+    },
+    { 
+      id: 'express', 
+      name: 'Express Delivery', 
+      time: '2-3 business days', 
+      price: 5.99,
+      stripeId: 'shr_1RhaCM6AAjJ6M3ikdpDNNIeH'
+    }
   ];
   
   // Email validation function
@@ -340,23 +352,20 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
     
     try {
       // Get the first item from the cart to use as the product
-      // In a real implementation, you would handle multiple items properly
-      if (cartItems.length === 0) {
-        alert('Your cart is empty');
-        setIsProcessing(false);
-        return;
-      }
-      
-      // Get the first item from the cart to use as the product
       const firstItem = cartItems[0];
       const testPriceId = 'price_1RgXAlFJg5cU61Wl3C0w9uy3'; // Default to Reform UK Hoodie
+      
+      // Get the shipping rate ID based on the selected shipping method
+      const selectedShippingOption = shippingOptions.find(option => option.id === shippingMethod);
+      const shipping_rate_id = selectedShippingOption?.stripeId;
       
       const { url } = await createCheckoutSession({
         price_id: testPriceId,
         success_url: `${window.location.origin}?success=true`,
         cancel_url: window.location.href,
         mode: 'payment',
-        customer_email: shippingInfo.email // Pass the email for guest checkout
+        customer_email: shippingInfo.email, // Pass the email for guest checkout
+        shipping_rate_id: shipping_rate_id // Pass the shipping rate ID
       });
       
       // Redirect to Stripe checkout
