@@ -528,151 +528,151 @@ const ProductBundles = () => {
               </div>
             )}
             
-            <div className="md:flex">
-              <div className="md:w-1/3 relative">
-                <img 
-                  src={currentBundle.image} 
-                  alt={currentBundle.name}
-                  className="w-full h-64 md:h-full object-cover"
-                />
-                <div className="absolute top-4 left-4">
-                  <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center animate-pulse">
-                    <AlertTriangle className="w-3 h-3 mr-1" />
-                    {currentBundle.urgency}
-                  </span>
+            {/* Image Section - Full Width */}
+            <div className="relative">
+              <img 
+                src={currentBundle.image} 
+                alt={currentBundle.name}
+                className="w-full h-64 object-cover"
+              />
+              <div className="absolute top-4 left-4">
+                <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center animate-pulse">
+                  <AlertTriangle className="w-3 h-3 mr-1" />
+                  {currentBundle.urgency}
+                </span>
+              </div>
+            </div>
+            
+            {/* Bundle Information Section */}
+            <div className="p-6">
+              <h3 className="text-2xl font-bold mb-4">{currentBundle.name}</h3>
+              
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-lg text-gray-500 line-through">{currentBundle.originalPrice}</span>
+                  <span className="text-green-600 font-semibold">{currentBundle.savings}</span>
                 </div>
+                <div className="text-3xl font-bold text-[#009fe3]">£{currentBundle.bundlePrice.toFixed(2)}</div>
               </div>
               
-              <div className="md:w-2/3 p-6">
-                <h3 className="text-2xl font-bold mb-4">{currentBundle.name}</h3>
-                
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-lg text-gray-500 line-through">{currentBundle.originalPrice}</span>
-                    <span className="text-green-600 font-semibold">{currentBundle.savings}</span>
-                  </div>
-                  <div className="text-3xl font-bold text-[#009fe3]">£{currentBundle.bundlePrice.toFixed(2)}</div>
-                </div>
-                
-                {/* Bundle Items with Variant Selection */}
-                <div className="mb-6">
-                  <h4 className="font-semibold mb-4 text-gray-700">Customize Your Bundle:</h4>
-                  <div className="space-y-4">
-                    {currentBundle.items.map((item, index) => (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-start space-x-4">
-                          <img 
-                            src={getImageForSelection(item)} 
-                            alt={item.name}
-                            className="w-16 h-16 object-cover rounded-lg"
-                          />
-                          <div className="flex-1">
-                            <h5 className="font-medium text-gray-900 mb-2">{item.name}</h5>
-                            
-                            {item.customizable ? (
-                              <div className="space-y-3">
-                                {/* Gender Selection for Hoodies/T-shirts */}
-                                {(item.type === 'hoodie' || item.type === 'tshirt') && (
-                                  <div>
-                                    <label className="block text-xs font-medium text-gray-600 mb-1">Gender</label>
-                                    <div className="flex gap-2">
-                                      {(productOptions[item.type as ProductType]?.genders || []).map((gender) => (
-                                        <button
-                                          key={gender}
-                                          onClick={() => updateSelection(item.type, 'gender', gender)}
-                                          className={`px-3 py-1 text-xs border rounded-md transition-colors ${
-                                            currentSelections[item.type as keyof typeof currentSelections]?.gender === gender
-                                              ? 'border-[#009fe3] bg-[#009fe3] text-white'
-                                              : 'border-gray-300 text-gray-700 hover:border-[#009fe3]'
-                                          }`}
-                                        >
-                                          {gender}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                                
-                                {/* Size Selection for Hoodies/T-shirts */}
-                                {(item.type === 'hoodie' || item.type === 'tshirt') && (
-                                  <div>
-                                    <label className="block text-xs font-medium text-gray-600 mb-1">Size</label>
-                                    <div className="flex gap-1 flex-wrap">
-                                      {(productOptions[item.type as ProductType]?.sizes || []).map((size) => (
-                                        <button
-                                          key={size}
-                                          onClick={() => updateSelection(item.type, 'size', size)}
-                                          className={`px-2 py-1 text-xs border rounded transition-colors ${
-                                            currentSelections[item.type as keyof typeof currentSelections]?.size === size
-                                              ? 'border-[#009fe3] bg-[#009fe3] text-white'
-                                              : 'border-gray-300 text-gray-700 hover:border-[#009fe3]'
-                                          }`}
-                                        >
-                                          {size}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                                
-                                {/* Color Selection */}
+              {/* Bundle Items with Variant Selection */}
+              <div className="mb-6">
+                <h4 className="font-semibold mb-4 text-gray-700">Customize Your Bundle:</h4>
+                <div className="space-y-4">
+                  {currentBundle.items.map((item, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-start space-x-4">
+                        <img 
+                          src={getImageForSelection(item)} 
+                          alt={item.name}
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
+                        <div className="flex-1">
+                          <h5 className="font-medium text-gray-900 mb-2">{item.name}</h5>
+                          
+                          {item.customizable ? (
+                            <div className="space-y-3">
+                              {/* Gender Selection for Hoodies/T-shirts */}
+                              {(item.type === 'hoodie' || item.type === 'tshirt') && (
                                 <div>
-                                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                                    Color: {currentSelections[item.type as keyof typeof currentSelections]?.color}
-                                  </label>
-                                  <div className="flex gap-2 flex-wrap">
-                                    {(productOptions[item.type as ProductType]?.colors || []).map((color: Color) => (
-                                      <ColorSwatch
-                                        key={color.name}
-                                        color={color}
-                                        isSelected={currentSelections[item.type as keyof typeof currentSelections]?.color === color.name}
-                                        onClick={() => updateSelection(item.type, 'color', color.name)}
-                                      />
+                                  <label className="block text-xs font-medium text-gray-600 mb-1">Gender</label>
+                                  <div className="flex gap-2">
+                                    {(productOptions[item.type as ProductType]?.genders || []).map((gender) => (
+                                      <button
+                                        key={gender}
+                                        onClick={() => updateSelection(item.type, 'gender', gender)}
+                                        className={`px-3 py-1 text-xs border rounded-md transition-colors ${
+                                          currentSelections[item.type as keyof typeof currentSelections]?.gender === gender
+                                            ? 'border-[#009fe3] bg-[#009fe3] text-white'
+                                            : 'border-gray-300 text-gray-700 hover:border-[#009fe3]'
+                                        }`}
+                                      >
+                                        {gender}
+                                      </button>
                                     ))}
                                   </div>
                                 </div>
+                              )}
+                              
+                              {/* Size Selection for Hoodies/T-shirts */}
+                              {(item.type === 'hoodie' || item.type === 'tshirt') && (
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-600 mb-1">Size</label>
+                                  <div className="flex gap-1 flex-wrap">
+                                    {(productOptions[item.type as ProductType]?.sizes || []).map((size) => (
+                                      <button
+                                        key={size}
+                                        onClick={() => updateSelection(item.type, 'size', size)}
+                                        className={`px-2 py-1 text-xs border rounded transition-colors ${
+                                          currentSelections[item.type as keyof typeof currentSelections]?.size === size
+                                            ? 'border-[#009fe3] bg-[#009fe3] text-white'
+                                            : 'border-gray-300 text-gray-700 hover:border-[#009fe3]'
+                                        }`}
+                                      >
+                                        {size}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Color Selection */}
+                              <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                  Color: {currentSelections[item.type as keyof typeof currentSelections]?.color}
+                                </label>
+                                <div className="flex gap-2 flex-wrap">
+                                  {(productOptions[item.type as ProductType]?.colors || []).map((color: Color) => (
+                                    <ColorSwatch
+                                      key={color.name}
+                                      color={color}
+                                      isSelected={currentSelections[item.type as keyof typeof currentSelections]?.color === color.name}
+                                      onClick={() => updateSelection(item.type, 'color', color.name)}
+                                    />
+                                  ))}
+                                </div>
                               </div>
-                            ) : (
-                              <p className="text-sm text-gray-600">{item.variant}</p>
-                            )}
-                          </div>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-gray-600">{item.variant}</p>
+                          )}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
+              </div>
+              
+              <div className="space-y-3">
+                <button 
+                  onClick={handleBuyNow}
+                  disabled={isLoading}
+                  className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+                >
+                  {isLoading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-5 h-5 mr-2" />
+                      Buy Now - £{currentBundle.bundlePrice.toFixed(2)}
+                    </>
+                  )}
+                </button>
                 
-                <div className="space-y-3">
-                  <button 
-                    onClick={handleBuyNow}
-                    disabled={isLoading}
-                    className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
-                  >
-                    {isLoading ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    ) : (
-                      <>
-                        <ShoppingCart className="w-5 h-5 mr-2" />
-                        Buy Now - £{currentBundle.bundlePrice.toFixed(2)}
-                      </>
-                    )}
-                  </button>
-                  
-                  <button 
-                    onClick={handleAddBundleToCart}
-                    className="w-full border-2 border-[#009fe3] text-[#009fe3] hover:bg-[#009fe3] hover:text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
-                  >
-                    <ShoppingCart className="w-5 h-5" />
-                    <span>Add Bundle to Cart</span>
-                  </button>
-                </div>
-                
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    <strong>Bundle Deal:</strong> All items are included at the bundle price. 
-                    Your selected variants will be added to cart as a single bundle item.
-                  </p>
-                </div>
+                <button 
+                  onClick={handleAddBundleToCart}
+                  className="w-full border-2 border-[#009fe3] text-[#009fe3] hover:bg-[#009fe3] hover:text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  <span>Add Bundle to Cart</span>
+                </button>
+              </div>
+              
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>Bundle Deal:</strong> All items are included at the bundle price. 
+                  Your selected variants will be added to cart as a single bundle item.
+                </p>
               </div>
             </div>
           </div>
