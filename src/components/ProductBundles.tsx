@@ -533,7 +533,7 @@ const ProductBundles = () => {
               <img 
                 src={currentBundle.image} 
                 alt={currentBundle.name}
-                className="w-full h-64 object-cover"
+                className="w-full h-96 aspect-square object-cover"
               />
               <div className="absolute top-4 left-4">
                 <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center animate-pulse">
