@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Star, Eye, Clock, ArrowRight } from 'lucide-react';
-// useCart is no longer needed on this page, but we'll leave the import in case you use it elsewhere.
-import { useCart } from '../contexts/CartContext';
 
 interface TopSellersProps {
   onProductClick: (productId: number) => void;
