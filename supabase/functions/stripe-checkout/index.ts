@@ -71,17 +71,21 @@ Deno.serve(async (req) => {
 
     let userId: string | null = null;
     let customerId: string | null = null;
+
     const authHeader = req.headers.get('Authorization');
+    const token = authHeader?.replace('Bearer ', '').trim();
 
-    if (authHeader) {
-      const token = authHeader.replace('Bearer ', '');
-      const { data: { user }, error: getUserError } = await supabase.auth.getUser(token);
+    if (token) {
+      try {
+        const { data: { user }, error: getUserError } = await supabase.auth.getUser(token);
 
-      if (getUserError) {
-        console.error('Failed to authenticate user with provided token:', getUserError);
-        // Continue without user if authentication fails, treat as guest
-      } else if (user) {
-        userId = user.id;
+        if (getUserError) {
+          console.warn('JWT invalid or expired. Proceeding as guest.');
+        } else if (user) {
+          userId = user.id;
+        }
+      } catch (err) {
+        console.warn('Error while authenticating user. Proceeding as guest.');
       }
     }
 
