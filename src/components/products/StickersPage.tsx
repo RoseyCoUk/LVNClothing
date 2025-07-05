@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Star,
   ShoppingCart,
@@ -22,13 +22,39 @@ import OrderOverviewModal from '../OrderOverviewModal';
 
 // Sticker pack price IDs for different quantities
 const STICKER_PRICE_IDS = {
-  '10': 'price_1RgXO9FJg5cU61WlospNv7xa',
-  '25': 'price_1RhE7YFJg5cU61WlnSf4FSP4',
-  '50': 'price_1RhE7mFJg5cU61WlUR34bEIZ',
-  '100': 'price_1RhE81FJg5cU61WlIBZkgK2d'
+  '10': 'price_1RhIrb6AAjJ6M3ikBUvagpUD',
+  '25': 'price_1RhIs16AAjJ6M3iknOlvCig1',
+  '50': 'price_1RhIsO6AAjJ6M3ikaOVjG5ty',
+  '100': 'price_1RhItI6AAjJ6M3ikXLolNq5e'
 };
 
-// --- Data moved OUTSIDE the component to prevent re-creation on render ---
+// Fix 2: Add proper TypeScript interfaces
+interface Variant {
+  id: number;
+  packSize: string;
+  price: number;
+  inStock: boolean;
+  stockCount: number;
+  rating: number;
+  reviews: number;
+}
+
+interface Variants {
+  [key: number]: Variant;
+}
+
+interface OrderToConfirm {
+  productName: string;
+  productImage: string;
+  price: number;
+  quantity: number;
+  priceId: string;
+  variants: {
+    packSize: string;
+  };
+}
+
+// Fix 3: Add proper typing to variants object
 const productData = {
   id: 8,
   name: "Reform UK Stickers",
@@ -37,7 +63,7 @@ const productData = {
   careInstructions: "Apply to clean, dry surface.",
   materials: "Vinyl with permanent adhesive",
   category: 'gear',
-  shipping: "Ships in 24H",
+  shipping: "Ships in 48H",
   defaultVariant: 801, // Default to the 10-pack
   variantDetails: {
     packSizes: ['10', '25', '50', '100'],
@@ -48,7 +74,7 @@ const productData = {
     802: { id: 802, packSize: '25', price: 19.99, inStock: true, stockCount: 80, rating: 5, reviews: 234 },
     803: { id: 803, packSize: '50', price: 34.99, inStock: true, stockCount: 50, rating: 5, reviews: 234 },
     804: { id: 804, packSize: '100', price: 59.99, inStock: true, stockCount: 30, rating: 5, reviews: 234 },
-  }
+  } as Variants
 };
 
 interface StickersPageProps {
@@ -59,9 +85,9 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
-  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
+  const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
   
-  const defaultVariant = productData.variants[productData.defaultVariant];
+  const defaultVariant = productData.variants[productData.defaultVariant as keyof typeof productData.variants];
 
   // State
   const [currentVariant, setCurrentVariant] = useState(defaultVariant);
@@ -116,7 +142,7 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
     // Set up the order details for confirmation
     setOrderToConfirm({
       productName: `${productData.name} (Pack of ${selectedPackSize})`,
-      productImage: images[0],
+      productImage: productData.variantDetails.images[0],
       price: currentVariant.price,
       quantity: quantity,
       priceId: priceId,
@@ -129,6 +155,11 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
   };
 
   const handleConfirmCheckout = async () => {
+    if (!orderToConfirm) {
+      console.error('No order to confirm');
+      return;
+    }
+    
     setShowOrderOverview(false);
     setIsLoading(true);
     
@@ -348,6 +379,14 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
               <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Free UK Shipping Over £30</p></div>
               <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
               <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
+            </div>
+
+            {/* Fix 7: Add Product ID Display */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+              <div className="flex items-center space-x-2">
+                <Info className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">Product ID: prod_ScXxJfx11oIwsJ</span>
+              </div>
             </div>
           </div>
         </div>

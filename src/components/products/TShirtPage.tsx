@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Star,
   ShoppingCart,
@@ -20,6 +20,42 @@ import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
 
+// Fix 2: Add proper TypeScript interfaces
+interface Color {
+  name: string;
+  value: string;
+  border?: boolean;
+}
+
+interface Variant {
+  id: number;
+  gender: string;
+  color: string;
+  price: number;
+  inStock: boolean;
+  stockCount: number;
+  rating: number;
+  reviews: number;
+  images: string[];
+}
+
+interface Variants {
+  [key: number]: Variant;
+}
+
+interface OrderToConfirm {
+  productName: string;
+  productImage: string;
+  price: number;
+  quantity: number;
+  priceId: string;
+  variants: {
+    gender: string;
+    color: string;
+    size: string;
+  };
+}
+
 // --- FIX: T-Shirt data is moved OUTSIDE the component to ensure it's a stable constant ---
 const productData = {
   id: 2,
@@ -29,14 +65,14 @@ const productData = {
   careInstructions: "Machine wash cold. Tumble dry low. Do not bleach.",
   materials: "100% cotton",
   category: 'apparel',
-  shipping: "Ships in 24H",
+  shipping: "Ships in 48H",
   defaultVariant: 205, // Default to Men's Black
   variantDetails: {
     genders: ['Men', 'Women'],
     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
     colors: [
         { name: 'White', value: '#FFFFFF', border: true }, { name: 'Light Grey', value: '#E5E5E5', border: true }, { name: 'Ash Grey', value: '#B0B0B0' }, { name: 'Charcoal', value: '#333333' }, { name: 'Black', value: '#000000' }, { name: 'Royal Blue', value: '#0B4C8A' }, { name: 'Red', value: '#B31217' }
-    ]
+    ] as Color[]
   },
   variants: {
     // Men's T-Shirts - 6 images each
@@ -55,9 +91,8 @@ const productData = {
     215: { id: 215, gender: 'Women', color: 'Black', price: 19.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtBlack${i + 1}.webp`) },
     216: { id: 216, gender: 'Women', color: 'Royal Blue', price: 19.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtBlue${i + 1}.webp`) },
     217: { id: 217, gender: 'Women', color: 'Red', price: 19.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtRed${i + 1}.webp`) },
-  }
+  } as Variants // Fix 3: Add proper typing to variants object
 };
-
 
 interface TShirtPageProps {
   onBack: () => void;
@@ -67,12 +102,12 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
-  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
+  const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
   
-  const defaultVariant = productData.variants[productData.defaultVariant];
+  const defaultVariant = productData.variants[productData.defaultVariant as keyof typeof productData.variants];
 
   // State
-  const [currentVariant, setCurrentVariant] = useState(defaultVariant);
+  const [currentVariant, setCurrentVariant] = useState<Variant>(defaultVariant);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('M');
@@ -84,7 +119,7 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
   // Effect to update the variant when color or gender changes
   useEffect(() => {
     const newVariant = Object.values(productData.variants).find(
-      variant => variant.gender === selectedGender && variant.color === selectedColor
+      (variant: Variant) => variant.gender === selectedGender && variant.color === selectedColor
     );
     // Only update state if the variant has actually changed
     if (newVariant && newVariant.id !== currentVariant.id) {
@@ -131,7 +166,7 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
       productImage: currentVariant.images[0],
       price: currentVariant.price,
       quantity: quantity,
-      priceId: 'price_1RgXFZFJg5cU61Wl0raeYVBN', // Reform UK T-Shirt
+      priceId: 'price_1RhJ906AAjJ6M3ikIvZqpFTn', // Updated price ID
       variants: {
         gender: currentVariant.gender,
         color: currentVariant.color,
@@ -143,6 +178,11 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
   };
 
   const handleConfirmCheckout = async () => {
+    if (!orderToConfirm) {
+      console.error('No order to confirm');
+      return;
+    }
+    
     setShowOrderOverview(false);
     setIsLoading(true);
     
@@ -258,7 +298,7 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
 
             {currentVariant.images.length > 1 && (
               <div className="flex space-x-2 overflow-x-auto pb-2">
-                {currentVariant.images.map((image, index) => (
+                {currentVariant.images.map((image: string, index: number) => (
                   <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
                     <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                   </button>
@@ -381,6 +421,18 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
               <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
               <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
             </div>
+
+            {/* Fix 9: Add Product ID Display */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+              <div className="flex items-center space-x-2">
+                <Info className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">Product ID: prod_ScYFIqKqy6EwHE</span>
+              </div>
+              <div className="flex items-center space-x-2 mt-1">
+                <Info className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">Price ID: price_1RhJ906AAjJ6M3ikIvZqpFTn</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -406,7 +458,7 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Features</h3>
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {productData.features.map((feature, index) => (<li key={index} className="flex items-center space-x-2"><Check className="w-4 h-4 text-green-500 flex-shrink-0" /><span className="text-gray-700">{feature}</span></li>))}
+                  {productData.features.map((feature: string, index: number) => (<li key={index} className="flex items-center space-x-2"><Check className="w-4 h-4 text-green-500 flex-shrink-0" /><span className="text-gray-700">{feature}</span></li>))}
                 </ul>
               </div>
             )}

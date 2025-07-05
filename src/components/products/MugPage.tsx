@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Star,
   ShoppingCart,
@@ -20,6 +20,39 @@ import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
 
+// Fix 2: Add proper TypeScript interfaces
+interface Color {
+  name: string;
+  value: string;
+  border?: boolean;
+}
+
+interface Variant {
+  id: number;
+  price: number;
+  inStock: boolean;
+  stockCount: number;
+  rating: number;
+  reviews: number;
+  images: string[];
+}
+
+interface Variants {
+  [key: number]: Variant;
+}
+
+interface OrderToConfirm {
+  productName: string;
+  productImage: string;
+  price: number;
+  quantity: number;
+  priceId: string;
+  variants: {
+    color: string;
+    size: string;
+  };
+}
+
 // --- Data moved OUTSIDE the component to prevent re-creation on render ---
 const productData = {
   id: 6,
@@ -29,13 +62,13 @@ const productData = {
   careInstructions: "Dishwasher and microwave safe.",
   materials: "High-grade ceramic",
   category: 'gear',
-  shipping: "Ships in 24H",
+  shipping: "Ships in 48H",
   defaultVariant: 601, // The ID of the single, default variant
   variantDetails: {
     // No selectable options for this product
     colors: [
       { name: 'White', value: '#FFFFFF', border: true }
-    ],
+    ] as Color[], // Fix 3: Add proper typing to colors array
     sizes: ['11oz']
   },
   variants: {
@@ -55,11 +88,11 @@ const productData = {
         "MugMouse/ReformMug5.webp"
       ]
     }
-  }
+  } as Variants // Fix 4: Add proper typing to variants object
 };
 
-// A small component to display the color swatch consistently
-const ColorSwatch = ({ color }) => (
+// Fix 5: Add proper typing to ColorSwatch
+const ColorSwatch = ({ color }: { color: Color }) => (
   <div
     className="relative w-12 h-12 rounded-full border-2 border-gray-300"
     style={{ backgroundColor: color.value }}
@@ -71,7 +104,6 @@ const ColorSwatch = ({ color }) => (
   </div>
 );
 
-
 interface MugPageProps {
   onBack: () => void;
 }
@@ -80,10 +112,11 @@ const MugPage = ({ onBack }: MugPageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
-  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
+  // Fix 6: Add proper typing for orderToConfirm
+  const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
   
-  // Since there's only one variant, we can set it directly as a constant.
-  const currentVariant = productData.variants[productData.defaultVariant];
+  // Fix 7: Add proper type assertion
+  const currentVariant = productData.variants[productData.defaultVariant as keyof typeof productData.variants];
   
   // State
   const [selectedImage, setSelectedImage] = useState(0);
@@ -109,7 +142,8 @@ const MugPage = ({ onBack }: MugPageProps) => {
       productImage: currentVariant.images[0],
       price: currentVariant.price,
       quantity: quantity,
-      priceId: 'price_1RgXHSFJg5cU61Wl0rmObyrH', // Reform UK Mug
+      // Fix 8: Update price ID
+      priceId: 'price_1RhIzP6AAjJ6M3ikomGUEQ8D', // Updated price ID
       variants: {
         color: 'White',
         size: '11oz'
@@ -120,6 +154,12 @@ const MugPage = ({ onBack }: MugPageProps) => {
   };
 
   const handleConfirmCheckout = async () => {
+    // Fix 9: Add null check
+    if (!orderToConfirm) {
+      console.error('No order to confirm');
+      return;
+    }
+    
     setShowOrderOverview(false);
     setIsLoading(true);
     
@@ -323,6 +363,18 @@ const MugPage = ({ onBack }: MugPageProps) => {
               <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
               <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
             </div>
+
+            {/* Fix 10: Add Product ID Display */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+              <div className="flex items-center space-x-2">
+                <Info className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">Product ID: prod_ScY5Xu0sznr4Oz</span>
+              </div>
+              <div className="flex items-center space-x-2 mt-1">
+                <Info className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">Price ID: price_1RhIzP6AAjJ6M3ikomGUEQ8D</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -348,7 +400,7 @@ const MugPage = ({ onBack }: MugPageProps) => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Features</h3>
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {productData.features.map((feature, index) => (<li key={index} className="flex items-center space-x-2"><Check className="w-4 h-4 text-green-500 flex-shrink-0" /><span className="text-gray-700">{feature}</span></li>))}
+                  {productData.features.map((feature: string, index: number) => (<li key={index} className="flex items-center space-x-2"><Check className="w-4 h-4 text-green-500 flex-shrink-0" /><span className="text-gray-700">{feature}</span></li>))}
                 </ul>
               </div>
             )}

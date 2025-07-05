@@ -29,7 +29,7 @@ const productData = {
   careInstructions: "Spot clean only. Air dry.",
   materials: "100% cotton twill",
   category: 'apparel',
-  shipping: "Ships in 24H",
+  shipping: "Ships in 48H",
   defaultVariant: 305, // Default to Black
   variantDetails: {
     // No genders or sizes for this product, only colors.

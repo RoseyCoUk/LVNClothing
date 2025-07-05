@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Star,
   ShoppingCart,
@@ -20,7 +20,35 @@ import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
 
-// --- FIX: Tote Bag data is moved OUTSIDE the component to ensure it's a stable constant ---
+// Fix 2: Add proper TypeScript interfaces
+interface Variant {
+  id: number;
+  color: string;
+  price: number;
+  inStock: boolean;
+  stockCount: number;
+  rating: number;
+  reviews: number;
+  images: string[];
+}
+
+interface Variants {
+  [key: number]: Variant;
+}
+
+interface OrderToConfirm {
+  productName: string;
+  productImage: string;
+  price: number;
+  quantity: number;
+  priceId: string;
+  variants: {
+    color: string;
+    size: string;
+  };
+}
+
+// Fix 3: Add proper typing to variants object
 const productData = {
   id: 4,
   name: "Reform UK Tote Bag",
@@ -29,7 +57,7 @@ const productData = {
   careInstructions: "Machine wash cold. Air dry.",
   materials: "100% organic cotton canvas",
   category: 'gear',
-  shipping: "Ships in 24H",
+  shipping: "Ships in 48H",
   defaultVariant: 401, // The ID of the single, default variant
   variantDetails: {
     // As per instructions, only one color and size
@@ -50,7 +78,7 @@ const productData = {
       reviews: 156,
       images: Array.from({ length: 3 }, (_, i) => `StickerToteWater/ReformToteBagBlack${i + 1}.webp`)
     }
-  }
+  } as Variants
 };
 
 interface ToteBagPageProps {
@@ -61,10 +89,10 @@ const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
   const { addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
-  const [orderToConfirm, setOrderToConfirm] = useState<any>(null);
+  const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
   
-  // Since there's only one variant, we can set it directly.
-  const [currentVariant] = useState(productData.variants[productData.defaultVariant]);
+  // Fix 5: Add proper type assertion
+  const [currentVariant] = useState(productData.variants[productData.defaultVariant as keyof typeof productData.variants]);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
@@ -88,7 +116,7 @@ const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
       productImage: currentVariant.images[0],
       price: currentVariant.price,
       quantity: quantity,
-      priceId: 'price_1RgXGTFJg5cU61WlsbgPrVvk', // Reform UK Tote Bag
+      priceId: 'price_1RhJ4I6AAjJ6M3ikTF2cpqKv', // Reform UK Tote Bag
       variants: {
         color: currentVariant.color,
         size: 'One Size'
@@ -99,6 +127,12 @@ const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
   };
 
   const handleConfirmCheckout = async () => {
+    // Fix 6: Add null check
+    if (!orderToConfirm) {
+      console.error('No order to confirm');
+      return;
+    }
+    
     setShowOrderOverview(false);
     setIsLoading(true);
     
@@ -214,7 +248,7 @@ const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
 
             {currentVariant.images.length > 1 && (
               <div className="flex space-x-2 overflow-x-auto pb-2">
-                {currentVariant.images.map((image, index) => (
+                {currentVariant.images.map((image: string, index: number) => (
                   <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
                     <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                   </button>
@@ -299,6 +333,14 @@ const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
               <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Free UK Shipping Over £30</p></div>
               <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
               <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
+            </div>
+
+            {/* Fix 7: Add Product ID Display */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+              <div className="flex items-center space-x-2">
+                <Info className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">Product ID: prod_ScYAsyOsOsBLk0</span>
+              </div>
             </div>
           </div>
         </div>
