@@ -84,81 +84,44 @@ Deno.serve(async (req) => {
 });
 
 async function sendOrderNotificationEmail(order: any, customerEmail: string) {
-  // Format currency for display
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: currency.toUpperCase(),
-    }).format(amount / 100);
-  };
-
-  // Format date for display
-  const formatDate = (timestamp: string) => {
-    return new Date(timestamp).toLocaleString('en-GB', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  // Create email content
+  // Generate email content
   const emailContent = `
-    <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background-color: #009fe3; color: white; padding: 20px; text-align: center; }
-          .content { padding: 20px; }
-          .order-details { background-color: #f5f5f5; padding: 15px; margin: 15px 0; }
-          .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>New Order Notification</h1>
-          </div>
-          <div class="content">
-            <p>A new order has been placed on the Reform UK shop.</p>
-            
-            <div class="order-details">
-              <h3>Order Details:</h3>
-              <p><strong>Order ID:</strong> ${order.id}</p>
-              <p><strong>Customer ID:</strong> ${order.customer_id}</p>
-              <p><strong>Customer Email:</strong> ${customerEmail}</p>
-              <p><strong>Date:</strong> ${formatDate(order.created_at)}</p>
-              <p><strong>Amount:</strong> ${formatCurrency(order.amount_total, order.currency)}</p>
-              <p><strong>Payment Status:</strong> ${order.payment_status}</p>
-              <p><strong>Order Status:</strong> ${order.status}</p>
-            </div>
-            
-            <p>Please log in to the Stripe dashboard to view the complete order details and process the order.</p>
-          </div>
-          <div class="footer">
-            <p>This is an automated message from the Reform UK Shop system.</p>
-          </div>
-        </div>
-      </body>
-    </html>
+    <h2>Order Confirmation</h2>
+    <p>Thank you for your order!</p>
+    <p>Order ID: ${order.id}</p>
+    <p>Customer Email: ${customerEmail}</p>
+    <pre>${JSON.stringify(order, null, 2)}</pre>
   `;
 
-  // In a real implementation, you would use a service like SendGrid, Mailgun, etc.
-  // For this example, we'll simulate sending an email
-  console.log(`Sending order notification email to support@backreform.co.uk`);
-  console.log(`Email subject: New Order #${order.id} - Reform UK Shop`);
-  console.log(`Email content: ${emailContent}`);
+  // Send to customer
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Reform UK Shop <noreply@backreform.co.uk>',
+      to: customerEmail,
+      subject: `Your Order Confirmation - #${order.id}`,
+      html: emailContent, // You can customise content if you want it different
+    }),
+  });
 
-  // Here you would integrate with an email service
-  // For example with Resend:
-  // const { data, error } = await resend.emails.send({
-  //   from: 'noreply@backreform.co.uk',
-  //   to: 'support@backreform.co.uk',
-  //   subject: `New Order #${order.id} - Reform UK Shop`,
-  //   html: emailContent,
-  // });
+  // Send to internal support
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Reform UK Shop <noreply@backreform.co.uk>',
+      to: 'support@backreform.co.uk',
+      subject: `New Order Received - #${order.id}`,
+      html: emailContent,
+    }),
+  });
 
   return { success: true };
 }
