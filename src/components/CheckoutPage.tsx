@@ -84,14 +84,14 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
       name: 'Standard Delivery', 
       time: '3-5 business days', 
       price: subtotal >= 50 ? 0 : 3.99,
-      stripeId: subtotal >= 50 ? 'shr_1RhaDI6AAjJ6M3ikqtd1sdZh' : 'shr_1Rha9a6AAjJ6M3ikQJMEmw8B'
+      stripeId: subtotal >= 50 ? 'shr_1RhsKRGDbOGEgNLwr60b0IWt' : 'shr_1RhsLvGDbOGEgNLwPAfg0Quj'
     },
     { 
       id: 'express', 
       name: 'Express Delivery', 
       time: '2-3 business days', 
       price: 5.99,
-      stripeId: 'shr_1RhaCM6AAjJ6M3ikdpDNNIeH'
+      stripeId: 'shr_1RhsMoGDbOGEgNLw9XwK3Y6Z'
     }
   ];
   
