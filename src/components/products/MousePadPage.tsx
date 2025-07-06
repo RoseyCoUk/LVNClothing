@@ -141,7 +141,7 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
       productImage: currentVariant.images[0],
       price: currentVariant.price,
       quantity: quantity,
-      priceId: 'price_1RhIwH6AAjJ6M3ikuyhu48AJ',
+      priceId: 'price_1RhsxfGDbOGEgNLwpTGkkVou',
       variants: {
         color: 'White',
         size: 'Standard'
@@ -366,11 +366,11 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <div className="flex items-center space-x-2">
                 <Info className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Product ID: prod_ScY2YhK8VvZTsQ</span>
+                <span className="text-sm font-medium text-blue-800">Product ID: prod_Sd9GL7Wa6YBMJU</span>
               </div>
               <div className="flex items-center space-x-2 mt-1">
                 <Info className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Price ID: price_1RhIwH6AAjJ6M3ikuyhu48AJ</span>
+                <span className="text-sm font-medium text-blue-800">Price ID: price_1RhsxfGDbOGEgNLwpTGkkVou</span>
               </div>
             </div>
           </div>

@@ -22,10 +22,10 @@ import OrderOverviewModal from '../OrderOverviewModal';
 
 // Badge set price IDs for different quantities
 const BADGE_PRICE_IDS = {
-  '5': 'price_1RhIoA6AAjJ6M3ikWtMdB6qK',
-  '10': 'price_1RhIoA6AAjJ6M3ikaYpQ260I',
-  '25': 'price_1RhIoA6AAjJ6M3ik3piP0HUx',
-  '50': 'price_1RhIoA6AAjJ6M3ikOSoZ3Ys9'
+  '5': 'price_1Rht4SGDbOGEgNLwq1R3UDQS',
+  '10': 'price_1Rht63GDbOGEgNLwUssokbE7',
+  '25': 'price_1Rht6PGDbOGEgNLwE2FyT2Kz',
+  '50': 'price_1Rht6eGDbOGEgNLws1wlMSGh'
 };
 
 // --- Data moved OUTSIDE the component to prevent re-creation on render ---
@@ -363,7 +363,7 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
             
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Product ID:</strong> prod_ScXtYM04OKRYTe
+                <strong>Product ID:</strong> prod_Sd9NmoMTiInOFT
               </p>
             </div>
 

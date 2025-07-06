@@ -106,7 +106,7 @@ const TestPaymentFlow = () => {
     
     try {
       // Use a test product from our Stripe config
-      const testPriceId = 'price_1RhJBT6AAjJ6M3ikQfCpKWMu'; // Reform UK Hoodie
+      const testPriceId = 'price_1Rhsh5GDbOGEgNLwpqIVX80W'; // Reform UK Hoodie
       
       const checkoutData = {
         price_id: testPriceId,

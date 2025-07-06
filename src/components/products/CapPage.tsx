@@ -121,7 +121,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
       productImage: currentVariant.images[0],
       price: currentVariant.price,
       quantity: quantity,
-      priceId: 'price_1RhJ576AAjJ6M3iklCrTfgiC', // Reform UK Cap
+      priceId: 'price_1RhsqJGDbOGEgNLwrGCcL3x3', // Reform UK Cap
       variants: {
         color: selectedColor,
         size: 'One Size'
@@ -354,7 +354,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
             {/* Product ID */}
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Product ID:</strong> prod_ScYBkdFJcV0wbo
+                <strong>Product ID:</strong> prod_Sd98NBw7BN3UeY
               </p>
             </div>
           </div>

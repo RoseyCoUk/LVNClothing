@@ -169,7 +169,7 @@ const HoodiePage = ({ onBack }: HoodiePageProps) => {
       productImage: currentVariant.images[0],
       price: currentVariant.price,
       quantity: quantity,
-      priceId: 'price_1RhJBT6AAjJ6M3ikQfCpKWMu', // Updated Reform UK Hoodie Price ID
+      priceId: 'price_1Rhsh5GDbOGEgNLwpqIVX80W', // Updated Reform UK Hoodie Price ID
       variants: {
         gender: currentVariant.gender,
         color: currentVariant.color,
@@ -413,7 +413,7 @@ const HoodiePage = ({ onBack }: HoodiePageProps) => {
             {/* Product ID */}
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Product ID:</strong> prod_ScYIIZ9DhL3XEQ
+                <strong>Product ID:</strong> prod_Sd8zogtUd2cTOt
               </p>
             </div>
           </div>

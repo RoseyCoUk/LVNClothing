@@ -22,10 +22,10 @@ import OrderOverviewModal from '../OrderOverviewModal';
 
 // Sticker pack price IDs for different quantities
 const STICKER_PRICE_IDS = {
-  '10': 'price_1RhIrb6AAjJ6M3ikBUvagpUD',
-  '25': 'price_1RhIs16AAjJ6M3iknOlvCig1',
-  '50': 'price_1RhIsO6AAjJ6M3ikaOVjG5ty',
-  '100': 'price_1RhItI6AAjJ6M3ikXLolNq5e'
+  '10': 'price_1Rht03GDbOGEgNLwJ1ubNAti',
+  '25': 'price_1Rht18GDbOGEgNLwcGW40rtg',
+  '50': 'price_1Rht1hGDbOGEgNLwfhp9VAdB',
+  '100': 'price_1Rht23GDbOGEgNLw5XD5xTaX'
 };
 
 // Fix 2: Add proper TypeScript interfaces
@@ -385,7 +385,7 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <div className="flex items-center space-x-2">
                 <Info className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Product ID: prod_ScXxJfx11oIwsJ</span>
+                <span className="text-sm font-medium text-blue-800">Product ID: prod_Sd9IYb41z4zmJw</span>
               </div>
             </div>
           </div>

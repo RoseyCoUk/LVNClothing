@@ -166,7 +166,7 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
       productImage: currentVariant.images[0],
       price: currentVariant.price,
       quantity: quantity,
-      priceId: 'price_1RhJ906AAjJ6M3ikIvZqpFTn', // Updated price ID
+      priceId: 'price_1RhslxGDbOGEgNLwjiLtrGkD', // Updated Reform UK T-Shirt Price ID
       variants: {
         gender: currentVariant.gender,
         color: currentVariant.color,
@@ -426,11 +426,11 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <div className="flex items-center space-x-2">
                 <Info className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Product ID: prod_ScYFIqKqy6EwHE</span>
+                <span className="text-sm font-medium text-blue-800">Product ID: prod_Sd94WiqjrSQHZ8</span>
               </div>
               <div className="flex items-center space-x-2 mt-1">
                 <Info className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Price ID: price_1RhJ906AAjJ6M3ikIvZqpFTn</span>
+                <span className="text-sm font-medium text-blue-800">Price ID: price_1RhslxGDbOGEgNLwjiLtrGkD</span>
               </div>
             </div>
           </div>

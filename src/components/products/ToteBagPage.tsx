@@ -116,7 +116,7 @@ const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
       productImage: currentVariant.images[0],
       price: currentVariant.price,
       quantity: quantity,
-      priceId: 'price_1RhJ4I6AAjJ6M3ikTF2cpqKv', // Reform UK Tote Bag
+      priceId: 'price_1RhsrKGDbOGEgNLwdgEGRO0q', // Reform UK Tote Bag
       variants: {
         color: currentVariant.color,
         size: 'One Size'
@@ -339,7 +339,7 @@ const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <div className="flex items-center space-x-2">
                 <Info className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Product ID: prod_ScYAsyOsOsBLk0</span>
+                <span className="text-sm font-medium text-blue-800">Product ID: prod_Sd99GUmSKvRrh8</span>
               </div>
             </div>
           </div>

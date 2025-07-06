@@ -143,7 +143,7 @@ const MugPage = ({ onBack }: MugPageProps) => {
       price: currentVariant.price,
       quantity: quantity,
       // Fix 8: Update price ID
-      priceId: 'price_1RhIzP6AAjJ6M3ikomGUEQ8D', // Updated price ID
+      priceId: 'price_1Rhsw7GDbOGEgNLwYH6kMu8R', // Updated price ID
       variants: {
         color: 'White',
         size: '11oz'
@@ -368,11 +368,11 @@ const MugPage = ({ onBack }: MugPageProps) => {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <div className="flex items-center space-x-2">
                 <Info className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Product ID: prod_ScY5Xu0sznr4Oz</span>
+                <span className="text-sm font-medium text-blue-800">Product ID: prod_Sd9EhUHhgszITY</span>
               </div>
               <div className="flex items-center space-x-2 mt-1">
                 <Info className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Price ID: price_1RhIzP6AAjJ6M3ikomGUEQ8D</span>
+                <span className="text-sm font-medium text-blue-800">Price ID: price_1Rhsw7GDbOGEgNLwYH6kMu8R</span>
               </div>
             </div>
           </div>

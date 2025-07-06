@@ -136,7 +136,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
       productImage: currentVariant.images[0],
       price: currentVariant.price,
       quantity: quantity,
-      priceId: 'price_1RhJ1j6AAjJ6M3ikrqKOkvC3', // Reform UK Water Bottle
+      priceId: 'price_1Rhss7GDbOGEgNLwqe7IKpHb', // Reform UK Water Bottle
       variants: {
         color: currentVariant.color,
         size: '500ml'
@@ -363,7 +363,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
               <div className="flex items-center space-x-2">
                 <Info className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Product ID: prod_ScY7ZvgrA59quk</span>
+                <span className="text-sm font-medium text-blue-800">Product ID: prod_Sd9AwiyuVBssZa</span>
               </div>
             </div>
           </div>

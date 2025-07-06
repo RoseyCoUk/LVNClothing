@@ -147,7 +147,7 @@ const ProductBundles = () => {
       popular: false,
       product: {
         id: 'prod_ScXwG3hpBhqNZW',
-        priceId: 'price_1RhIqZ6AAjJ6M3ik16hsTCQ6',
+        priceId: 'price_1RhsUsGDbOGEgNLw2LAVZoGb',
         name: 'Starter Bundle',
         price: 34.99
       },
@@ -178,7 +178,7 @@ const ProductBundles = () => {
       popular: true,
       product: {
         id: 'prod_ScXvVATO8FKCvG',
-        priceId: 'price_1RhIph6AAjJ6M3ikoGC9C5UC',
+        priceId: 'price_1RhsW8GDbOGEgNLwahSqdPDz',
         name: 'Champion Bundle',
         price: 99.99
       },
@@ -222,7 +222,7 @@ const ProductBundles = () => {
       popular: false,
       product: {
         id: 'prod_ScXuloowrz4FVk',
-        priceId: 'price_1RhIp36AAjJ6M3ikraHGlvUt',
+        priceId: 'price_1RhsXRGDbOGEgNLwiiZNVuie',
         name: 'Activist Bundle',
         price: 169.99
       },
