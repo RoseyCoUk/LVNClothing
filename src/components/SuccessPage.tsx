@@ -1,16 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle, Package, ArrowRight, Download, Mail, Clock } from 'lucide-react';
+import { CheckCircle, Package, ArrowRight, Download, Mail, Clock, Phone } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface SuccessPageProps {
   onBackToShop: () => void;
+  sessionId?: string;
+  email?: string;
 }
 
-const SuccessPage = ({ onBackToShop }: SuccessPageProps) => {
+const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, email }) => {
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Log the sessionId and email to console
+    if (sessionId) {
+      console.log('SuccessPage: sessionId received:', sessionId);
+    }
+    if (email) {
+      console.log('SuccessPage: email received:', email);
+    }
+
     const fetchOrderDetails = async () => {
       try {
         // Get the most recent order for the user
@@ -38,19 +48,23 @@ const SuccessPage = ({ onBackToShop }: SuccessPageProps) => {
     // Check if this is a test payment flow by looking for URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const isTestPayment = urlParams.get('test') === 'payment';
-    const sessionId = urlParams.get('session_id');
-    const customerEmail = urlParams.get('email');
+    const urlSessionId = urlParams.get('session_id');
+    const urlEmail = urlParams.get('email');
 
-    if (isTestPayment && sessionId && customerEmail) {
+    // Use props if available, otherwise fall back to URL parameters
+    const finalSessionId = sessionId || urlSessionId;
+    const finalEmail = email || urlEmail;
+
+    if (isTestPayment && finalSessionId && finalEmail) {
       // Call the send-order-email function for test payments
-      callSendOrderEmail(sessionId, customerEmail);
+      callSendOrderEmail(finalSessionId, finalEmail);
     }
 
     // Clean up URL parameters
     if (isTestPayment) {
       window.history.replaceState({}, document.title, '/success');
     }
-  }, []);
+  }, [sessionId, email]);
 
   // Function to call the send-order-email Supabase Edge Function
   const callSendOrderEmail = async (sessionId: string, customerEmail: string) => {
@@ -104,18 +118,45 @@ const SuccessPage = ({ onBackToShop }: SuccessPageProps) => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl w-full">
         <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-          {/* Success Icon */}
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-12 h-12 text-green-600" />
+          <div className="text-center">
+            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              Thank you for your order!
+            </h1>
+            <p className="text-lg text-gray-600 mb-6">
+              Your payment has been processed successfully. We've received your order and will send you a confirmation email shortly.
+            </p>
+            
+            {/* Display session information for debugging */}
+            {sessionId && (
+              <div className="bg-gray-100 p-4 rounded-lg mb-6 text-left">
+                <h3 className="font-semibold text-gray-800 mb-2">Order Details:</h3>
+                <p className="text-sm text-gray-600 mb-1">
+                  <strong>Session ID:</strong> {sessionId}
+                </p>
+                {email && (
+                  <p className="text-sm text-gray-600">
+                    <strong>Email:</strong> {email}
+                  </p>
+                )}
+              </div>
+            )}
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-center text-gray-600">
+                <Package className="w-5 h-5 mr-2" />
+                <span>Your order is being processed</span>
+              </div>
+              <div className="flex items-center justify-center text-gray-600">
+                <Mail className="w-5 h-5 mr-2" />
+                <span>Confirmation email sent to {email || 'your email'}</span>
+              </div>
+              <div className="flex items-center justify-center text-gray-600">
+                <Phone className="w-5 h-5 mr-2" />
+                <span>Contact support if you have questions</span>
+              </div>
+            </div>
           </div>
-
-          {/* Success Message */}
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Payment Successful!
-          </h1>
-          <p className="text-lg text-gray-600 mb-8">
-            Thank you for supporting Reform UK. Your order has been confirmed and will be processed shortly.
-          </p>
 
           {/* Order Details */}
           {isLoading ? (

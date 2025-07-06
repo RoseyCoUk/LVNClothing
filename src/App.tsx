@@ -44,6 +44,7 @@ import BadgeSetPage from './components/products/BadgeSetPage';
 const App = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [successParams, setSuccessParams] = useState<{ sessionId?: string; email?: string }>({});
 
   // Add URL-based routing
   useEffect(() => {
@@ -72,6 +73,13 @@ const App = () => {
         break;
       case '/success':
         setCurrentPage('success');
+        // Extract session_id and email from query parameters
+        const sessionId = urlParams.get('session_id');
+        const email = urlParams.get('email');
+        setSuccessParams({
+          sessionId: sessionId || undefined,
+          email: email || undefined,
+        });
         break;
       case '/test-payment':
         setCurrentPage('test-payment');
@@ -121,6 +129,13 @@ const App = () => {
           break;
         case '/success':
           setCurrentPage('success');
+          // Extract session_id and email from query parameters
+          const sessionId = urlParams.get('session_id');
+          const email = urlParams.get('email');
+          setSuccessParams({
+            sessionId: sessionId || undefined,
+            email: email || undefined,
+          });
           break;
         case '/test-payment':
           setCurrentPage('test-payment');
@@ -281,7 +296,7 @@ const App = () => {
       case 'signup':
         return <SignupPage onBack={handleBackToHome} onLoginClick={handleLoginClick} />;
       case 'success':
-        return <SuccessPage onBackToShop={handleBackToHome} />;
+        return <SuccessPage onBackToShop={handleBackToHome} sessionId={successParams.sessionId} email={successParams.email} />;
       case 'test-payment':
         return <TestPaymentFlow />;
       case 'product':
