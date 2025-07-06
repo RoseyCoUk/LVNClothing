@@ -119,7 +119,7 @@ async function sendOrderNotificationEmail(order: any, customerEmail: string) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Reform UK Shop <noreply@backreform.co.uk>',
+        from: 'Reform UK Shop <support@backreform.co.uk>',
         to: customerEmail,
         subject: `Your Order Confirmation - #${order.id}`,
         html: emailContent, // You can customise content if you want it different
@@ -139,7 +139,7 @@ async function sendOrderNotificationEmail(order: any, customerEmail: string) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Reform UK Shop <noreply@backreform.co.uk>',
+        from: 'Reform UK Shop <support@backreform.co.uk>',
         to: 'support@backreform.co.uk',
         subject: `New Order Received - #${order.id}`,
         html: emailContent,
