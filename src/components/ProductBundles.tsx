@@ -528,20 +528,7 @@ const ProductBundles = () => {
               </div>
             )}
             
-            {/* Image Section - Full Width */}
-            <div className="relative">
-              <img 
-                src={currentBundle.image} 
-                alt={currentBundle.name}
-                className="w-full h-96 aspect-square object-cover"
-              />
-              <div className="absolute top-4 left-4">
-                <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center animate-pulse">
-                  <AlertTriangle className="w-3 h-3 mr-1" />
-                  {currentBundle.urgency}
-                </span>
-              </div>
-            </div>
+
             
             {/* Bundle Information Section */}
             <div className="p-6">

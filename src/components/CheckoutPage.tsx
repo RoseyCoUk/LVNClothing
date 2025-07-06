@@ -8,14 +8,7 @@ import {
   Package,
   Check,
   AlertCircle,
-  Info,
-  Gift,
-  Percent,
   MapPin,
-  User,
-  Mail,
-  Phone,
-  Calendar,
   X
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
@@ -26,11 +19,11 @@ interface CheckoutPageProps {
 }
 
 const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
-  const { cartItems, getTotalPrice, clearCart } = useCart();
+  const { cartItems, getTotalPrice } = useCart();
   
   const [currentStep, setCurrentStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [orderComplete, setOrderComplete] = useState(false);
+  const [orderComplete] = useState(false);
   
   // Form states
   const [shippingInfo, setShippingInfo] = useState({
@@ -351,8 +344,6 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
     setIsProcessing(true);
     
     try {
-      // Get the first item from the cart to use as the product
-      const firstItem = cartItems[0];
       const testPriceId = 'price_1RgXAlFJg5cU61Wl3C0w9uy3'; // Default to Reform UK Hoodie
       
       // Get the shipping rate ID based on the selected shipping method
