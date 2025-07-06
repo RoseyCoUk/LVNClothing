@@ -34,7 +34,54 @@ const SuccessPage = ({ onBackToShop }: SuccessPageProps) => {
     };
 
     fetchOrderDetails();
+
+    // Check if this is a test payment flow by looking for URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const isTestPayment = urlParams.get('test') === 'payment';
+    const sessionId = urlParams.get('session_id');
+    const customerEmail = urlParams.get('email');
+
+    if (isTestPayment && sessionId && customerEmail) {
+      // Call the send-order-email function for test payments
+      callSendOrderEmail(sessionId, customerEmail);
+    }
+
+    // Clean up URL parameters
+    if (isTestPayment) {
+      window.history.replaceState({}, document.title, '/success');
+    }
   }, []);
+
+  // Function to call the send-order-email Supabase Edge Function
+  const callSendOrderEmail = async (sessionId: string, customerEmail: string) => {
+    try {
+      console.log('Sending order notification email for test payment...');
+      
+      // Get your Supabase project URL from environment or replace with actual URL
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-ref.supabase.co';
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'}`,
+        },
+        body: JSON.stringify({
+          orderId: sessionId,
+          customerEmail: customerEmail,
+        }),
+      });
+
+      if (response.ok) {
+        console.log('Order notification email sent successfully!');
+      } else {
+        const errorData = await response.text();
+        console.error('Failed to send order notification email:', errorData);
+      }
+    } catch (error: any) {
+      console.error('Error calling send-order-email function:', error.message);
+    }
+  };
 
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-GB', {

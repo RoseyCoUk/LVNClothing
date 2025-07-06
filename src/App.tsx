@@ -41,23 +41,104 @@ import MousePadPage from './components/products/MousePadPage';
 import StickersPage from './components/products/StickersPage';
 import BadgeSetPage from './components/products/BadgeSetPage';
 
-function App() {
+const App = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
 
-  // Check for success parameter on app load
+  // Add URL-based routing
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('success') === 'true') {
-      setCurrentPage('success');
-      // Clean up the URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-    // Check for test parameter to show test page
-    if (urlParams.get('test') === 'payment') {
-      setCurrentPage('test-payment');
+    const pathname = window.location.pathname;
+    
+    // Map URL paths to page states
+    switch (pathname) {
+      case '/':
+        setCurrentPage('home');
+        break;
+      case '/success':
+        setCurrentPage('success');
+        break;
+      case '/test-payment':
+        setCurrentPage('test-payment');
+        break;
+      case '/shop':
+        setCurrentPage('shop');
+        break;
+      case '/checkout':
+        setCurrentPage('checkout');
+        break;
+      case '/login':
+        setCurrentPage('login');
+        break;
+      case '/signup':
+        setCurrentPage('signup');
+        break;
+      default:
+        // Handle product pages (e.g., /product/hoodie)
+        if (pathname.startsWith('/product/')) {
+          setCurrentPage('product');
+        } else {
+          setCurrentPage('home');
+        }
     }
   }, []);
+
+  // Handle browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const pathname = window.location.pathname;
+      
+      switch (pathname) {
+        case '/':
+          setCurrentPage('home');
+          break;
+        case '/success':
+          setCurrentPage('success');
+          break;
+        case '/test-payment':
+          setCurrentPage('test-payment');
+          break;
+        case '/shop':
+          setCurrentPage('shop');
+          break;
+        case '/checkout':
+          setCurrentPage('checkout');
+          break;
+        case '/login':
+          setCurrentPage('login');
+          break;
+        case '/signup':
+          setCurrentPage('signup');
+          break;
+        default:
+          if (pathname.startsWith('/product/')) {
+            setCurrentPage('product');
+          } else {
+            setCurrentPage('home');
+          }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Update URL when page changes
+  useEffect(() => {
+    const pathMap: { [key: string]: string } = {
+      'home': '/',
+      'success': '/success',
+      'test-payment': '/test-payment',
+      'shop': '/shop',
+      'checkout': '/checkout',
+      'login': '/login',
+      'signup': '/signup',
+    };
+
+    const path = pathMap[currentPage];
+    if (path && window.location.pathname !== path) {
+      window.history.pushState({}, '', path);
+    }
+  }, [currentPage]);
 
   const handleProductClick = (productId: number) => {
     setSelectedProductId(productId);

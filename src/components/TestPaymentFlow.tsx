@@ -109,43 +109,82 @@ const TestPaymentFlow = () => {
     addTestResult('Step 3', 'info', 'Note: This test will fail if Stripe environment variables are not configured');
     
     try {
-        const checkoutData = {
-    price_id: testPriceId,
-    success_url: `${window.location.origin}/success`,
-    cancel_url: `${window.location.origin}/shop`,
-    mode: 'payment' as const,
-    customer_email: checkoutType === 'guest' ? testEmail : undefined
-  };
+      const checkoutData = {
+        price_id: testPriceId,
+        success_url: `${window.location.origin}/success`,
+        cancel_url: `${window.location.origin}/shop`,
+        mode: 'payment' as const,
+        customer_email: checkoutType === 'guest' ? testEmail : undefined
+      };
       
       addTestResult('Step 3', 'info', 'Calling createCheckoutSession...', checkoutData);
       
-      try {
-        const response = await createCheckoutSession(checkoutData);
+      const response = await createCheckoutSession(checkoutData);
+      
+      addTestResult('Step 3', 'success', 'Checkout session created successfully!', {
+        sessionId: response.sessionId,
+        url: response.url
+      });
+      
+      addTestResult('Step 3', 'info', 'In a real scenario, user would be redirected to Stripe checkout');
+      
+      // For test mode, simulate the redirect and success flow
+      addTestResult('Step 3', 'info', 'Simulating redirect to Stripe checkout...');
+      
+      // Simulate successful payment and redirect to success page
+      setTimeout(() => {
+        addTestResult('Step 3', 'success', 'Payment completed! Redirecting to success page...');
         
-        addTestResult('Step 3', 'success', 'Checkout session created successfully!', {
-          sessionId: response.sessionId,
-          url: response.url
-        });
+        // Call the send-order-email Supabase Edge Function (test mode only)
+        callSendOrderEmail(response.sessionId, testEmail);
         
-        addTestResult('Step 3', 'info', 'In a real scenario, user would be redirected to Stripe checkout');
-        
-        return response;
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        // Handle specific Stripe configuration errors
-        if (errorMessage && errorMessage.includes('Stripe API key is not configured')) {
-          addTestResult('Step 3', 'error', 'Stripe API key is not configured in Supabase Edge Functions');
-          addTestResult('Step 3', 'info', 'To fix this, add STRIPE_SECRET_KEY to your Supabase project environment variables');
-        } else {
-          addTestResult('Step 3', 'error', 'Failed to create checkout session', errorMessage);
-        }
-        return null;
+        // Redirect to success page with test parameters
+        window.location.href = `/success?test=payment&session_id=${response.sessionId}&email=${encodeURIComponent(testEmail)}`;
+      }, 2000);
+
+      return response;
+    } catch (error: any) {
+      const errorMessage = error.message || 'Unknown error occurred';
+      
+      if (errorMessage.includes('Stripe API key is not configured')) {
+        addTestResult('Step 3', 'error', 'Stripe API key is not configured in Supabase Edge Functions');
+        addTestResult('Step 3', 'info', 'To fix this, add STRIPE_SECRET_KEY to your Supabase project environment variables');
+      } else {
+        addTestResult('Step 3', 'error', 'Failed to create checkout session', errorMessage);
       }
       
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      addTestResult('Step 3', 'error', 'Failed to create checkout session', errorMessage);
       return null;
+    }
+  };
+
+  // Function to call the send-order-email Supabase Edge Function (test mode only)
+  const callSendOrderEmail = async (sessionId: string, customerEmail: string) => {
+    try {
+      addTestResult('Step 3', 'info', 'Calling send-order-email Supabase Edge Function...');
+      
+      // Get your Supabase project URL from environment or replace with actual URL
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-ref.supabase.co';
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'}`,
+        },
+        body: JSON.stringify({
+          orderId: sessionId, // Using sessionId as orderId for test
+          customerEmail: customerEmail,
+        }),
+      });
+
+      if (response.ok) {
+        addTestResult('Step 3', 'success', 'Order notification email sent successfully!');
+      } else {
+        const errorData = await response.text();
+        addTestResult('Step 3', 'error', 'Failed to send order notification email', errorData);
+      }
+    } catch (error: any) {
+      addTestResult('Step 3', 'error', 'Error calling send-order-email function', error.message);
     }
   };
 
