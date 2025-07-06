@@ -76,14 +76,14 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
 
       if (isTestPayment && finalSessionId && finalEmail) {
         console.log('SuccessPage: Calling send-order-email function for test payment');
-        console.log("Sending email with:", { sessionId: finalSessionId, email: finalEmail });
+        console.log("Attempting to send email", { sessionId: finalSessionId, email: finalEmail });
         
         // Call the send-order-email function for test payments
         try {
           await callSendOrderEmail(finalSessionId, finalEmail);
-          console.log("Email sent successfully");
+          console.log("✅ Email function called successfully");
         } catch (error) {
-          console.error("Failed to send confirmation email:", error);
+          console.error("❌ Email function failed to send:", error);
         }
       }
 
@@ -104,9 +104,14 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
       console.log('SuccessPage: callSendOrderEmail - sessionId:', sessionId);
       console.log('SuccessPage: callSendOrderEmail - customerEmail:', customerEmail);
       
-      // Get your Supabase project URL from environment or replace with actual URL
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-ref.supabase.co';
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
+      // Get Supabase environment variables (same as supabase.ts)
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      // Validate environment variables
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error('Missing Supabase environment variables: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are required');
+      }
       
       console.log('SuccessPage: callSendOrderEmail - supabaseUrl:', supabaseUrl);
       console.log('SuccessPage: callSendOrderEmail - supabaseAnonKey exists:', !!supabaseAnonKey);

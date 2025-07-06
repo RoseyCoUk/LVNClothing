@@ -92,6 +92,11 @@ Deno.serve(async (req) => {
 });
 
 async function sendOrderNotificationEmail(order: any, customerEmail: string) {
+  console.log("➡️ send-order-email triggered");
+  console.log("Email to send:", customerEmail);
+  console.log("Session ID:", order?.session_id || order?.id);
+  console.log("ENV KEY present?", Deno.env.get("RESEND_API_KEY") ? "✅" : "❌");
+
   console.log("➡️ Function triggered");
   console.log("Email to send:", customerEmail);
   console.log("ENV KEY present?", Deno.env.get("RESEND_API_KEY") ? "✅" : "❌");
