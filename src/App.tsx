@@ -48,6 +48,22 @@ const App = () => {
   // Add URL-based routing
   useEffect(() => {
     const pathname = window.location.pathname;
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Check for query parameters first
+    if (urlParams.get('test') === 'payment') {
+      setCurrentPage('test-payment');
+      // Clean up the URL by removing the query parameter
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return;
+    }
+    
+    if (urlParams.get('success') === 'true') {
+      setCurrentPage('success');
+      // Clean up the URL by removing the query parameter
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return;
+    }
     
     // Map URL paths to page states
     switch (pathname) {
@@ -86,6 +102,18 @@ const App = () => {
   useEffect(() => {
     const handlePopState = () => {
       const pathname = window.location.pathname;
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      // Check for query parameters first
+      if (urlParams.get('test') === 'payment') {
+        setCurrentPage('test-payment');
+        return;
+      }
+      
+      if (urlParams.get('success') === 'true') {
+        setCurrentPage('success');
+        return;
+      }
       
       switch (pathname) {
         case '/':
