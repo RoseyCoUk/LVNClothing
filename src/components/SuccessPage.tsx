@@ -13,12 +13,22 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Enhanced logging for debugging
+    console.log('SuccessPage: Component mounted');
+    console.log('SuccessPage: Current URL:', window.location.href);
+    console.log('SuccessPage: Pathname:', window.location.pathname);
+    console.log('SuccessPage: Search params:', window.location.search);
+    
     // Log the sessionId and email to console
     if (sessionId) {
-      console.log('SuccessPage: sessionId received:', sessionId);
+      console.log('SuccessPage: sessionId received via props:', sessionId);
+    } else {
+      console.log('SuccessPage: No sessionId received via props');
     }
     if (email) {
-      console.log('SuccessPage: email received:', email);
+      console.log('SuccessPage: email received via props:', email);
+    } else {
+      console.log('SuccessPage: No email received via props');
     }
 
     const fetchOrderDetails = async () => {
@@ -51,17 +61,26 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
     const urlSessionId = urlParams.get('session_id');
     const urlEmail = urlParams.get('email');
 
+    console.log('SuccessPage: URL params - test:', isTestPayment);
+    console.log('SuccessPage: URL params - session_id:', urlSessionId);
+    console.log('SuccessPage: URL params - email:', urlEmail);
+
     // Use props if available, otherwise fall back to URL parameters
     const finalSessionId = sessionId || urlSessionId;
     const finalEmail = email || urlEmail;
 
+    console.log('SuccessPage: Final sessionId:', finalSessionId);
+    console.log('SuccessPage: Final email:', finalEmail);
+
     if (isTestPayment && finalSessionId && finalEmail) {
+      console.log('SuccessPage: Calling send-order-email function for test payment');
       // Call the send-order-email function for test payments
       callSendOrderEmail(finalSessionId, finalEmail);
     }
 
     // Clean up URL parameters
     if (isTestPayment) {
+      console.log('SuccessPage: Cleaning up URL parameters');
       window.history.replaceState({}, document.title, '/success');
     }
   }, [sessionId, email]);

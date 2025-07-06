@@ -51,18 +51,27 @@ const App = () => {
     const pathname = window.location.pathname;
     const urlParams = new URLSearchParams(window.location.search);
     
-    // Check for query parameters first
+    // Check for path-based routing FIRST (priority over query parameters)
+    if (pathname.startsWith('/success')) {
+      setCurrentPage('success');
+      // Extract session_id and email from query parameters
+      const sessionId = urlParams.get('session_id');
+      const email = urlParams.get('email');
+      setSuccessParams({
+        sessionId: sessionId || undefined,
+        email: email || undefined,
+      });
+      return; // Exit early, don't check other conditions
+    }
+    
+    // Only check query parameters if NOT on success path
     if (urlParams.get('test') === 'payment') {
       setCurrentPage('test-payment');
-      // Clean up the URL by removing the query parameter
-      window.history.replaceState({}, document.title, window.location.pathname);
       return;
     }
     
     if (urlParams.get('success') === 'true') {
       setCurrentPage('success');
-      // Clean up the URL by removing the query parameter
-      window.history.replaceState({}, document.title, window.location.pathname);
       return;
     }
     
@@ -70,16 +79,6 @@ const App = () => {
     switch (pathname) {
       case '/':
         setCurrentPage('home');
-        break;
-      case '/success':
-        setCurrentPage('success');
-        // Extract session_id and email from query parameters
-        const sessionId = urlParams.get('session_id');
-        const email = urlParams.get('email');
-        setSuccessParams({
-          sessionId: sessionId || undefined,
-          email: email || undefined,
-        });
         break;
       case '/test-payment':
         setCurrentPage('test-payment');
@@ -112,7 +111,20 @@ const App = () => {
       const pathname = window.location.pathname;
       const urlParams = new URLSearchParams(window.location.search);
       
-      // Check for query parameters first
+      // Check for path-based routing FIRST (priority over query parameters)
+      if (pathname.startsWith('/success')) {
+        setCurrentPage('success');
+        // Extract session_id and email from query parameters
+        const sessionId = urlParams.get('session_id');
+        const email = urlParams.get('email');
+        setSuccessParams({
+          sessionId: sessionId || undefined,
+          email: email || undefined,
+        });
+        return; // Exit early, don't check other conditions
+      }
+      
+      // Only check query parameters if NOT on success path
       if (urlParams.get('test') === 'payment') {
         setCurrentPage('test-payment');
         return;
@@ -126,16 +138,6 @@ const App = () => {
       switch (pathname) {
         case '/':
           setCurrentPage('home');
-          break;
-        case '/success':
-          setCurrentPage('success');
-          // Extract session_id and email from query parameters
-          const sessionId = urlParams.get('session_id');
-          const email = urlParams.get('email');
-          setSuccessParams({
-            sessionId: sessionId || undefined,
-            email: email || undefined,
-          });
           break;
         case '/test-payment':
           setCurrentPage('test-payment');
