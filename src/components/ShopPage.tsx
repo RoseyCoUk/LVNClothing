@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { createCheckoutSession } from '../lib/stripe';
+import ProductBundles from './ProductBundles';
 import {
   Search,
   Grid,
@@ -392,6 +395,8 @@ const ShopPage = ({ onProductClick }: ShopPageProps) => {
         </div>
       )}
       
+      {/* Add ProductBundles at the bottom of the page */}
+      <ProductBundles />
     </div>
   );
 };
