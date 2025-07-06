@@ -13,106 +13,139 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Enhanced logging for debugging
-    console.log('SuccessPage: Component mounted');
-    console.log('SuccessPage: Current URL:', window.location.href);
-    console.log('SuccessPage: Pathname:', window.location.pathname);
-    console.log('SuccessPage: Search params:', window.location.search);
-    
-    // Log the sessionId and email to console
-    if (sessionId) {
-      console.log('SuccessPage: sessionId received via props:', sessionId);
-    } else {
-      console.log('SuccessPage: No sessionId received via props');
-    }
-    if (email) {
-      console.log('SuccessPage: email received via props:', email);
-    } else {
-      console.log('SuccessPage: No email received via props');
-    }
+    const handleEmailSending = async () => {
+      // Enhanced logging for debugging
+      console.log('SuccessPage: Component mounted');
+      console.log('SuccessPage: Current URL:', window.location.href);
+      console.log('SuccessPage: Pathname:', window.location.pathname);
+      console.log('SuccessPage: Search params:', window.location.search);
+      
+      // Log the sessionId and email to console
+      if (sessionId) {
+        console.log('SuccessPage: sessionId received via props:', sessionId);
+      } else {
+        console.log('SuccessPage: No sessionId received via props');
+      }
+      if (email) {
+        console.log('SuccessPage: email received via props:', email);
+      } else {
+        console.log('SuccessPage: No email received via props');
+      }
 
-    const fetchOrderDetails = async () => {
-      try {
-        // Get the most recent order for the user
-        const { data, error } = await supabase
-          .from('stripe_user_orders')
-          .select('*')
-          .order('order_date', { ascending: false })
-          .limit(1)
-          .maybeSingle();
+      // Fetch order details
+      const fetchOrderDetails = async () => {
+        try {
+          // Get the most recent order for the user
+          const { data, error } = await supabase
+            .from('stripe_user_orders')
+            .select('*')
+            .order('order_date', { ascending: false })
+            .limit(1)
+            .maybeSingle();
 
-        if (error) {
+          if (error) {
+            console.error('Error fetching order details:', error);
+          } else if (data) {
+            setOrderDetails(data);
+          }
+        } catch (error) {
           console.error('Error fetching order details:', error);
-        } else if (data) {
-          setOrderDetails(data);
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-        console.error('Error fetching order details:', error);
-      } finally {
-        setIsLoading(false);
+      };
+
+      fetchOrderDetails();
+
+      // Check if this is a test payment flow by looking for URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const isTestPayment = urlParams.get('test') === 'payment';
+      const urlSessionId = urlParams.get('session_id');
+      const urlEmail = urlParams.get('email');
+
+      console.log('SuccessPage: URL params - test:', isTestPayment);
+      console.log('SuccessPage: URL params - session_id:', urlSessionId);
+      console.log('SuccessPage: URL params - email:', urlEmail);
+
+      // Use props if available, otherwise fall back to URL parameters
+      const finalSessionId = sessionId || urlSessionId;
+      const finalEmail = email || urlEmail;
+
+      console.log('SuccessPage: Final sessionId:', finalSessionId);
+      console.log('SuccessPage: Final email:', finalEmail);
+
+      if (isTestPayment && finalSessionId && finalEmail) {
+        console.log('SuccessPage: Calling send-order-email function for test payment');
+        console.log("Sending email with:", { sessionId: finalSessionId, email: finalEmail });
+        
+        // Call the send-order-email function for test payments
+        try {
+          await callSendOrderEmail(finalSessionId, finalEmail);
+          console.log("Email sent successfully");
+        } catch (error) {
+          console.error("Failed to send confirmation email:", error);
+        }
+      }
+
+      // Clean up URL parameters
+      if (isTestPayment) {
+        console.log('SuccessPage: Cleaning up URL parameters');
+        window.history.replaceState({}, document.title, '/success');
       }
     };
 
-    fetchOrderDetails();
-
-    // Check if this is a test payment flow by looking for URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const isTestPayment = urlParams.get('test') === 'payment';
-    const urlSessionId = urlParams.get('session_id');
-    const urlEmail = urlParams.get('email');
-
-    console.log('SuccessPage: URL params - test:', isTestPayment);
-    console.log('SuccessPage: URL params - session_id:', urlSessionId);
-    console.log('SuccessPage: URL params - email:', urlEmail);
-
-    // Use props if available, otherwise fall back to URL parameters
-    const finalSessionId = sessionId || urlSessionId;
-    const finalEmail = email || urlEmail;
-
-    console.log('SuccessPage: Final sessionId:', finalSessionId);
-    console.log('SuccessPage: Final email:', finalEmail);
-
-    if (isTestPayment && finalSessionId && finalEmail) {
-      console.log('SuccessPage: Calling send-order-email function for test payment');
-      // Call the send-order-email function for test payments
-      callSendOrderEmail(finalSessionId, finalEmail);
-    }
-
-    // Clean up URL parameters
-    if (isTestPayment) {
-      console.log('SuccessPage: Cleaning up URL parameters');
-      window.history.replaceState({}, document.title, '/success');
-    }
+    handleEmailSending();
   }, [sessionId, email]);
 
   // Function to call the send-order-email Supabase Edge Function
   const callSendOrderEmail = async (sessionId: string, customerEmail: string) => {
     try {
-      console.log('Sending order notification email for test payment...');
+      console.log('SuccessPage: callSendOrderEmail - Starting email send process');
+      console.log('SuccessPage: callSendOrderEmail - sessionId:', sessionId);
+      console.log('SuccessPage: callSendOrderEmail - customerEmail:', customerEmail);
       
       // Get your Supabase project URL from environment or replace with actual URL
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-ref.supabase.co';
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
+      
+      console.log('SuccessPage: callSendOrderEmail - supabaseUrl:', supabaseUrl);
+      console.log('SuccessPage: callSendOrderEmail - supabaseAnonKey exists:', !!supabaseAnonKey);
+      
+      const requestBody = {
+        orderId: sessionId,
+        customerEmail: customerEmail,
+      };
+      
+      console.log('SuccessPage: callSendOrderEmail - Request body:', requestBody);
       
       const response = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'}`,
+          'Authorization': `Bearer ${supabaseAnonKey}`,
         },
-        body: JSON.stringify({
-          orderId: sessionId,
-          customerEmail: customerEmail,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log('SuccessPage: callSendOrderEmail - Response status:', response.status);
+      console.log('SuccessPage: callSendOrderEmail - Response ok:', response.ok);
+
       if (response.ok) {
-        console.log('Order notification email sent successfully!');
+        const responseData = await response.text();
+        console.log('SuccessPage: callSendOrderEmail - Response data:', responseData);
+        console.log('SuccessPage: callSendOrderEmail - Email sent successfully!');
       } else {
         const errorData = await response.text();
-        console.error('Failed to send order notification email:', errorData);
+        console.error('SuccessPage: callSendOrderEmail - Failed to send order notification email');
+        console.error('SuccessPage: callSendOrderEmail - Error status:', response.status);
+        console.error('SuccessPage: callSendOrderEmail - Error data:', errorData);
+        throw new Error(`HTTP ${response.status}: ${errorData}`);
       }
     } catch (error: any) {
-      console.error('Error calling send-order-email function:', error.message);
+      console.error('SuccessPage: callSendOrderEmail - Error calling send-order-email function');
+      console.error('SuccessPage: callSendOrderEmail - Error message:', error.message);
+      console.error('SuccessPage: callSendOrderEmail - Error stack:', error.stack);
+      throw error; // Re-throw to be caught by the calling function
     }
   };
 

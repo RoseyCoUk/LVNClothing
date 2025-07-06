@@ -32,8 +32,11 @@ Deno.serve(async (req) => {
 
   try {
     const { orderId, customerEmail } = await req.json();
+    
+    console.log("📨 Request received with:", { orderId, customerEmail });
 
     if (!orderId || !customerEmail) {
+      console.log("❌ Missing required fields");
       return new Response(
         JSON.stringify({ error: 'Order ID and customer email are required' }),
         {
@@ -43,15 +46,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Fetch order details from the database
+    // Fetch order details from the database using session_id
+    console.log("🔍 Fetching order details for session_id:", orderId);
     const { data: order, error: orderError } = await supabase
-      .from('stripe_orders')
+      .from('orders')
       .select('*')
-      .eq('id', orderId)
+      .eq('session_id', orderId)
       .single();
 
     if (orderError) {
-      console.error('Error fetching order:', orderError);
+      console.error('❌ Error fetching order:', orderError);
       return new Response(
         JSON.stringify({ error: 'Failed to fetch order details' }),
         {
@@ -61,9 +65,13 @@ Deno.serve(async (req) => {
       );
     }
 
+    console.log("✅ Order found:", order?.id);
+
     // Send email notification to support
+    console.log("📧 Starting email notification process");
     const emailResult = await sendOrderNotificationEmail(order, customerEmail);
 
+    console.log("✅ Email process completed");
     return new Response(
       JSON.stringify({ success: true, message: 'Order notification email sent' }),
       {
@@ -72,7 +80,7 @@ Deno.serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error processing request:', error);
+    console.error('❌ Error processing request:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
       {
@@ -84,6 +92,10 @@ Deno.serve(async (req) => {
 });
 
 async function sendOrderNotificationEmail(order: any, customerEmail: string) {
+  console.log("➡️ Function triggered");
+  console.log("Email to send:", customerEmail);
+  console.log("ENV KEY present?", Deno.env.get("RESEND_API_KEY") ? "✅" : "❌");
+
   // Generate email content
   const emailContent = `
     <h2>Order Confirmation</h2>
@@ -94,34 +106,44 @@ async function sendOrderNotificationEmail(order: any, customerEmail: string) {
   `;
 
   // Send to customer
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: 'Reform UK Shop <noreply@backreform.co.uk>',
-      to: customerEmail,
-      subject: `Your Order Confirmation - #${order.id}`,
-      html: emailContent, // You can customise content if you want it different
-    }),
-  });
+  try {
+    const customerEmailResult = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Reform UK Shop <noreply@backreform.co.uk>',
+        to: customerEmail,
+        subject: `Your Order Confirmation - #${order.id}`,
+        html: emailContent, // You can customise content if you want it different
+      }),
+    });
+    console.log("✅ Customer email sent result:", customerEmailResult);
+  } catch (err) {
+    console.error("❌ Error sending customer email:", err);
+  }
 
   // Send to internal support
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: 'Reform UK Shop <noreply@backreform.co.uk>',
-      to: 'support@backreform.co.uk',
-      subject: `New Order Received - #${order.id}`,
-      html: emailContent,
-    }),
-  });
+  try {
+    const supportEmailResult = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Reform UK Shop <noreply@backreform.co.uk>',
+        to: 'support@backreform.co.uk',
+        subject: `New Order Received - #${order.id}`,
+        html: emailContent,
+      }),
+    });
+    console.log("✅ Support email sent result:", supportEmailResult);
+  } catch (err) {
+    console.error("❌ Error sending support email:", err);
+  }
 
   return { success: true };
 }
