@@ -33,6 +33,10 @@ const TestPaymentFlow = () => {
     }
   ];
 
+  // 🔧 TASK: Test with Reform UK Hoodie (live mode price ID)
+  // 📌 Using the live price ID for comprehensive test coverage
+  const testPriceId = 'price_1Rhsh5GDbOGEgNLwpqIVX80W'; // Reform UK Hoodie
+
   const addTestResult = (step: string, status: 'success' | 'error' | 'info', message: string, details?: unknown) => {
     setTestResults(prev => [...prev, {
       step,
@@ -105,16 +109,13 @@ const TestPaymentFlow = () => {
     addTestResult('Step 3', 'info', 'Note: This test will fail if Stripe environment variables are not configured');
     
     try {
-      // Use a test product from our Stripe config
-      const testPriceId = 'price_1Rhsh5GDbOGEgNLwpqIVX80W'; // Reform UK Hoodie
-      
-      const checkoutData = {
-        price_id: testPriceId,
-        success_url: `${window.location.origin}?success=true&test=true`,
-        cancel_url: `${window.location.origin}?canceled=true&test=true`,
-        mode: 'payment' as const,
-        customer_email: checkoutType === 'guest' ? testEmail : undefined
-      };
+        const checkoutData = {
+    price_id: testPriceId,
+    success_url: `${window.location.origin}/success`,
+    cancel_url: `${window.location.origin}/shop`,
+    mode: 'payment' as const,
+    customer_email: checkoutType === 'guest' ? testEmail : undefined
+  };
       
       addTestResult('Step 3', 'info', 'Calling createCheckoutSession...', checkoutData);
       
