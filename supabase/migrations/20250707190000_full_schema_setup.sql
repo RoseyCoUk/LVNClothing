@@ -97,13 +97,13 @@ USING (true)
 WITH CHECK (true);
 
 -- 8. Create RLS policies for order_items table
-CREATE POLICY "Allow service role full access to order_items"
-ON public.order_items
-AS PERMISSIVE
-FOR ALL
-TO service_role
-USING (true)
-WITH CHECK (true);
+-- CREATE POLICY "Allow service role full access to order_items"
+-- ON public.order_items
+-- AS PERMISSIVE
+-- FOR ALL
+-- TO service_role
+-- USING (true)
+-- WITH CHECK (true);
 
 CREATE POLICY "Users can view their own order items"
 ON public.order_items
@@ -117,12 +117,12 @@ USING (
   )
 );
 
-CREATE POLICY "Allow anonymous users to view order items"
-ON public.order_items
-AS PERMISSIVE
-FOR SELECT
-TO anon
-USING (true);
+-- CREATE POLICY "Allow anonymous users to view order items"
+-- ON public.order_items
+-- AS PERMISSIVE
+-- FOR SELECT
+-- TO anon
+-- USING (true);
 
 -- 9. Grant necessary permissions
 GRANT ALL ON public.orders TO service_role;
@@ -134,50 +134,49 @@ GRANT SELECT ON public.order_items TO authenticated;
 GRANT SELECT ON public.order_items TO anon;
 
 -- 10. Create the trigger function to generate readable order IDs
-CREATE OR REPLACE FUNCTION public.generate_readable_order_id()
-RETURNS TRIGGER AS $$
-DECLARE
-    org_prefix TEXT := 'RB'; -- Default prefix for Reform UK
-    max_number INTEGER := 0;
-    next_number INTEGER;
-    new_readable_id TEXT;
-BEGIN
-    -- Only generate if readable_order_id is NULL
-    IF NEW.readable_order_id IS NULL THEN
-        -- Get the maximum number for this organization prefix
-        -- Use advisory lock to prevent race conditions
-        PERFORM pg_advisory_xact_lock(12345); -- Arbitrary lock ID
-        
-        SELECT COALESCE(MAX(
-            CASE 
-                WHEN readable_order_id ~ ('^' || org_prefix || '-[0-9]+$') 
-                THEN CAST(SUBSTRING(readable_order_id FROM LENGTH(org_prefix) + 2) AS INTEGER)
-                ELSE 0
-            END
-        ), 0) INTO max_number
-        FROM public.orders 
-        WHERE readable_order_id IS NOT NULL;
-        
-        -- Increment the number
-        next_number := max_number + 1;
-        
-        -- Format the new readable order ID (left-pad to 5 digits)
-        new_readable_id := org_prefix || '-' || LPAD(next_number::TEXT, 5, '0');
-        
-        -- Set the new readable order ID
-        NEW.readable_order_id := new_readable_id;
-    END IF;
-    
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+-- CREATE OR REPLACE FUNCTION public.generate_readable_order_id()
+-- RETURNS TRIGGER AS $$
+-- DECLARE
+--     org_prefix TEXT := 'RB'; -- Default prefix for Reform UK
+--     max_number INTEGER := 0;
+--     next_number INTEGER;
+--     new_readable_id TEXT;
+-- BEGIN
+--     -- Only generate if readable_order_id is NULL
+--     IF NEW.readable_order_id IS NULL THEN
+--         -- Get the maximum number for this organization prefix
+--         -- Use advisory lock to prevent race conditions
+--         PERFORM pg_advisory_xact_lock(12345); -- Arbitrary lock ID
+--         
+--         SELECT COALESCE(MAX(
+--             CASE 
+--                 WHEN readable_order_id ~ ('^' || org_prefix || '-[0-9]+$') 
+--                 THEN CAST(SUBSTRING(readable_order_id FROM LENGTH(org_prefix) + 2) AS INTEGER)
+--                 ELSE 0
+--             END
+--         ), 0) INTO max_number
+--         FROM public.orders 
+--         WHERE readable_order_id IS NOT NULL;
+--         
+--         -- Increment the number
+--         next_number := max_number + 1;
+--         
+--         -- Format the new readable order ID (left-pad to 5 digits)
+--         new_readable_id := org_prefix || '-' || LPAD(next_number::TEXT, 5, '0');
+--         
+--         -- Set the new readable order ID
+--         NEW.readable_order_id := new_readable_id;
+--     END IF;
+--     
+--     RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
 -- 11. Create the trigger for readable order ID generation
-DROP TRIGGER IF EXISTS set_readable_order_id ON public.orders;
-CREATE TRIGGER set_readable_order_id
-    BEFORE INSERT ON public.orders
-    FOR EACH ROW
-    EXECUTE FUNCTION public.generate_readable_order_id();
+-- CREATE TRIGGER set_readable_order_id
+--     BEFORE INSERT ON public.orders
+--     FOR EACH ROW
+--     EXECUTE FUNCTION public.generate_readable_order_id();
 
 -- down
 

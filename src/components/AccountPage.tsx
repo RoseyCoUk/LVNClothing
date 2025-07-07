@@ -185,13 +185,32 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
     try {
       setMessage(null);
       
-      const { error } = await supabase.auth.admin.deleteUser(user?.id || '');
+      // Get the current session to access the access token
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (error) {
-        throw error;
+      if (sessionError || !session) {
+        throw new Error('No active session found');
+      }
+
+      // Call the Edge Function to delete the account
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user-account`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to delete account');
       }
 
       setMessage({ type: 'success', text: 'Account deleted successfully' });
+      
+      // Sign out the user
+      await supabase.auth.signOut();
       
       // Redirect to home after a delay
       setTimeout(() => {
