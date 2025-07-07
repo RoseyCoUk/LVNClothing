@@ -61,4 +61,10 @@ COMMENT ON COLUMN public.order_items.order_id IS 'Foreign key reference to the p
 COMMENT ON COLUMN public.order_items.name IS 'Name/description of the product';
 COMMENT ON COLUMN public.order_items.quantity IS 'Quantity of the item ordered';
 COMMENT ON COLUMN public.order_items.price IS 'Price per unit in decimal format';
-COMMENT ON COLUMN public.order_items.created_at IS 'Timestamp when the order item was created'; 
+COMMENT ON COLUMN public.order_items.created_at IS 'Timestamp when the order item was created';
+
+-- Drop foreign key and policies before dropping the table
+ALTER TABLE public.order_items DROP CONSTRAINT IF EXISTS order_items_order_id_fkey;
+DROP POLICY IF EXISTS "Users can view their own order items" ON public.order_items;
+DROP POLICY IF EXISTS "Allow service role full access to order_items" ON public.order_items;
+DROP TABLE IF EXISTS public.order_items; 
