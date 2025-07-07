@@ -33,26 +33,65 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
         console.log('SuccessPage: No email received via props');
       }
 
+      // Retry function to fetch order with readable_order_id
+      const fetchLatestOrder = async (session_id: string) => {
+        let retries = 0;
+        const maxRetries = 3;
+        const retryDelay = 500; // 500ms delay between retries
+        
+        while (retries < maxRetries) {
+          console.log(`SuccessPage: Attempt ${retries + 1}/${maxRetries} to fetch order for session_id:`, session_id);
+          
+          const { data, error } = await supabase
+            .from('orders')
+            .select('readable_order_id, customer_email, created_at, amount_total, currency, order_status')
+            .eq('stripe_session_id', session_id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+          if (!error && data?.readable_order_id) {
+            console.log('SuccessPage: Order found with readable_order_id:', data.readable_order_id);
+            return data;
+          }
+
+          if (error) {
+            console.log('SuccessPage: Error fetching order:', error);
+          } else if (data && !data.readable_order_id) {
+            console.log('SuccessPage: Order found but readable_order_id is missing, retrying...');
+          } else {
+            console.log('SuccessPage: Order not found, retrying...');
+          }
+
+          retries++;
+          if (retries < maxRetries) {
+            console.log(`SuccessPage: Waiting ${retryDelay}ms before retry...`);
+            await new Promise((resolve) => setTimeout(resolve, retryDelay));
+          }
+        }
+
+        throw new Error(`Order not found or readable_order_id missing after ${maxRetries} retries`);
+      };
+
       // Fetch order details with readable order ID
       const fetchOrderDetails = async () => {
         try {
           // Use sessionId to fetch the specific order with readable_order_id
           if (sessionId) {
-            const { data, error } = await supabase
-              .from('orders')
-              .select('readable_order_id, customer_email, created_at')
-              .eq('stripe_session_id', sessionId)
-              .single();
-
-            if (error) {
-              console.error('Error fetching order details:', error);
-            } else if (data) {
+            try {
+              const data = await fetchLatestOrder(sessionId);
               setOrderDetails(data);
-              // Update the readableOrderId if we found it
-              if (data.readable_order_id) {
-                // We need to update the readableOrderId prop, but since it's a prop,
-                // we'll need to handle this differently. For now, we'll use the orderDetails state.
-              }
+            } catch (error) {
+              console.error('SuccessPage: Failed to fetch order after retries:', error);
+              // Set a fallback order details object
+              setOrderDetails({
+                readable_order_id: null,
+                customer_email: email,
+                created_at: new Date().toISOString(),
+                amount_total: 0,
+                currency: 'gbp',
+                order_status: 'processing'
+              });
             }
           } else {
             // Fallback: Get the most recent order for the user

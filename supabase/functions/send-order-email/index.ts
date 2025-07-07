@@ -67,18 +67,55 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Fetch order details
-    console.log('Fetching order details for session_id:', orderId)
-    const { data: orderData, error: orderError } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('stripe_session_id', orderId)
-      .single()
+    // Retry function to fetch order with readable_order_id
+    async function fetchLatestOrder(session_id: string) {
+      let retries = 0;
+      const maxRetries = 3;
+      const retryDelay = 500; // 500ms delay between retries
+      
+      while (retries < maxRetries) {
+        console.log(`Attempt ${retries + 1}/${maxRetries} to fetch order for session_id:`, session_id);
+        
+        const { data, error } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('stripe_session_id', session_id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
 
-    if (orderError || !orderData) {
-      console.error('Error fetching order:', orderError)
+        if (!error && data?.readable_order_id) {
+          console.log('Order found with readable_order_id:', data.readable_order_id);
+          return data;
+        }
+
+        if (error) {
+          console.log('Error fetching order:', error);
+        } else if (data && !data.readable_order_id) {
+          console.log('Order found but readable_order_id is missing, retrying...');
+        } else {
+          console.log('Order not found, retrying...');
+        }
+
+        retries++;
+        if (retries < maxRetries) {
+          console.log(`Waiting ${retryDelay}ms before retry...`);
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        }
+      }
+
+      throw new Error(`Order not found or readable_order_id missing after ${maxRetries} retries`);
+    }
+
+    // Fetch order details with retry logic
+    console.log('Fetching order details for session_id:', orderId)
+    let orderData;
+    try {
+      orderData = await fetchLatestOrder(orderId);
+    } catch (error) {
+      console.error('Failed to fetch order after retries:', error)
       return new Response(
-        JSON.stringify({ error: 'Order not found' }),
+        JSON.stringify({ error: 'Order not found or readable_order_id missing' }),
         { 
           status: 404, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

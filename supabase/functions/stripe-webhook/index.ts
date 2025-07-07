@@ -30,46 +30,7 @@ interface StripeSession {
   }
 }
 
-/**
- * Generates a readable order ID in format RB-01001, RB-01002, etc.
- * Finds the highest existing order ID and increments by 1
- */
-async function generateReadableOrderId(supabase: any): Promise<string> {
-  try {
-    // Query for the highest existing readable order ID
-    const { data: orders, error } = await supabase
-      .from('orders')
-      .select('readable_order_id')
-      .not('readable_order_id', 'is', null)
-      .order('readable_order_id', { ascending: false })
-      .limit(1)
 
-    if (error) {
-      console.error('Error fetching highest order ID:', error)
-      throw error
-    }
-
-    let nextNumber = 1
-
-    if (orders && orders.length > 0 && orders[0].readable_order_id) {
-      // Extract the number from the existing order ID (e.g., "RB-01001" -> 1001)
-      const match = orders[0].readable_order_id.match(/RB-(\d+)/)
-      if (match) {
-        nextNumber = parseInt(match[1], 10) + 1
-      }
-    }
-
-    // Pad with leading zeros to always be 5 digits
-    const paddedNumber = nextNumber.toString().padStart(5, '0')
-    return `RB-${paddedNumber}`
-  } catch (error) {
-    console.error('Error generating readable order ID:', error)
-    // Fallback: use timestamp-based ID if generation fails
-    const timestamp = Date.now()
-    const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
-    return `RB-${timestamp.toString().slice(-5)}-${randomSuffix}`
-  }
-}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -149,10 +110,6 @@ serve(async (req) => {
         console.log('Customer email:', session.customer_details?.email)
 
         try {
-          // Generate readable order ID
-          const readableOrderId = await generateReadableOrderId(supabase)
-          console.log('Generated order ID:', readableOrderId)
-
           // Parse items from metadata or use empty array
           let items = []
           if (session.metadata?.items) {
@@ -164,14 +121,13 @@ serve(async (req) => {
             }
           }
 
-          // Insert order into database with readable order ID
+          // Insert order into database (readable_order_id will be set by trigger)
           const { data, error } = await supabase
             .from('orders')
             .insert({
               stripe_session_id: session.id,
               customer_email: session.customer_details?.email || 'unknown@example.com',
               items: items,
-              readable_order_id: readableOrderId,
               created_at: new Date().toISOString()
             })
             .select()
@@ -193,7 +149,7 @@ serve(async (req) => {
             JSON.stringify({ 
               success: true, 
               order_id: data.id,
-              readable_order_id: readableOrderId
+              readable_order_id: data.readable_order_id || 'Processing...'
             }),
             { 
               status: 200, 
