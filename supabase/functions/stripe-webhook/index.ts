@@ -1,4 +1,3 @@
-// Allow unauthenticated access
 export const config = {
   auth: false,
 };
