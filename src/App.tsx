@@ -44,7 +44,7 @@ import BadgeSetPage from './components/products/BadgeSetPage';
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState('home');
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [successParams, setSuccessParams] = useState<{ sessionId?: string; email?: string }>({});
 
   // Add URL-based routing
@@ -193,7 +193,7 @@ const App = () => {
     }
   }, [currentPage]);
 
-  const handleProductClick = (productId: number) => {
+  const handleProductClick = (productId: string) => {
     setSelectedProductId(productId);
     setCurrentPage('product');
     window.scrollTo(0, 0);

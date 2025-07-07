@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 
 interface ShopPageProps {
-  onProductClick: (productId: number) => void;
+  onProductClick: (productId: string) => void;
 }
 
 const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
@@ -122,10 +122,10 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
   // --- FIX: Filtering and Sorting is now done in one step ---
   const sortedAndFilteredProducts = products
     .filter(product => {
-      const matchesCategory = selectedCategories.includes('all') || selectedCategories.includes(product.category);
+      const matchesCategory = selectedCategories.includes('all') || (product.category && selectedCategories.includes(product.category));
       const matchesPrice = product.price_pence >= priceRange[0] && product.price_pence <= priceRange[1];
       const matchesTags = selectedTags.length === 0 || selectedTags.some(tag => product.tags.includes(tag));
-      const matchesSearch = searchQuery === '' || product.name.toLowerCase().includes(searchQuery.toLowerCase()) || product.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = searchQuery === '' || product.name.toLowerCase().includes(searchQuery.toLowerCase()) || (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesCategory && matchesPrice && matchesTags && matchesSearch;
     })
     .sort((a, b) => {

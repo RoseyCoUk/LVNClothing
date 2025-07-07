@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Star, Eye, Clock, ArrowRight } from 'lucide-react';
 
 interface TopSellersProps {
-  onProductClick: (productId: number) => void;
+  onProductClick: (productId: string) => void;
   onViewAllClick?: () => void;
 }
 

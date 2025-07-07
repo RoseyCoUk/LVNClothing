@@ -7,6 +7,10 @@ export interface Product {
   description: string | null
   price_pence: number
   category: string | null
+  tags: string[]
+  reviews: number
+  rating: number
+  dateAdded: string
   created_at: string
   updated_at: string
 }
@@ -26,5 +30,19 @@ export async function getProducts(): Promise<Product[]> {
     throw new Error(`Failed to fetch products: ${error.message}`)
   }
 
-  return data || []
+  // Map database fields to Product interface
+  return (data || []).map(product => ({
+    id: product.id,
+    name: product.name,
+    variant: product.variant,
+    description: product.description,
+    price_pence: product.price_pence,
+    category: product.category || 'gear', // Default to 'gear' if no category
+    tags: product.tags || [], // Use database tags or empty array
+    reviews: product.reviews || 0, // Use database reviews or default
+    rating: product.rating || 4.5, // Use database rating or default
+    dateAdded: product.created_at, // Use created_at as dateAdded
+    created_at: product.created_at,
+    updated_at: product.updated_at
+  }))
 } 
