@@ -63,14 +63,23 @@ supabase db push
 supabase db push
 ```
 
-### 2. Database Triggers
+### 2. Database Tables
 
-The system includes two triggers:
+The system includes these key tables:
 
-1. **Primary Trigger**: `send_order_email_trigger` - Calls Edge Function automatically
-2. **Fallback Trigger**: `send_order_email_trigger_fallback` - Logs for manual processing
+1. **orders** - Main order records with readable_order_id
+2. **order_items** - Individual line items for each order
+3. **products** - Product catalog
+4. **product_variants** - Product variations and pricing
 
-### 3. RLS Policies
+### 3. Database Triggers
+
+The system includes triggers for:
+
+1. **Readable Order ID Generation** - Automatically generates human-readable order IDs
+2. **Order Items Management** - Links individual items to orders
+
+### 4. RLS Policies
 
 Updated policies allow:
 - Service role full access to orders
@@ -175,7 +184,13 @@ The system uses a responsive HTML template with:
    - Review migration execution
    - Check order lookup method (order_id vs session_id)
 
-4. **Webhook Failures**
+4. **Order Items Not Found**
+   - Verify order_items table exists
+   - Check foreign key relationships
+   - Ensure order_items are being inserted with orders
+   - Review RLS policies for order_items table
+
+5. **Webhook Failures**
    - Verify Stripe webhook secret
    - Check webhook endpoint URL
    - Review Edge Function logs

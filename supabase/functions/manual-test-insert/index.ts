@@ -97,6 +97,26 @@ serve(async (req) => {
       customer_email: data.customer_email
     })
 
+    // Insert test order items into order_items table
+    const testOrderItems = [
+      {
+        order_id: data.id,
+        name: 'Test Reform UK Hoodie',
+        quantity: 1,
+        price: '34.99'
+      }
+    ];
+
+    const { error: itemsError } = await supabase
+      .from('order_items')
+      .insert(testOrderItems);
+
+    if (itemsError) {
+      console.error('Error inserting test order items:', itemsError);
+    } else {
+      console.log('Successfully inserted test order items');
+    }
+
           // Call the send-order-email function with order_id for direct lookup
       try {
         console.log('Calling send-order-email function with order_id:', data.id)

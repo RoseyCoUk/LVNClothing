@@ -185,7 +185,7 @@ serve(async (req) => {
     const { data: itemsData, error: itemsError } = await supabase
       .from('order_items')
       .select('*')
-      .eq('order_id', orderData.stripe_session_id)
+      .eq('order_id', orderData.id)
 
     if (itemsError) {
       console.error('Error fetching order items:', itemsError)
@@ -208,9 +208,9 @@ serve(async (req) => {
     // Format order items with safe property access
     const orderItems: OrderItem[] = itemsData.map((item: any) => ({
       id: item.id,
-      product_name: item.product_name ?? 'Unnamed Product',
+      product_name: item.name ?? 'Unnamed Product',
       quantity: item.quantity,
-      unit_price: item.unit_price // Price in pence (integer)
+      unit_price: Math.round(parseFloat(item.price) * 100) // Convert from decimal to pence (integer)
     }))
 
     // Calculate order total

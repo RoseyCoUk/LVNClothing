@@ -152,6 +152,31 @@ serve(async (req) => {
             )
           }
 
+          // Insert order items into order_items table
+          if (session.line_items && session.line_items.data && session.line_items.data.length > 0) {
+            console.log(`[stripe-webhook] Inserting ${session.line_items.data.length} order items`);
+            
+            const orderItems = session.line_items.data.map((item: any) => ({
+              order_id: data.id,
+              name: item.description || 'Unknown Product',
+              quantity: item.quantity || 1,
+              price: (item.amount_total / 100).toString() // Convert from cents to decimal
+            }));
+
+            const { error: itemsError } = await supabase
+              .from('order_items')
+              .insert(orderItems);
+
+            if (itemsError) {
+              console.error('[stripe-webhook] Error inserting order items:', itemsError);
+              // Don't fail the entire request, just log the error
+            } else {
+              console.log(`[stripe-webhook] Successfully inserted ${orderItems.length} order items`);
+            }
+          } else {
+            console.log('[stripe-webhook] No line items found in session, skipping order_items insertion');
+          }
+
           console.log('[stripe-webhook] Order saved successfully:', {
             id: data.id,
             stripe_session_id: data.stripe_session_id,
