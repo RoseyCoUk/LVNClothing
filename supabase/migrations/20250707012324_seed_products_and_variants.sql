@@ -1,5 +1,7 @@
+-- Seed: Reform UK Products & Variants
+
+insert into products (id, name, variant, description, price_pennies, image_url, created_at) values
 -- Reform UK Badge variants
-insert into products (uid, name, variant, description, price_pennies, image_url, created_at) values
 (gen_random_uuid(), 'Reform Badge', '5 Badges', 'Reform UK Badge', 999, '', now()),
 (gen_random_uuid(), 'Reform Badge', '10 Badges', 'Reform UK Badge', 1599, '', now()),
 (gen_random_uuid(), 'Reform Badge', '25 Badges', 'Reform UK Badge', 3599, '', now()),
