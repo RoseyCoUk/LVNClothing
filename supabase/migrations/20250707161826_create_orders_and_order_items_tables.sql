@@ -1,6 +1,13 @@
--- 20250706001000_create_order_items_table.sql
-
 -- up
+CREATE TABLE IF NOT EXISTS orders (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  stripe_session_id TEXT,
+  customer_email TEXT,
+  items JSONB,
+  customer_details JSONB,
+  created_at TIMESTAMP DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS order_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id uuid NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
@@ -11,5 +18,5 @@ CREATE TABLE IF NOT EXISTS order_items (
 );
 
 -- down
-ALTER TABLE order_items DROP CONSTRAINT IF EXISTS order_items_order_id_fkey;
-DROP TABLE IF EXISTS order_items; 
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS orders;
