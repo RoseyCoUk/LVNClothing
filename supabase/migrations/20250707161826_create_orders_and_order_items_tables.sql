@@ -1,20 +1,20 @@
 -- up
 CREATE TABLE IF NOT EXISTS orders (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  stripe_session_id TEXT,
-  customer_email TEXT,
-  items JSONB,
-  customer_details JSONB,
-  created_at TIMESTAMP DEFAULT now()
+  stripe_session_id text,
+  customer_email text,
+  items jsonb,
+  customer_details jsonb,
+  created_at timestamptz DEFAULT timezone('utc', now())
 );
 
 CREATE TABLE IF NOT EXISTS order_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id uuid NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  quantity INTEGER NOT NULL CHECK (quantity > 0),
-  price NUMERIC NOT NULL CHECK (price >= 0),
-  created_at TIMESTAMP DEFAULT now()
+  name text NOT NULL,
+  quantity integer NOT NULL CHECK (quantity > 0),
+  price numeric NOT NULL CHECK (price >= 0),
+  created_at timestamptz DEFAULT timezone('utc', now())
 );
 
 -- Add indexes for better performance
