@@ -124,7 +124,7 @@ serve(async (req) => {
     const orderTotal = orderData.amount_total / 100 // Convert from pence to pounds
 
     // Format email body
-    const emailBody = formatOrderEmail(orderData.stripe_session_id, orderItems, orderTotal)
+    const emailBody = formatOrderEmail(orderData.readable_order_id || 'Processing...', orderItems, orderTotal)
 
     // Send email using Resend
     const resendApiKey = Deno.env.get('RESEND_API_KEY')
@@ -148,7 +148,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: 'Reform UK Shop <support@backreform.co.uk>',
         to: customerEmail,
-        subject: `Order Confirmation - ${orderData.stripe_session_id}`,
+        subject: `Order Confirmation - ${orderData.readable_order_id || 'Processing...'}`,
         html: emailBody,
       }),
     })
@@ -193,6 +193,9 @@ serve(async (req) => {
 })
 
 function formatOrderEmail(orderId: string, items: OrderItem[], total: number): string {
+  // Handle fallback for missing readable order ID
+  const displayOrderId = orderId === 'Processing...' ? 'Processing...' : orderId
+  
   const itemsHtml = items.map(item => {
     const unitPrice = (item.unit_price / 100).toFixed(2) // Convert from pence to pounds
     const itemTotal = ((item.unit_price * item.quantity) / 100).toFixed(2) // Convert from pence to pounds
@@ -220,7 +223,7 @@ function formatOrderEmail(orderId: string, items: OrderItem[], total: number): s
         
         <div style="background-color: white; padding: 25px; border-radius: 6px; margin-bottom: 20px;">
           <h2 style="color: #1a1a1a; margin-bottom: 15px;">Thank you for your order!</h2>
-          <p style="margin-bottom: 10px;"><strong>Order ID:</strong> ${orderId}</p>
+          <p style="margin-bottom: 10px;"><strong>Order ID:</strong> ${displayOrderId}</p>
           <p style="margin-bottom: 20px;"><strong>Date:</strong> ${new Date().toLocaleDateString('en-GB')}</p>
           
           <h3 style="color: #1a1a1a; margin-bottom: 15px;">Order Details</h3>

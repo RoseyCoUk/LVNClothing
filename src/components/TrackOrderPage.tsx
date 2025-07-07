@@ -59,7 +59,7 @@ const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
                   type="text"
                   value={orderNumber}
                   onChange={(e) => setOrderNumber(e.target.value)}
-                  placeholder="RUK-123456"
+                  placeholder="RB-00001"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
                   required
                 />

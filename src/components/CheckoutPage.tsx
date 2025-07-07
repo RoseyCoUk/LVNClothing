@@ -388,7 +388,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
           </p>
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <p className="text-sm text-gray-600">Order Number</p>
-            <p className="font-bold text-gray-900">#RUK-{Date.now().toString().slice(-6)}</p>
+            <p className="font-bold text-gray-900">Processing...</p>
           </div>
           <button
             onClick={onBack}

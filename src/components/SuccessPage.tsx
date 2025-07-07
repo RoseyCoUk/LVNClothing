@@ -6,9 +6,10 @@ interface SuccessPageProps {
   onBackToShop: () => void;
   sessionId?: string;
   email?: string;
+  readableOrderId?: string;
 }
 
-const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, email }) => {
+const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, email, readableOrderId }) => {
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -32,21 +33,41 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
         console.log('SuccessPage: No email received via props');
       }
 
-      // Fetch order details
+      // Fetch order details with readable order ID
       const fetchOrderDetails = async () => {
         try {
-          // Get the most recent order for the user
-          const { data, error } = await supabase
-            .from('stripe_user_orders')
-            .select('*')
-            .order('order_date', { ascending: false })
-            .limit(1)
-            .maybeSingle();
+          // Use sessionId to fetch the specific order with readable_order_id
+          if (sessionId) {
+            const { data, error } = await supabase
+              .from('orders')
+              .select('readable_order_id, customer_email, created_at')
+              .eq('stripe_session_id', sessionId)
+              .single();
 
-          if (error) {
-            console.error('Error fetching order details:', error);
-          } else if (data) {
-            setOrderDetails(data);
+            if (error) {
+              console.error('Error fetching order details:', error);
+            } else if (data) {
+              setOrderDetails(data);
+              // Update the readableOrderId if we found it
+              if (data.readable_order_id) {
+                // We need to update the readableOrderId prop, but since it's a prop,
+                // we'll need to handle this differently. For now, we'll use the orderDetails state.
+              }
+            }
+          } else {
+            // Fallback: Get the most recent order for the user
+            const { data, error } = await supabase
+              .from('stripe_user_orders')
+              .select('*')
+              .order('order_date', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            if (error) {
+              console.error('Error fetching order details:', error);
+            } else if (data) {
+              setOrderDetails(data);
+            }
           }
         } catch (error) {
           console.error('Error fetching order details:', error);
@@ -184,12 +205,26 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
               Your payment has been processed successfully. We've received your order and will send you a confirmation email shortly.
             </p>
             
-            {/* Display session information for debugging */}
-            {sessionId && (
+            {/* Display order information */}
+            {orderDetails?.readable_order_id && (
               <div className="bg-gray-100 p-4 rounded-lg mb-6 text-left">
                 <h3 className="font-semibold text-gray-800 mb-2">Order Details:</h3>
                 <p className="text-sm text-gray-600 mb-1">
-                  <strong>Session ID:</strong> {sessionId}
+                  <strong>Order ID:</strong> {orderDetails.readable_order_id}
+                </p>
+                {email && (
+                  <p className="text-sm text-gray-600">
+                    <strong>Email:</strong> {email}
+                  </p>
+                )}
+              </div>
+            )}
+            {/* Fallback for older orders without readable order ID */}
+            {!orderDetails?.readable_order_id && sessionId && (
+              <div className="bg-gray-100 p-4 rounded-lg mb-6 text-left">
+                <h3 className="font-semibold text-gray-800 mb-2">Order Details:</h3>
+                <p className="text-sm text-gray-600 mb-1">
+                  <strong>Order ID:</strong> Processing...
                 </p>
                 {email && (
                   <p className="text-sm text-gray-600">
@@ -230,7 +265,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Order ID:</span>
-                  <span className="font-medium text-gray-900">#{orderDetails.order_id}</span>
+                  <span className="font-medium text-gray-900">#{orderDetails.readable_order_id || 'Processing...'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Amount:</span>
