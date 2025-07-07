@@ -1,1 +1,0 @@
-alter table products add column price_pennies integer not null default 0;
