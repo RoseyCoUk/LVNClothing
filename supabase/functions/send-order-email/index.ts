@@ -88,11 +88,11 @@ serve(async (req) => {
 
     console.log('Order found:', orderData)
 
-    // Fetch order items with product names using the view
+    // Fetch order items with product names
     const { data: itemsData, error: itemsError } = await supabase
-      .from('order_items_with_products')
+      .from('order_items')
       .select('*')
-      .eq('order_id', orderData.id)
+      .eq('order_id', orderData.stripe_session_id)
 
     if (itemsError) {
       console.error('Error fetching order items:', itemsError)
