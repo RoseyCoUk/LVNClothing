@@ -40,13 +40,10 @@
 - ✅ Newsletter and promotions toggle
 - ✅ Product recommendations toggle
 
-**Language & Region:**
-- ✅ Language selection (English UK/US)
-- ✅ Currency selection (GBP, EUR, USD)
-
-**Theme Settings:**
-- ✅ Light/Dark/Auto theme options
-- ✅ Save preferences functionality
+**Email Preferences Only:**
+- ✅ Order confirmations and updates toggle
+- ✅ Newsletter and promotions toggle
+- ✅ Product recommendations toggle
 
 ### 5. **Navigation & UI - ✅ COMPLETE**
 
@@ -87,9 +84,8 @@
 ### **Scenario 4: Preferences**
 1. User navigates to Preferences tab
 2. Adjusts email preferences
-3. Changes language/currency settings
-4. Selects theme preference
-5. Saves preferences
+3. Toggles order confirmations, newsletters, and recommendations
+4. Saves preferences
 
 ## 📊 **Features Included:**
 
@@ -113,9 +109,10 @@
 - Empty state handling
 
 ### **Preferences Tab:**
-- Email notification preferences
-- Language and currency settings
-- Theme selection
+- Email notification preferences only
+- Order confirmations and updates
+- Newsletter and promotions
+- Product recommendations
 - Save preferences functionality
 
 ## 🔒 **Security Features:**
