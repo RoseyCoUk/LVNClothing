@@ -70,9 +70,9 @@ serve(async (req) => {
     // Fetch order details
     console.log('Fetching order details for session_id:', orderId)
     const { data: orderData, error: orderError } = await supabase
-      .from('stripe_orders')
+      .from('orders')
       .select('*')
-      .eq('checkout_session_id', orderId)
+      .eq('stripe_session_id', orderId)
       .single()
 
     if (orderError || !orderData) {
@@ -88,17 +88,10 @@ serve(async (req) => {
 
     console.log('Order found:', orderData)
 
-    // Fetch order items with product names
+    // Fetch order items with product names using the view
     const { data: itemsData, error: itemsError } = await supabase
-      .from('order_items')
-      .select(`
-        id,
-        quantity,
-        unit_price,
-        products (
-          name
-        )
-      `)
+      .from('order_items_with_products')
+      .select('*')
       .eq('order_id', orderData.id)
 
     if (itemsError) {
@@ -122,7 +115,7 @@ serve(async (req) => {
     // Format order items with safe property access
     const orderItems: OrderItem[] = itemsData.map((item: any) => ({
       id: item.id,
-      product_name: item.products?.name ?? 'Unnamed Product',
+      product_name: item.product_name ?? 'Unnamed Product',
       quantity: item.quantity,
       unit_price: item.unit_price // Price in pence (integer)
     }))
@@ -131,7 +124,7 @@ serve(async (req) => {
     const orderTotal = orderData.amount_total / 100 // Convert from pence to pounds
 
     // Format email body
-    const emailBody = formatOrderEmail(orderData.checkout_session_id, orderItems, orderTotal)
+    const emailBody = formatOrderEmail(orderData.stripe_session_id, orderItems, orderTotal)
 
     // Send email using Resend
     const resendApiKey = Deno.env.get('RESEND_API_KEY')
@@ -155,7 +148,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: 'Reform UK Shop <support@backreform.co.uk>',
         to: customerEmail,
-        subject: `Order Confirmation - ${orderData.checkout_session_id}`,
+        subject: `Order Confirmation - ${orderData.stripe_session_id}`,
         html: emailBody,
       }),
     })
