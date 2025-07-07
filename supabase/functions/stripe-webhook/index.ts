@@ -2,6 +2,7 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 import { sendOrderEmail } from '../_shared/email.ts';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY')!;
 const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
@@ -14,45 +15,225 @@ const stripe = new Stripe(stripeSecret, {
 
 const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
 
-Deno.serve(async (req) => {
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+interface StripeSession {
+  id: string
+  customer_details: {
+    email: string
+  }
+  metadata: {
+    items?: string
+  }
+}
+
+/**
+ * Generates a readable order ID in format RB-01001, RB-01002, etc.
+ * Finds the highest existing order ID and increments by 1
+ */
+async function generateReadableOrderId(supabase: any): Promise<string> {
   try {
-    // Handle OPTIONS request for CORS preflight
-    if (req.method === 'OPTIONS') {
-      return new Response(null, { status: 204 });
+    // Query for the highest existing readable order ID
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select('readable_order_id')
+      .not('readable_order_id', 'is', null)
+      .order('readable_order_id', { ascending: false })
+      .limit(1)
+
+    if (error) {
+      console.error('Error fetching highest order ID:', error)
+      throw error
     }
 
-    if (req.method !== 'POST') {
-      return new Response('Method not allowed', { status: 405 });
+    let nextNumber = 1
+
+    if (orders && orders.length > 0 && orders[0].readable_order_id) {
+      // Extract the number from the existing order ID (e.g., "RB-01001" -> 1001)
+      const match = orders[0].readable_order_id.match(/RB-(\d+)/)
+      if (match) {
+        nextNumber = parseInt(match[1], 10) + 1
+      }
     }
 
-    // get the signature from the header
-    const signature = req.headers.get('stripe-signature');
+    // Pad with leading zeros to always be 5 digits
+    const paddedNumber = nextNumber.toString().padStart(5, '0')
+    return `RB-${paddedNumber}`
+  } catch (error) {
+    console.error('Error generating readable order ID:', error)
+    // Fallback: use timestamp-based ID if generation fails
+    const timestamp = Date.now()
+    const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
+    return `RB-${timestamp.toString().slice(-5)}-${randomSuffix}`
+  }
+}
+
+serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  try {
+    console.log('stripe-webhook function triggered')
+
+    // Get environment variables
+    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')
+    const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
+    // Validate environment variables
+    if (!stripeSecretKey || !stripeWebhookSecret || !supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing required environment variables')
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    // Initialize Stripe
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: '2024-12-18.acacia',
+      httpClient: Stripe.createFetchHttpClient(),
+    })
+
+    // Initialize Supabase client
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+    // Get the raw body for webhook verification
+    const body = await req.text()
+    const signature = req.headers.get('stripe-signature')
 
     if (!signature) {
-      return new Response('No signature found', { status: 400 });
+      console.error('Missing Stripe signature header')
+      return new Response(
+        JSON.stringify({ error: 'Missing signature' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
     }
 
-    // get the raw body
-    const body = await req.text();
-
-    // verify the webhook signature
-    let event: Stripe.Event;
+    let event: Stripe.Event
 
     try {
-      event = await stripe.webhooks.constructEventAsync(body, signature, stripeWebhookSecret);
-    } catch (error: any) {
-      console.error(`Webhook signature verification failed: ${error.message}`);
-      return new Response(`Webhook signature verification failed: ${error.message}`, { status: 400 });
+      // Verify the webhook signature
+      event = stripe.webhooks.constructEvent(body, signature, stripeWebhookSecret)
+      console.log('Webhook verified successfully')
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err)
+      return new Response(
+        JSON.stringify({ error: 'Invalid signature' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
     }
 
-    EdgeRuntime.waitUntil(handleEvent(event));
+    // Handle the event
+    switch (event.type) {
+      case 'checkout.session.completed':
+        console.log('Processing checkout.session.completed event')
+        
+        const session = event.data.object as Stripe.Checkout.Session
+        console.log('Session ID:', session.id)
+        console.log('Customer email:', session.customer_details?.email)
 
-    return Response.json({ received: true });
-  } catch (error: any) {
-    console.error('Error processing webhook:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+        try {
+          // Generate readable order ID
+          const readableOrderId = await generateReadableOrderId(supabase)
+          console.log('Generated order ID:', readableOrderId)
+
+          // Parse items from metadata or use empty array
+          let items = []
+          if (session.metadata?.items) {
+            try {
+              items = JSON.parse(session.metadata.items)
+            } catch (parseError) {
+              console.warn('Failed to parse items metadata:', parseError)
+              items = []
+            }
+          }
+
+          // Insert order into database with readable order ID
+          const { data, error } = await supabase
+            .from('orders')
+            .insert({
+              stripe_session_id: session.id,
+              customer_email: session.customer_details?.email || 'unknown@example.com',
+              items: items,
+              readable_order_id: readableOrderId,
+              created_at: new Date().toISOString()
+            })
+            .select()
+            .single()
+
+          if (error) {
+            console.error('Database insert error:', error)
+            return new Response(
+              JSON.stringify({ error: 'Failed to save order' }),
+              { 
+                status: 500, 
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+              }
+            )
+          }
+
+          console.log('Order saved successfully:', data)
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              order_id: data.id,
+              readable_order_id: readableOrderId
+            }),
+            { 
+              status: 200, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          )
+
+        } catch (dbError) {
+          console.error('Database operation failed:', dbError)
+          return new Response(
+            JSON.stringify({ error: 'Database operation failed' }),
+            { 
+              status: 500, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          )
+        }
+
+      default:
+        console.log(`Unhandled event type: ${event.type}`)
+        return new Response(
+          JSON.stringify({ received: true }),
+          { 
+            status: 200, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        )
+    }
+
+  } catch (error) {
+    console.error('Unhandled exception:', JSON.stringify(error, null, 2))
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    )
   }
-});
+})
 
 async function handleEvent(event: Stripe.Event) {
   const stripeData = event?.data?.object ?? {};
