@@ -44,16 +44,15 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
         while (retries < maxRetries) {
           console.log(`[SuccessPage] Attempt ${retries + 1}/${maxRetries} to fetch order for session_id: ${session_id}`);
           
-          try {
-            const { data, error } = await supabase
-              .from('orders')
-              .select('readable_order_id, customer_email, created_at, amount_total, currency, order_status')
-              .eq('stripe_session_id', session_id)
-              .order('created_at', { ascending: false })
-              .limit(1)
-              .single();
+                      try {
+              const { data: orders, error } = await supabase
+                .from('orders')
+                .select('readable_order_id, customer_email, created_at')
+                .eq('stripe_session_id', session_id)
+                .limit(1);
 
-            if (!error && data) {
+            if (!error && orders && orders.length > 0) {
+              const data = orders[0];
               console.log(`[SuccessPage] Order found:`, {
                 readable_order_id: data.readable_order_id,
                 customer_email: data.customer_email,
@@ -110,10 +109,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
               setOrderDetails({
                 readable_order_id: null,
                 customer_email: email,
-                created_at: new Date().toISOString(),
-                amount_total: 0,
-                currency: 'gbp',
-                order_status: 'processing'
+                created_at: new Date().toISOString()
               });
             }
           } else {
@@ -330,21 +326,15 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
                   <span className="font-medium text-gray-900">#{orderDetails.readable_order_id || 'Processing...'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Amount:</span>
-                  <span className="font-medium text-gray-900">
-                    {formatCurrency(orderDetails.amount_total, orderDetails.currency)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
                   <span className="text-gray-600">Order Date:</span>
                   <span className="font-medium text-gray-900">
-                    {formatDate(orderDetails.order_date)}
+                    {formatDate(orderDetails.created_at)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Status:</span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    {orderDetails.order_status}
+                  <span className="text-gray-600">Email:</span>
+                  <span className="font-medium text-gray-900">
+                    {orderDetails.customer_email}
                   </span>
                 </div>
               </div>

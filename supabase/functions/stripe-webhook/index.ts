@@ -131,12 +131,13 @@ serve(async (req) => {
           console.log(`[stripe-webhook] Inserting order into database for session_id: ${session.id}`);
           const { data, error } = await supabase
             .from('orders')
-            .insert({
-              stripe_session_id: session.id,
-              customer_email: session.customer_details?.email || 'unknown@example.com',
-              items: items,
-              created_at: new Date().toISOString()
-            })
+            .insert([
+              {
+                stripe_session_id: session.id,
+                customer_email: session.customer_email,
+                items: session.line_items || [],
+              },
+            ])
             .select()
             .single()
 

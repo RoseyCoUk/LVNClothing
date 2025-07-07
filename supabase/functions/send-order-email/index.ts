@@ -79,33 +79,32 @@ serve(async (req) => {
         console.log(`[send-order-email] Attempt ${retries + 1}/${maxRetries} to fetch order for session_id: ${session_id}`);
         
         try {
-          const { data, error } = await supabase
+          const { data: orders, error } = await supabase
             .from('orders')
             .select('*')
             .eq('stripe_session_id', session_id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
+            .limit(1);
 
-          if (!error && data) {
-            console.log(`[send-order-email] Order found:`, {
-              id: data.id,
-              readable_order_id: data.readable_order_id,
-              customer_email: data.customer_email,
-              created_at: data.created_at
-            });
-            
-            if (data.readable_order_id) {
-              console.log(`[send-order-email] ✅ Order has readable_order_id: ${data.readable_order_id}`);
-              return data;
+                      if (!error && orders && orders.length > 0) {
+              const data = orders[0];
+              console.log(`[send-order-email] Order found:`, {
+                id: data.id,
+                readable_order_id: data.readable_order_id,
+                customer_email: data.customer_email,
+                created_at: data.created_at
+              });
+              
+              if (data.readable_order_id) {
+                console.log(`[send-order-email] ✅ Order has readable_order_id: ${data.readable_order_id}`);
+                return data;
+              } else {
+                console.log(`[send-order-email] ⚠️ Order found but readable_order_id is null/undefined, retrying...`);
+              }
+            } else if (error) {
+              console.log(`[send-order-email] ❌ Error fetching order:`, error);
             } else {
-              console.log(`[send-order-email] ⚠️ Order found but readable_order_id is null/undefined, retrying...`);
+              console.log(`[send-order-email] ❌ Order not found for session_id: ${session_id}`);
             }
-          } else if (error) {
-            console.log(`[send-order-email] ❌ Error fetching order:`, error);
-          } else {
-            console.log(`[send-order-email] ❌ Order not found for session_id: ${session_id}`);
-          }
         } catch (fetchError) {
           console.log(`[send-order-email] ❌ Exception during order fetch:`, fetchError);
         }

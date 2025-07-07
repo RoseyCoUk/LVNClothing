@@ -18,6 +18,8 @@ const TestPaymentFlow = () => {
   const [checkoutType, setCheckoutType] = useState<'user' | 'guest'>('user');
   const [testEmail, setTestEmail] = useState('test@example.com');
   const [customTestEmail, setCustomTestEmail] = useState('');
+  const [testMode, setTestMode] = useState(false);
+  const [manualSessionId, setManualSessionId] = useState('');
 
   const testProducts = [
     {
@@ -235,6 +237,58 @@ const TestPaymentFlow = () => {
     addTestResult('Step 4', 'success', 'Order notification email simulation', emailContent);
   };
 
+  // Function to manually insert test data into orders table
+  const insertManualTestData = async () => {
+    try {
+      addTestResult('Manual Test', 'info', 'Inserting manual test data...');
+      
+      const sessionId = manualSessionId || `cs_test_manual_${Date.now()}`;
+      const email = customTestEmail || testEmail;
+      
+      const testOrderData = {
+        stripe_session_id: sessionId,
+        customer_email: email,
+        items: [
+          {
+            id: 'test-hoodie',
+            name: 'Test Reform UK Hoodie',
+            price: 3499,
+            quantity: 1
+          }
+        ]
+      };
+      
+      addTestResult('Manual Test', 'info', 'Test order data prepared', testOrderData);
+      
+      // Insert test data directly into orders table
+      const { data, error } = await supabase
+        .from('orders')
+        .insert([testOrderData])
+        .select()
+        .single();
+      
+      if (error) {
+        addTestResult('Manual Test', 'error', 'Failed to insert test data', error);
+        return;
+      }
+      
+      addTestResult('Manual Test', 'success', 'Test data inserted successfully!', {
+        id: data.id,
+        stripe_session_id: data.stripe_session_id,
+        readable_order_id: data.readable_order_id,
+        customer_email: data.customer_email
+      });
+      
+      // Test the email function with the new data
+      setTimeout(() => {
+        callSendOrderEmail(sessionId, email);
+      }, 1000);
+      
+    } catch (error: any) {
+      addTestResult('Manual Test', 'error', 'Error inserting test data', error.message);
+    }
+  };
+
   const runFullTest = async () => {
     setIsProcessing(true);
     setTestResults([]);
@@ -408,6 +462,55 @@ const TestPaymentFlow = () => {
               </div>
             </div>
           )}
+
+          {/* Manual Test Mode */}
+          <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-yellow-900">Manual Test Mode</h4>
+              <button
+                onClick={() => setTestMode(!testMode)}
+                className={`px-3 py-1 rounded text-sm ${
+                  testMode 
+                    ? 'bg-yellow-600 text-white' 
+                    : 'bg-yellow-100 text-yellow-700'
+                }`}
+              >
+                {testMode ? 'Enabled' : 'Disabled'}
+              </button>
+            </div>
+            
+            {testMode && (
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={manualSessionId}
+                    onChange={(e) => setManualSessionId(e.target.value)}
+                    placeholder="Manual session ID (optional)"
+                    className="flex-1 px-3 py-2 border border-yellow-300 rounded-lg text-sm focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                  />
+                  <button
+                    onClick={() => setManualSessionId('')}
+                    className="px-3 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm"
+                  >
+                    Clear
+                  </button>
+                </div>
+                
+                <button
+                  onClick={insertManualTestData}
+                  className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-4 rounded-lg text-sm"
+                >
+                  Insert Manual Test Data
+                </button>
+                
+                <p className="text-xs text-yellow-700">
+                  <strong>⚠️ Test Mode:</strong> This will insert test data directly into the orders table.<br/>
+                  Use this when Stripe CLI is not available to test the complete flow.
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* Test Progress */}
           <div className="mb-8">
