@@ -2,10 +2,6 @@
 -- This migration adds a JSONB column to store customer details from Stripe sessions
 
 -- up
--- DEBUG: Check if orders table exists
-SELECT 1 FROM orders LIMIT 1;
-ALTER TABLE orders ADD COLUMN IF NOT EXISTS readable_order_id TEXT;
-
 -- Add customer_details column to orders table
 ALTER TABLE public.orders 
 ADD COLUMN customer_details JSONB;
