@@ -1,31 +1,23 @@
+-- Migration: Add customer_details column to orders table
+-- This migration adds a JSONB column to store customer details from Stripe sessions
+
 -- up
-CREATE TABLE IF NOT EXISTS orders (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  stripe_session_id text,
-  customer_email text,
-  items jsonb,
-  customer_details jsonb,
-  created_at timestamptz DEFAULT timezone('utc', now())
-);
+-- Add customer_details column to orders table
+ALTER TABLE public.orders 
+ADD COLUMN customer_details JSONB;
 
-CREATE TABLE IF NOT EXISTS order_items (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  order_id uuid NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-  name text NOT NULL,
-  quantity integer NOT NULL CHECK (quantity > 0),
-  price numeric NOT NULL CHECK (price >= 0),
-  created_at timestamptz DEFAULT timezone('utc', now())
-);
+-- Add comment for documentation
+COMMENT ON COLUMN public.orders.customer_details IS 'Stores customer details from Stripe checkout session (name, phone, address, etc.)';
 
--- Add indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
-CREATE INDEX IF NOT EXISTS idx_orders_stripe_session_id ON orders(stripe_session_id);
-CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+-- Create index for better query performance on customer_details
+CREATE INDEX IF NOT EXISTS idx_orders_customer_details ON public.orders USING GIN (customer_details);
 
--- Add comments for documentation
-COMMENT ON TABLE orders IS 'Stores customer orders from Stripe checkout';
-COMMENT ON TABLE order_items IS 'Stores individual line items for each order';
+-- Add comment for the index
+COMMENT ON INDEX public.idx_orders_customer_details IS 'GIN index for efficient JSONB queries on customer_details';
 
 -- down
-DROP TABLE IF EXISTS order_items;
-DROP TABLE IF EXISTS orders; 
+-- Drop the index
+DROP INDEX IF EXISTS public.idx_orders_customer_details;
+
+-- Remove the column
+ALTER TABLE public.orders DROP COLUMN IF EXISTS customer_details; 
