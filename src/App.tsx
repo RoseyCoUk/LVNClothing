@@ -23,6 +23,7 @@ import AccessibilityPage from './components/AccessibilityPage';
 import FAQPage from './components/FAQPage';
 import TrackOrderPage from './components/TrackOrderPage';
 import OrdersPage from './components/OrdersPage';
+import AccountPage from './components/AccountPage';
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
 import SuccessPage from './components/SuccessPage';
@@ -95,6 +96,9 @@ const App = () => {
       case '/signup':
         setCurrentPage('signup');
         break;
+      case '/account':
+        setCurrentPage('account');
+        break;
       default:
         // Handle product pages (e.g., /product/hoodie)
         if (pathname.startsWith('/product/')) {
@@ -154,6 +158,9 @@ const App = () => {
         case '/signup':
           setCurrentPage('signup');
           break;
+        case '/account':
+          setCurrentPage('account');
+          break;
         default:
           if (pathname.startsWith('/product/')) {
             setCurrentPage('product');
@@ -177,6 +184,7 @@ const App = () => {
       'checkout': '/checkout',
       'login': '/login',
       'signup': '/signup',
+      'account': '/account',
     };
 
     const path = pathMap[currentPage];
@@ -293,6 +301,8 @@ const App = () => {
         return <TrackOrderPage onBack={handleBackToHome} />;
       case 'orders':
         return <OrdersPage onBack={handleBackToHome} />;
+      case 'account':
+        return <AccountPage onBack={handleBackToHome} />;
       case 'login':
         return <LoginPage onBack={handleBackToHome} onSignupClick={handleSignupClick} />;
       case 'signup':

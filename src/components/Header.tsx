@@ -139,6 +139,17 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                     
                     <button
                       onClick={() => {
+                        handleNavigation('account');
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2"
+                    >
+                      <User className="w-4 h-4" />
+                      <span>My Account</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => {
                         handleNavigation('orders');
                         setIsUserMenuOpen(false);
                       }}
