@@ -1,5 +1,5 @@
 -- Add readable_order_id with organization-specific prefixes
--- Migration: 20250707010600_add_readable_order_id_with_org_prefix.sql
+-- Migration: 20250707010100_add_readable_order_id_with_org_prefix.sql
 
 -- up
 -- Add readable_order_id column to orders table

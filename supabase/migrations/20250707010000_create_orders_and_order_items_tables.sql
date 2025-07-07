@@ -22,7 +22,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
 CREATE INDEX IF NOT EXISTS idx_orders_stripe_session_id ON orders(stripe_session_id);
 CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
 
--- Add ts for documentation
+-- Add comments for documentation
 COMMENT ON TABLE orders IS 'Stores customer orders from Stripe checkout';
 COMMENT ON TABLE order_items IS 'Stores individual line items for each order';
 
