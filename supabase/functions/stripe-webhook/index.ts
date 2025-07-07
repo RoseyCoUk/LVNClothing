@@ -30,9 +30,15 @@ interface StripeSession {
   }
 }
 
+console.log('✅ Webhook hit');
 
+const handler = async (req: Request) => {
+  const body = await req.text();
+  console.log('🔧 Raw Body:', body);
 
-serve(async (req) => {
+  // Re-parse the body for downstream logic if needed
+  // (If you use body as text for Stripe signature verification, keep as is)
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -69,7 +75,6 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Get the raw body for webhook verification
-    const body = await req.text()
     const signature = req.headers.get('stripe-signature')
 
     if (!signature) {
@@ -256,7 +261,10 @@ serve(async (req) => {
       }
     )
   }
-})
+}
+
+// If using Deno serve:
+serve(handler);
 
 async function handleEvent(event: Stripe.Event) {
   const stripeData = event?.data?.object ?? {};
