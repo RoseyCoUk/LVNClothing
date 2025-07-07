@@ -17,6 +17,11 @@ CREATE TABLE IF NOT EXISTS order_items (
   created_at timestamptz DEFAULT timezone('utc', now())
 );
 
+-- Add indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
+CREATE INDEX IF NOT EXISTS idx_orders_stripe_session_id ON orders(stripe_session_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+
 -- down
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders; 
