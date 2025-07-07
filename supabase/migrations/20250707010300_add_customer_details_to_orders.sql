@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS orders (
   stripe_session_id text,
   customer_email text,
   items jsonb,
-  customer_details jsonb
+  customer_details jsonb,
+  created_at timestamptz DEFAULT timezone('utc', now())
 );
 
 -- down
