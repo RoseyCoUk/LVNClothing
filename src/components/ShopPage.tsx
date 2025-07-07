@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { createCheckoutSession } from '../lib/stripe';
-import ProductBundles from './ProductBundles';
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import ProductBundles from './ProductBundles'
+import { getProducts, Product } from '../lib/api'
 import {
   Search,
   Grid,
@@ -14,41 +14,41 @@ import {
   Clock,
   ArrowRight,
   RotateCcw
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface ShopPageProps {
   onProductClick: (productId: number) => void;
 }
 
-// --- Combined and updated product data for the shop grid ---
-const apparelProducts = [
-  { id: 1, name: "Reform UK Hoodie", price: 49.99, image: "Hoodie/Men/ReformMenHoodieBlack1.webp", hoverImage: "Hoodie/Men/ReformMenHoodieBlack2.webp", rating: 5, reviews: 127, category: 'apparel', tags: ['bestseller'], shipping: "Ships in 48H", description: "Premium quality hoodie", dateAdded: '2025-06-15' },
-  { id: 2, name: "Reform UK T-Shirt", price: 24.99, image: "Tshirt/Men/ReformMenTshirtWhite1.webp", hoverImage: "Tshirt/Men/ReformMenTshirtWhite2.webp", rating: 5, reviews: 89, category: 'apparel', tags: ['bestseller'], shipping: "Ships in 48H", description: "Comfortable cotton t-shirt", dateAdded: '2025-06-16' },
-  { id: 3, name: "Reform UK Cap", price: 19.99, image: "Cap/ReformCapBlue1.webp", hoverImage: "Cap/ReformCapBlack2.webp", rating: 5, reviews: 92, category: 'apparel', tags: ['new'], shipping: "Ships in 48H", description: "Adjustable cap with logo", dateAdded: '2025-07-01' },
-];
+const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [viewMode, setViewMode] = useState('grid')
+  const [sortBy, setSortBy] = useState('popularity')
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['all'])
+  const [priceRange, setPriceRange] = useState([0, 100])
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [hoveredProduct, setHoveredProduct] = useState<number | null>(null)
+  const [timeLeft, setTimeLeft] = useState({ days: 4, hours: 12, minutes: 35, seconds: 42 })
 
-const gearProducts = [
-  { id: 4, name: "Reform UK Tote Bag", price: 19.99, image: "StickerToteWater/ReformToteBagBlack1.webp", hoverImage: "StickerToteWater/ReformToteBagBlack2.webp", rating: 4, reviews: 156, category: 'gear', tags: [], shipping: "Ships in 48H", description: "Durable tote bag", dateAdded: '2025-06-20' },
-  { id: 5, name: "Reform UK Water Bottle", price: 24.99, image: "StickerToteWater/ReformWaterBottleWhite1.webp", hoverImage: "StickerToteWater/ReformWaterBottleWhite2.webp", rating: 5, reviews: 203, category: 'gear', tags: ['new'], shipping: "Ships in 48H", description: "Insulated water bottle", dateAdded: '2025-07-02' },
-  { id: 6, name: "Reform UK Mug", price: 19.99, image: "MugMouse/ReformMug1.webp", hoverImage: "MugMouse/ReformMug5.webp", rating: 4, reviews: 156, category: 'gear', tags: ['bestseller'], shipping: "Ships in 48H", description: "Ceramic coffee mug", dateAdded: '2025-05-10' },
-  { id: 7, name: "Reform UK Mouse Pad", price: 14.99, image: "MugMouse/ReformMousePadWhite1.webp", hoverImage: "MugMouse/ReformMousePadWhite2.webp", rating: 4, reviews: 78, category: 'gear', tags: [], shipping: "Ships in 48H", description: "High-quality mouse pad", dateAdded: '2025-06-25' },
-  { id: 8, name: "Reform UK Stickers", price: 9.99, image: "StickerToteWater/ReformStickersMain2.webp", hoverImage: "StickerToteWater/ReformStickersMain3.webp", rating: 5, reviews: 234, category: 'gear', tags: ['bestseller'], shipping: "Ships in 48H", description: "Weatherproof sticker set", dateAdded: '2025-05-01' },
-  { id: 9, name: "Reform UK Badge Set", price: 9.99, image: "Badge/ReformBadgeSetMain3.webp", hoverImage: "Badge/ReformBadgeSetMain5.webp", rating: 5, reviews: 203, category: 'gear', tags: ['new'], shipping: "Ships in 48H", description: "Premium enamel badges", dateAdded: '2025-07-03' }
-];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true)
+        const productsData = await getProducts()
+        setProducts(productsData)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch products')
+      } finally {
+        setLoading(false)
+      }
+    }
 
-const allProducts = [...apparelProducts, ...gearProducts];
-
-
-const ShopPage = ({ onProductClick }: ShopPageProps) => {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [viewMode, setViewMode] = useState('grid');
-  const [sortBy, setSortBy] = useState('popularity');
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(['all']);
-  const [priceRange, setPriceRange] = useState([0, 100]);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
-  const [timeLeft, setTimeLeft] = useState({ days: 4, hours: 12, minutes: 35, seconds: 42 });
+    fetchProducts()
+  }, [])
 
   // Countdown timer
   useEffect(() => {
@@ -64,10 +64,14 @@ const ShopPage = ({ onProductClick }: ShopPageProps) => {
     return () => clearInterval(timer);
   }, []);
 
+  const formatPrice = (pricePence: number): string => {
+    return `£${(pricePence / 100).toFixed(2)}`
+  }
+
   const categories = [
-    { id: 'all', name: 'All Products', count: 9 },
-    { id: 'apparel', name: 'Apparel', count: 3 },
-    { id: 'gear', name: 'Gear & Goods', count: 6 }
+    { id: 'all', name: 'All Products', count: products.length },
+    { id: 'apparel', name: 'Apparel', count: products.filter(p => p.category === 'apparel').length },
+    { id: 'gear', name: 'Gear & Goods', count: products.filter(p => p.category === 'gear').length }
   ];
   
   const tags = [
@@ -116,10 +120,10 @@ const ShopPage = ({ onProductClick }: ShopPageProps) => {
   };
 
   // --- FIX: Filtering and Sorting is now done in one step ---
-  const sortedAndFilteredProducts = allProducts
+  const sortedAndFilteredProducts = products
     .filter(product => {
       const matchesCategory = selectedCategories.includes('all') || selectedCategories.includes(product.category);
-      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
+      const matchesPrice = product.price_pence >= priceRange[0] && product.price_pence <= priceRange[1];
       const matchesTags = selectedTags.length === 0 || selectedTags.some(tag => product.tags.includes(tag));
       const matchesSearch = searchQuery === '' || product.name.toLowerCase().includes(searchQuery.toLowerCase()) || product.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesPrice && matchesTags && matchesSearch;
@@ -129,9 +133,9 @@ const ShopPage = ({ onProductClick }: ShopPageProps) => {
         case 'popularity':
           return b.reviews - a.reviews;
         case 'price-low':
-          return a.price - b.price;
+          return a.price_pence - b.price_pence;
         case 'price-high':
-          return b.price - a.price;
+          return b.price_pence - a.price_pence;
         case 'newest':
           return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
         case 'rating':
@@ -141,38 +145,32 @@ const ShopPage = ({ onProductClick }: ShopPageProps) => {
       }
     });
 
-  const ProductCard = ({ product }: { product: typeof allProducts[0] }) => (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 group overflow-hidden cursor-pointer" onMouseEnter={() => setHoveredProduct(product.id)} onMouseLeave={() => setHoveredProduct(null)} onClick={() => onProductClick(product.id)}>
-      <div className="relative overflow-hidden aspect-square">
-        <img src={hoveredProduct === product.id ? product.hoverImage : product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300" />
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-3">
-          <button onClick={(e) => { e.stopPropagation(); onProductClick(product.id); }} className="bg-white text-gray-900 p-2 rounded-full hover:bg-gray-100 transition-colors"><Eye className="w-4 h-4" /></button>
-          <button onClick={(e) => e.stopPropagation()} className="bg-white text-gray-900 p-2 rounded-full hover:bg-gray-100 transition-colors"><Heart className="w-4 h-4" /></button>
-        </div>
-      </div>
-      <div className="p-4">
-        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
-        <div className="flex items-center mb-2">
-          {[...Array(5)].map((_, i) => (<Star key={i} className={`w-4 h-4 ${i < product.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />))}
-          <span className="text-sm text-gray-600 ml-2">({product.reviews})</span>
-        </div>
-        <div className="flex items-center mb-3 text-xs text-green-600">
-          <Clock className="w-3 h-3 mr-1" />
-          <span>{product.shipping}</span>
-        </div>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <span className="text-lg font-bold text-[#009fe3]">£{product.price.toFixed(2)}</span>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading products...</p>
           </div>
         </div>
-        {/* --- FIX: "Add to Cart" button is now "View Options" --- */}
-        <button onClick={() => onProductClick(product.id)} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2">
-            <Eye className="w-4 h-4" />
-            <span>View Options</span>
-        </button>
       </div>
-    </div>
-  );
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <p className="text-red-800">Error: {error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -232,7 +230,7 @@ const ShopPage = ({ onProductClick }: ShopPageProps) => {
               </div>
             </div>
             <div className="hidden lg:flex items-center justify-between bg-white rounded-lg shadow-md p-4 mb-6">
-                <div className="text-gray-600">Showing {sortedAndFilteredProducts.length} of {allProducts.length} products</div>
+                <div className="text-gray-600">Showing {sortedAndFilteredProducts.length} of {products.length} products</div>
                 <div className="flex items-center space-x-4">
                     <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2">{sortOptions.map(option => (<option key={option.id} value={option.id}>{option.name}</option>))}</select>
                     <div className="flex border border-gray-300 rounded-lg overflow-hidden"><button onClick={() => setViewMode('grid')} className={`p-2 ${viewMode === 'grid' ? 'bg-[#009fe3] text-white' : 'text-gray-700'}`}><Grid className="w-4 h-4" /></button><button onClick={() => setViewMode('list')} className={`p-2 ${viewMode === 'list' ? 'bg-[#009fe3] text-white' : 'text-gray-700'}`}><List className="w-4 h-4" /></button></div>
@@ -254,13 +252,121 @@ const ShopPage = ({ onProductClick }: ShopPageProps) => {
             <div className="mb-12">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Apparel</h3>
               <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
-                {sortedAndFilteredProducts.filter(p => p.category === 'apparel').map(product => (<ProductCard key={product.id} product={product} />))}
+                {sortedAndFilteredProducts.filter(p => p.category === 'apparel').map(product => (
+                  <div
+                    key={product.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                  >
+                    {/* Product Image Placeholder */}
+                    <div className="aspect-w-1 aspect-h-1 bg-gray-200">
+                      <div className="w-full h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+                        <span className="text-blue-600 font-medium text-lg">
+                          {product.name}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Product Details */}
+                    <div className="p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {product.name}
+                      </h3>
+                      
+                      {product.variant && (
+                        <p className="text-sm text-gray-600 mb-2">
+                          {product.variant}
+                        </p>
+                      )}
+                      
+                      {product.description && (
+                        <p className="text-sm text-gray-500 mb-4 line-clamp-2">
+                          {product.description}
+                        </p>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-xl font-bold text-gray-900">
+                          {formatPrice(product.price_pence)}
+                        </span>
+                        
+                        <button
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                          onClick={(e) => { e.stopPropagation(); onProductClick(product.id); }}
+                        >
+                          Add to Cart
+                        </button>
+                      </div>
+
+                      {product.category && (
+                        <div className="mt-3">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {product.category}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
             <div className="mb-12">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Gear & Goods</h3>
               <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
-                {sortedAndFilteredProducts.filter(p => p.category === 'gear').map(product => (<ProductCard key={product.id} product={product} />))}
+                {sortedAndFilteredProducts.filter(p => p.category === 'gear').map(product => (
+                  <div
+                    key={product.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                  >
+                    {/* Product Image Placeholder */}
+                    <div className="aspect-w-1 aspect-h-1 bg-gray-200">
+                      <div className="w-full h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+                        <span className="text-blue-600 font-medium text-lg">
+                          {product.name}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Product Details */}
+                    <div className="p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {product.name}
+                      </h3>
+                      
+                      {product.variant && (
+                        <p className="text-sm text-gray-600 mb-2">
+                          {product.variant}
+                        </p>
+                      )}
+                      
+                      {product.description && (
+                        <p className="text-sm text-gray-500 mb-4 line-clamp-2">
+                          {product.description}
+                        </p>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-xl font-bold text-gray-900">
+                          {formatPrice(product.price_pence)}
+                        </span>
+                        
+                        <button
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                          onClick={(e) => { e.stopPropagation(); onProductClick(product.id); }}
+                        >
+                          Add to Cart
+                        </button>
+                      </div>
+
+                      {product.category && (
+                        <div className="mt-3">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {product.category}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
