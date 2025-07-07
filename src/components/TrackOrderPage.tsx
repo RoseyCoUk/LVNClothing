@@ -1,18 +1,48 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Package, Search, Truck, CheckCircle, Clock } from 'lucide-react';
+import { ArrowLeft, Package, Search, Truck, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { trackOrderByNumber } from '../lib/stripe';
 
 interface TrackOrderPageProps {
   onBack: () => void;
 }
 
+interface Order {
+  id: string;
+  readable_order_id: string;
+  customer_email: string;
+  amount_total: number;
+  created_at: string;
+  items: any[];
+  customer_details: any;
+}
+
 const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
   const [orderNumber, setOrderNumber] = useState('');
   const [email, setEmail] = useState('');
+  const [order, setOrder] = useState<Order | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleTrackOrder = (e: React.FormEvent) => {
+  const handleTrackOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    // This would integrate with actual tracking system
-    console.log('Tracking order:', orderNumber, email);
+    setIsLoading(true);
+    setError('');
+    setOrder(null);
+
+    try {
+      const orderData = await trackOrderByNumber(orderNumber, email);
+      
+      if (orderData) {
+        setOrder(orderData);
+      } else {
+        setError('Order not found. Please check your order number and email address.');
+      }
+    } catch (err) {
+      setError('An error occurred while tracking your order. Please try again.');
+      console.error('Error tracking order:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -59,9 +89,10 @@ const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
                   type="text"
                   value={orderNumber}
                   onChange={(e) => setOrderNumber(e.target.value)}
-                  placeholder="RB-00001"
+                  placeholder="REFORM-2025-0001"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
                   required
+                  disabled={isLoading}
                 />
               </div>
               
@@ -76,18 +107,104 @@ const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
                   placeholder="your@email.com"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
                   required
+                  disabled={isLoading}
                 />
               </div>
               
               <button
                 type="submit"
-                className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                disabled={isLoading}
+                className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
               >
-                <Search className="w-5 h-5" />
-                <span>Track Order</span>
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Searching...</span>
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-5 h-5" />
+                    <span>Track Order</span>
+                  </>
+                )}
               </button>
             </div>
           </form>
+
+          {/* Error Message */}
+          {error && (
+            <div className="max-w-md mx-auto mb-8">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-3">
+                <AlertCircle className="w-5 h-5 text-red-500" />
+                <span className="text-red-800">{error}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Order Details */}
+          {order && (
+            <div className="max-w-2xl mx-auto mb-8">
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  Order #{order.readable_order_id}
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <span className="text-gray-600">Order Date:</span>
+                    <span className="ml-2 font-medium text-gray-900">
+                      {new Date(order.created_at).toLocaleDateString('en-GB', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Total Amount:</span>
+                    <span className="ml-2 font-medium text-gray-900">
+                      {new Intl.NumberFormat('en-GB', {
+                        style: 'currency',
+                        currency: 'GBP',
+                      }).format((order.amount_total || 0) / 100)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Email:</span>
+                    <span className="ml-2 font-medium text-gray-900">{order.customer_email}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Status:</span>
+                    <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Confirmed
+                    </span>
+                  </div>
+                </div>
+
+                {/* Order Items */}
+                {order.items && order.items.length > 0 && (
+                  <div className="border-t border-gray-200 pt-4">
+                    <h4 className="font-semibold text-gray-900 mb-3">Order Items</h4>
+                    <div className="space-y-2">
+                      {order.items.map((item: any, index: number) => (
+                        <div key={index} className="flex justify-between text-sm">
+                          <span className="text-gray-600">
+                            {item.name} x {item.quantity}
+                          </span>
+                          <span className="font-medium text-gray-900">
+                            {new Intl.NumberFormat('en-GB', {
+                              style: 'currency',
+                              currency: 'GBP',
+                            }).format(item.price)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Tracking Status Example */}
           <div className="bg-gray-50 rounded-lg p-6 mb-8">
@@ -136,11 +253,10 @@ const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="font-semibold text-blue-900 mb-2">Order Tracking System Coming Soon</h3>
+            <h3 className="font-semibold text-blue-900 mb-2">Order Tracking Information</h3>
             <p className="text-blue-800">
-              We're implementing a comprehensive order tracking system that will provide real-time 
-              updates on your Reform UK merchandise orders. This will include detailed tracking 
-              information, delivery estimates, and notification preferences.
+              You can track your Reform UK merchandise orders using your order number and email address. 
+              The order number can be found in your order confirmation email or on your order receipt.
             </p>
           </div>
 

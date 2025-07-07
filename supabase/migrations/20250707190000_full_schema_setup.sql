@@ -12,7 +12,9 @@ CREATE TABLE IF NOT EXISTS public.orders (
   items jsonb,
   customer_details jsonb,
   created_at timestamptz DEFAULT timezone('utc', now()),
-  readable_order_id text
+  readable_order_id text,
+  amount_total integer, -- Amount in cents (pennies)
+  user_id uuid -- Link to Supabase user if provided in metadata
 );
 
 -- 2. Create order_items table with foreign key reference
@@ -70,7 +72,7 @@ ON public.orders
 AS PERMISSIVE
 FOR SELECT
 TO authenticated
-USING (auth.email() = customer_email);
+USING (auth.uid() = user_id OR auth.email() = customer_email);
 
 CREATE POLICY "Allow anonymous users to view orders"
 ON public.orders

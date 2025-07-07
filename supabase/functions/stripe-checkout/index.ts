@@ -155,6 +155,7 @@ Deno.serve(async (req) => {
       mode,
       success_url,
       cancel_url,
+      metadata: userId ? { user_id: userId } : undefined, // Include user_id in metadata if available
     };
 
     // Add shipping rate if provided

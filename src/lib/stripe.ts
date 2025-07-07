@@ -40,10 +40,20 @@ export async function createCheckoutSession(request: CheckoutSessionRequest): Pr
 
 export async function getUserOrders() {
   try {
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.error('User not authenticated:', userError);
+      return [];
+    }
+
+    // Query orders for the authenticated user
     const { data, error } = await supabase
-      .from('stripe_user_orders')
+      .from('orders')
       .select('*')
-      .order('order_date', { ascending: false });
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching orders:', error);
@@ -72,6 +82,28 @@ export async function getUserSubscription() {
     return data;
   } catch (error) {
     console.error('Error in getUserSubscription:', error);
+    return null;
+  }
+}
+
+export async function trackOrderByNumber(orderNumber: string, email: string) {
+  try {
+    // Query order by readable_order_id and customer_email
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('readable_order_id', orderNumber)
+      .eq('customer_email', email)
+      .single();
+
+    if (error) {
+      console.error('Error tracking order:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in trackOrderByNumber:', error);
     return null;
   }
 }

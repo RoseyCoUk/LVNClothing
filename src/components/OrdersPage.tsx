@@ -26,10 +26,10 @@ const OrdersPage = ({ onBack }: OrdersPageProps) => {
     loadOrders();
   }, []);
 
-  const formatCurrency = (amount: number, currency: string) => {
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
-      currency: currency.toUpperCase(),
+      currency: 'GBP',
     }).format(amount / 100); // Stripe amounts are in cents
   };
 
@@ -137,38 +137,38 @@ const OrdersPage = ({ onBack }: OrdersPageProps) => {
             </div>
 
             {orders.map((order) => (
-              <div key={order.order_id} className="bg-white rounded-lg shadow-md p-6">
+              <div key={order.id} className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                      Order #{order.readable_order_id || order.order_id}
+                      Order #{order.readable_order_id || 'Processing...'}
                     </h3>
                     <div className="flex items-center space-x-4 text-sm text-gray-600">
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4" />
-                        <span>{formatDate(order.order_date)}</span>
+                        <span>{formatDate(order.created_at)}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <CreditCard className="w-4 h-4" />
-                        <span>{formatCurrency(order.amount_total, order.currency)}</span>
+                        <span>{formatCurrency(order.amount_total || 0)}</span>
                       </div>
                     </div>
                   </div>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.order_status)}`}>
-                    {order.order_status}
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Confirmed
                   </span>
                 </div>
 
                 <div className="border-t border-gray-200 pt-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-600">Payment Status:</span>
-                      <span className="ml-2 font-medium text-gray-900">{order.payment_status}</span>
+                      <span className="text-gray-600">Customer Email:</span>
+                      <span className="ml-2 font-medium text-gray-900">{order.customer_email}</span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Subtotal:</span>
+                      <span className="text-gray-600">Total Amount:</span>
                       <span className="ml-2 font-medium text-gray-900">
-                        {formatCurrency(order.amount_subtotal, order.currency)}
+                        {formatCurrency(order.amount_total || 0)}
                       </span>
                     </div>
                   </div>

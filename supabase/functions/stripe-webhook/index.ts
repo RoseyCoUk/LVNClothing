@@ -109,11 +109,19 @@ const handler = async (req: Request) => {
             price: item.amount_total / 100,
           })) ?? [];
           
+          // Extract user_id from metadata if provided
+          const userId = session.metadata?.user_id || null;
+          console.log(`[stripe-webhook] Session metadata:`, session.metadata);
+          console.log(`[stripe-webhook] User ID from metadata:`, userId);
+          console.log(`[stripe-webhook] Amount total:`, session.amount_total);
+          
           const orderInsert = {
             stripe_session_id: session.id,
             customer_email: customerEmail,
             items: sanitizedItems,
             customer_details: session.customer_details || null,
+            amount_total: session.amount_total || null, // Amount in cents
+            user_id: userId, // Link to Supabase user if provided
           };
           console.log('📝 Inserting order into Supabase:', orderInsert);
           
