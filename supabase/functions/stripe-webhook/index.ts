@@ -160,9 +160,9 @@ serve(async (req) => {
             created_at: data.created_at
           });
 
-          // Call the send-order-email function
+          // Call the send-order-email function with order_id for direct lookup
           try {
-            console.log('[stripe-webhook] Calling send-order-email function...');
+            console.log('[stripe-webhook] Calling send-order-email function with order_id:', data.id);
             const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
               method: 'POST',
               headers: {
@@ -170,7 +170,7 @@ serve(async (req) => {
                 'Authorization': `Bearer ${supabaseServiceKey}`,
               },
               body: JSON.stringify({
-                orderId: session.id,
+                order_id: data.id,
                 customerEmail: session.customer_details?.email || session.customer_email,
               }),
             });

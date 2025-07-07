@@ -7,7 +7,8 @@ const corsHeaders = {
 }
 
 interface RequestBody {
-  orderId: string;
+  order_id?: string;  // Direct order ID lookup (preferred)
+  orderId?: string;   // Legacy session_id lookup (fallback)
   customerEmail: string;
 }
 
@@ -35,14 +36,15 @@ serve(async (req) => {
   try {
     console.log('send-order-email function triggered')
     
-    const { orderId, customerEmail }: RequestBody = await req.json()
+    const { order_id, orderId, customerEmail }: RequestBody = await req.json()
     
-    console.log('Received orderId:', orderId)
+    console.log('Received order_id:', order_id)
+    console.log('Received orderId (legacy):', orderId)
     console.log('Received customerEmail:', customerEmail)
     
-    if (!orderId || !customerEmail) {
+    if ((!order_id && !orderId) || !customerEmail) {
       return new Response(
-        JSON.stringify({ error: 'Missing required parameters: orderId and customerEmail' }),
+        JSON.stringify({ error: 'Missing required parameters: order_id (or orderId) and customerEmail' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -67,70 +69,96 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Enhanced retry function to fetch order with readable_order_id
-    async function fetchLatestOrder(session_id: string) {
-      let retries = 0;
-      const maxRetries = 3;
-      const retryDelay = 500; // 500ms delay between retries
+    // Direct order lookup function - no retry logic needed
+    async function fetchOrderById(order_id: string) {
+      console.log(`[send-order-email] Fetching order directly by ID: ${order_id}`);
       
-      console.log(`[send-order-email] Starting order fetch for session_id: ${session_id}`);
-      
-      while (retries < maxRetries) {
-        console.log(`[send-order-email] Attempt ${retries + 1}/${maxRetries} to fetch order for session_id: ${session_id}`);
-        
-        try {
-          const { data: orders, error } = await supabase
-            .from('orders')
-            .select('*')
-            .eq('stripe_session_id', session_id)
-            .limit(1);
+      try {
+        const { data: order, error } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('id', order_id)
+          .single();
 
-                      if (!error && orders && orders.length > 0) {
-              const data = orders[0];
-              console.log(`[send-order-email] Order found:`, {
-                id: data.id,
-                readable_order_id: data.readable_order_id,
-                customer_email: data.customer_email,
-                created_at: data.created_at
-              });
-              
-              if (data.readable_order_id) {
-                console.log(`[send-order-email] ✅ Order has readable_order_id: ${data.readable_order_id}`);
-                return data;
-              } else {
-                console.log(`[send-order-email] ⚠️ Order found but readable_order_id is null/undefined, retrying...`);
-              }
-            } else if (error) {
-              console.log(`[send-order-email] ❌ Error fetching order:`, error);
-            } else {
-              console.log(`[send-order-email] ❌ Order not found for session_id: ${session_id}`);
-            }
-        } catch (fetchError) {
-          console.log(`[send-order-email] ❌ Exception during order fetch:`, fetchError);
+        if (error) {
+          console.log(`[send-order-email] ❌ Error fetching order by ID:`, error);
+          throw error;
         }
 
-        retries++;
-        if (retries < maxRetries) {
-          console.log(`[send-order-email] ⏳ Waiting ${retryDelay}ms before retry ${retries + 1}...`);
-          await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        if (!order) {
+          console.log(`[send-order-email] ❌ Order not found for ID: ${order_id}`);
+          throw new Error(`Order not found for ID: ${order_id}`);
         }
+
+        console.log(`[send-order-email] ✅ Order found:`, {
+          id: order.id,
+          readable_order_id: order.readable_order_id,
+          customer_email: order.customer_email,
+          created_at: order.created_at
+        });
+
+        return order;
+      } catch (fetchError) {
+        console.log(`[send-order-email] ❌ Exception during order fetch:`, fetchError);
+        throw fetchError;
       }
-
-      console.log(`[send-order-email] ❌ Failed to fetch order after ${maxRetries} retries for session_id: ${session_id}`);
-      throw new Error(`Order not found or readable_order_id missing after ${maxRetries} retries for session_id: ${session_id}`);
     }
 
-    // Fetch order details with retry logic
-    console.log(`[send-order-email] Fetching order details for session_id: ${orderId}`)
+    // Fallback function for session_id lookup (legacy support)
+    async function fetchOrderBySessionId(session_id: string) {
+      console.log(`[send-order-email] Fetching order by session_id (fallback): ${session_id}`);
+      
+      try {
+        const { data: order, error } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('stripe_session_id', session_id)
+          .single();
+
+        if (error) {
+          console.log(`[send-order-email] ❌ Error fetching order by session_id:`, error);
+          throw error;
+        }
+
+        if (!order) {
+          console.log(`[send-order-email] ❌ Order not found for session_id: ${session_id}`);
+          throw new Error(`Order not found for session_id: ${session_id}`);
+        }
+
+        console.log(`[send-order-email] ✅ Order found by session_id:`, {
+          id: order.id,
+          readable_order_id: order.readable_order_id,
+          customer_email: order.customer_email,
+          created_at: order.created_at
+        });
+
+        return order;
+      } catch (fetchError) {
+        console.log(`[send-order-email] ❌ Exception during session_id lookup:`, fetchError);
+        throw fetchError;
+      }
+    }
+
+    // Fetch order details using direct ID lookup (preferred) or session_id (fallback)
     let orderData;
     try {
-      orderData = await fetchLatestOrder(orderId);
-      console.log(`[send-order-email] ✅ Successfully fetched order with readable_order_id: ${orderData.readable_order_id}`);
+      if (order_id) {
+        // Use direct order_id lookup (fast and reliable)
+        orderData = await fetchOrderById(order_id);
+        console.log(`[send-order-email] ✅ Successfully fetched order by ID with readable_order_id: ${orderData.readable_order_id}`);
+      } else if (orderId) {
+        // Fallback to session_id lookup (legacy support)
+        orderData = await fetchOrderBySessionId(orderId);
+        console.log(`[send-order-email] ✅ Successfully fetched order by session_id with readable_order_id: ${orderData.readable_order_id}`);
+      } else {
+        throw new Error('Neither order_id nor orderId provided');
+      }
     } catch (error) {
-      console.error(`[send-order-email] ❌ Failed to fetch order after retries for session_id: ${orderId}:`, error)
+      console.error(`[send-order-email] ❌ Failed to fetch order:`, error)
       
       // Log additional context for debugging
       console.log(`[send-order-email] 📊 Debug info:`, {
+        order_id: order_id,
         session_id: orderId,
         customer_email: customerEmail,
         timestamp: new Date().toISOString(),
@@ -139,10 +167,10 @@ serve(async (req) => {
       
       return new Response(
         JSON.stringify({ 
-          error: 'Order not found or readable_order_id missing after retries',
+          error: 'Order not found',
+          order_id: order_id,
           session_id: orderId,
-          customer_email: customerEmail,
-          retry_attempts: 3
+          customer_email: customerEmail
         }),
         { 
           status: 404, 

@@ -97,20 +97,20 @@ serve(async (req) => {
       customer_email: data.customer_email
     })
 
-    // Call the send-order-email function
-    try {
-      console.log('Calling send-order-email function...')
-      const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseServiceKey}`,
-        },
-        body: JSON.stringify({
-          orderId: sessionId,
-          customerEmail: customerEmail,
-        }),
-      })
+          // Call the send-order-email function with order_id for direct lookup
+      try {
+        console.log('Calling send-order-email function with order_id:', data.id)
+        const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseServiceKey}`,
+          },
+          body: JSON.stringify({
+            order_id: data.id,
+            customerEmail: customerEmail,
+          }),
+        })
 
       if (emailResponse.ok) {
         const emailResult = await emailResponse.json()

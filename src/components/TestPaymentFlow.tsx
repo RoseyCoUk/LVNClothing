@@ -179,7 +179,7 @@ const TestPaymentFlow = () => {
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'}`,
         },
         body: JSON.stringify({
-          orderId: sessionId, // Using sessionId as orderId for test
+          orderId: sessionId, // Using sessionId as fallback for legacy test
           customerEmail: emailToUse,
         }),
       });

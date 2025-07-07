@@ -102,7 +102,8 @@ supabase functions deploy manual-test-insert
 
 #### `send-order-email`
 - Sends order confirmation emails via Resend
-- Includes retry logic for race conditions
+- Uses direct order_id lookup for fast, reliable order retrieval
+- Includes fallback to session_id lookup for legacy support
 - Formats emails with order details and readable_order_id
 
 #### `manual-test-insert`
@@ -172,6 +173,7 @@ The system uses a responsive HTML template with:
    - Check database trigger is active
    - Verify trigger function permissions
    - Review migration execution
+   - Check order lookup method (order_id vs session_id)
 
 4. **Webhook Failures**
    - Verify Stripe webhook secret
@@ -191,6 +193,9 @@ supabase db diff
 
 # Test Edge Functions locally
 supabase functions serve
+
+# Monitor order lookup performance
+# The system now uses direct order_id lookup for faster email delivery
 ```
 
 ## 🔐 Security Considerations
