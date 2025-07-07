@@ -4,8 +4,12 @@ import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 import { sendOrderEmail } from '../_shared/email.ts';
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
+// Consolidate env vars at the top
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY')!;
 const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
+
 const stripe = new Stripe(stripeSecret, {
   appInfo: {
     name: 'Bolt Integration',
@@ -33,6 +37,11 @@ interface StripeSession {
 console.log('✅ Webhook hit');
 
 const handler = async (req: Request) => {
+  // Health-check route for Supabase pings
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
   console.log('Incoming webhook received');
   const body = await req.text();
   console.log('🔧 Raw Body:', body);
@@ -60,13 +69,19 @@ const handler = async (req: Request) => {
       case 'checkout.session.completed':
         console.log('Processing checkout.session.completed event');
         
-        const session = event.data.object as Stripe.Checkout.Session
+        const sessionId = event.data.object.id;
+        const session = await stripe.checkout.sessions.retrieve(sessionId, {
+          expand: ['line_items', 'customer'],
+        });
         console.log('Session ID:', session.id)
-        console.log('Customer email:', session.customer_details?.email)
+        // Use a single customerEmail fallback
+        const customerEmail = session.customer_details?.email || session.customer_email || 'unknown@example.com';
+        console.log('Customer email:', customerEmail);
+        console.log('Line items:', session.line_items.data);
 
         try {
           console.log(`[stripe-webhook] Processing checkout session: ${session.id}`);
-          console.log(`[stripe-webhook] Customer email: ${session.customer_details?.email || 'unknown@example.com'}`);
+          console.log(`[stripe-webhook] Customer email: ${customerEmail}`);
           
           // Parse items from metadata or use empty array
           let items = []
@@ -82,20 +97,28 @@ const handler = async (req: Request) => {
             console.log('[stripe-webhook] No items metadata found, using empty array');
           }
 
-          // Insert order into database (readable_order_id will be set by trigger)
-          console.log(`[stripe-webhook] Inserting order into database for session_id: ${session.id}`);
+          // Sanitize line items for DB insert
+          const sanitizedItems = session.line_items?.data.map((item: any) => ({
+            name: item.description,
+            quantity: item.quantity,
+            price: item.amount_total / 100,
+          })) ?? [];
+          
+          const orderInsert = {
+            stripe_session_id: session.id,
+            customer_email: customerEmail,
+            items: sanitizedItems,
+            customer_details: session.customer_details || null,
+          };
+          console.log('📝 Inserting order into Supabase:', orderInsert);
+          
           const { data, error } = await supabase
             .from('orders')
-            .insert([
-              {
-                stripe_session_id: session.id,
-                customer_email: session.customer_email,
-                items: session.line_items || [],
-                customer_details: session.customer_details || null,
-              },
-            ])
+            .insert([orderInsert])
             .select()
-            .single()
+            .single();
+          
+          console.log('🗃️ Supabase insert result:', { data, error });
 
           if (error) {
             console.error('[stripe-webhook] Database insert error:', error)
@@ -152,7 +175,7 @@ const handler = async (req: Request) => {
               },
               body: JSON.stringify({
                 order_id: data.id,
-                customerEmail: session.customer_details?.email || session.customer_email,
+                customerEmail: customerEmail,
               }),
             });
 
