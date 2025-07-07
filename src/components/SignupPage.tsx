@@ -9,8 +9,7 @@ interface SignupPageProps {
 
 const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    fullName: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -29,12 +28,8 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
   };
 
   const validateForm = () => {
-    if (!formData.firstName.trim()) {
-      setMessage({ type: 'error', text: 'First name is required' });
-      return false;
-    }
-    if (!formData.lastName.trim()) {
-      setMessage({ type: 'error', text: 'Last name is required' });
+    if (!formData.fullName.trim()) {
+      setMessage({ type: 'error', text: 'Full name is required' });
       return false;
     }
     if (!formData.email.trim()) {
@@ -68,9 +63,7 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
         password: formData.password,
         options: {
           data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            full_name: `${formData.firstName} ${formData.lastName}`
+            full_name: formData.fullName
           }
         }
       });
@@ -84,8 +77,7 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
         });
         // Clear form
         setFormData({
-          firstName: '',
-          lastName: '',
+          fullName: '',
           email: '',
           password: '',
           confirmPassword: ''
@@ -131,43 +123,22 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSignup}>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                  First name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    id="firstName"
-                    name="firstName"
-                    type="text"
-                    required
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
-                    placeholder="First name"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Last name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    id="lastName"
-                    name="lastName"
-                    type="text"
-                    required
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
-                    placeholder="Last name"
-                  />
-                </div>
+            <div>
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                Full name
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  required
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                  placeholder="Full name"
+                />
               </div>
             </div>
 
@@ -205,20 +176,18 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
                   required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
                   placeholder="Create a password"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowPassword((show) => !show)}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              <p className="mt-1 text-xs text-gray-500">
-                Must be at least 6 characters long
-              </p>
             </div>
 
             <div>
@@ -235,13 +204,14 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
                   required
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
                   placeholder="Confirm your password"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  tabIndex={-1}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowConfirmPassword((show) => !show)}
                 >
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -250,23 +220,9 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
           </div>
 
           {message && (
-            <div className={`rounded-lg p-4 ${
-              message.type === 'error' 
-                ? 'bg-red-50 border border-red-200' 
-                : 'bg-green-50 border border-green-200'
-            }`}>
-              <div className="flex items-start space-x-3">
-                {message.type === 'error' ? (
-                  <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                ) : (
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                )}
-                <p className={`text-sm ${
-                  message.type === 'error' ? 'text-red-800' : 'text-green-800'
-                }`}>
-                  {message.text}
-                </p>
-              </div>
+            <div className={`flex items-center space-x-2 px-4 py-3 rounded-lg text-sm ${message.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+              {message.type === 'error' ? <AlertCircle className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />}
+              <span>{message.text}</span>
             </div>
           )}
 
@@ -274,35 +230,27 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
             >
               {isLoading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>Signing up...</span>
               ) : (
-                'Create account'
+                <span>Sign up</span>
               )}
             </button>
           </div>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <button
-                type="button"
-                onClick={onLoginClick}
-                className="text-[#009fe3] hover:text-blue-600 font-semibold"
-              >
-                Sign in here
-              </button>
-            </p>
+          <div className="text-center mt-4">
+            <span className="text-gray-600">Already have an account? </span>
+            <button
+              type="button"
+              onClick={onLoginClick}
+              className="text-[#009fe3] hover:underline font-medium"
+            >
+              Sign in
+            </button>
           </div>
         </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
-            By creating an account, you agree to our Terms of Service and Privacy Policy
-          </p>
-        </div>
       </div>
     </div>
   );
