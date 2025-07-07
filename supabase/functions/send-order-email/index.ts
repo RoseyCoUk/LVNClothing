@@ -1,154 +1,267 @@
-import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
-import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
 
-// Create a Supabase client
-const supabase = createClient(
-  Deno.env.get('SUPABASE_URL')!,
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-);
+interface RequestBody {
+  orderId: string;
+  customerEmail: string;
+}
 
-Deno.serve(async (req) => {
-  // Handle CORS preflight request
+interface OrderItem {
+  id: string;
+  product_name: string;
+  quantity: number;
+  unit_price: number; // Price in pence (integer)
+}
+
+interface Order {
+  id: string;
+  checkout_session_id: string;
+  amount_total: number;
+  customer_id: string;
+  items: OrderItem[];
+}
+
+serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: corsHeaders,
-    });
-  }
-
-  // Only allow POST requests
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { orderId, customerEmail } = await req.json();
+    console.log('send-order-email function triggered')
     
-    console.log("📨 Request received with:", { orderId, customerEmail });
-
+    const { orderId, customerEmail }: RequestBody = await req.json()
+    
+    console.log('Received orderId:', orderId)
+    console.log('Received customerEmail:', customerEmail)
+    
     if (!orderId || !customerEmail) {
-      console.log("❌ Missing required fields");
       return new Response(
-        JSON.stringify({ error: 'Order ID and customer email are required' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        JSON.stringify({ error: 'Missing required parameters: orderId and customerEmail' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
-      );
+      )
     }
 
-    // Fetch order details from the database using session_id
-    console.log("🔍 Fetching order details for session_id:", orderId);
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing Supabase environment variables')
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+    // Fetch order details
+    console.log('Fetching order details for session_id:', orderId)
+    const { data: orderData, error: orderError } = await supabase
+      .from('stripe_orders')
       .select('*')
-      .eq('session_id', orderId)
-      .single();
+      .eq('checkout_session_id', orderId)
+      .single()
 
-    if (orderError) {
-      console.error('❌ Error fetching order:', orderError);
+    if (orderError || !orderData) {
+      console.error('Error fetching order:', orderError)
       return new Response(
-        JSON.stringify({ error: 'Failed to fetch order details' }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        JSON.stringify({ error: 'Order not found' }),
+        { 
+          status: 404, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
-      );
+      )
     }
 
-    console.log("✅ Order found:", order?.id);
+    console.log('Order found:', orderData)
 
-    // Send email notification to support
-    console.log("📧 Starting email notification process");
-    const emailResult = await sendOrderNotificationEmail(order, customerEmail);
+    // Fetch order items with product names
+    const { data: itemsData, error: itemsError } = await supabase
+      .from('order_items')
+      .select(`
+        id,
+        quantity,
+        unit_price,
+        products (
+          name
+        )
+      `)
+      .eq('order_id', orderData.id)
 
-    console.log("✅ Email process completed");
-    return new Response(
-      JSON.stringify({ success: true, message: 'Order notification email sent' }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
-  } catch (error) {
-    console.error('❌ Error processing request:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
-  }
-});
+    if (itemsError) {
+      console.error('Error fetching order items:', itemsError)
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch order items' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
 
-async function sendOrderNotificationEmail(order: any, customerEmail: string) {
-  console.log("➡️ send-order-email triggered");
-  console.log("Email to send:", customerEmail);
-  console.log("Session ID:", order?.session_id || order?.id);
-  console.log("ENV KEY present?", Deno.env.get("RESEND_API_KEY") ? "✅" : "❌");
+    console.log('Order items found:', itemsData)
 
-  console.log("➡️ Function triggered");
-  console.log("Email to send:", customerEmail);
-  console.log("ENV KEY present?", Deno.env.get("RESEND_API_KEY") ? "✅" : "❌");
+    // Check if items exist
+    if (!itemsData || itemsData.length === 0) {
+      console.warn('No items found for this order')
+    }
 
-  // Generate email content
-  const emailContent = `
-    <h2>Order Confirmation</h2>
-    <p>Thank you for your order!</p>
-    <p>Order ID: ${order.id}</p>
-    <p>Customer Email: ${customerEmail}</p>
-    <pre>${JSON.stringify(order, null, 2)}</pre>
-  `;
+    // Format order items with safe property access
+    const orderItems: OrderItem[] = itemsData.map((item: any) => ({
+      id: item.id,
+      product_name: item.products?.name ?? 'Unnamed Product',
+      quantity: item.quantity,
+      unit_price: item.unit_price // Price in pence (integer)
+    }))
 
-  // Send to customer
-  try {
-    const customerEmailResult = await fetch('https://api.resend.com/emails', {
+    // Calculate order total
+    const orderTotal = orderData.amount_total / 100 // Convert from pence to pounds
+
+    // Format email body
+    const emailBody = formatOrderEmail(orderData.checkout_session_id, orderItems, orderTotal)
+
+    // Send email using Resend
+    const resendApiKey = Deno.env.get('RESEND_API_KEY')
+    if (!resendApiKey) {
+      console.error('Missing Resend API key')
+      return new Response(
+        JSON.stringify({ error: 'Email service not configured' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
+        'Authorization': `Bearer ${resendApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         from: 'Reform UK Shop <support@backreform.co.uk>',
         to: customerEmail,
-        subject: `Your Order Confirmation - #${order.id}`,
-        html: emailContent, // You can customise content if you want it different
+        subject: `Order Confirmation - ${orderData.checkout_session_id}`,
+        html: emailBody,
       }),
-    });
-    console.log("✅ Customer email sent result:", customerEmailResult);
-  } catch (err) {
-    console.error("❌ Error sending customer email:", err);
-  }
+    })
 
-  // Send to internal support
-  try {
-    const supportEmailResult = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Reform UK Shop <support@backreform.co.uk>',
-        to: 'support@backreform.co.uk',
-        subject: `New Order Received - #${order.id}`,
-        html: emailContent,
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text()
+      console.error('Resend API error:', errorText)
+      return new Response(
+        JSON.stringify({ error: 'Failed to send email' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    const emailResult = await emailResponse.json()
+    console.log('Email sent successfully:', emailResult)
+
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        message: 'Order confirmation email sent',
+        emailId: emailResult.id 
       }),
-    });
-    console.log("✅ Support email sent result:", supportEmailResult);
-  } catch (err) {
-    console.error("❌ Error sending support email:", err);
-  }
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    )
 
-  return { success: true };
+  } catch (error) {
+    console.error('Unhandled exception:', JSON.stringify(error, null, 2))
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    )
+  }
+})
+
+function formatOrderEmail(orderId: string, items: OrderItem[], total: number): string {
+  const itemsHtml = items.map(item => {
+    const unitPrice = (item.unit_price / 100).toFixed(2) // Convert from pence to pounds
+    const itemTotal = ((item.unit_price * item.quantity) / 100).toFixed(2) // Convert from pence to pounds
+    
+    return `
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #eee;">${item.product_name}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">£${unitPrice}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">£${itemTotal}</td>
+      </tr>
+    `
+  }).join('')
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Order Confirmation</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background-color: #f8f9fa; padding: 30px; border-radius: 8px;">
+        <h1 style="color: #1a1a1a; margin-bottom: 20px; text-align: center;">Order Confirmation</h1>
+        
+        <div style="background-color: white; padding: 25px; border-radius: 6px; margin-bottom: 20px;">
+          <h2 style="color: #1a1a1a; margin-bottom: 15px;">Thank you for your order!</h2>
+          <p style="margin-bottom: 10px;"><strong>Order ID:</strong> ${orderId}</p>
+          <p style="margin-bottom: 20px;"><strong>Date:</strong> ${new Date().toLocaleDateString('en-GB')}</p>
+          
+          <h3 style="color: #1a1a1a; margin-bottom: 15px;">Order Details</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+              <tr style="background-color: #f8f9fa;">
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Product</th>
+                <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd;">Quantity</th>
+                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Unit Price</th>
+                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+          
+          <div style="text-align: right; border-top: 2px solid #ddd; padding-top: 15px;">
+            <h3 style="margin: 0; color: #1a1a1a;">Order Total: £${total.toFixed(2)}</h3>
+          </div>
+        </div>
+        
+        <div style="background-color: white; padding: 25px; border-radius: 6px;">
+          <h3 style="color: #1a1a1a; margin-bottom: 15px;">What's Next?</h3>
+          <p style="margin-bottom: 10px;">We're processing your order and will send you a shipping confirmation email once your items are on their way.</p>
+          <p style="margin-bottom: 10px;">If you have any questions about your order, please contact us at support@backreform.co.uk</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
+          <p>Thank you for supporting Reform UK!</p>
+          <p>© 2024 Reform UK. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
 }
