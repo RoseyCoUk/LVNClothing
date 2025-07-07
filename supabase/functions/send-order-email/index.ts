@@ -222,8 +222,10 @@ serve(async (req) => {
     // Format email body
     const emailBody = formatOrderEmail(orderData.readable_order_id || 'Processing...', orderItems, orderTotal)
 
-    // Send email using Resend
+    // Load email configuration from environment variables
     const resendApiKey = Deno.env.get('RESEND_API_KEY')
+    const INTERNAL_EMAIL = Deno.env.get('INTERNAL_EMAIL') || 'support@backreform.co.uk'
+    
     if (!resendApiKey) {
       console.error('Missing Resend API key')
       return new Response(
@@ -235,11 +237,19 @@ serve(async (req) => {
       )
     }
 
+    // Validate email addresses
+    if (!customerEmail) {
+      console.warn('⚠️ customerEmail is undefined')
+    }
+    if (!INTERNAL_EMAIL) {
+      console.warn('⚠️ INTERNAL_EMAIL is undefined')
+    }
+
     // Send customer confirmation email
     let customerEmailResult = null;
     let customerEmailError = null;
     try {
-      console.log('Sending customer confirmation email to:', customerEmail);
+      console.log('📧 Sending customer email to:', customerEmail);
       const customerEmailResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -271,7 +281,7 @@ serve(async (req) => {
     let internalEmailResult = null;
     let internalEmailError = null;
     try {
-      console.log('Sending internal notification email');
+      console.log('📧 Sending internal email to:', INTERNAL_EMAIL);
       const internalEmailBody = formatInternalEmail(orderData, orderItems, orderTotal);
       const internalEmailResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -281,7 +291,7 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           from: 'Reform UK Shop <support@backreform.co.uk>',
-          to: 'support@backreform.co.uk',
+          to: INTERNAL_EMAIL,
           subject: `New Order Placed: ${orderData.readable_order_id || 'Processing...'}`,
           html: internalEmailBody,
         }),
