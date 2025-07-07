@@ -21,17 +21,24 @@ export interface Product {
  * @throws Error if the database query fails
  */
 export async function getProducts(): Promise<Product[]> {
+  console.log('Fetching products from Supabase...');
+  
   const { data, error } = await supabase
     .from('products')
     .select('*')
     .order('name', { ascending: true })
 
+  console.log('Supabase response:', { data, error });
+
   if (error) {
+    console.error('Error fetching products:', error);
     throw new Error(`Failed to fetch products: ${error.message}`)
   }
 
+  console.log('Raw products data:', data);
+
   // Map database fields to Product interface
-  return (data || []).map(product => ({
+  const mappedProducts = (data || []).map(product => ({
     id: product.id,
     name: product.name,
     variant: product.variant,
@@ -44,5 +51,8 @@ export async function getProducts(): Promise<Product[]> {
     dateAdded: product.created_at, // Use created_at as dateAdded
     created_at: product.created_at,
     updated_at: product.updated_at
-  }))
+  }));
+
+  console.log('Mapped products:', mappedProducts);
+  return mappedProducts;
 } 

@@ -28,7 +28,7 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
   const [viewMode, setViewMode] = useState('grid')
   const [sortBy, setSortBy] = useState('popularity')
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['all'])
-  const [priceRange, setPriceRange] = useState([0, 100])
+  const [priceRange, setPriceRange] = useState([0, 10000]) // Increased to handle prices in pence
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null)
@@ -37,10 +37,13 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        console.log('ShopPage: Starting to fetch products...');
         setLoading(true)
         const productsData = await getProducts()
+        console.log('ShopPage: Received products:', productsData);
         setProducts(productsData)
       } catch (err) {
+        console.error('ShopPage: Error fetching products:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch products')
       } finally {
         setLoading(false)
@@ -111,12 +114,12 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
   const clearFilters = () => {
     setSelectedCategories(['all']);
     setSelectedTags([]);
-    setPriceRange([0, 100]);
+    setPriceRange([0, 10000]);
     setSearchQuery('');
   };
 
   const hasActiveFilters = () => {
-    return !selectedCategories.includes('all') || selectedTags.length > 0 || priceRange[0] > 0 || priceRange[1] < 100 || searchQuery !== '';
+    return !selectedCategories.includes('all') || selectedTags.length > 0 || priceRange[0] > 0 || priceRange[1] < 10000 || searchQuery !== '';
   };
 
   // --- FIX: Filtering and Sorting is now done in one step ---
@@ -207,8 +210,8 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
                     <div className="space-y-2">{categories.map(category => (<button key={category.id} onClick={() => toggleCategory(category.id)} className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedCategories.includes(category.id) ? 'bg-[#009fe3] text-white' : 'text-gray-700 hover:bg-gray-100'}`}><span>{category.name}</span><span className="float-right text-sm opacity-75">({category.count})</span></button>))}</div>
                 </div>
                 <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price Range: £{priceRange[0]} - £{priceRange[1]}</label>
-                    <input type="range" min="0" max="100" value={priceRange[1]} onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])} className="w-full" />
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Price Range: £{(priceRange[0]/100).toFixed(2)} - £{(priceRange[1]/100).toFixed(2)}</label>
+                    <input type="range" min="0" max="10000" value={priceRange[1]} onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])} className="w-full" />
                 </div>
                 <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-700 mb-3">Tags</label>
@@ -243,7 +246,7 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
                     <span className="text-sm font-semibold text-blue-800">Active Filters:</span>
                     {selectedCategories.filter(c => c !== 'all').map(catId => (<span key={catId} className="bg-blue-200 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full flex items-center">{categories.find(c => c.id === catId)?.name}<button onClick={() => toggleCategory(catId)} className="ml-1.5"><X className="w-3 h-3" /></button></span>))}
                     {selectedTags.map(tagId => (<span key={tagId} className="bg-purple-200 text-purple-800 text-xs font-medium px-2.5 py-1 rounded-full flex items-center">{tags.find(t => t.id === tagId)?.name}<button onClick={() => toggleTag(tagId)} className="ml-1.5"><X className="w-3 h-3" /></button></span>))}
-                    {(priceRange[0] > 0 || priceRange[1] < 100) && (<span className="bg-green-200 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full flex items-center">Price: £{priceRange[0]}-£{priceRange[1]}<button onClick={() => setPriceRange([0, 100])} className="ml-1.5"><X className="w-3 h-3" /></button></span>)}
+                    {(priceRange[0] > 0 || priceRange[1] < 10000) && (<span className="bg-green-200 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full flex items-center">Price: £{(priceRange[0]/100).toFixed(2)}-£{(priceRange[1]/100).toFixed(2)}<button onClick={() => setPriceRange([0, 10000])} className="ml-1.5"><X className="w-3 h-3" /></button></span>)}
                     {searchQuery && (<span className="bg-yellow-200 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded-full flex items-center">Search: "{searchQuery}"<button onClick={() => setSearchQuery('')} className="ml-1.5"><X className="w-3 h-3" /></button></span>)}
                 </div>
             )}
@@ -436,12 +439,12 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
             
             <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Price Range: £{priceRange[0]} - £{priceRange[1]}
+                    Price Range: £{(priceRange[0]/100).toFixed(2)} - £{(priceRange[1]/100).toFixed(2)}
                 </label>
                 <input 
                     type="range" 
                     min="0" 
-                    max="100" 
+                    max="10000" 
                     value={priceRange[1]} 
                     onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])} 
                     className="w-full" 

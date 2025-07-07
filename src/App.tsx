@@ -250,24 +250,8 @@ const App = () => {
       return <ShopPage onProductClick={handleProductClick} />;
     }
 
-    const productComponents = {
-      1: HoodiePage,
-      2: TShirtPage,
-      3: CapPage,
-      4: ToteBagPage,
-      5: WaterBottlePage,
-      6: MugPage,
-      7: MousePadPage,
-      8: StickersPage,
-      9: BadgeSetPage,
-    };
-
-    const ProductComponent = productComponents[selectedProductId as keyof typeof productComponents];
-    
-    if (ProductComponent) {
-      return <ProductComponent onBack={handleBackToShop} />;
-    }
-
+    // For now, just return to shop page since we're using UUIDs
+    // TODO: Implement proper product page routing based on product ID or name
     return <ShopPage onProductClick={handleProductClick} />;
   };
 
