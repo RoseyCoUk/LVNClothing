@@ -246,8 +246,8 @@ const TestPaymentFlow = () => {
       const email = customTestEmail || testEmail;
       
       const testOrderData = {
-        stripe_session_id: sessionId,
-        customer_email: email,
+        sessionId: sessionId,
+        customerEmail: email,
         items: [
           {
             id: 'test-hoodie',
@@ -260,29 +260,35 @@ const TestPaymentFlow = () => {
       
       addTestResult('Manual Test', 'info', 'Test order data prepared', testOrderData);
       
-      // Insert test data directly into orders table
-      const { data, error } = await supabase
-        .from('orders')
-        .insert([testOrderData])
-        .select()
-        .single();
+      // Call the manual-test-insert Edge Function
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-ref.supabase.co';
       
-      if (error) {
-        addTestResult('Manual Test', 'error', 'Failed to insert test data', error);
-        return;
-      }
-      
-      addTestResult('Manual Test', 'success', 'Test data inserted successfully!', {
-        id: data.id,
-        stripe_session_id: data.stripe_session_id,
-        readable_order_id: data.readable_order_id,
-        customer_email: data.customer_email
+      const response = await fetch(`${supabaseUrl}/functions/v1/manual-test-insert`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'}`,
+        },
+        body: JSON.stringify(testOrderData),
       });
-      
-      // Test the email function with the new data
-      setTimeout(() => {
-        callSendOrderEmail(sessionId, email);
-      }, 1000);
+
+      if (response.ok) {
+        const result = await response.json();
+        addTestResult('Manual Test', 'success', 'Test data inserted successfully!', {
+          id: result.order.id,
+          stripe_session_id: result.order.stripe_session_id,
+          readable_order_id: result.order.readable_order_id,
+          customer_email: result.order.customer_email
+        });
+        
+        addTestResult('Manual Test', 'success', 'Email function called automatically by the Edge Function');
+      } else {
+        const errorData = await response.text();
+        addTestResult('Manual Test', 'error', 'Failed to insert test data', {
+          status: response.status,
+          error: errorData
+        });
+      }
       
     } catch (error: any) {
       addTestResult('Manual Test', 'error', 'Error inserting test data', error.message);

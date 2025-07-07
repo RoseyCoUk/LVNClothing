@@ -159,6 +159,33 @@ serve(async (req) => {
             customer_email: data.customer_email,
             created_at: data.created_at
           });
+
+          // Call the send-order-email function
+          try {
+            console.log('[stripe-webhook] Calling send-order-email function...');
+            const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabaseServiceKey}`,
+              },
+              body: JSON.stringify({
+                orderId: session.id,
+                customerEmail: session.customer_details?.email || session.customer_email,
+              }),
+            });
+
+            if (emailResponse.ok) {
+              const emailResult = await emailResponse.json();
+              console.log('[stripe-webhook] Email sent successfully:', emailResult);
+            } else {
+              const errorText = await emailResponse.text();
+              console.error('[stripe-webhook] Failed to send email:', errorText);
+            }
+          } catch (emailError) {
+            console.error('[stripe-webhook] Error calling email function:', emailError);
+          }
+
           return new Response(
             JSON.stringify({ 
               success: true, 
