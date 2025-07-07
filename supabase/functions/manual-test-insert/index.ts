@@ -131,7 +131,9 @@ serve(async (req) => {
 
           // Call the send-order-email function with order_id for direct lookup
       try {
-        console.log('Calling send-order-email function with order_id:', data.id)
+        console.log('📧 Calling send-order-email function with order_id:', data.id)
+        console.log('📧 Test mode: Using direct order_id lookup for reliable email sending')
+        
         const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
           method: 'POST',
           headers: {
@@ -139,7 +141,7 @@ serve(async (req) => {
             'Authorization': `Bearer ${supabaseServiceKey}`,
           },
           body: JSON.stringify({
-            order_id: data.id,
+            order_id: data.id,  // Use direct order_id for reliable lookup
             customerEmail: customerEmail,
           }),
         })

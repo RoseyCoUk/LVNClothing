@@ -69,9 +69,9 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Direct order lookup function - no retry logic needed
+    // Enhanced order lookup function with better error handling and test mode detection
     async function fetchOrderById(order_id: string) {
-      console.log(`[send-order-email] Fetching order directly by ID: ${order_id}`);
+      console.log(`[send-order-email] 🔍 Fetching order directly by ID: ${order_id}`);
       
       try {
         const { data: order, error } = await supabase
@@ -90,23 +90,28 @@ serve(async (req) => {
           throw new Error(`Order not found for ID: ${order_id}`);
         }
 
-        console.log(`[send-order-email] ✅ Order found:`, {
+        console.log(`[send-order-email] ✅ Order found by ID:`, {
           id: order.id,
           readable_order_id: order.readable_order_id,
           customer_email: order.customer_email,
-          created_at: order.created_at
+          created_at: order.created_at,
+          has_customer_details: !!order.customer_details
         });
 
         return order;
       } catch (fetchError) {
-        console.log(`[send-order-email] ❌ Exception during order fetch:`, fetchError);
+        console.log(`[send-order-email] ❌ Exception during order fetch by ID:`, fetchError);
         throw fetchError;
       }
     }
 
-    // Fallback function for session_id lookup (legacy support)
+    // Enhanced fallback function for session_id lookup with test mode detection
     async function fetchOrderBySessionId(session_id: string) {
-      console.log(`[send-order-email] Fetching order by session_id (fallback): ${session_id}`);
+      console.log(`[send-order-email] 🔍 Fetching order by session_id (fallback): ${session_id}`);
+      
+      // Detect test mode
+      const isTestMode = session_id.startsWith('cs_test_');
+      console.log(`[send-order-email] 🧪 Test mode detected: ${isTestMode}`);
       
       try {
         const { data: order, error } = await supabase
@@ -117,6 +122,12 @@ serve(async (req) => {
 
         if (error) {
           console.log(`[send-order-email] ❌ Error fetching order by session_id:`, error);
+          if (error.code === 'PGRST116') {
+            console.log(`[send-order-email] 🚨 PGRST116: No rows returned for session_id: ${session_id}`);
+            if (isTestMode) {
+              console.log(`[send-order-email] 🧪 This is expected in test mode if order hasn't been inserted yet`);
+            }
+          }
           throw error;
         }
 
@@ -129,7 +140,9 @@ serve(async (req) => {
           id: order.id,
           readable_order_id: order.readable_order_id,
           customer_email: order.customer_email,
-          created_at: order.created_at
+          created_at: order.created_at,
+          has_customer_details: !!order.customer_details,
+          test_mode: isTestMode
         });
 
         return order;
@@ -139,38 +152,59 @@ serve(async (req) => {
       }
     }
 
-    // Fetch order details using direct ID lookup (preferred) or session_id (fallback)
+    // Enhanced order fetching with robust error handling
     let orderData;
+    let fetchMethod = '';
     try {
       if (order_id) {
         // Use direct order_id lookup (fast and reliable)
         orderData = await fetchOrderById(order_id);
+        fetchMethod = 'order_id';
         console.log(`[send-order-email] ✅ Successfully fetched order by ID with readable_order_id: ${orderData.readable_order_id}`);
       } else if (orderId) {
         // Fallback to session_id lookup (legacy support)
         orderData = await fetchOrderBySessionId(orderId);
+        fetchMethod = 'session_id';
         console.log(`[send-order-email] ✅ Successfully fetched order by session_id with readable_order_id: ${orderData.readable_order_id}`);
       } else {
         throw new Error('Neither order_id nor orderId provided');
       }
+
+      // Validate order data completeness
+      if (!orderData.readable_order_id) {
+        console.warn(`[send-order-email] ⚠️ Order found but readable_order_id is missing`);
+      }
+      if (!orderData.customer_email) {
+        console.warn(`[send-order-email] ⚠️ Order found but customer_email is missing`);
+      }
+
     } catch (error) {
       console.error(`[send-order-email] ❌ Failed to fetch order:`, error)
       
-      // Log additional context for debugging
+      // Enhanced debug info
       console.log(`[send-order-email] 📊 Debug info:`, {
         order_id: order_id,
         session_id: orderId,
         customer_email: customerEmail,
+        fetch_method: fetchMethod,
         timestamp: new Date().toISOString(),
-        error_message: error.message
+        error_message: error.message,
+        error_code: error.code,
+        test_mode: orderId ? orderId.startsWith('cs_test_') : false
       });
       
+      // Return a proper error response without proceeding to email sending
       return new Response(
         JSON.stringify({ 
-          error: 'Order not found',
-          order_id: order_id,
-          session_id: orderId,
-          customer_email: customerEmail
+          error: 'Order not found or incomplete',
+          details: {
+            order_id: order_id,
+            session_id: orderId,
+            customer_email: customerEmail,
+            fetch_method: fetchMethod,
+            error_message: error.message,
+            test_mode: orderId ? orderId.startsWith('cs_test_') : false
+          }
         }),
         { 
           status: 404, 
@@ -213,11 +247,40 @@ serve(async (req) => {
       unit_price: Math.round(parseFloat(item.price) * 100) // Convert from decimal to pence (integer)
     }))
 
+    // Validate that we have the minimum required data for email sending
+    if (!orderData.customer_email) {
+      console.error(`[send-order-email] ❌ Cannot send email: customer_email is missing`);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Cannot send email: customer_email is missing',
+          details: {
+            order_id: orderData.id,
+            readable_order_id: orderData.readable_order_id,
+            fetch_method: fetchMethod
+          }
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
     // Calculate order total from order items (more accurate than amount_total)
     const orderTotal = orderItems.reduce((total, item) => {
       const itemTotal = (item.unit_price * item.quantity) / 100; // Convert from pence to pounds
       return total + itemTotal;
     }, 0);
+
+    console.log(`[send-order-email] 📊 Order data validated:`, {
+      order_id: orderData.id,
+      readable_order_id: orderData.readable_order_id,
+      customer_email: orderData.customer_email,
+      items_count: orderItems.length,
+      order_total: orderTotal,
+      fetch_method: fetchMethod,
+      test_mode: orderData.stripe_session_id ? orderData.stripe_session_id.startsWith('cs_test_') : false
+    });
 
     // Format email body
     const emailBody = formatOrderEmail(orderData.readable_order_id || 'Processing...', orderItems, orderTotal)

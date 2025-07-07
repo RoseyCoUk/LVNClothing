@@ -138,8 +138,8 @@ const TestPaymentFlow = () => {
       setTimeout(() => {
         addTestResult('Step 3', 'success', 'Payment completed! Redirecting to success page...');
         
-        // Call the send-order-email Supabase Edge Function (test mode only)
-        callSendOrderEmail(response.sessionId, testEmail);
+        // Call the manual-test-insert Supabase Edge Function (test mode only)
+        callManualTestInsert(response.sessionId, testEmail);
         
         // Redirect to success page with test parameters
         window.location.href = `/success?test=payment&session_id=${response.sessionId}&email=${encodeURIComponent(testEmail)}`;
@@ -160,10 +160,10 @@ const TestPaymentFlow = () => {
     }
   };
 
-  // Function to call the send-order-email Supabase Edge Function (test mode only)
-  const callSendOrderEmail = async (sessionId: string, customerEmail: string) => {
+  // Function to call the manual-test-insert Supabase Edge Function (test mode only)
+  const callManualTestInsert = async (sessionId: string, customerEmail: string) => {
     try {
-      addTestResult('Step 3', 'info', 'Calling send-order-email Supabase Edge Function...');
+      addTestResult('Step 3', 'info', 'Calling manual-test-insert Supabase Edge Function...');
       
       // Use custom test email if provided, otherwise use the default customer email
       const emailToUse = customTestEmail || customerEmail;
@@ -172,30 +172,30 @@ const TestPaymentFlow = () => {
       // Get your Supabase project URL from environment or replace with actual URL
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-ref.supabase.co';
       
-      const response = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+      const response = await fetch(`${supabaseUrl}/functions/v1/manual-test-insert`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'}`,
         },
         body: JSON.stringify({
-          orderId: sessionId, // Using sessionId as fallback for legacy test
+          sessionId: sessionId,
           customerEmail: emailToUse,
         }),
       });
 
       if (response.ok) {
         const responseData = await response.json();
-        addTestResult('Step 3', 'success', 'Order notification email sent successfully!', responseData);
+        addTestResult('Step 3', 'success', 'Test order created and email sent successfully!', responseData);
       } else {
         const errorData = await response.text();
-        addTestResult('Step 3', 'error', 'Failed to send order notification email', {
+        addTestResult('Step 3', 'error', 'Failed to create test order and send email', {
           status: response.status,
           error: errorData
         });
       }
     } catch (error: any) {
-      addTestResult('Step 3', 'error', 'Error calling send-order-email function', error.message);
+      addTestResult('Step 3', 'error', 'Error calling manual-test-insert function', error.message);
     }
   };
 
