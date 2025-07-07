@@ -20,8 +20,4 @@ COMMENT ON INDEX public.idx_orders_customer_details IS 'GIN index for efficient 
 DROP INDEX IF EXISTS public.idx_orders_customer_details;
 
 -- Remove the column
-ALTER TABLE public.orders DROP COLUMN IF EXISTS customer_details;
-
-CREATE TABLE IF NOT EXISTS orders (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid()
-); 
+ALTER TABLE public.orders DROP COLUMN IF EXISTS customer_details; 
