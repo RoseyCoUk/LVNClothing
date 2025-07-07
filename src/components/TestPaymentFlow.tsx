@@ -17,6 +17,7 @@ const TestPaymentFlow = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [checkoutType, setCheckoutType] = useState<'user' | 'guest'>('user');
   const [testEmail, setTestEmail] = useState('test@example.com');
+  const [customTestEmail, setCustomTestEmail] = useState('');
 
   const testProducts = [
     {
@@ -162,6 +163,10 @@ const TestPaymentFlow = () => {
     try {
       addTestResult('Step 3', 'info', 'Calling send-order-email Supabase Edge Function...');
       
+      // Use custom test email if provided, otherwise use the default customer email
+      const emailToUse = customTestEmail || customerEmail;
+      addTestResult('Step 3', 'info', `Using email: ${emailToUse} ${customTestEmail ? '(custom test email)' : '(default email)'}`);
+      
       // Get your Supabase project URL from environment or replace with actual URL
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-ref.supabase.co';
       
@@ -173,15 +178,19 @@ const TestPaymentFlow = () => {
         },
         body: JSON.stringify({
           orderId: sessionId, // Using sessionId as orderId for test
-          customerEmail: customerEmail,
+          customerEmail: emailToUse,
         }),
       });
 
       if (response.ok) {
-        addTestResult('Step 3', 'success', 'Order notification email sent successfully!');
+        const responseData = await response.json();
+        addTestResult('Step 3', 'success', 'Order notification email sent successfully!', responseData);
       } else {
         const errorData = await response.text();
-        addTestResult('Step 3', 'error', 'Failed to send order notification email', errorData);
+        addTestResult('Step 3', 'error', 'Failed to send order notification email', {
+          status: response.status,
+          error: errorData
+        });
       }
     } catch (error: any) {
       addTestResult('Step 3', 'error', 'Error calling send-order-email function', error.message);
@@ -358,24 +367,45 @@ const TestPaymentFlow = () => {
           {checkoutType === 'guest' && (
             <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h4 className="font-semibold text-blue-900 mb-2">Guest Checkout Email</h4>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="email"
-                  value={testEmail}
-                  onChange={(e) => setTestEmail(e.target.value)}
-                  placeholder="Enter test email address"
-                  className="flex-1 px-3 py-2 border border-blue-300 rounded-lg text-sm focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
-                />
-                <button
-                  onClick={() => setTestEmail('test@example.com')}
-                  className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm"
-                >
-                  Reset
-                </button>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="email"
+                    value={testEmail}
+                    onChange={(e) => setTestEmail(e.target.value)}
+                    placeholder="Enter test email address"
+                    className="flex-1 px-3 py-2 border border-blue-300 rounded-lg text-sm focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                  />
+                  <button
+                    onClick={() => setTestEmail('test@example.com')}
+                    className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm"
+                  >
+                    Reset
+                  </button>
+                </div>
+                
+                {/* Custom Test Email for Edge Function Testing */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="email"
+                    value={customTestEmail}
+                    onChange={(e) => setCustomTestEmail(e.target.value)}
+                    placeholder="Custom email for Edge Function testing (optional)"
+                    className="flex-1 px-3 py-2 border border-blue-300 rounded-lg text-sm focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                  />
+                  <button
+                    onClick={() => setCustomTestEmail('')}
+                    className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm"
+                  >
+                    Clear
+                  </button>
+                </div>
+                
+                <p className="text-xs text-blue-700">
+                  <strong>Primary email:</strong> Used for Stripe checkout and order confirmation<br/>
+                  <strong>Custom email:</strong> Used specifically for testing Edge Function email delivery
+                </p>
               </div>
-              <p className="mt-2 text-xs text-blue-700">
-                This email will be used for guest checkout and order confirmation emails
-              </p>
             </div>
           )}
 

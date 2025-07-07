@@ -33,44 +33,57 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
         console.log('SuccessPage: No email received via props');
       }
 
-      // Retry function to fetch order with readable_order_id
+      // Enhanced retry function to fetch order with readable_order_id
       const fetchLatestOrder = async (session_id: string) => {
         let retries = 0;
         const maxRetries = 3;
         const retryDelay = 500; // 500ms delay between retries
         
+        console.log(`[SuccessPage] Starting order fetch for session_id: ${session_id}`);
+        
         while (retries < maxRetries) {
-          console.log(`SuccessPage: Attempt ${retries + 1}/${maxRetries} to fetch order for session_id:`, session_id);
+          console.log(`[SuccessPage] Attempt ${retries + 1}/${maxRetries} to fetch order for session_id: ${session_id}`);
           
-          const { data, error } = await supabase
-            .from('orders')
-            .select('readable_order_id, customer_email, created_at, amount_total, currency, order_status')
-            .eq('stripe_session_id', session_id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
+          try {
+            const { data, error } = await supabase
+              .from('orders')
+              .select('readable_order_id, customer_email, created_at, amount_total, currency, order_status')
+              .eq('stripe_session_id', session_id)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .single();
 
-          if (!error && data?.readable_order_id) {
-            console.log('SuccessPage: Order found with readable_order_id:', data.readable_order_id);
-            return data;
-          }
-
-          if (error) {
-            console.log('SuccessPage: Error fetching order:', error);
-          } else if (data && !data.readable_order_id) {
-            console.log('SuccessPage: Order found but readable_order_id is missing, retrying...');
-          } else {
-            console.log('SuccessPage: Order not found, retrying...');
+            if (!error && data) {
+              console.log(`[SuccessPage] Order found:`, {
+                readable_order_id: data.readable_order_id,
+                customer_email: data.customer_email,
+                created_at: data.created_at
+              });
+              
+              if (data.readable_order_id) {
+                console.log(`[SuccessPage] ✅ Order has readable_order_id: ${data.readable_order_id}`);
+                return data;
+              } else {
+                console.log(`[SuccessPage] ⚠️ Order found but readable_order_id is null/undefined, retrying...`);
+              }
+            } else if (error) {
+              console.log(`[SuccessPage] ❌ Error fetching order:`, error);
+            } else {
+              console.log(`[SuccessPage] ❌ Order not found for session_id: ${session_id}`);
+            }
+          } catch (fetchError) {
+            console.log(`[SuccessPage] ❌ Exception during order fetch:`, fetchError);
           }
 
           retries++;
           if (retries < maxRetries) {
-            console.log(`SuccessPage: Waiting ${retryDelay}ms before retry...`);
+            console.log(`[SuccessPage] ⏳ Waiting ${retryDelay}ms before retry ${retries + 1}...`);
             await new Promise((resolve) => setTimeout(resolve, retryDelay));
           }
         }
 
-        throw new Error(`Order not found or readable_order_id missing after ${maxRetries} retries`);
+        console.log(`[SuccessPage] ❌ Failed to fetch order after ${maxRetries} retries for session_id: ${session_id}`);
+        throw new Error(`Order not found or readable_order_id missing after ${maxRetries} retries for session_id: ${session_id}`);
       };
 
       // Fetch order details with readable order ID
@@ -81,8 +94,18 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
             try {
               const data = await fetchLatestOrder(sessionId);
               setOrderDetails(data);
-            } catch (error) {
-              console.error('SuccessPage: Failed to fetch order after retries:', error);
+              console.log(`[SuccessPage] ✅ Successfully fetched order with readable_order_id: ${data.readable_order_id}`);
+            } catch (error: any) {
+              console.error(`[SuccessPage] ❌ Failed to fetch order after retries for session_id: ${sessionId}:`, error);
+              
+              // Log additional context for debugging
+              console.log(`[SuccessPage] 📊 Debug info:`, {
+                session_id: sessionId,
+                customer_email: email,
+                timestamp: new Date().toISOString(),
+                error_message: error?.message || 'Unknown error'
+              });
+              
               // Set a fallback order details object
               setOrderDetails({
                 readable_order_id: null,

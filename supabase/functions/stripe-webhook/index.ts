@@ -110,18 +110,25 @@ serve(async (req) => {
         console.log('Customer email:', session.customer_details?.email)
 
         try {
+          console.log(`[stripe-webhook] Processing checkout session: ${session.id}`);
+          console.log(`[stripe-webhook] Customer email: ${session.customer_details?.email || 'unknown@example.com'}`);
+          
           // Parse items from metadata or use empty array
           let items = []
           if (session.metadata?.items) {
             try {
               items = JSON.parse(session.metadata.items)
+              console.log(`[stripe-webhook] Parsed items from metadata:`, items);
             } catch (parseError) {
-              console.warn('Failed to parse items metadata:', parseError)
+              console.warn('[stripe-webhook] Failed to parse items metadata:', parseError)
               items = []
             }
+          } else {
+            console.log('[stripe-webhook] No items metadata found, using empty array');
           }
 
           // Insert order into database (readable_order_id will be set by trigger)
+          console.log(`[stripe-webhook] Inserting order into database for session_id: ${session.id}`);
           const { data, error } = await supabase
             .from('orders')
             .insert({
@@ -134,7 +141,7 @@ serve(async (req) => {
             .single()
 
           if (error) {
-            console.error('Database insert error:', error)
+            console.error('[stripe-webhook] Database insert error:', error)
             return new Response(
               JSON.stringify({ error: 'Failed to save order' }),
               { 
@@ -144,7 +151,13 @@ serve(async (req) => {
             )
           }
 
-          console.log('Order saved successfully:', data)
+          console.log('[stripe-webhook] Order saved successfully:', {
+            id: data.id,
+            stripe_session_id: data.stripe_session_id,
+            readable_order_id: data.readable_order_id,
+            customer_email: data.customer_email,
+            created_at: data.created_at
+          });
           return new Response(
             JSON.stringify({ 
               success: true, 
