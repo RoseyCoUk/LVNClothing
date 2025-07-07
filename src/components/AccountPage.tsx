@@ -45,9 +45,21 @@ interface Order {
   items: any[];
 }
 
+interface UserPreferences {
+  id: string;
+  user_id: string;
+  email_order_confirmations: boolean;
+  email_newsletter: boolean;
+  email_product_recommendations: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 const AccountPage = ({ onBack }: AccountPageProps) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [preferences, setPreferences] = useState<UserPreferences | null>(null);
+  const [isSavingPreferences, setIsSavingPreferences] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'orders' | 'preferences'>('profile');
   
@@ -109,6 +121,41 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
         setOrders(userOrders);
       } catch (orderError) {
         console.error('Error loading orders:', orderError);
+      }
+
+      // Load preferences
+      try {
+        const { data: userPrefs, error: prefsError } = await supabase
+          .from('user_preferences')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .single();
+
+        if (prefsError && prefsError.code !== 'PGRST116') { // PGRST116 = no rows returned
+          console.error('Error loading preferences:', prefsError);
+        } else if (userPrefs) {
+          setPreferences(userPrefs);
+        } else {
+          // Create default preferences if none exist
+          const { data: newPrefs, error: createError } = await supabase
+            .from('user_preferences')
+            .insert({
+              user_id: currentUser.id,
+              email_order_confirmations: true,
+              email_newsletter: true,
+              email_product_recommendations: true
+            })
+            .select()
+            .single();
+
+          if (createError) {
+            console.error('Error creating preferences:', createError);
+          } else if (newPrefs) {
+            setPreferences(newPrefs);
+          }
+        }
+      } catch (prefsError) {
+        console.error('Error loading preferences:', prefsError);
       }
 
     } catch (error) {
@@ -235,6 +282,40 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
       month: 'long',
       day: 'numeric',
     });
+  };
+
+  const handleSavePreferences = async () => {
+    if (!preferences || !user) return;
+
+    try {
+      setIsSavingPreferences(true);
+      setMessage(null);
+
+      const { error } = await supabase
+        .from('user_preferences')
+        .update({
+          email_order_confirmations: preferences.email_order_confirmations,
+          email_newsletter: preferences.email_newsletter,
+          email_product_recommendations: preferences.email_product_recommendations
+        })
+        .eq('user_id', user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      setMessage({ type: 'success', text: 'Preferences saved successfully!' });
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Failed to save preferences' });
+    } finally {
+      setIsSavingPreferences(false);
+    }
+  };
+
+  const updatePreference = (key: keyof Pick<UserPreferences, 'email_order_confirmations' | 'email_newsletter' | 'email_product_recommendations'>, value: boolean) => {
+    if (preferences) {
+      setPreferences({ ...preferences, [key]: value });
+    }
   };
 
   if (isLoading) {
@@ -652,38 +733,72 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Preferences</h2>
                 
-                <div className="space-y-6">
-                  {/* Email Preferences */}
-                  <div className="border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <Mail className="w-5 h-5 text-[#009fe3]" />
-                      <h3 className="text-lg font-semibold text-gray-900">Email Preferences</h3>
+                {preferences ? (
+                  <div className="space-y-6">
+                    {/* Email Preferences */}
+                    <div className="border border-gray-200 rounded-lg p-6">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <Mail className="w-5 h-5 text-[#009fe3]" />
+                        <h3 className="text-lg font-semibold text-gray-900">Email Preferences</h3>
+                      </div>
+                      <div className="space-y-3">
+                        <label className="flex items-center space-x-3">
+                          <input 
+                            type="checkbox" 
+                            checked={preferences.email_order_confirmations}
+                            onChange={(e) => updatePreference('email_order_confirmations', e.target.checked)}
+                            className="rounded border-gray-300 text-[#009fe3] focus:ring-[#009fe3]" 
+                          />
+                          <span className="text-gray-700">Order confirmations and updates</span>
+                        </label>
+                        <label className="flex items-center space-x-3">
+                          <input 
+                            type="checkbox" 
+                            checked={preferences.email_newsletter}
+                            onChange={(e) => updatePreference('email_newsletter', e.target.checked)}
+                            className="rounded border-gray-300 text-[#009fe3] focus:ring-[#009fe3]" 
+                          />
+                          <span className="text-gray-700">Newsletter and promotions</span>
+                        </label>
+                        <label className="flex items-center space-x-3">
+                          <input 
+                            type="checkbox" 
+                            checked={preferences.email_product_recommendations}
+                            onChange={(e) => updatePreference('email_product_recommendations', e.target.checked)}
+                            className="rounded border-gray-300 text-[#009fe3] focus:ring-[#009fe3]" 
+                          />
+                          <span className="text-gray-700">Product recommendations</span>
+                        </label>
+                      </div>
                     </div>
-                    <div className="space-y-3">
-                      <label className="flex items-center space-x-3">
-                        <input type="checkbox" defaultChecked className="rounded border-gray-300 text-[#009fe3] focus:ring-[#009fe3]" />
-                        <span className="text-gray-700">Order confirmations and updates</span>
-                      </label>
-                      <label className="flex items-center space-x-3">
-                        <input type="checkbox" defaultChecked className="rounded border-gray-300 text-[#009fe3] focus:ring-[#009fe3]" />
-                        <span className="text-gray-700">Newsletter and promotions</span>
-                      </label>
-                      <label className="flex items-center space-x-3">
-                        <input type="checkbox" className="rounded border-gray-300 text-[#009fe3] focus:ring-[#009fe3]" />
-                        <span className="text-gray-700">Product recommendations</span>
-                      </label>
+
+                    {/* Save Preferences Button */}
+                    <div className="pt-4">
+                      <button 
+                        onClick={handleSavePreferences}
+                        disabled={isSavingPreferences}
+                        className="flex items-center space-x-2 bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+                      >
+                        {isSavingPreferences ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Saving...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-4 h-4" />
+                            <span>Save Preferences</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
-
-
-
-                  {/* Save Preferences Button */}
-                  <div className="pt-4">
-                    <button className="bg-[#009fe3] hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg transition-colors">
-                      Save Preferences
-                    </button>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 border-2 border-gray-300 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading preferences...</p>
                   </div>
-                </div>
+                )}
               </div>
             )}
           </div>
