@@ -136,6 +136,7 @@ serve(async (req) => {
                 stripe_session_id: session.id,
                 customer_email: session.customer_email,
                 items: session.line_items || [],
+                customer_details: session.customer_details || null,
               },
             ])
             .select()

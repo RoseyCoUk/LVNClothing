@@ -213,8 +213,11 @@ serve(async (req) => {
       unit_price: Math.round(parseFloat(item.price) * 100) // Convert from decimal to pence (integer)
     }))
 
-    // Calculate order total
-    const orderTotal = orderData.amount_total / 100 // Convert from pence to pounds
+    // Calculate order total from order items (more accurate than amount_total)
+    const orderTotal = orderItems.reduce((total, item) => {
+      const itemTotal = (item.unit_price * item.quantity) / 100; // Convert from pence to pounds
+      return total + itemTotal;
+    }, 0);
 
     // Format email body
     const emailBody = formatOrderEmail(orderData.readable_order_id || 'Processing...', orderItems, orderTotal)
@@ -232,25 +235,82 @@ serve(async (req) => {
       )
     }
 
-    const emailResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Reform UK Shop <support@backreform.co.uk>',
-        to: customerEmail,
-        subject: `Order Confirmation - ${orderData.readable_order_id || 'Processing...'}`,
-        html: emailBody,
-      }),
-    })
+    // Send customer confirmation email
+    let customerEmailResult = null;
+    let customerEmailError = null;
+    try {
+      console.log('Sending customer confirmation email to:', customerEmail);
+      const customerEmailResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Reform UK Shop <support@backreform.co.uk>',
+          to: customerEmail,
+          subject: `Order Confirmation - ${orderData.readable_order_id || 'Processing...'}`,
+          html: emailBody,
+        }),
+      });
 
-    if (!emailResponse.ok) {
-      const errorText = await emailResponse.text()
-      console.error('Resend API error:', errorText)
+      if (customerEmailResponse.ok) {
+        customerEmailResult = await customerEmailResponse.json();
+        console.log('Customer email sent successfully:', customerEmailResult);
+      } else {
+        const errorText = await customerEmailResponse.text();
+        customerEmailError = errorText;
+        console.error('Customer email failed:', errorText);
+      }
+    } catch (error) {
+      customerEmailError = error.message;
+      console.error('Customer email exception:', error);
+    }
+
+    // Send internal notification email
+    let internalEmailResult = null;
+    let internalEmailError = null;
+    try {
+      console.log('Sending internal notification email');
+      const internalEmailBody = formatInternalEmail(orderData, orderItems, orderTotal);
+      const internalEmailResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Reform UK Shop <support@backreform.co.uk>',
+          to: 'support@backreform.co.uk',
+          subject: `New Order Placed: ${orderData.readable_order_id || 'Processing...'}`,
+          html: internalEmailBody,
+        }),
+      });
+
+      if (internalEmailResponse.ok) {
+        internalEmailResult = await internalEmailResponse.json();
+        console.log('Internal email sent successfully:', internalEmailResult);
+      } else {
+        const errorText = await internalEmailResponse.text();
+        internalEmailError = errorText;
+        console.error('Internal email failed:', errorText);
+      }
+    } catch (error) {
+      internalEmailError = error.message;
+      console.error('Internal email exception:', error);
+    }
+
+    // Return success if at least one email was sent
+    const customerEmailSuccess = customerEmailResult !== null;
+    const internalEmailSuccess = internalEmailResult !== null;
+
+    if (!customerEmailSuccess && !internalEmailSuccess) {
       return new Response(
-        JSON.stringify({ error: 'Failed to send email' }),
+        JSON.stringify({ 
+          error: 'Failed to send both emails',
+          customer_email_error: customerEmailError,
+          internal_email_error: internalEmailError
+        }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -258,14 +318,16 @@ serve(async (req) => {
       )
     }
 
-    const emailResult = await emailResponse.json()
-    console.log('Email sent successfully:', emailResult)
-
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Order confirmation email sent',
-        emailId: emailResult.id 
+        message: 'Order confirmation emails processed',
+        customer_email_sent: customerEmailSuccess,
+        internal_email_sent: internalEmailSuccess,
+        customer_email_id: customerEmailResult?.id,
+        internal_email_id: internalEmailResult?.id,
+        customer_email_error: customerEmailError,
+        internal_email_error: internalEmailError
       }),
       { 
         status: 200, 
@@ -303,51 +365,155 @@ function formatOrderEmail(orderId: string, items: OrderItem[], total: number): s
     `
   }).join('')
 
+  // Add total row to the table
+  const totalRow = `
+    <tr style="background-color: #f8f9fa; font-weight: bold;">
+      <td colspan="3" style="padding: 12px; text-align: right; border-top: 2px solid #ddd;">Order Total:</td>
+      <td style="padding: 12px; text-align: right; border-top: 2px solid #ddd;">£${total.toFixed(2)}</td>
+    </tr>
+  `
+
   return `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Order Confirmation</title>
     </head>
-    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="background-color: #f8f9fa; padding: 30px; border-radius: 8px;">
-        <h1 style="color: #1a1a1a; margin-bottom: 20px; text-align: center;">Order Confirmation</h1>
-        
-        <div style="background-color: white; padding: 25px; border-radius: 6px; margin-bottom: 20px;">
-          <h2 style="color: #1a1a1a; margin-bottom: 15px;">Thank you for your order!</h2>
-          <p style="margin-bottom: 10px;"><strong>Order ID:</strong> ${displayOrderId}</p>
-          <p style="margin-bottom: 20px;"><strong>Date:</strong> ${new Date().toLocaleDateString('en-GB')}</p>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #f8f9fa; padding: 20px;">
+        <div style="background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+          <!-- Header -->
+          <div style="background-color: #1a1a1a; color: white; padding: 30px; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Order Confirmation</h1>
+          </div>
           
-          <h3 style="color: #1a1a1a; margin-bottom: 15px;">Order Details</h3>
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <!-- Order Info -->
+          <div style="padding: 30px;">
+            <h2 style="color: #1a1a1a; margin-bottom: 20px; font-size: 24px;">Thank you for your order!</h2>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+              <p style="margin: 8px 0; font-size: 16px;"><strong>Order ID:</strong> <span style="color: #009fe3; font-weight: bold;">${displayOrderId}</span></p>
+              <p style="margin: 8px 0; font-size: 16px;"><strong>Date:</strong> <span style="font-weight: bold;">${new Date().toLocaleDateString('en-GB')}</span></p>
+            </div>
+            
+            <!-- Order Details Table -->
+            <h3 style="color: #1a1a1a; margin-bottom: 15px; font-size: 20px;">Order Details</h3>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; min-width: 400px;">
+                <thead>
+                  <tr style="background-color: #1a1a1a; color: white;">
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Product</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd;">Qty</th>
+                    <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Unit Price</th>
+                    <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${itemsHtml}
+                  ${totalRow}
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Next Steps -->
+            <div style="background-color: #f8f9fa; padding: 25px; border-radius: 6px; border-left: 4px solid #009fe3;">
+              <h3 style="color: #1a1a1a; margin-bottom: 15px; font-size: 18px;">What's Next?</h3>
+              <p style="margin-bottom: 10px; font-size: 16px;">We're processing your order and will send you a shipping confirmation email once your items are on their way.</p>
+              <p style="margin-bottom: 0; font-size: 16px;">If you have any questions about your order, please contact us at <strong>support@backreform.co.uk</strong></p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
+          <p style="margin: 5px 0;">Thank you for supporting Reform UK!</p>
+          <p style="margin: 5px 0;">© 2024 Reform UK. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+}
+
+function formatInternalEmail(orderData: any, items: OrderItem[], total: number): string {
+  const itemsHtml = items.map(item => {
+    const unitPrice = (item.unit_price / 100).toFixed(2) // Convert from pence to pounds
+    const itemTotal = ((item.unit_price * item.quantity) / 100).toFixed(2) // Convert from pence to pounds
+    
+    return `
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.product_name}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.quantity}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">£${unitPrice}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">£${itemTotal}</td>
+      </tr>
+    `
+  }).join('')
+
+  const totalRow = `
+    <tr style="background-color: #f0f0f0; font-weight: bold;">
+      <td colspan="3" style="padding: 8px; text-align: right;">Order Total:</td>
+      <td style="padding: 8px; text-align: right;">£${total.toFixed(2)}</td>
+    </tr>
+  `
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>New Order Notification</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.4; color: #333; margin: 0; padding: 20px;">
+      <div style="max-width: 800px; margin: 0 auto;">
+        <h1 style="color: #1a1a1a; margin-bottom: 20px;">New Order Placed</h1>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+          <h2 style="color: #1a1a1a; margin-bottom: 15px;">Order Information</h2>
+          <p><strong>Order ID:</strong> ${orderData.readable_order_id || 'Processing...'}</p>
+          <p><strong>Customer Email:</strong> ${orderData.customer_email}</p>
+          <p><strong>Order Date:</strong> ${new Date(orderData.created_at).toLocaleString('en-GB')}</p>
+          <p><strong>Stripe Session ID:</strong> ${orderData.stripe_session_id}</p>
+        </div>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+          <h2 style="color: #1a1a1a; margin-bottom: 15px;">Customer Details</h2>
+          <p><strong>Full Name:</strong> ${orderData.customer_details?.name || 'Not provided'}</p>
+          <p><strong>Email:</strong> ${orderData.customer_email}</p>
+          <p><strong>Phone:</strong> ${orderData.customer_details?.phone || 'Not provided'}</p>
+          <p><strong>Shipping Address:</strong></p>
+          <div style="margin-left: 20px; color: #666;">
+            ${orderData.customer_details?.address ? `
+              <p>${orderData.customer_details.address.line1 || ''}</p>
+              ${orderData.customer_details.address.line2 ? `<p>${orderData.customer_details.address.line2}</p>` : ''}
+              <p>${orderData.customer_details.address.city || ''}, ${orderData.customer_details.address.state || ''} ${orderData.customer_details.address.postal_code || ''}</p>
+              <p>${orderData.customer_details.address.country || ''}</p>
+            ` : 'Not provided'}
+          </div>
+        </div>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+          <h2 style="color: #1a1a1a; margin-bottom: 15px;">Ordered Items</h2>
+          <table style="width: 100%; border-collapse: collapse;">
             <thead>
-              <tr style="background-color: #f8f9fa;">
-                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Product</th>
-                <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd;">Quantity</th>
-                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Unit Price</th>
-                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Total</th>
+              <tr style="background-color: #1a1a1a; color: white;">
+                <th style="padding: 8px; text-align: left;">Product</th>
+                <th style="padding: 8px; text-align: center;">Qty</th>
+                <th style="padding: 8px; text-align: right;">Unit Price</th>
+                <th style="padding: 8px; text-align: right;">Total</th>
               </tr>
             </thead>
             <tbody>
               ${itemsHtml}
+              ${totalRow}
             </tbody>
           </table>
-          
-          <div style="text-align: right; border-top: 2px solid #ddd; padding-top: 15px;">
-            <h3 style="margin: 0; color: #1a1a1a;">Order Total: £${total.toFixed(2)}</h3>
-          </div>
         </div>
         
-        <div style="background-color: white; padding: 25px; border-radius: 6px;">
-          <h3 style="color: #1a1a1a; margin-bottom: 15px;">What's Next?</h3>
-          <p style="margin-bottom: 10px;">We're processing your order and will send you a shipping confirmation email once your items are on their way.</p>
-          <p style="margin-bottom: 10px;">If you have any questions about your order, please contact us at support@backreform.co.uk</p>
-        </div>
-        
-        <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
-          <p>Thank you for supporting Reform UK!</p>
-          <p>© 2024 Reform UK. All rights reserved.</p>
+        <div style="background-color: #e8f5e8; padding: 15px; border-radius: 6px; border-left: 4px solid #28a745;">
+          <p style="margin: 0; font-weight: bold;">Order Total: £${total.toFixed(2)}</p>
         </div>
       </div>
     </body>

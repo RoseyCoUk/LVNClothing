@@ -67,7 +67,19 @@ serve(async (req) => {
           price: 3499,
           quantity: 1
         }
-      ]
+      ],
+      customer_details: {
+        name: 'Test Customer',
+        phone: '+44 123 456 7890',
+        address: {
+          line1: '123 Test Street',
+          line2: 'Test Apartment',
+          city: 'London',
+          state: 'England',
+          postal_code: 'SW1A 1AA',
+          country: 'United Kingdom'
+        }
+      }
     }
 
     console.log('Inserting test order data:', testOrderData)
