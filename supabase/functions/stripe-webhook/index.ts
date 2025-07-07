@@ -33,82 +33,32 @@ interface StripeSession {
 console.log('✅ Webhook hit');
 
 const handler = async (req: Request) => {
+  console.log('Incoming webhook received');
   const body = await req.text();
   console.log('🔧 Raw Body:', body);
 
-  // Re-parse the body for downstream logic if needed
-  // (If you use body as text for Stripe signature verification, keep as is)
-
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  // Stripe signature verification
+  let event;
+  try {
+    const signature = req.headers.get('stripe-signature');
+    if (!signature) {
+      console.error('❌ Missing Stripe signature header');
+      return new Response('Missing Stripe signature', { status: 400 });
+    }
+    event = stripe.webhooks.constructEvent(body, signature, stripeWebhookSecret);
+    console.log('✅ Stripe event parsed successfully');
+    console.log('Event type:', event.type);
+    console.log('Event data:', JSON.stringify(event.data));
+  } catch (err) {
+    console.error('Webhook Error:', err.message, err);
+    return new Response(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
+  // Main event handling
   try {
-    console.log('stripe-webhook function triggered')
-
-    // Get environment variables
-    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')
-    const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-
-    // Validate environment variables
-    if (!stripeSecretKey || !stripeWebhookSecret || !supabaseUrl || !supabaseServiceKey) {
-      console.error('Missing required environment variables')
-      return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
-
-    // Initialize Stripe
-    const stripe = new Stripe(stripeSecretKey, {
-      apiVersion: '2024-12-18.acacia',
-      httpClient: Stripe.createFetchHttpClient(),
-    })
-
-    // Initialize Supabase client
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
-    // Get the raw body for webhook verification
-    const signature = req.headers.get('stripe-signature')
-
-    if (!signature) {
-      console.error('Missing Stripe signature header')
-      return new Response(
-        JSON.stringify({ error: 'Missing signature' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
-
-    let event: Stripe.Event
-
-    try {
-      // Verify the webhook signature
-      event = stripe.webhooks.constructEvent(body, signature, stripeWebhookSecret)
-      console.log('Webhook verified successfully')
-    } catch (err) {
-      console.error('Webhook signature verification failed:', err)
-      return new Response(
-        JSON.stringify({ error: 'Invalid signature' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
-
-    // Handle the event
     switch (event.type) {
       case 'checkout.session.completed':
-        console.log('Processing checkout.session.completed event')
+        console.log('Processing checkout.session.completed event');
         
         const session = event.data.object as Stripe.Checkout.Session
         console.log('Session ID:', session.id)
@@ -241,7 +191,7 @@ const handler = async (req: Request) => {
         }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`)
+        console.log('Unhandled event type:', event.type);
         return new Response(
           JSON.stringify({ received: true }),
           { 
@@ -250,16 +200,9 @@ const handler = async (req: Request) => {
           }
         )
     }
-
-  } catch (error) {
-    console.error('Unhandled exception:', JSON.stringify(error, null, 2))
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+  } catch (err) {
+    console.error('Handler Error:', err.message, err);
+    return new Response('Handler Error', { status: 500 });
   }
 }
 
