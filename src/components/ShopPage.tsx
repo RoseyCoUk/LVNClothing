@@ -13,7 +13,9 @@ import {
   SlidersHorizontal,
   Clock,
   ArrowRight,
-  RotateCcw
+  RotateCcw,
+  Truck,
+  ChevronRight
 } from 'lucide-react'
 
 interface ShopPageProps {
@@ -254,59 +256,39 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
             {/* The rest of your original JSX, now using sortedAndFilteredProducts */}
             <div className="mb-12">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Apparel</h3>
-              <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
-                {sortedAndFilteredProducts.filter(p => p.category === 'apparel').map(product => (
+              <div className={`grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`}>
+                {sortedAndFilteredProducts.map(product => (
                   <div
                     key={product.id}
-                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                    className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col transition-transform hover:-translate-y-1 hover:shadow-2xl duration-200"
                   >
-                    {/* Product Image Placeholder */}
-                    <div className="aspect-w-1 aspect-h-1 bg-gray-200">
-                      <div className="w-full h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
-                        <span className="text-blue-600 font-medium text-lg">
-                          {product.name}
-                        </span>
-                      </div>
+                    {/* Product Image */}
+                    <div className="bg-gray-100 aspect-w-1 aspect-h-1 flex items-center justify-center">
+                      {product.image_url ? (
+                        <img src={product.image_url} alt={product.name} className="object-cover w-full h-64" />
+                      ) : (
+                        <div className="w-full h-64 flex items-center justify-center text-gray-400">No Image</div>
+                      )}
                     </div>
-
                     {/* Product Details */}
-                    <div className="p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        {product.name}
-                      </h3>
-                      
-                      {product.variant && (
-                        <p className="text-sm text-gray-600 mb-2">
-                          {product.variant}
-                        </p>
-                      )}
-                      
-                      {product.description && (
-                        <p className="text-sm text-gray-500 mb-4 line-clamp-2">
-                          {product.description}
-                        </p>
-                      )}
-
-                      <div className="flex items-center justify-between">
-                        <span className="text-xl font-bold text-gray-900">
-                          {formatPrice(product.price_pence)}
-                        </span>
-                        
-                        <button
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                          onClick={(e) => { e.stopPropagation(); onProductClick(product.id); }}
-                        >
-                          Add to Cart
-                        </button>
-                      </div>
-
-                      {product.category && (
-                        <div className="mt-3">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {product.category}
-                          </span>
+                    <div className="p-6 flex-1 flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-1">{product.name}</h3>
+                        <div className="flex items-center mb-2">
+                          <Star className="w-4 h-4 text-yellow-400 mr-1" fill="#facc15" />
+                          <span className="text-sm font-semibold text-gray-700">{product.rating.toFixed(1)}</span>
+                          <span className="ml-2 text-xs text-gray-500">({product.reviews.toLocaleString()})</span>
                         </div>
-                      )}
+                        <div className="text-xl font-bold text-[#009fe3] mb-2">{formatPrice(product.price_pence)}</div>
+                        <div className="flex items-center text-green-600 text-sm font-medium mb-4">
+                          <Truck className="w-4 h-4 mr-1" /> Ships in 48H
+                        </div>
+                      </div>
+                      <Link to={`/product/${product.id}`} className="mt-auto block w-full">
+                        <button className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold text-gray-800 text-base transition-colors">
+                          <ChevronRight className="w-5 h-5" /> View Options
+                        </button>
+                      </Link>
                     </div>
                   </div>
                 ))}

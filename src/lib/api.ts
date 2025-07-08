@@ -13,6 +13,7 @@ export interface Product {
   dateAdded: string
   created_at: string
   updated_at: string
+  image_url?: string // Add image_url
 }
 
 /**
@@ -50,7 +51,8 @@ export async function getProducts(): Promise<Product[]> {
     rating: product.rating || 4.5, // Use database rating or default
     dateAdded: product.created_at, // Use created_at as dateAdded
     created_at: product.created_at,
-    updated_at: product.updated_at
+    updated_at: product.updated_at,
+    image_url: product.image_url // Map image_url
   }));
 
   console.log('Mapped products:', mappedProducts);
