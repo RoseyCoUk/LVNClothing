@@ -1,4 +1,4 @@
-fawimport React, { useState } from 'react';
+import React, { useState } from 'react';
 import { 
   Mail, 
   Phone, 
