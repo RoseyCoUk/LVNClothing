@@ -215,8 +215,8 @@ const ContactPage = () => {
                   <Mail className="w-5 h-5 text-[#009fe3] mt-1" />
                   <div>
                     <p className="font-medium text-gray-900">Email</p>
-                    <a href="mailto:shop@reformuk.com" className="text-gray-600 hover:text-[#009fe3] transition-colors">
-                      shop@reformuk.com
+                    <a href="mailto:support@backreform.co.uk" className="text-gray-600 hover:text-[#009fe3] transition-colors">
+                      support@backreform.co.uk
                     </a>
                   </div>
                 </div>
@@ -225,8 +225,8 @@ const ContactPage = () => {
                   <Phone className="w-5 h-5 text-[#009fe3] mt-1" />
                   <div>
                     <p className="font-medium text-gray-900">Phone</p>
-                    <a href="tel:08001234567" className="text-gray-600 hover:text-[#009fe3] transition-colors">
-                      0800 123 4567
+                    <a href="https://wa.me/447405853303" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-[#009fe3] transition-colors">
+                      WhatsApp Support
                     </a>
                     <p className="text-sm text-gray-500">Mon-Fri, 9am-5pm GMT</p>
                   </div>

@@ -412,8 +412,8 @@ const AccessibilityPage = ({ onBack }: AccessibilityPageProps) => {
                   <ul className="space-y-2 text-gray-700 text-sm">
                     <li>
                       <strong>Email:</strong> 
-                      <a href="mailto:accessibility@backreform.co.uk" className="text-[#009fe3] font-semibold hover:underline ml-1">
-                        accessibility@backreform.co.uk
+                      <a href="mailto:support@backreform.co.uk" className="text-[#009fe3] font-semibold hover:underline ml-1">
+                        support@backreform.co.uk
                       </a>
                     </li>
                     <li>
@@ -422,7 +422,7 @@ const AccessibilityPage = ({ onBack }: AccessibilityPageProps) => {
                         support@backreform.co.uk
                       </a>
                     </li>
-                    <li><strong>Phone:</strong> 0800 123 4567 (Mon-Fri, 9am-5pm GMT)</li>
+                    <li><strong>Phone:</strong> <a href="https://wa.me/447405853303" target="_blank" rel="noopener noreferrer" className="text-[#009fe3] font-semibold hover:underline ml-1">WhatsApp Support</a></li>
                   </ul>
                 </div>
                 
