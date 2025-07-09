@@ -321,36 +321,12 @@ const AboutPage = () => {
               </button>
             </div>
             
-            <p className="text-sm text-gray-300">
-              🇬🇧 Free UK shipping over £50 • Secure checkout • Easy returns
-            </p>
+
           </div>
         </div>
       </section>
 
-      {/* Trust Badges */}
-      <section className="py-8 bg-white border-t">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-wrap justify-center md:justify-between items-center gap-6">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Shield className="w-5 h-5 text-green-400" />
-              <span>Secure Checkout</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Truck className="w-5 h-5 text-blue-400" />
-              <span>Free UK Shipping Over £50</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <CreditCard className="w-5 h-5 text-purple-400" />
-              <span>Easy Returns</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Flag className="w-5 h-5 text-[#009fe3]" />
-              <span>Made in Britain</span>
-            </div>
-          </div>
-        </div>
-      </section>
+
     </div>
   );
 };

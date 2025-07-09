@@ -356,29 +356,7 @@ const ContactPage = () => {
         </div>
       </div>
 
-      {/* Trust Reinforcement Strip */}
-      <section className="bg-gray-100 py-8 border-t">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-wrap justify-center md:justify-between items-center gap-6">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Shield className="w-5 h-5 text-green-400" />
-              <span>Secure Checkout</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Truck className="w-5 h-5 text-blue-400" />
-              <span>Free UK Shipping Over £50</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Users className="w-5 h-5 text-purple-400" />
-              <span>Supporter-Run Store</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Heart className="w-5 h-5 text-red-400 fill-current" />
-              <span>100% of proceeds fund Reform UK initiatives</span>
-            </div>
-          </div>
-        </div>
-      </section>
+
     </div>
   );
 };
