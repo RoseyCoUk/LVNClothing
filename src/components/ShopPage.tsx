@@ -11,7 +11,6 @@ import {
   Eye,
   X,
   SlidersHorizontal,
-  Clock,
   ArrowRight,
   RotateCcw,
   Truck,
@@ -34,7 +33,6 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null)
-  const [timeLeft, setTimeLeft] = useState({ days: 4, hours: 12, minutes: 35, seconds: 42 })
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -55,19 +53,7 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
     fetchProducts()
   }, [])
 
-  // Countdown timer
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        if (prev.days > 0) return { days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
-        return prev;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+
 
   const formatPrice = (pricePence: number): string => {
     return `£${(pricePence / 100).toFixed(2)}`
@@ -355,19 +341,19 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
               </div>
             </div>
 
-            {/* ... Your original promo banners ... */}
-            <div className="my-12 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg p-6 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-black/10"></div>
+            {/* Official Merchandise Banner */}
+            <div className="my-12 bg-gradient-to-r from-[#009fe3] to-blue-600 text-white rounded-lg p-8 text-center relative overflow-hidden shadow-lg">
+                <div className="absolute inset-0 bg-black/5"></div>
                 <div className="relative z-10">
-                    <div className="flex items-center justify-center space-x-2 mb-3"><Clock className="w-6 h-6 animate-pulse" /><h3 className="text-xl font-bold">🕒 July Drop Ends Soon – Don't Miss Out</h3></div>
-                    <div className="flex items-center justify-center space-x-4 mb-4">
-                        <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2"><div className="text-2xl font-bold">{timeLeft.days}</div><div className="text-xs">Days</div></div>
-                        <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2"><div className="text-2xl font-bold">{timeLeft.hours}</div><div className="text-xs">Hours</div></div>
-                        <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2"><div className="text-2xl font-bold">{timeLeft.minutes}</div><div className="text-xs">Minutes</div></div>
-                        <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2"><div className="text-2xl font-bold">{timeLeft.seconds}</div><div className="text-xs">Seconds</div></div>
-                    </div>
-                    <p className="mb-4">Limited edition items selling fast. Once they're gone, they're gone!</p>
-                    <button className="bg-white text-red-600 hover:bg-gray-100 font-bold py-3 px-6 rounded-lg transition-colors flex items-center space-x-2 mx-auto"><span>View Limited Edition Items</span><ArrowRight className="w-4 h-4" /></button>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-3">Official Reform UK Merchandise — Shop Our Best Sellers</h3>
+                    <p className="text-lg text-blue-100 mb-6 max-w-2xl mx-auto">High-quality gear. Fast shipping. Worn with pride.</p>
+                    <Link 
+                        to="/shop" 
+                        className="inline-flex items-center space-x-2 bg-white text-[#009fe3] hover:bg-gray-100 font-bold py-3 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+                    >
+                        <span>Browse All Products</span>
+                        <ArrowRight className="w-4 h-4" />
+                    </Link>
                 </div>
             </div>
           </div>
