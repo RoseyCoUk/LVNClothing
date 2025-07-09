@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+fawimport React, { useState } from 'react';
 import { 
   Mail, 
   Phone, 
@@ -21,6 +21,8 @@ import {
   CreditCard,
   Heart
 } from 'lucide-react';
+import { FAQS } from './faqs';
+import FAQAccordion from './FAQAccordion';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -316,42 +318,10 @@ const ContactPage = () => {
                 Before You Contact Us
               </h2>
               <p className="text-gray-600 max-w-2xl mx-auto">
-                Check out these common questions - you might find your answer right here!
+                Check out these common questions – you might find your answer right here!
               </p>
             </div>
-
-            <div className="max-w-3xl mx-auto space-y-4">
-              {faqs.map((faq, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg">
-                  <button
-                    onClick={() => toggleFaq(index)}
-                    className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
-                  >
-                    <span className="font-semibold text-gray-900">{faq.question}</span>
-                    {openFaq === index ? (
-                      <ChevronUp className="w-5 h-5 text-gray-500" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-gray-500" />
-                    )}
-                  </button>
-                  {openFaq === index && (
-                    <div className="px-6 pb-4">
-                      <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="text-center mt-8">
-              <p className="text-gray-600 mb-4">Still have questions?</p>
-              <button 
-                onClick={() => window.scrollTo(0, 0)}
-                className="text-[#009fe3] hover:text-blue-600 font-semibold underline"
-              >
-                Contact us directly →
-              </button>
-            </div>
+            <FAQAccordion faqs={FAQS} limit={5} showViewAllLink={true} viewAllHref="/faq" />
           </div>
         </div>
       </div>
