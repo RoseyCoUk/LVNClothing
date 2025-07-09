@@ -32,7 +32,7 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
             </div>
             <div className="flex items-center space-x-2 text-sm">
               <span className="text-yellow-400">🇬🇧</span>
-              <span>Made in Britain</span>
+              <span>Printed in Britain</span>
             </div>
           </div>
         </div>

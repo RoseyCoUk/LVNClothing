@@ -33,7 +33,7 @@ const MovementSection = () => {
                 <div className="w-12 h-12 bg-[#009fe3] rounded-full flex items-center justify-center mx-auto mb-3">
                   <Flag className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Made in the UK</h3>
+                <h3 className="font-semibold text-gray-900 mb-1">Printed in the UK</h3>
                 <p className="text-sm text-gray-600">Supporting local business</p>
               </div>
               <div className="text-center">

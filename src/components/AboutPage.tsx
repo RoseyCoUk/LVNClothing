@@ -86,15 +86,15 @@ const AboutPage = () => {
                 <div className="w-16 h-16 bg-[#009fe3] rounded-full flex items-center justify-center mx-auto mb-4">
                   <Heart className="w-8 h-8 text-white fill-current" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">100% Support</h3>
-                <p className="text-gray-600">Every penny of proceeds supports Reform UK initiatives and campaigns</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Back the Mission</h3>
+                <p className="text-gray-600">Sales help fund awareness, outreach, and materials that support Reform UK's message.</p>
               </div>
               
               <div className="text-center">
                 <div className="w-16 h-16 bg-[#009fe3] rounded-full flex items-center justify-center mx-auto mb-4">
                   <Flag className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Made in the UK</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Printed in the UK</h3>
                 <p className="text-gray-600">Proudly manufactured in Britain, supporting local businesses and workers</p>
               </div>
               
