@@ -277,17 +277,30 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
       console.log('Shipping rate ID:', shipping_rate_id);
       
       // Prepare cart items for Stripe checkout
-      const lineItems = cartItems.map(item => ({
-        price_data: {
-          currency: 'gbp',
-          product_data: {
-            name: item.name,
-            images: [`${window.location.origin}${item.image}`], // Convert to absolute URL
+      const lineItems = cartItems.map(item => {
+        // Ensure image URL is absolute for Stripe
+        const absoluteImageUrl = item.image.startsWith('http') 
+          ? item.image 
+          : `${window.location.origin}${item.image}`;
+        
+        console.log('Processing item for Stripe:', {
+          name: item.name,
+          originalImage: item.image,
+          absoluteImageUrl: absoluteImageUrl
+        });
+        
+        return {
+          price_data: {
+            currency: 'gbp',
+            product_data: {
+              name: item.name,
+              images: [absoluteImageUrl], // Use absolute URL
+            },
+            unit_amount: Math.round(item.price * 100), // Convert to cents
           },
-          unit_amount: Math.round(item.price * 100), // Convert to cents
-        },
-        quantity: item.quantity,
-      }));
+          quantity: item.quantity,
+        };
+      });
       
       console.log('Prepared line items:', lineItems);
       
