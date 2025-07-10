@@ -322,7 +322,7 @@ const StarterBundlePage = ({ onBack }: StarterBundlePageProps) => {
                 <img 
                   src={getCurrentImage()} 
                   alt={productData.name} 
-                  className="w-full object-contain rounded-lg shadow-lg aspect-square"
+                  className="w-full object-cover rounded-lg shadow-lg aspect-square"
                 />
                 
                 {/* Image Navigation Arrows */}
@@ -383,7 +383,7 @@ const StarterBundlePage = ({ onBack }: StarterBundlePageProps) => {
                     <img 
                       src={item.type === 'tshirt' ? getTshirtImages()[0] : item.baseImage} 
                       alt={item.name} 
-                      className={`w-full object-contain rounded-lg border-2 transition-all duration-200 aspect-square ${
+                      className={`w-full object-cover rounded-lg border-2 transition-all duration-200 aspect-square ${
                         selectedItem === item.type 
                           ? 'border-[#009fe3]' 
                           : 'border-gray-200 hover:border-gray-300'
@@ -416,7 +416,7 @@ const StarterBundlePage = ({ onBack }: StarterBundlePageProps) => {
                       <img 
                         src={image} 
                         alt={`${selectedItemData?.name} thumbnail ${index + 1}`} 
-                        className="w-full h-full object-contain aspect-square" 
+                        className="w-full h-full object-cover aspect-square" 
                       />
                     </button>
                   ))}

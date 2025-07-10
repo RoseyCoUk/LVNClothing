@@ -63,8 +63,10 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   const [capColor, setCapColor] = useState('Black');
 
   // Quantity options
-  const [stickerQuantity, setStickerQuantity] = useState(1);
-  const [badgeQuantity, setBadgeQuantity] = useState(1);
+  const stickerSetSizes = [10, 25, 50, 100];
+  const badgeSetSizes = [5, 10, 25, 50];
+  const [stickerSetSize, setStickerSetSize] = useState(stickerSetSizes[0]);
+  const [badgeSetSize, setBadgeSetSize] = useState(badgeSetSizes[0]);
 
   // Image browsing state
   const [selectedItem, setSelectedItem] = useState('hoodie');
@@ -304,10 +306,10 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       return `${capColor} Cap`;
     }
     if (item.type === 'stickers') {
-      return `${stickerQuantity} Pack`;
+      return `${stickerSetSize} Pack`;
     }
     if (item.type === 'badgeset') {
-      return `${badgeQuantity} Set`;
+      return `${badgeSetSize} Set`;
     }
     return item.variant || '';
   };
@@ -356,8 +358,8 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       tshirtSize: tshirtSize,
       tshirtColor: tshirtColor,
       capColor: capColor,
-      stickerQuantity: stickerQuantity.toString(),
-      badgeQuantity: badgeQuantity.toString()
+      stickerSetSize: stickerSetSize.toString(),
+      badgeSetSize: badgeSetSize.toString()
     };
 
     addToCart({
@@ -385,8 +387,8 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       tshirtSize: tshirtSize,
       tshirtColor: tshirtColor,
       capColor: capColor,
-      stickerQuantity: stickerQuantity.toString(),
-      badgeQuantity: badgeQuantity.toString()
+      stickerSetSize: stickerSetSize.toString(),
+      badgeSetSize: badgeSetSize.toString()
     };
 
     setOrderToConfirm({
@@ -490,7 +492,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                 <img 
                   src={getCurrentImage()} 
                   alt={productData.name} 
-                  className="w-full object-contain rounded-lg shadow-lg aspect-square"
+                  className="w-full object-cover rounded-lg shadow-lg aspect-square"
                 />
                 
                 {/* Image Navigation Arrows */}
@@ -558,7 +560,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                         item.baseImage
                       } 
                       alt={item.name} 
-                      className={`w-full object-contain rounded-lg border-2 transition-all duration-200 aspect-square ${
+                      className={`w-full object-cover rounded-lg border-2 transition-all duration-200 aspect-square ${
                         selectedItem === item.type 
                           ? 'border-[#009fe3]' 
                           : 'border-gray-200 hover:border-gray-300'
@@ -591,7 +593,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                       <img 
                         src={image} 
                         alt={`${selectedItemData?.name} thumbnail ${index + 1}`} 
-                        className="w-full h-full object-contain aspect-square" 
+                        className="w-full h-full object-cover aspect-square" 
                       />
                     </button>
                   ))}
@@ -801,33 +803,39 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                 </div>
               </div>
 
-              {/* Stickers Quantity */}
+              {/* Stickers Set Size */}
               <div className="border-t border-gray-200 pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Stickers Quantity</h3>
-                <div className="flex items-center space-x-3">
-                  <button onClick={() => setStickerQuantity(Math.max(1, stickerQuantity - 1))} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="w-12 text-center font-semibold text-lg">{stickerQuantity}</span>
-                  <button onClick={() => setStickerQuantity(stickerQuantity + 1)} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    <Plus className="w-4 h-4" />
-                  </button>
-                  <span className="text-sm text-gray-600 ml-2">pack(s)</span>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Stickers Pack Size</h3>
+                <div className="flex gap-3 flex-wrap">
+                  {stickerSetSizes.map(size => (
+                    <button
+                      key={size}
+                      onClick={() => setStickerSetSize(size)}
+                      className={`px-4 py-2 border-2 rounded-lg font-medium transition-all duration-200 ${
+                        stickerSetSize === size ? 'border-[#009fe3] bg-[#009fe3] text-white' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
+                      }`}
+                    >
+                      {size} Pack
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Badge Set Quantity */}
+              {/* Badge Set Size */}
               <div className="border-t border-gray-200 pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Badge Set Quantity</h3>
-                <div className="flex items-center space-x-3">
-                  <button onClick={() => setBadgeQuantity(Math.max(1, badgeQuantity - 1))} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="w-12 text-center font-semibold text-lg">{badgeQuantity}</span>
-                  <button onClick={() => setBadgeQuantity(badgeQuantity + 1)} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    <Plus className="w-4 h-4" />
-                  </button>
-                  <span className="text-sm text-gray-600 ml-2">set(s)</span>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Badge Set Size</h3>
+                <div className="flex gap-3 flex-wrap">
+                  {badgeSetSizes.map(size => (
+                    <button
+                      key={size}
+                      onClick={() => setBadgeSetSize(size)}
+                      className={`px-4 py-2 border-2 rounded-lg font-medium transition-all duration-200 ${
+                        badgeSetSize === size ? 'border-[#009fe3] bg-[#009fe3] text-white' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
+                      }`}
+                    >
+                      {size} Set
+                    </button>
+                  ))}
                 </div>
               </div>
 

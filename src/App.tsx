@@ -180,7 +180,7 @@ const App = () => {
             <Route path="/test-payment" element={<TestPaymentFlow />} />
             
             {/* Product Routes */}
-            <Route path="/product/reform-uk-t-shirt" element={<TShirtPage onBack={handleBackToShop} />} />
+            <Route path="/product/reform-uk-tshirt" element={<TShirtPage onBack={handleBackToShop} />} />
             <Route path="/product/reform-uk-hoodie" element={<HoodiePage onBack={handleBackToShop} />} />
             <Route path="/product/reform-uk-cap" element={<CapPage onBack={handleBackToShop} />} />
             <Route path="/product/reform-uk-tote-bag" element={<ToteBagPage onBack={handleBackToShop} />} />
@@ -188,7 +188,7 @@ const App = () => {
             <Route path="/product/reform-uk-mug" element={<MugPage onBack={handleBackToShop} />} />
             <Route path="/product/reform-uk-mouse-pad" element={<MousePadPage onBack={handleBackToShop} />} />
             <Route path="/product/reform-uk-stickers" element={<StickersPage onBack={handleBackToShop} />} />
-            <Route path="/product/reform-badge" element={<BadgeSetPage onBack={handleBackToShop} />} />
+            <Route path="/product/reform-uk-badge-set" element={<BadgeSetPage onBack={handleBackToShop} />} />
             <Route path="/product/starter-bundle" element={<StarterBundlePage onBack={handleBackToShop} />} />
             <Route path="/product/champion-bundle" element={<ChampionBundlePage onBack={handleBackToShop} />} />
             <Route path="/product/activist-bundle" element={<ActivistBundlePage onBack={handleBackToShop} />} />

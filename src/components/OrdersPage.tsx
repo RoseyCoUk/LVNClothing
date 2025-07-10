@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Package, Calendar, CreditCard, Eye, Download } from 'lucide-react';
+import { ArrowLeft, Package, Calendar, CreditCard, Eye, Download, X } from 'lucide-react';
 import { getUserOrders } from '../lib/stripe';
 import { products } from '../stripe-config';
 
@@ -7,9 +7,67 @@ interface OrdersPageProps {
   onBack: () => void;
 }
 
+interface OrderDetailsModalProps {
+  order: any;
+  onClose: () => void;
+}
+
+const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, onClose }) => {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+    }).format(amount / 100);
+  };
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+  const items = Array.isArray(order.items) ? order.items : (order.items ? JSON.parse(order.items) : []);
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+      <div className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+          <X className="w-6 h-6" />
+        </button>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Order #{order.readable_order_id || 'Processing...'}</h2>
+        <div className="text-sm text-gray-600 mb-4">
+          <div>Date: {formatDate(order.created_at)}</div>
+          <div>Email: {order.customer_email}</div>
+          <div>Total: {formatCurrency(order.amount_total || 0)}</div>
+        </div>
+        <div className="mb-4">
+          <h3 className="font-semibold text-gray-900 mb-2">Items Ordered</h3>
+          {items && items.length > 0 ? (
+            <ul className="divide-y divide-gray-200">
+              {items.map((item: any, idx: number) => (
+                <li key={idx} className="py-2 flex justify-between items-center">
+                  <div>
+                    <div className="font-medium text-gray-800">{item.name || item.product_name}</div>
+                    {item.variant && <div className="text-xs text-gray-500">{item.variant}</div>}
+                  </div>
+                  <div className="text-sm text-gray-700">Qty: {item.quantity || 1}</div>
+                  <div className="text-sm text-gray-700">{formatCurrency(item.price_pence || (item.price ? Math.round(Number(item.price) * 100) : 0))}</div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-gray-500 text-sm">No item details available.</div>
+          )}
+        </div>
+        <button onClick={onClose} className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors mt-2">Close</button>
+      </div>
+    </div>
+  );
+};
+
 const OrdersPage = ({ onBack }: OrdersPageProps) => {
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [viewOrder, setViewOrder] = useState<any | null>(null);
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -175,7 +233,7 @@ const OrdersPage = ({ onBack }: OrdersPageProps) => {
                 </div>
 
                 <div className="flex space-x-3 mt-4 pt-4 border-t border-gray-200">
-                  <button className="flex items-center space-x-2 text-[#009fe3] hover:text-blue-600 font-medium text-sm">
+                  <button className="flex items-center space-x-2 text-[#009fe3] hover:text-blue-600 font-medium text-sm" onClick={() => setViewOrder(order)}>
                     <Eye className="w-4 h-4" />
                     <span>View Details</span>
                   </button>
@@ -189,6 +247,8 @@ const OrdersPage = ({ onBack }: OrdersPageProps) => {
           </div>
         )}
       </div>
+
+      {viewOrder && <OrderDetailsModal order={viewOrder} onClose={() => setViewOrder(null)} />}
     </div>
   );
 };

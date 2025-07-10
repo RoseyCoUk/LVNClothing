@@ -273,7 +273,7 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
               <img
                 src={currentVariant.images[selectedImage]}
                 alt={`${productData.name} - ${currentVariant.color} - ${currentVariant.gender} - Image ${selectedImage + 1}`}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
               />
               
               {currentVariant.images.length > 1 && (
@@ -300,7 +300,7 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
               <div className="flex space-x-2 overflow-x-auto pb-2">
                 {currentVariant.images.map((image: string, index: number) => (
                   <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-contain aspect-square" />
+                    <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover aspect-square" />
                   </button>
                 ))}
               </div>
