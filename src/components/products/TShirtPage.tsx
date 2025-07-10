@@ -150,7 +150,7 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
     addToCart(itemToAdd);
   };
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     if (!selectedColor) {
       alert('Please select a color.');
       return;
@@ -159,22 +159,18 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
       alert('Please select a size.');
       return;
     }
-
-    // Set up the order details for confirmation
-    setOrderToConfirm({
-      productName: `${productData.name} - ${currentVariant.gender}'s ${currentVariant.color}`,
-      productImage: currentVariant.images[0],
+    // Add to cart
+    const itemToAdd = {
+      id: `${currentVariant.id}-${selectedSize}`,
+      name: `${productData.name} - ${currentVariant.gender}'s ${currentVariant.color} (Size: ${selectedSize})`,
       price: currentVariant.price,
-      quantity: quantity,
-      priceId: 'price_1RhslxGDbOGEgNLwjiLtrGkD', // Updated Reform UK T-Shirt Price ID
-      variants: {
-        gender: currentVariant.gender,
-        color: currentVariant.color,
-        size: selectedSize
-      }
-    });
-    
-    setShowOrderOverview(true);
+      image: currentVariant.images[0],
+      size: selectedSize,
+      quantity: quantity
+    };
+    addToCart(itemToAdd);
+    // Redirect to checkout
+    window.location.href = '/checkout';
   };
 
   const handleConfirmCheckout = async () => {

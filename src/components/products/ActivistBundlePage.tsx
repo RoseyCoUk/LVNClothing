@@ -372,37 +372,22 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
     });
   };
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     const bundleContents: BundleContent[] = productData.bundleItems.map(item => ({
       name: item.name,
       variant: getVariantText(item),
       image: item.type === 'hoodie' ? getHoodieImages()[0] : item.baseImage
     }));
-
-    const variants: Record<string, string> = {
-      hoodieGender: selectedGender,
-      hoodieSize: selectedSize,
-      hoodieColor: selectedColor,
-      tshirtGender: tshirtGender,
-      tshirtSize: tshirtSize,
-      tshirtColor: tshirtColor,
-      capColor: capColor,
-      stickerSetSize: stickerSetSize.toString(),
-      badgeSetSize: badgeSetSize.toString()
-    };
-
-    setOrderToConfirm({
-      productName: productData.name,
-      productImage: productData.bundleItems[0].baseImage,
+    const itemToAdd = {
+      id: 'activist-bundle',
+      name: productData.name,
       price: productData.bundlePrice,
-      quantity: quantity,
-      priceId: 'price_1RhsUsGDbOGEgNLw2LAVZoGb',
-      variants: variants,
+      image: productData.bundleItems[0].baseImage,
       isBundle: true,
       bundleContents: bundleContents
-    });
-
-    setShowOrderOverview(true);
+    };
+    addToCart(itemToAdd);
+    window.location.href = '/checkout';
   };
 
   const handleConfirmCheckout = async () => {

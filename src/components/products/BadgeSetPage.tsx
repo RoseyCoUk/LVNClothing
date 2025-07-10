@@ -112,33 +112,22 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
     addToCart(itemToAdd);
   };
   
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     if (!selectedSetSize) {
       alert('Please select a pack size.');
       return;
     }
-
-    // Get the correct price ID based on the selected set size
-    const priceId = BADGE_PRICE_IDS[selectedSetSize as keyof typeof BADGE_PRICE_IDS];
-    
-    if (!priceId) {
-      alert('Invalid set size selected.');
-      return;
-    }
-    
-    // Set up the order details for confirmation
-    setOrderToConfirm({
-      productName: `${productData.name} (Set of ${selectedSetSize})`,
-      productImage: productData.variantDetails.images[0],
+    // Add to cart
+    const itemToAdd = {
+      id: `${productData.id}-${selectedSetSize}`,
+      name: `${productData.name} (Set of ${selectedSetSize})`,
       price: currentVariant.price,
-      quantity: quantity,
-      priceId: priceId,
-      variants: {
-        packSize: selectedSetSize
-      }
-    });
-    
-    setShowOrderOverview(true);
+      image: productData.variantDetails.images[0],
+      quantity: quantity
+    };
+    addToCart(itemToAdd);
+    // Redirect to checkout
+    window.location.href = '/checkout';
   };
 
   const handleConfirmCheckout = async () => {

@@ -207,32 +207,22 @@ const StarterBundlePage = ({ onBack }: StarterBundlePageProps) => {
     });
   };
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     const bundleContents: BundleContent[] = productData.bundleItems.map(item => ({
       name: item.name,
       variant: getVariantText(item),
       image: item.type === 'tshirt' ? getTshirtImages()[0] : item.baseImage
     }));
-
-    const variants: Record<string, string> = {
-      tshirtGender: selectedGender,
-      tshirtSize: selectedSize,
-      tshirtColor: selectedColor,
-      totebagVariant: 'Black'
-    };
-
-    setOrderToConfirm({
-      productName: productData.name,
-      productImage: productData.bundleItems[0].baseImage,
+    const itemToAdd = {
+      id: 'starter-bundle',
+      name: productData.name,
       price: productData.bundlePrice,
-      quantity: quantity,
-      priceId: 'price_1RhsUsGDbOGEgNLw2LAVZoGb',
-      variants: variants,
+      image: productData.bundleItems[0].baseImage,
       isBundle: true,
       bundleContents: bundleContents
-    });
-
-    setShowOrderOverview(true);
+    };
+    addToCart(itemToAdd);
+    window.location.href = '/checkout';
   };
 
   const handleConfirmCheckout = async () => {

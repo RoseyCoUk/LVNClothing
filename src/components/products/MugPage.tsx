@@ -135,22 +135,18 @@ const MugPage = ({ onBack }: MugPageProps) => {
     addToCart(itemToAdd);
   };
 
-  const handleBuyNow = async () => {
-    // Set up the order details for confirmation
-    setOrderToConfirm({
-      productName: productData.name,
-      productImage: currentVariant.images[0],
+  const handleBuyNow = () => {
+    // Add to cart
+    const itemToAdd = {
+      id: currentVariant.id,
+      name: productData.name,
       price: currentVariant.price,
-      quantity: quantity,
-      // Fix 8: Update price ID
-      priceId: 'price_1Rhsw7GDbOGEgNLwYH6kMu8R', // Updated price ID
-      variants: {
-        color: 'White',
-        size: '11oz'
-      }
-    });
-    
-    setShowOrderOverview(true);
+      image: currentVariant.images[0],
+      quantity: quantity
+    };
+    addToCart(itemToAdd);
+    // Redirect to checkout
+    window.location.href = '/checkout';
   };
 
   const handleConfirmCheckout = async () => {

@@ -125,33 +125,22 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
     addToCart(itemToAdd);
   };
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     if (!selectedPackSize) {
       alert('Please select a pack size.');
       return;
     }
-
-    // Get the correct price ID based on the selected pack size
-    const priceId = STICKER_PRICE_IDS[selectedPackSize as keyof typeof STICKER_PRICE_IDS];
-    
-    if (!priceId) {
-      alert('Invalid pack size selected.');
-      return;
-    }
-    
-    // Set up the order details for confirmation
-    setOrderToConfirm({
-      productName: `${productData.name} (Pack of ${selectedPackSize})`,
-      productImage: productData.variantDetails.images[0],
+    // Add to cart
+    const itemToAdd = {
+      id: `${productData.id}-${selectedPackSize}`,
+      name: `${productData.name} (Pack of ${selectedPackSize})`,
       price: currentVariant.price,
-      quantity: quantity,
-      priceId: priceId,
-      variants: {
-        packSize: selectedPackSize
-      }
-    });
-    
-    setShowOrderOverview(true);
+      image: productData.variantDetails.images[0],
+      quantity: quantity
+    };
+    addToCart(itemToAdd);
+    // Redirect to checkout
+    window.location.href = '/checkout';
   };
 
   const handleConfirmCheckout = async () => {

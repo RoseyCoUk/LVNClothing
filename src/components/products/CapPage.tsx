@@ -109,26 +109,22 @@ const CapPage = ({ onBack }: CapPageProps) => {
     addToCart(itemToAdd);
   };
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     if (!selectedColor) {
       alert('Please select a color.');
       return;
     }
-
-    // Set up the order details for confirmation
-    setOrderToConfirm({
-      productName: `${productData.name} - ${selectedColor}`,
-      productImage: currentVariant.images[0],
+    // Add to cart
+    const itemToAdd = {
+      id: currentVariant.id,
+      name: `${productData.name} - ${selectedColor}`,
       price: currentVariant.price,
-      quantity: quantity,
-      priceId: 'price_1RhsqJGDbOGEgNLwrGCcL3x3', // Reform UK Cap
-      variants: {
-        color: selectedColor,
-        size: 'One Size'
-      }
-    });
-    
-    setShowOrderOverview(true);
+      image: currentVariant.images[0],
+      quantity: quantity
+    };
+    addToCart(itemToAdd);
+    // Redirect to checkout
+    window.location.href = '/checkout';
   };
 
   const handleConfirmCheckout = async () => {

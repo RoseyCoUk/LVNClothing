@@ -150,22 +150,13 @@ const App = () => {
               </>
             } />
             <Route path="/shop" element={
-              <div>
-                <h1>Shop Page</h1>
-                <ShopPage onProductClick={handleProductClick} />
-              </div>
+              <ShopPage onProductClick={handleProductClick} />
             } />
             <Route path="/about" element={
-              <div>
-                <h1>About Page</h1>
-                <AboutPage />
-              </div>
+              <AboutPage />
             } />
             <Route path="/contact" element={
-              <div>
-                <h1>Contact Page</h1>
-                <ContactPage />
-              </div>
+              <ContactPage />
             } />
             <Route path="/login" element={<LoginPage onBack={handleBackToHome} onSignupClick={handleSignupClick} />} />
             <Route path="/signup" element={<SignupPage onBack={handleBackToHome} onLoginClick={handleLoginClick} />} />

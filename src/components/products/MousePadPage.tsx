@@ -129,26 +129,18 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
     addToCart(itemToAdd);
   };
 
-  const handleBuyNow = async () => {
-    if (!currentVariant) {
-      console.error('No variant selected');
-      return;
-    }
-    
-    // Set up the order details for confirmation
-    setOrderToConfirm({
-      productName: productData.name,
-      productImage: currentVariant.images[0],
+  const handleBuyNow = () => {
+    // Add to cart
+    const itemToAdd = {
+      id: currentVariant.id,
+      name: productData.name,
       price: currentVariant.price,
-      quantity: quantity,
-      priceId: 'price_1RhsxfGDbOGEgNLwpTGkkVou',
-      variants: {
-        color: 'White',
-        size: 'Standard'
-      }
-    });
-    
-    setShowOrderOverview(true);
+      image: currentVariant.images[0],
+      quantity: quantity
+    };
+    addToCart(itemToAdd);
+    // Redirect to checkout
+    window.location.href = '/checkout';
   };
 
   const handleConfirmCheckout = async () => {

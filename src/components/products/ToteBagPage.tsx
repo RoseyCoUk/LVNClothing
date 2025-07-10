@@ -109,21 +109,18 @@ const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
     addToCart(itemToAdd);
   };
 
-  const handleBuyNow = async () => {
-    // Set up the order details for confirmation
-    setOrderToConfirm({
-      productName: `${productData.name} - ${currentVariant.color}`,
-      productImage: currentVariant.images[0],
+  const handleBuyNow = () => {
+    // Add to cart
+    const itemToAdd = {
+      id: currentVariant.id,
+      name: `${productData.name} - ${currentVariant.color}`,
       price: currentVariant.price,
-      quantity: quantity,
-      priceId: 'price_1RhsrKGDbOGEgNLwdgEGRO0q', // Reform UK Tote Bag
-      variants: {
-        color: currentVariant.color,
-        size: 'One Size'
-      }
-    });
-    
-    setShowOrderOverview(true);
+      image: currentVariant.images[0],
+      quantity: quantity
+    };
+    addToCart(itemToAdd);
+    // Redirect to checkout
+    window.location.href = '/checkout';
   };
 
   const handleConfirmCheckout = async () => {
