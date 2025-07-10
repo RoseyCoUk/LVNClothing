@@ -53,6 +53,18 @@ Deno.serve(async (req) => {
 
     const { price_id, line_items, metadata, success_url, cancel_url, mode, customer_email, shipping_rate_id } = await req.json();
 
+    console.log('Received checkout request:', {
+      price_id,
+      has_line_items: !!line_items,
+      line_items_count: line_items ? line_items.length : 0,
+      metadata,
+      success_url,
+      cancel_url,
+      mode,
+      customer_email,
+      shipping_rate_id
+    });
+
     // Validate required parameters
     const error = validateParameters(
       { price_id, line_items, metadata, success_url, cancel_url, mode, customer_email, shipping_rate_id },
@@ -69,12 +81,25 @@ Deno.serve(async (req) => {
     );
 
     if (error) {
+      console.error('Parameter validation error:', error);
       return corsResponse({ error }, 400);
     }
 
     // Validate that either price_id or line_items is provided
     if (!price_id && !line_items) {
       return corsResponse({ error: 'Either price_id or line_items must be provided' }, 400);
+    }
+
+    // Validate line_items structure if provided
+    if (line_items && Array.isArray(line_items)) {
+      for (const item of line_items) {
+        if (!item.price_data || !item.price_data.currency || !item.price_data.product_data || !item.price_data.unit_amount) {
+          return corsResponse({ error: 'Invalid line_items structure. Each item must have price_data with currency, product_data, and unit_amount' }, 400);
+        }
+        if (!item.quantity || item.quantity < 1) {
+          return corsResponse({ error: 'Invalid quantity in line_items. Quantity must be at least 1' }, 400);
+        }
+      }
     }
 
     let userId: string | null = null;
