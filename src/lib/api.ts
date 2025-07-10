@@ -38,6 +38,14 @@ export async function getProducts(): Promise<Product[]> {
   }
 
   console.log('Raw products data:', data);
+  
+  // Debug: Log price conversion for first few products
+  if (data && data.length > 0) {
+    console.log('Price conversion debug:');
+    data.slice(0, 3).forEach(product => {
+      console.log(`${product.name}: £${product.price} -> ${Math.round(Number(product.price) * 100)} pence`);
+    });
+  }
 
   // Map database fields to Product interface
   const mappedProducts = (data || []).map(product => {
@@ -46,7 +54,7 @@ export async function getProducts(): Promise<Product[]> {
       name: product.name,
       variant: product.variant,
       description: product.description,
-      price_pence: Number(product.price_pence) || 0, // Ensure it's always a number
+      price_pence: Math.round(Number(product.price) * 100) || 0, // Convert pounds to pence
       category: product.category || 'gear', // Default to 'gear' if no category
       tags: product.tags || [], // Use database tags or empty array
       reviews: product.reviews || 0, // Use database reviews or default
@@ -61,7 +69,7 @@ export async function getProducts(): Promise<Product[]> {
     // Debug logging for Activist Bundle
     if (product.name === 'Activist Bundle') {
       console.log('Activist Bundle found:', {
-        original: product.price_pence,
+        original: product.price,
         converted: mappedProduct.price_pence,
         type: typeof mappedProduct.price_pence
       });
