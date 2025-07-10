@@ -53,6 +53,11 @@ const App = () => {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState('home');
 
+  // Scroll to top on every route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   // Update currentPage based on location
   useEffect(() => {
     const path = location.pathname;
