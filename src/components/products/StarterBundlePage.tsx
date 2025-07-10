@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart, Heart, Share2, Star, Check, Plus, Minus, Clock, Truck, Shield, RotateCcw, Info, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
@@ -42,6 +43,7 @@ interface StarterBundlePageProps {
 
 const StarterBundlePage = ({ onBack }: StarterBundlePageProps) => {
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
@@ -222,7 +224,7 @@ const StarterBundlePage = ({ onBack }: StarterBundlePageProps) => {
       bundleContents: bundleContents
     };
     addToCart(itemToAdd);
-    window.location.href = '/checkout';
+    navigate('/checkout');
   };
 
   const handleConfirmCheckout = async () => {

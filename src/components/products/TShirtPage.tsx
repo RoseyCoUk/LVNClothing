@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Star,
   ShoppingCart,
@@ -103,6 +104,7 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
+  const navigate = useNavigate();
   
   const defaultVariant = productData.variants[productData.defaultVariant as keyof typeof productData.variants];
 
@@ -169,8 +171,11 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
       quantity: quantity
     };
     addToCart(itemToAdd);
-    // Redirect to checkout
-    window.location.href = '/checkout';
+    
+    // Wait a moment for cart to update, then redirect
+    setTimeout(() => {
+      navigate('/checkout');
+    }, 100);
   };
 
   const handleConfirmCheckout = async () => {

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Star,
   ShoppingCart,
@@ -110,6 +111,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   // Fix 5: Add proper typing for orderToConfirm
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
+  const navigate = useNavigate();
   
   // Fix 6: Add proper type assertion
   const [currentVariant] = useState(productData.variants[productData.defaultVariant as keyof typeof productData.variants]);
@@ -127,6 +129,8 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
       quantity: quantity
     };
     addToCart(itemToAdd);
+    // Redirect to checkout
+    navigate('/checkout');
   };
 
   const handleBuyNow = async () => {

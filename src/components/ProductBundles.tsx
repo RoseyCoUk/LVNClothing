@@ -1,9 +1,7 @@
-import { useState } from 'react';
-import { ShoppingCart, Star, AlertTriangle } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Star, ShoppingCart } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
-import { createCheckoutSession } from '../lib/stripe';
-import { supabase } from '../lib/supabase';
-import OrderOverviewModal from './OrderOverviewModal';
 
 interface Color {
   name: string;
@@ -73,10 +71,9 @@ type ProductOptions = {
 
 const ProductBundles = () => {
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [activeBundle, setActiveBundle] = useState('starter');
   const [isLoading, setIsLoading] = useState(false);
-  const [showOrderOverview, setShowOrderOverview] = useState(false);
-  const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
 
   // Variant selection states for each bundle
   const [bundleSelections, setBundleSelections] = useState<BundleSelections>({
@@ -363,11 +360,7 @@ const ProductBundles = () => {
     </button>
   );
 
-  const handleBuyNow = async () => {
-    if (!currentBundle.product) {
-      return;
-    }
-
+  const handleBuyNow = () => {
     // Generate bundle contents with selected variants
     const bundleContents: BundleContent[] = currentBundle.items.map(item => ({
       name: item.name,
@@ -375,87 +368,18 @@ const ProductBundles = () => {
       image: getImageForSelection(item)
     }));
 
-    // Create a flat variants object for the modal
-    const flatVariants: Record<string, string> = {};
-    currentBundle.items.forEach(item => {
-      if (item.customizable) {
-        const selection = currentSelections[item.type as keyof typeof currentSelections] as { gender?: string; size?: string; color?: string };
-        if (selection) {
-          if (selection.gender) flatVariants[`${item.type}Gender`] = selection.gender;
-          if (selection.size) flatVariants[`${item.type}Size`] = selection.size;
-          if (selection.color) flatVariants[`${item.type}Color`] = selection.color;
-        }
-      } else {
-        flatVariants[`${item.type}Variant`] = item.variant || '';
-      }
-    });
-
-    // Set up the order details for confirmation
-    setOrderToConfirm({
-      productName: currentBundle.name,
-      productImage: currentBundle.image,
+    const bundleItem = {
+      id: `bundle-${activeBundle}-${Date.now()}`,
+      name: currentBundle.name,
       price: currentBundle.bundlePrice,
+      image: currentBundle.image,
       quantity: 1,
-      priceId: currentBundle.product.priceId,
-      variants: flatVariants,
       isBundle: true,
       bundleContents
-    });
+    };
     
-    setShowOrderOverview(true);
-  };
-
-  const handleConfirmCheckout = async () => {
-    if (!orderToConfirm) {
-      return;
-    }
-    
-    setShowOrderOverview(false);
-    setIsLoading(true);
-
-    try {
-      const { url } = await createCheckoutSession({
-        price_id: orderToConfirm.priceId,
-        success_url: `${window.location.origin}?success=true`,
-        cancel_url: window.location.href,
-        mode: 'payment',
-        customer_email: await promptForEmail()
-      });
-
-      window.location.href = url;
-    } catch (error) {
-      // Show a more user-friendly error message
-      if (error instanceof Error && error.message.includes('Stripe API key is not configured')) {
-        // Handle development environment gracefully
-      } else {
-        // Handle checkout error gracefully
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Helper function to prompt for email if user is not logged in
-  const promptForEmail = async (): Promise<string> => {
-    // Check if user is logged in via Supabase
-    const { data } = await supabase.auth.getSession();
-    if (data.session?.user?.email) {
-      return data.session.user.email;
-    }
-    
-    // If not logged in, prompt for email
-    const email = prompt('Please enter your email address to receive order confirmation:');
-    if (!email) {
-      throw new Error('Email is required for checkout');
-    }
-    
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      throw new Error('Please enter a valid email address');
-    }
-    
-    return email;
+    addToCart(bundleItem);
+    navigate('/checkout');
   };
 
   const handleAddBundleToCart = () => {
@@ -477,6 +401,7 @@ const ProductBundles = () => {
     };
     
     addToCart(bundleItem);
+    navigate('/checkout');
   };
 
   return (
@@ -666,15 +591,6 @@ const ProductBundles = () => {
         </div>
       </div>
     </section>
-
-    {/* Order Overview Modal */}
-    {showOrderOverview && orderToConfirm && (
-      <OrderOverviewModal
-        productDetails={orderToConfirm}
-        onClose={() => setShowOrderOverview(false)}
-        onConfirm={handleConfirmCheckout}
-      />
-    )}
     </>
   );
 };

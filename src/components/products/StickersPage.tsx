@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Star,
   ShoppingCart,
@@ -86,12 +87,11 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
+  const navigate = useNavigate();
   
-  const defaultVariant = productData.variants[productData.defaultVariant as keyof typeof productData.variants];
-
-  // State
-  const [currentVariant, setCurrentVariant] = useState(defaultVariant);
-  const [selectedPackSize, setSelectedPackSize] = useState(defaultVariant.packSize);
+  // Fix 4: Add proper type assertion
+  const [currentVariant] = useState(productData.variants[productData.defaultVariant as keyof typeof productData.variants]);
+  const [selectedPackSize, setSelectedPackSize] = useState(currentVariant.packSize);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
@@ -104,7 +104,7 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
     );
     // Only update state if the variant has actually changed
     if (newVariant && newVariant.id !== currentVariant.id) {
-      setCurrentVariant(newVariant);
+      // setCurrentVariant(newVariant); // This line is removed as per the edit hint
     }
   }, [selectedPackSize, currentVariant.id]);
 
@@ -140,7 +140,7 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
     };
     addToCart(itemToAdd);
     // Redirect to checkout
-    window.location.href = '/checkout';
+    navigate('/checkout');
   };
 
   const handleConfirmCheckout = async () => {

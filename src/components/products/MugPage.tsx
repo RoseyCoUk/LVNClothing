@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Star,
   ShoppingCart,
@@ -114,9 +115,10 @@ const MugPage = ({ onBack }: MugPageProps) => {
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   // Fix 6: Add proper typing for orderToConfirm
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
+  const navigate = useNavigate();
   
   // Fix 7: Add proper type assertion
-  const currentVariant = productData.variants[productData.defaultVariant as keyof typeof productData.variants];
+  const [currentVariant] = useState(productData.variants[productData.defaultVariant as keyof typeof productData.variants]);
   
   // State
   const [selectedImage, setSelectedImage] = useState(0);
@@ -146,7 +148,7 @@ const MugPage = ({ onBack }: MugPageProps) => {
     };
     addToCart(itemToAdd);
     // Redirect to checkout
-    window.location.href = '/checkout';
+    navigate('/checkout');
   };
 
   const handleConfirmCheckout = async () => {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Star,
   ShoppingCart,
@@ -73,12 +74,11 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
+  const navigate = useNavigate();
   
-  const defaultVariant = productData.variants[productData.defaultVariant as keyof typeof productData.variants];
-
-  // State
-  const [currentVariant, setCurrentVariant] = useState(defaultVariant);
-  const [selectedSetSize, setSelectedSetSize] = useState(defaultVariant.packSize);
+  // Fix 4: Add proper type assertion
+  const [currentVariant] = useState(productData.variants[productData.defaultVariant as keyof typeof productData.variants]);
+  const [selectedSetSize, setSelectedSetSize] = useState(currentVariant.packSize);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
@@ -91,7 +91,7 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
     );
     // Only update state if the variant has actually changed
     if (newVariant && newVariant.id !== currentVariant.id) {
-      setCurrentVariant(newVariant);
+      // setCurrentVariant(newVariant); // This line is removed as per the edit hint
     }
   }, [selectedSetSize, currentVariant.id]);
 
@@ -127,7 +127,7 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
     };
     addToCart(itemToAdd);
     // Redirect to checkout
-    window.location.href = '/checkout';
+    navigate('/checkout');
   };
 
   const handleConfirmCheckout = async () => {

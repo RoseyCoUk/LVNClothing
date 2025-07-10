@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Star,
   ShoppingCart,
@@ -90,8 +91,9 @@ const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
+  const navigate = useNavigate();
   
-  // Fix 5: Add proper type assertion
+  // Fix 4: Add proper type assertion
   const [currentVariant] = useState(productData.variants[productData.defaultVariant as keyof typeof productData.variants]);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -120,7 +122,7 @@ const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
     };
     addToCart(itemToAdd);
     // Redirect to checkout
-    window.location.href = '/checkout';
+    navigate('/checkout');
   };
 
   const handleConfirmCheckout = async () => {

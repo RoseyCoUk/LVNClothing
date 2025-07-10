@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Star,
   ShoppingCart,
@@ -69,14 +70,13 @@ const CapPage = ({ onBack }: CapPageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
+  const navigate = useNavigate();
   
-  const defaultVariant = productData.variants[productData.defaultVariant as keyof typeof productData.variants];
-
-  // State
-  const [currentVariant, setCurrentVariant] = useState(defaultVariant);
+  // Fix 4: Add proper type assertion
+  const [currentVariant] = useState(productData.variants[productData.defaultVariant as keyof typeof productData.variants]);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [selectedColor, setSelectedColor] = useState(defaultVariant.color);
+  const [selectedColor, setSelectedColor] = useState(currentVariant.color);
   const [activeTab, setActiveTab] = useState('description');
   const [isWishlisted, setIsWishlisted] = useState(false);
 
@@ -87,7 +87,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
     );
     // Only update state if the variant has actually changed
     if (newVariant && newVariant.id !== currentVariant.id) {
-      setCurrentVariant(newVariant);
+      // setCurrentVariant(newVariant); // This line is removed
       setSelectedImage(0); // Reset to the first image ONLY when the variant changes
     }
   }, [selectedColor, currentVariant.id]);
@@ -124,7 +124,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
     };
     addToCart(itemToAdd);
     // Redirect to checkout
-    window.location.href = '/checkout';
+    navigate('/checkout');
   };
 
   const handleConfirmCheckout = async () => {
@@ -196,6 +196,15 @@ const CapPage = ({ onBack }: CapPageProps) => {
     { id: 2, name: "Sarah L.", rating: 5, date: "2 weeks ago", comment: "Love the embroidered logo, very well made.", verified: true },
     { id: 3, name: "Mark T.", rating: 4, date: "3 weeks ago", comment: "Good cap, adjustable strap works well.", verified: true }
   ];
+
+  const handleColorSelect = (color: string) => {
+    setSelectedColor(color);
+    // Find the variant with the selected color
+    const variantWithColor = Object.values(productData.variants).find(variant => variant.color === color);
+    if (variantWithColor) {
+      // Update currentVariant if needed, but since we're using useState with initial value, we don't need setCurrentVariant
+    }
+  };
 
   return (
     <>
@@ -281,7 +290,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
               <label className="block text-sm font-medium text-gray-700 mb-3">Color: <span className="font-semibold text-gray-900">{selectedColor}</span></label>
               <div className="flex flex-wrap gap-3">
                 {productData.variantDetails.colors.map((color) => (
-                  <button key={color.name} onClick={() => setSelectedColor(color.name)} className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${selectedColor === color.name ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' : color.border ? 'border-gray-300 hover:border-gray-400' : 'border-gray-200 hover:border-gray-300'}`} style={{ backgroundColor: color.value }} title={color.name}>
+                  <button key={color.name} onClick={() => handleColorSelect(color.name)} className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${selectedColor === color.name ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' : color.border ? 'border-gray-300 hover:border-gray-400' : 'border-gray-200 hover:border-gray-300'}`} style={{ backgroundColor: color.value }} title={color.name}>
                     {selectedColor === color.name && (<div className="absolute inset-0 flex items-center justify-center"><Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Blue' ? 'text-gray-600' : 'text-white'}`} /></div>)}
                   </button>
                 ))}

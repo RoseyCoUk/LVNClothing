@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart, Heart, Share2, Star, Check, Plus, Minus, Clock, Truck, Shield, RotateCcw, Info, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
@@ -42,6 +43,7 @@ interface ActivistBundlePageProps {
 
 const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
@@ -373,21 +375,32 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   };
 
   const handleBuyNow = () => {
-    const bundleContents: BundleContent[] = productData.bundleItems.map(item => ({
-      name: item.name,
-      variant: getVariantText(item),
-      image: item.type === 'hoodie' ? getHoodieImages()[0] : item.baseImage
-    }));
+    // Add bundle to cart
+    const bundleContents = [
+      { name: 'Reform UK Hoodie', variant: `${selectedGender}'s ${selectedColor} (Size: ${selectedSize})`, image: getHoodieImages()[0] },
+      { name: 'Reform UK T-Shirt', variant: `${tshirtGender}'s ${tshirtColor} (Size: ${tshirtSize})`, image: getTshirtImages()[0] },
+      { name: 'Reform UK Cap', variant: `${capColor}`, image: getCapImages()[0] },
+      { name: 'Reform UK Tote Bag', variant: 'Black', image: '/StickerToteWater/ReformToteBagBlack1.webp' },
+      { name: 'Reform UK Water Bottle', variant: 'White', image: '/StickerToteWater/ReformWaterBottleWhite1.webp' },
+      { name: 'Reform UK Mug', variant: 'White', image: '/MugMouse/ReformMug1.webp' },
+      { name: 'Reform UK Stickers', variant: `${stickerSetSize} pack`, image: '/StickerToteWater/ReformStickersMain1.webp' },
+      { name: 'Reform UK Mouse Pad', variant: 'White', image: '/MugMouse/ReformMousePadWhite1.webp' },
+      { name: 'Reform UK Badge Set', variant: `${badgeSetSize} pack`, image: '/Badge/ReformBadgeSetMain1.webp' }
+    ];
+
     const itemToAdd = {
       id: 'activist-bundle',
-      name: productData.name,
+      name: 'Activist Bundle',
       price: productData.bundlePrice,
       image: productData.bundleItems[0].baseImage,
+      quantity: quantity,
       isBundle: true,
       bundleContents: bundleContents
     };
+
     addToCart(itemToAdd);
-    window.location.href = '/checkout';
+    // Redirect to checkout
+    navigate('/checkout');
   };
 
   const handleConfirmCheckout = async () => {
