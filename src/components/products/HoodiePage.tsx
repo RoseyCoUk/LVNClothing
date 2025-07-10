@@ -79,7 +79,7 @@ const generateVariants = (): Variants => {
                 stockCount: gender === 'Men' ? 15 : 12,
                 rating: 5,
                 reviews: gender === 'Men' ? 127 : 115,
-                images: Array.from({ length: imageCount }, (_, i) => `Hoodie/${gender}/Reform${gender}Hoodie${colorFileName}${i + 1}.webp`)
+                images: Array.from({ length: imageCount }, (_, i) => `/Hoodie/${gender}/Reform${gender}Hoodie${colorFileName}${i + 1}.webp`)
             };
         });
     });
@@ -272,7 +272,7 @@ const HoodiePage = ({ onBack }: HoodiePageProps) => {
                 key={currentVariant.images[selectedImage]}
                 src={currentVariant.images[selectedImage]}
                 alt={`${productData.name} - ${currentVariant.color} - ${currentVariant.gender} - Image ${selectedImage + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover aspect-square"
               />
               
               {currentVariant.images.length > 1 && (
@@ -299,7 +299,7 @@ const HoodiePage = ({ onBack }: HoodiePageProps) => {
               <div className="flex space-x-2 overflow-x-auto pb-2">
                 {currentVariant.images.map((image, index) => (
                   <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover aspect-square" />
                   </button>
                 ))}
               </div>
@@ -408,13 +408,6 @@ const HoodiePage = ({ onBack }: HoodiePageProps) => {
               <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Free UK Shipping Over £30</p></div>
               <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
               <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
-            </div>
-
-            {/* Product ID */}
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-800">
-                <strong>Product ID:</strong> prod_Sd8zogtUd2cTOt
-              </p>
             </div>
           </div>
         </div>

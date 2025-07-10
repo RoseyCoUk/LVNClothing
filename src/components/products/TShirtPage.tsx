@@ -76,21 +76,21 @@ const productData = {
   },
   variants: {
     // Men's T-Shirts - 6 images each
-    201: { id: 201, gender: 'Men', color: 'White', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtWhite${i + 1}.webp`) },
-    202: { id: 202, gender: 'Men', color: 'Light Grey', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtLightGrey${i + 1}.webp`) },
-    203: { id: 203, gender: 'Men', color: 'Ash Grey', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtAshGrey${i + 1}.webp`) },
-    204: { id: 204, gender: 'Men', color: 'Charcoal', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtCharcoal${i + 1}.webp`) },
-    205: { id: 205, gender: 'Men', color: 'Black', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtBlack${i + 1}.webp`) },
-    206: { id: 206, gender: 'Men', color: 'Royal Blue', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtBlue${i + 1}.webp`) },
-    207: { id: 207, gender: 'Men', color: 'Red', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Men/ReformMenTshirtRed${i + 1}.webp`) },
+    201: { id: 201, gender: 'Men', color: 'White', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtWhite${i + 1}.webp`) },
+    202: { id: 202, gender: 'Men', color: 'Light Grey', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtLightGrey${i + 1}.webp`) },
+    203: { id: 203, gender: 'Men', color: 'Ash Grey', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtAshGrey${i + 1}.webp`) },
+    204: { id: 204, gender: 'Men', color: 'Charcoal', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtCharcoal${i + 1}.webp`) },
+    205: { id: 205, gender: 'Men', color: 'Black', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtBlack${i + 1}.webp`) },
+    206: { id: 206, gender: 'Men', color: 'Royal Blue', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtBlue${i + 1}.webp`) },
+    207: { id: 207, gender: 'Men', color: 'Red', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtRed${i + 1}.webp`) },
     // Women's T-Shirts - 5 images each
-    211: { id: 211, gender: 'Women', color: 'White', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtWhite${i + 1}.webp`) },
-    212: { id: 212, gender: 'Women', color: 'Light Grey', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtLightGrey${i + 1}.webp`) },
-    213: { id: 213, gender: 'Women', color: 'Ash Grey', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtAshGrey${i + 1}.webp`) },
-    214: { id: 214, gender: 'Women', color: 'Charcoal', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtCharcoal${i + 1}.webp`) },
-    215: { id: 215, gender: 'Women', color: 'Black', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtBlack${i + 1}.webp`) },
-    216: { id: 216, gender: 'Women', color: 'Royal Blue', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtBlue${i + 1}.webp`) },
-    217: { id: 217, gender: 'Women', color: 'Red', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `Tshirt/Women/ReformWomenTshirtRed${i + 1}.webp`) },
+    211: { id: 211, gender: 'Women', color: 'White', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtWhite${i + 1}.webp`) },
+    212: { id: 212, gender: 'Women', color: 'Light Grey', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtLightGrey${i + 1}.webp`) },
+    213: { id: 213, gender: 'Women', color: 'Ash Grey', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtAshGrey${i + 1}.webp`) },
+    214: { id: 214, gender: 'Women', color: 'Charcoal', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtCharcoal${i + 1}.webp`) },
+    215: { id: 215, gender: 'Women', color: 'Black', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtBlack${i + 1}.webp`) },
+    216: { id: 216, gender: 'Women', color: 'Royal Blue', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtBlue${i + 1}.webp`) },
+    217: { id: 217, gender: 'Women', color: 'Red', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtRed${i + 1}.webp`) },
   } as Variants // Fix 3: Add proper typing to variants object
 };
 
@@ -273,7 +273,7 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
               <img
                 src={currentVariant.images[selectedImage]}
                 alt={`${productData.name} - ${currentVariant.color} - ${currentVariant.gender} - Image ${selectedImage + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
               
               {currentVariant.images.length > 1 && (
@@ -300,7 +300,7 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
               <div className="flex space-x-2 overflow-x-auto pb-2">
                 {currentVariant.images.map((image: string, index: number) => (
                   <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-contain aspect-square" />
                   </button>
                 ))}
               </div>
@@ -420,18 +420,6 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
               <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Free UK Shipping Over £30</p></div>
               <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
               <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
-            </div>
-
-            {/* Fix 9: Add Product ID Display */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-              <div className="flex items-center space-x-2">
-                <Info className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Product ID: prod_Sd94WiqjrSQHZ8</span>
-              </div>
-              <div className="flex items-center space-x-2 mt-1">
-                <Info className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Price ID: price_1RhslxGDbOGEgNLwjiLtrGkD</span>
-              </div>
             </div>
           </div>
         </div>

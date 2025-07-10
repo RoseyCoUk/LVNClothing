@@ -23,8 +23,10 @@ import {
 } from 'lucide-react';
 import { FAQS } from './faqs';
 import FAQAccordion from './FAQAccordion';
+import { useNavigate } from 'react-router-dom';
 
 const ContactPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -271,7 +273,10 @@ const ContactPage = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
               
               <div className="space-y-3">
-                <button className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2">
+                <button 
+                  onClick={() => navigate('/track-order')}
+                  className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                >
                   <Package className="w-4 h-4" />
                   <span>Track My Order</span>
                 </button>

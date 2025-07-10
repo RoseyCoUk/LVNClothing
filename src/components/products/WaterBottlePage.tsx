@@ -82,7 +82,7 @@ const productData = {
       stockCount: 30,
       rating: 5,
       reviews: 203,
-      images: Array.from({ length: 4 }, (_, i) => `StickerToteWater/ReformWaterBottleWhite${i + 1}.webp`)
+      images: Array.from({ length: 4 }, (_, i) => `/StickerToteWater/ReformWaterBottleWhite${i + 1}.webp`)
     }
   } as Variants
 };
@@ -243,7 +243,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
               <img
                 src={currentVariant.images[selectedImage]}
                 alt={`${productData.name} - Image ${selectedImage + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover aspect-square"
               />
               
               {currentVariant.images.length > 1 && (
@@ -270,7 +270,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
               <div className="flex space-x-2 overflow-x-auto pb-2">
                 {currentVariant.images.map((image: string, index: number) => (
                   <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover aspect-square" />
                   </button>
                 ))}
               </div>
@@ -357,14 +357,6 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
               <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Free UK Shipping Over £30</p></div>
               <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
               <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
-            </div>
-
-            {/* Fix 8: Add Product ID Display */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-              <div className="flex items-center space-x-2">
-                <Info className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Product ID: prod_Sd9AwiyuVBssZa</span>
-              </div>
             </div>
           </div>
         </div>

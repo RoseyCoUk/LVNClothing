@@ -43,7 +43,7 @@ const productData = {
     // Variants are based on set size for this product
     setSizes: ['5', '10', '25', '50'],
     // Images are the same for all variants, assuming 4 showcase images
-    images: Array.from({ length: 5 }, (_, i) => `Badge/ReformBadgeSetMain${i + 1}.webp`)
+    images: Array.from({ length: 5 }, (_, i) => `/Badge/ReformBadgeSetMain${i + 1}.webp`)
   },
   variants: {
     901: { id: 901, packSize: '5', price: 9.99, inStock: true, stockCount: 50, rating: 5, reviews: 203 },
@@ -240,7 +240,7 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
               <img
                 src={images[selectedImage]}
                 alt={`${productData.name} - Image ${selectedImage + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover aspect-square"
               />
               
               {images.length > 1 && (
@@ -267,7 +267,7 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
               <div className="flex space-x-2 overflow-x-auto pb-2">
                 {images.map((image, index) => (
                   <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover aspect-square" />
                   </button>
                 ))}
               </div>
@@ -361,12 +361,6 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
               </div>
             </div>
             
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-800">
-                <strong>Product ID:</strong> prod_Sd9NmoMTiInOFT
-              </p>
-            </div>
-
             {/* Trust Badges */}
             <div className="grid grid-cols-3 gap-4 pt-6 border-t">
               <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Free UK Shipping Over £30</p></div>

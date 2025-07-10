@@ -1,0 +1,239 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  try {
+    console.log('Newsletter signup function called')
+    const { email } = await req.json()
+    console.log('Received email:', email)
+
+    if (!email) {
+      console.log('No email provided')
+      return new Response(
+        JSON.stringify({ error: 'Email is required' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    // Create Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    console.log('Supabase URL:', supabaseUrl ? 'Set' : 'Not set')
+    console.log('Supabase Service Key:', supabaseServiceKey ? 'Set' : 'Not set')
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+    // Generate a unique discount code
+    const discountCode = `NEWSLETTER10-${Date.now().toString(36).toUpperCase()}`
+    console.log('Generated discount code:', discountCode)
+
+    // Store the email and discount code in the database
+    console.log('Attempting to insert subscriber into database...')
+    const { error: insertError } = await supabase
+      .from('newsletter_subscribers')
+      .insert([
+        {
+          email: email,
+          discount_code: discountCode,
+          subscribed_at: new Date().toISOString(),
+          is_active: true
+        }
+      ])
+
+    if (insertError) {
+      console.error('Error inserting subscriber:', insertError)
+      return new Response(
+        JSON.stringify({ error: 'Failed to subscribe: ' + insertError.message }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+    
+    console.log('Successfully inserted subscriber into database')
+
+    // Send welcome email with discount code
+    const emailContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Reform UK - Your 10% Discount Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #009fe3 0%, #0066cc 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .discount-box {
+            background: #e8f5e8;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .discount-code {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2e7d32;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #009fe3;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to Reform UK!</h1>
+        <p>Thank you for joining the movement</p>
+    </div>
+    
+    <div class="content">
+        <h2>Your 10% Discount Code is Here! 🎉</h2>
+        
+        <p>Welcome to the Reform UK community! We're excited to have you join thousands of supporters who are committed to real change.</p>
+        
+        <div class="discount-box">
+            <h3>Your Exclusive Discount Code</h3>
+            <div class="discount-code">${discountCode}</div>
+            <p><strong>Save 10% on your first order!</strong></p>
+            <p>Use this code at checkout to get 10% off any order over £30</p>
+        </div>
+        
+        <h3>What's Next?</h3>
+        <ul>
+            <li><strong>Shop Now:</strong> Browse our latest Reform UK merchandise</li>
+            <li><strong>Stay Updated:</strong> Get exclusive access to new product drops</li>
+            <li><strong>Campaign News:</strong> Be the first to know about important updates</li>
+            <li><strong>Exclusive Offers:</strong> Receive special discounts and promotions</li>
+        </ul>
+        
+        <div style="text-align: center;">
+            <a href="https://reformuk.com/shop" class="cta-button">Shop Now & Use Your Code</a>
+        </div>
+        
+        <h3>What You'll Receive:</h3>
+        <ul>
+            <li>Exclusive access to limited-edition drops</li>
+            <li>Campaign updates and important announcements</li>
+            <li>Special member-only discounts</li>
+            <li>Behind-the-scenes content</li>
+        </ul>
+        
+        <p><strong>Important:</strong> Your discount code is valid for 30 days from today. Make sure to use it before it expires!</p>
+    </div>
+    
+    <div class="footer">
+        <p>This email was sent to ${email}</p>
+        <p>Reform UK | Building a Better Britain</p>
+        <p>You can unsubscribe at any time by clicking the link in our emails.</p>
+    </div>
+</body>
+</html>
+    `
+
+    // Send email using Resend.com
+    console.log('Attempting to send email with Resend...')
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    console.log('Resend API Key:', resendApiKey ? 'Set' : 'Not set')
+    
+    if (!resendApiKey) {
+      console.error('RESEND_API_KEY environment variable is not set')
+    } else {
+      const resendResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${resendApiKey}`,
+        },
+        body: JSON.stringify({
+          to: email,
+          from: 'support@backreform.co.uk',
+          subject: 'Welcome to Reform UK - Your 10% Discount Code Inside! 🎉',
+          html: emailContent,
+        }),
+      });
+
+      if (!resendResponse.ok) {
+        const errorText = await resendResponse.text();
+        console.error('Error sending email with Resend:', errorText);
+        console.error('Resend response status:', resendResponse.status);
+      } else {
+        console.log('Email sent successfully with Resend');
+      }
+    }
+
+    console.log('Returning success response')
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        message: 'Successfully subscribed to newsletter',
+        discountCode: discountCode 
+      }),
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    )
+
+  } catch (error) {
+    console.error('Error in newsletter signup:', error)
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    )
+  }
+}) 

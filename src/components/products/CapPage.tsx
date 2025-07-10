@@ -39,12 +39,12 @@ const productData = {
   },
   variants: {
     // Each color is a variant. Assuming 3 images per cap color.
-    301: { id: 301, color: 'White', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `Cap/ReformCapWhite${i + 1}.webp`) },
-    302: { id: 302, color: 'Light Blue', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `Cap/ReformCapBlue${i + 1}.webp`) },
-    303: { id: 303, color: 'Charcoal', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `Cap/ReformCapCharcoal${i + 1}.webp`) },
-    304: { id: 304, color: 'Navy', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `Cap/ReformCapNavy${i + 1}.webp`) },
-    305: { id: 305, color: 'Black', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `Cap/ReformCapBlack${i + 1}.webp`) },
-    306: { id: 306, color: 'Red', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `Cap/ReformCapRed${i + 1}.webp`) },
+    301: { id: 301, color: 'White', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapWhite${i + 1}.webp`) },
+    302: { id: 302, color: 'Light Blue', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapBlue${i + 1}.webp`) },
+    303: { id: 303, color: 'Charcoal', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapCharcoal${i + 1}.webp`) },
+    304: { id: 304, color: 'Navy', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapNavy${i + 1}.webp`) },
+    305: { id: 305, color: 'Black', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapBlack${i + 1}.webp`) },
+    306: { id: 306, color: 'Red', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapRed${i + 1}.webp`) },
   }
 };
 
@@ -227,7 +227,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
               <img
                 src={currentVariant.images[selectedImage]}
                 alt={`${productData.name} - ${currentVariant.color} - Image ${selectedImage + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover aspect-square"
               />
               
               {currentVariant.images.length > 1 && (
@@ -254,7 +254,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
               <div className="flex space-x-2 overflow-x-auto pb-2">
                 {currentVariant.images.map((image, index) => (
                   <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover aspect-square" />
                   </button>
                 ))}
               </div>
@@ -349,13 +349,6 @@ const CapPage = ({ onBack }: CapPageProps) => {
               <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Free UK Shipping Over £30</p></div>
               <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
               <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
-            </div>
-            
-            {/* Product ID */}
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-800">
-                <strong>Product ID:</strong> prod_Sd98NBw7BN3UeY
-              </p>
             </div>
           </div>
         </div>

@@ -1,15 +1,41 @@
 import React, { useState } from 'react';
-import { Mail, Gift, Users, Sparkles } from 'lucide-react';
+import { Mail, Gift, Users, Sparkles, Loader2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const EmailSignup = () => {
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      setIsSubscribed(true);
-      setEmail('');
+    if (!email) return;
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      // Call the newsletter signup function
+      const { data, error } = await supabase.functions.invoke('newsletter-signup', {
+        body: { email }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.success) {
+        setIsSubscribed(true);
+        setEmail('');
+      } else {
+        setError(data.error || 'Failed to subscribe');
+      }
+    } catch (err) {
+      console.error('Newsletter signup error:', err);
+      setError('Failed to subscribe. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -53,15 +79,30 @@ const EmailSignup = () => {
                       placeholder="Enter your email address"
                       className="w-full pl-10 pr-4 py-4 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white text-lg"
                       required
+                      disabled={isLoading}
                     />
                   </div>
                   <button
                     type="submit"
-                    className="bg-white text-[#009fe3] font-bold py-4 px-8 rounded-lg hover:bg-gray-100 transition-colors duration-200 whitespace-nowrap text-lg shadow-lg"
+                    disabled={isLoading}
+                    className="bg-white text-[#009fe3] font-bold py-4 px-8 rounded-lg hover:bg-gray-100 transition-colors duration-200 whitespace-nowrap text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
-                    Join Now
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Joining...
+                      </>
+                    ) : (
+                      'Join Now'
+                    )}
                   </button>
                 </div>
+                
+                {error && (
+                  <div className="mt-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
               </form>
               
               <p className="text-sm text-blue-100 mt-4">

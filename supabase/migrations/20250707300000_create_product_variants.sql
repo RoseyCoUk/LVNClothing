@@ -1,0 +1,101 @@
+-- Create product variants for all products
+-- This migration populates the product_variants table with all variants
+
+-- up
+
+-- First, let's ensure we have the correct product IDs from the products table
+-- We'll use the product slugs to match them
+
+-- T-Shirt Variants (Reform UK T-Shirt)
+-- Men's variants
+INSERT INTO public.product_variants (product_id, description, price_pence, is_default) VALUES
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - White - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - White - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - White - M', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - White - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - White - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - White - XXL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Light Grey - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Light Grey - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Light Grey - M', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Light Grey - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Light Grey - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Light Grey - XXL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Ash Grey - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Ash Grey - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Ash Grey - M', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Ash Grey - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Ash Grey - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Ash Grey - XXL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Charcoal - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Charcoal - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Charcoal - M', 2499, true), -- Default variant
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Charcoal - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Charcoal - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Charcoal - XXL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Black - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Black - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Black - M', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Black - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Black - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Black - XXL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Royal Blue - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Royal Blue - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Royal Blue - M', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Royal Blue - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Royal Blue - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Royal Blue - XXL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Red - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Red - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Red - M', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Red - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Red - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Men - Red - XXL', 2499, false),
+-- Women's variants
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - White - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - White - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - White - M', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - White - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - White - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - White - XXL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Light Grey - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Light Grey - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Light Grey - M', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Light Grey - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Light Grey - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Light Grey - XXL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Ash Grey - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Ash Grey - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Ash Grey - M', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Ash Grey - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Ash Grey - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Ash Grey - XXL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Charcoal - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Charcoal - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Charcoal - M', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Charcoal - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Charcoal - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Charcoal - XXL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Black - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Black - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Black - M', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Black - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Black - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Black - XXL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Royal Blue - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Royal Blue - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Royal Blue - M', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Royal Blue - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Royal Blue - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Royal Blue - XXL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Red - XS', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Red - S', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Red - M', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Red - L', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Red - XL', 2499, false),
+('70cf2683-e96c-4a66-b364-68943f73c6e5', 'Women - Red - XXL', 2499, false);
+
+-- down
+
+-- Remove all product variants
+DELETE FROM public.product_variants; 
