@@ -246,9 +246,16 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
     setIsProcessing(true);
     
     try {
+      console.log('Starting checkout process...');
+      console.log('Cart items:', cartItems);
+      console.log('Shipping info:', shippingInfo);
+      
       // Get the shipping rate ID based on the selected shipping method
       const selectedShippingOption = shippingOptions.find(option => option.id === shippingMethod);
       const shipping_rate_id = selectedShippingOption?.stripeId;
+      
+      console.log('Selected shipping option:', selectedShippingOption);
+      console.log('Shipping rate ID:', shipping_rate_id);
       
       // Prepare cart items for Stripe checkout
       const lineItems = cartItems.map(item => ({
@@ -263,6 +270,8 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
         quantity: item.quantity,
       }));
       
+      console.log('Prepared line items:', lineItems);
+      
       // Prepare metadata for order tracking
       const metadata = {
         items: JSON.stringify(cartItems.map(item => ({
@@ -274,24 +283,43 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
         shipping_address: `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.postcode}`,
       };
       
-      const { url } = await createCheckoutSession({
+      console.log('Prepared metadata:', metadata);
+      
+      const checkoutRequest = {
         line_items: lineItems,
         metadata: metadata,
         success_url: `${window.location.origin}?success=true`,
         cancel_url: window.location.href,
-        mode: 'payment',
-        customer_email: shippingInfo.email, // Pass the email for guest checkout
-        shipping_rate_id: shipping_rate_id // Pass the shipping rate ID
-      });
+        mode: 'payment' as const,
+        customer_email: shippingInfo.email,
+        shipping_rate_id: shipping_rate_id
+      };
+      
+      console.log('Sending checkout request:', checkoutRequest);
+      
+      const { url } = await createCheckoutSession(checkoutRequest);
+      
+      console.log('Received checkout URL:', url);
       
       // Redirect to Stripe checkout
       window.location.href = url;
     } catch (error) {
       console.error('Error creating checkout session:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        name: error instanceof Error ? error.name : 'Unknown'
+      });
       
       // Show a more user-friendly error message
-      if (error instanceof Error && error.message.includes('Stripe API key is not configured')) {
-        alert('Stripe payment is not configured. This is expected in development environment.');
+      if (error instanceof Error) {
+        if (error.message.includes('Stripe API key is not configured')) {
+          alert('Stripe payment is not configured. This is expected in development environment. Please configure your Stripe API keys to test payments.');
+        } else if (error.message.includes('Failed to create checkout session')) {
+          alert('Unable to create checkout session. Please check your internet connection and try again.');
+        } else {
+          alert(`Checkout error: ${error.message}`);
+        }
       } else {
         alert('Failed to start checkout process. Please try again later.');
       }
