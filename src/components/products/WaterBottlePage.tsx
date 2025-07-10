@@ -129,8 +129,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
       quantity: quantity
     };
     addToCart(itemToAdd);
-    // Redirect to checkout
-    navigate('/checkout');
+    // Don't redirect - just add to cart
   };
 
   const handleBuyNow = () => {
