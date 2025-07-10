@@ -304,16 +304,28 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
       
       console.log('Prepared line items:', lineItems);
       
-      // Prepare metadata for order tracking
-      const metadata = {
-        items: JSON.stringify(cartItems.map(item => ({
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-        }))),
+      // Prepare metadata for order tracking (keep within Stripe's 500 character limit)
+      const itemsSummary = cartItems.map(item => ({
+        name: item.name.length > 30 ? item.name.substring(0, 27) + '...' : item.name,
+        qty: item.quantity,
+        price: item.price
+      }));
+      
+      const metadata: Record<string, string> = {
+        item_count: cartItems.length.toString(),
+        total_amount: getTotalPrice().toString(),
         customer_email: shippingInfo.email,
         shipping_address: `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.postcode}`,
       };
+      
+      // Add items summary if there's space (keep total under 500 chars)
+      const itemsJson = JSON.stringify(itemsSummary);
+      if (itemsJson.length <= 200) { // Leave room for other metadata
+        metadata.items = itemsJson;
+      } else {
+        // If too long, just store item count and total
+        metadata.items_summary = `${cartItems.length} items`;
+      }
       
       console.log('Prepared metadata:', metadata);
       
