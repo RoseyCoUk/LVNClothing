@@ -51,14 +51,16 @@ Deno.serve(async (req) => {
       return corsResponse({ error: 'Method not allowed' }, 405);
     }
 
-    const { price_id, success_url, cancel_url, mode, customer_email, shipping_rate_id } = await req.json();
+    const { price_id, line_items, metadata, success_url, cancel_url, mode, customer_email, shipping_rate_id } = await req.json();
 
     // Validate required parameters
     const error = validateParameters(
-      { price_id, success_url, cancel_url, mode, customer_email, shipping_rate_id },
+      { price_id, line_items, metadata, success_url, cancel_url, mode, customer_email, shipping_rate_id },
       {
         cancel_url: 'string',
-        price_id: 'string',
+        price_id: 'optional_string',
+        line_items: 'optional_array',
+        metadata: 'optional_object',
         success_url: 'string',
         mode: { values: ['payment', 'subscription'] },
         customer_email: 'optional_string',
@@ -68,6 +70,11 @@ Deno.serve(async (req) => {
 
     if (error) {
       return corsResponse({ error }, 400);
+    }
+
+    // Validate that either price_id or line_items is provided
+    if (!price_id && !line_items) {
+      return corsResponse({ error: 'Either price_id or line_items must be provided' }, 400);
     }
 
     let userId: string | null = null;
@@ -146,17 +153,26 @@ Deno.serve(async (req) => {
       customer: customerId,
       customer_email: !customerId ? customer_email : undefined, // Only use customer_email for guest checkout
       payment_method_types: ['card'],
-      line_items: [
+      mode,
+      success_url,
+      cancel_url,
+      metadata: {
+        ...(userId ? { user_id: userId } : {}),
+        ...(metadata || {}),
+      },
+    };
+
+    // Add line items
+    if (line_items) {
+      sessionParams.line_items = line_items;
+    } else if (price_id) {
+      sessionParams.line_items = [
         {
           price: price_id,
           quantity: 1,
         },
-      ],
-      mode,
-      success_url,
-      cancel_url,
-      metadata: userId ? { user_id: userId } : undefined, // Include user_id in metadata if available
-    };
+      ];
+    }
 
     // Add shipping rate if provided
     if (shipping_rate_id) {
@@ -197,6 +213,14 @@ function validateParameters<T extends Record<string, unknown>>(values: T, expect
     } else if (expectation === 'optional_string') {
       if (value != null && typeof value !== 'string') {
         return `Expected parameter ${parameter} to be a string got ${JSON.stringify(value)}`;
+      }
+    } else if (expectation === 'optional_array') {
+      if (value != null && !Array.isArray(value)) {
+        return `Expected parameter ${parameter} to be an array got ${JSON.stringify(value)}`;
+      }
+    } else if (expectation === 'optional_object') {
+      if (value != null && typeof value !== 'object') {
+        return `Expected parameter ${parameter} to be an object got ${JSON.stringify(value)}`;
       }
     } else {
       if (!expectation.values.includes(value as string)) {

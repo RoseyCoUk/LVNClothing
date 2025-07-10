@@ -1,7 +1,19 @@
 import { supabase } from './supabase';
 
 export interface CheckoutSessionRequest {
-  price_id: string;
+  price_id?: string;
+  line_items?: Array<{
+    price_data: {
+      currency: string;
+      product_data: {
+        name: string;
+        images?: string[];
+      };
+      unit_amount: number;
+    };
+    quantity: number;
+  }>;
+  metadata?: Record<string, string>;
   success_url: string;
   cancel_url: string;
   mode: 'payment' | 'subscription';
