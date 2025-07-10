@@ -100,7 +100,7 @@ interface TShirtPageProps {
 }
 
 const TShirtPage = ({ onBack }: TShirtPageProps) => {
-  const { addToCart } = useCart();
+  const { addToCart, addToCartAndGetUpdated } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
@@ -161,7 +161,7 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
       alert('Please select a size.');
       return;
     }
-    // Add to cart
+    // Add to cart and get updated cart items
     const itemToAdd = {
       id: `${currentVariant.id}-${selectedSize}`,
       name: `${productData.name} - ${currentVariant.gender}'s ${currentVariant.color} (Size: ${selectedSize})`,
@@ -170,12 +170,14 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
       size: selectedSize,
       quantity: quantity
     };
-    addToCart(itemToAdd);
     
-    // Wait a moment for cart to update, then redirect
-    setTimeout(() => {
-      navigate('/checkout');
-    }, 100);
+    const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
+    
+    // Store cart items in sessionStorage to ensure they're available on checkout page
+    sessionStorage.setItem('tempCartItems', JSON.stringify(updatedCartItems));
+    
+    // Navigate to checkout
+    navigate('/checkout');
   };
 
   const handleConfirmCheckout = async () => {

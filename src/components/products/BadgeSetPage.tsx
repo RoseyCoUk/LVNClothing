@@ -70,7 +70,7 @@ interface OrderToConfirm {
 }
 
 const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
-  const { addToCart } = useCart();
+  const { addToCart, addToCartAndGetUpdated } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
@@ -114,19 +114,25 @@ const BadgeSetPage = ({ onBack }: BadgeSetPageProps) => {
   
   const handleBuyNow = () => {
     if (!selectedSetSize) {
-      alert('Please select a pack size.');
+      alert('Please select a set size.');
       return;
     }
-    // Add to cart
+    // Add to cart and get updated cart items
     const itemToAdd = {
-      id: `${productData.id}-${selectedSetSize}`,
-      name: `${productData.name} (Set of ${selectedSetSize})`,
+      id: `${currentVariant.id}-${selectedSetSize}`,
+      name: `${productData.name} - ${selectedSetSize} pack`,
       price: currentVariant.price,
       image: productData.variantDetails.images[0],
+      packSize: selectedSetSize,
       quantity: quantity
     };
-    addToCart(itemToAdd);
-    // Redirect to checkout
+    
+    const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
+    
+    // Store cart items in sessionStorage to ensure they're available on checkout page
+    sessionStorage.setItem('tempCartItems', JSON.stringify(updatedCartItems));
+    
+    // Navigate to checkout
     navigate('/checkout');
   };
 

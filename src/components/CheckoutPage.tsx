@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ArrowLeft,
   CreditCard,
@@ -19,11 +19,30 @@ interface CheckoutPageProps {
 }
 
 const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
-  const { cartItems, getTotalPrice } = useCart();
+  const { cartItems, getTotalPrice, addToCart } = useCart();
   
   const [currentStep, setCurrentStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete] = useState(false);
+  
+  // Check for temporary cart items from "Buy Now" flow
+  useEffect(() => {
+    const tempCartItems = sessionStorage.getItem('tempCartItems');
+    if (tempCartItems && cartItems.length === 0) {
+      try {
+        const items = JSON.parse(tempCartItems);
+        // Add each item to the cart
+        items.forEach((item: any) => {
+          addToCart(item);
+        });
+        // Clear the temporary storage
+        sessionStorage.removeItem('tempCartItems');
+      } catch (error) {
+        console.error('Error parsing temp cart items:', error);
+        sessionStorage.removeItem('tempCartItems');
+      }
+    }
+  }, [cartItems.length, addToCart]);
   
   // Form states
   const [shippingInfo, setShippingInfo] = useState({

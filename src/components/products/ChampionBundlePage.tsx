@@ -42,7 +42,7 @@ interface ChampionBundlePageProps {
 }
 
 const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
-  const { addToCart } = useCart();
+  const { addToCart, addToCartAndGetUpdated } = useCart();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
@@ -284,8 +284,12 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
       bundleContents: bundleContents
     };
 
-    addToCart(itemToAdd);
-    // Redirect to checkout
+    const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
+    
+    // Store cart items in sessionStorage to ensure they're available on checkout page
+    sessionStorage.setItem('tempCartItems', JSON.stringify(updatedCartItems));
+    
+    // Navigate to checkout
     navigate('/checkout');
   };
 

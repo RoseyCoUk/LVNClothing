@@ -83,7 +83,7 @@ interface StickersPageProps {
 }
 
 const StickersPage = ({ onBack }: StickersPageProps) => {
-  const { addToCart } = useCart();
+  const { addToCart, addToCartAndGetUpdated } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
@@ -130,16 +130,22 @@ const StickersPage = ({ onBack }: StickersPageProps) => {
       alert('Please select a pack size.');
       return;
     }
-    // Add to cart
+    // Add to cart and get updated cart items
     const itemToAdd = {
-      id: `${productData.id}-${selectedPackSize}`,
-      name: `${productData.name} (Pack of ${selectedPackSize})`,
+      id: `${currentVariant.id}-${selectedPackSize}`,
+      name: `${productData.name} - ${selectedPackSize} pack`,
       price: currentVariant.price,
       image: productData.variantDetails.images[0],
+      packSize: selectedPackSize,
       quantity: quantity
     };
-    addToCart(itemToAdd);
-    // Redirect to checkout
+    
+    const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
+    
+    // Store cart items in sessionStorage to ensure they're available on checkout page
+    sessionStorage.setItem('tempCartItems', JSON.stringify(updatedCartItems));
+    
+    // Navigate to checkout
     navigate('/checkout');
   };
 

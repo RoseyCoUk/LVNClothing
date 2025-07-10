@@ -66,7 +66,7 @@ interface OrderToConfirm {
 }
 
 const CapPage = ({ onBack }: CapPageProps) => {
-  const { addToCart } = useCart();
+  const { addToCart, addToCartAndGetUpdated } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
@@ -114,16 +114,22 @@ const CapPage = ({ onBack }: CapPageProps) => {
       alert('Please select a color.');
       return;
     }
-    // Add to cart
+    // Add to cart and get updated cart items
     const itemToAdd = {
-      id: currentVariant.id,
-      name: `${productData.name} - ${selectedColor}`,
+      id: `${currentVariant.id}-${selectedColor}`,
+      name: `${productData.name} - ${currentVariant.color}`,
       price: currentVariant.price,
       image: currentVariant.images[0],
+      color: selectedColor,
       quantity: quantity
     };
-    addToCart(itemToAdd);
-    // Redirect to checkout
+    
+    const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
+    
+    // Store cart items in sessionStorage to ensure they're available on checkout page
+    sessionStorage.setItem('tempCartItems', JSON.stringify(updatedCartItems));
+    
+    // Navigate to checkout
     navigate('/checkout');
   };
 

@@ -42,7 +42,7 @@ interface StarterBundlePageProps {
 }
 
 const StarterBundlePage = ({ onBack }: StarterBundlePageProps) => {
-  const { addToCart } = useCart();
+  const { addToCart, addToCartAndGetUpdated } = useCart();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
@@ -210,20 +210,28 @@ const StarterBundlePage = ({ onBack }: StarterBundlePageProps) => {
   };
 
   const handleBuyNow = () => {
-    const bundleContents: BundleContent[] = productData.bundleItems.map(item => ({
-      name: item.name,
-      variant: getVariantText(item),
-      image: item.type === 'tshirt' ? getTshirtImages()[0] : item.baseImage
-    }));
+    // Add bundle to cart
+    const bundleContents = [
+      { name: 'Reform UK T-Shirt', variant: `${selectedGender}'s ${selectedColor} (Size: ${selectedSize})`, image: getTshirtImages()[0] },
+      { name: 'Reform UK Tote Bag', variant: 'Black', image: '/StickerToteWater/ReformToteBagBlack1.webp' }
+    ];
+
     const itemToAdd = {
       id: 'starter-bundle',
-      name: productData.name,
+      name: 'Starter Bundle',
       price: productData.bundlePrice,
       image: productData.bundleItems[0].baseImage,
+      quantity: quantity,
       isBundle: true,
       bundleContents: bundleContents
     };
-    addToCart(itemToAdd);
+
+    const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
+    
+    // Store cart items in sessionStorage to ensure they're available on checkout page
+    sessionStorage.setItem('tempCartItems', JSON.stringify(updatedCartItems));
+    
+    // Navigate to checkout
     navigate('/checkout');
   };
 

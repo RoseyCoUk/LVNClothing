@@ -87,7 +87,7 @@ interface ToteBagPageProps {
 }
 
 const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
-  const { addToCart } = useCart();
+  const { addToCart, addToCartAndGetUpdated } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
@@ -112,16 +112,21 @@ const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
   };
 
   const handleBuyNow = () => {
-    // Add to cart
+    // Add to cart and get updated cart items
     const itemToAdd = {
       id: currentVariant.id,
-      name: `${productData.name} - ${currentVariant.color}`,
+      name: productData.name,
       price: currentVariant.price,
       image: currentVariant.images[0],
       quantity: quantity
     };
-    addToCart(itemToAdd);
-    // Redirect to checkout
+    
+    const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
+    
+    // Store cart items in sessionStorage to ensure they're available on checkout page
+    sessionStorage.setItem('tempCartItems', JSON.stringify(updatedCartItems));
+    
+    // Navigate to checkout
     navigate('/checkout');
   };
 

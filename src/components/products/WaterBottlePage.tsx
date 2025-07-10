@@ -106,7 +106,7 @@ interface WaterBottlePageProps {
 }
 
 const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
-  const { addToCart } = useCart();
+  const { addToCart, addToCartAndGetUpdated } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   // Fix 5: Add proper typing for orderToConfirm
@@ -133,21 +133,23 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
     navigate('/checkout');
   };
 
-  const handleBuyNow = async () => {
-    // Set up the order details for confirmation
-    setOrderToConfirm({
-      productName: `${productData.name} - ${currentVariant.color}`,
-      productImage: currentVariant.images[0],
+  const handleBuyNow = () => {
+    // Add to cart and get updated cart items
+    const itemToAdd = {
+      id: currentVariant.id,
+      name: productData.name,
       price: currentVariant.price,
-      quantity: quantity,
-      priceId: 'price_1Rhss7GDbOGEgNLwqe7IKpHb', // Reform UK Water Bottle
-      variants: {
-        color: currentVariant.color,
-        size: '500ml'
-      }
-    });
+      image: currentVariant.images[0],
+      quantity: quantity
+    };
     
-    setShowOrderOverview(true);
+    const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
+    
+    // Store cart items in sessionStorage to ensure they're available on checkout page
+    sessionStorage.setItem('tempCartItems', JSON.stringify(updatedCartItems));
+    
+    // Navigate to checkout
+    navigate('/checkout');
   };
 
   const handleConfirmCheckout = async () => {
