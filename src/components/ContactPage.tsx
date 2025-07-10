@@ -256,20 +256,14 @@ const ContactPage = () => {
                     <Facebook className="w-5 h-5" />
                   </a>
                   <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
-                    <Twitter className="w-5 h-5" />
-                  </a>
-                  <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
                     <Instagram className="w-5 h-5" />
-                  </a>
-                  <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
-                    <Linkedin className="w-5 h-5" />
                   </a>
                 </div>
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-md p-6">
+            {/* Quick Actions - Hidden */}
+            {/* <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
               
               <div className="space-y-3">
@@ -286,7 +280,7 @@ const ContactPage = () => {
                   <span>Start a Return</span>
                 </button>
               </div>
-            </div>
+            </div> */}
 
             {/* Support Hours */}
             <div className="bg-gradient-to-br from-[#009fe3] to-blue-600 text-white rounded-lg p-6">

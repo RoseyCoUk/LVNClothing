@@ -82,12 +82,12 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
           <div>
             <h3 className="font-semibold mb-4">Support</h3>
             <ul className="space-y-2 text-sm">
+              <li><button onClick={() => handlePageClick('faq')} className="text-gray-400 hover:text-white transition-colors">FAQ</button></li>
               <li><button onClick={() => handlePageClick('contact')} className="text-gray-400 hover:text-white transition-colors">Contact Us</button></li>
               <li><button onClick={() => handlePageClick('size-guide')} className="text-gray-400 hover:text-white transition-colors">Size Guide</button></li>
               <li><button onClick={() => handlePageClick('shipping-info')} className="text-gray-400 hover:text-white transition-colors">Shipping Info</button></li>
               <li><button onClick={() => handlePageClick('returns-exchanges')} className="text-gray-400 hover:text-white transition-colors">Returns & Exchanges</button></li>
-              <li><button onClick={() => handlePageClick('faq')} className="text-gray-400 hover:text-white transition-colors">FAQ</button></li>
-              <li><button onClick={() => handlePageClick('track-order')} className="text-gray-400 hover:text-white transition-colors">Track Order</button></li>
+              {/* <li><button onClick={() => handlePageClick('track-order')} className="text-gray-400 hover:text-white transition-colors">Track Order</button></li> */}
             </ul>
           </div>
 
