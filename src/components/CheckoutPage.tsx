@@ -282,7 +282,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
           currency: 'gbp',
           product_data: {
             name: item.name,
-            images: [item.image],
+            images: [`${window.location.origin}${item.image}`], // Convert to absolute URL
           },
           unit_amount: Math.round(item.price * 100), // Convert to cents
         },

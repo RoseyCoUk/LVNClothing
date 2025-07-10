@@ -92,14 +92,27 @@ Deno.serve(async (req) => {
 
     // Validate line_items structure if provided
     if (line_items && Array.isArray(line_items)) {
+      console.log('Validating line_items structure...');
       for (const item of line_items) {
+        console.log('Validating item:', {
+          has_price_data: !!item.price_data,
+          has_currency: !!item.price_data?.currency,
+          has_product_data: !!item.price_data?.product_data,
+          has_unit_amount: !!item.price_data?.unit_amount,
+          quantity: item.quantity,
+          price_data: item.price_data
+        });
+        
         if (!item.price_data || !item.price_data.currency || !item.price_data.product_data || !item.price_data.unit_amount) {
+          console.error('Invalid line_items structure:', item);
           return corsResponse({ error: 'Invalid line_items structure. Each item must have price_data with currency, product_data, and unit_amount' }, 400);
         }
         if (!item.quantity || item.quantity < 1) {
+          console.error('Invalid quantity in line_items:', item);
           return corsResponse({ error: 'Invalid quantity in line_items. Quantity must be at least 1' }, 400);
         }
       }
+      console.log('Line items validation passed');
     }
 
     let userId: string | null = null;
