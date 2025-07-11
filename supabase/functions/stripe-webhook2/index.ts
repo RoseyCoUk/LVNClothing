@@ -59,7 +59,7 @@ const handler = async (req: Request) => {
       console.error('❌ Missing Stripe signature header');
       return new Response('Missing Stripe signature', { status: 400 });
     }
-    event = stripe.webhooks.constructEvent(body, signature, stripeWebhookSecret);
+    event = await stripe.webhooks.constructEventAsync(body, signature, stripeWebhookSecret);
     console.log('✅ Stripe event parsed successfully');
     console.log('Event type:', event.type);
     console.log('Event data:', JSON.stringify(event.data));
