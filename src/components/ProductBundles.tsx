@@ -139,7 +139,7 @@ const ProductBundles = () => {
       originalPrice: "£44.98",
       bundlePrice: 34.99,
       savings: "Save £9.99",
-      image: "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: "/starterbundle.png",
       urgency: "Limited Time Offer",
       popular: false,
       product: {
@@ -170,7 +170,7 @@ const ProductBundles = () => {
       originalPrice: "£114.96",
       bundlePrice: 99.99,
       savings: "Save £14.97",
-      image: "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: "/championbundle.png",
       urgency: "Most Popular",
       popular: true,
       product: {
@@ -214,7 +214,7 @@ const ProductBundles = () => {
       originalPrice: "£194.91",
       bundlePrice: 169.99,
       savings: "Save £24.92",
-      image: "https://images.pexels.com/photos/1124465/pexels-photo-1124465.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: "/activistbundle.png",
       urgency: "Best Value",
       popular: false,
       product: {

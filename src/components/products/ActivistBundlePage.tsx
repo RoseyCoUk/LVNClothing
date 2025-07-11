@@ -227,7 +227,8 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
           '/Badge/ReformBadgeSetMain5.webp'
         ]
       }
-    ]
+    ],
+    image: "/activistbundle.png",
   };
 
   const colorOptions: Color[] = [

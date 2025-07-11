@@ -108,7 +108,8 @@ const StarterBundlePage = ({ onBack }: StarterBundlePageProps) => {
           '/StickerToteWater/ReformToteBagBlack3.webp'
         ]
       }
-    ]
+    ],
+    image: "/starterbundle.png",
   };
 
   const colorOptions: Color[] = [
@@ -320,7 +321,7 @@ const StarterBundlePage = ({ onBack }: StarterBundlePageProps) => {
               {/* Main Image Area */}
               <div className="relative">
                 <img 
-                  src={getCurrentImage()} 
+                  src={productData.image} 
                   alt={productData.name} 
                   className="w-full object-cover rounded-lg shadow-lg aspect-square"
                 />

@@ -143,7 +143,8 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
           '/StickerToteWater/ReformWaterBottleWhite4.webp'
         ]
       }
-    ]
+    ],
+    image: "/championbundle.png",
   };
 
   const colorOptions: Color[] = [
