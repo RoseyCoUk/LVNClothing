@@ -502,7 +502,15 @@ const StarterBundlePage = ({ onBack }: StarterBundlePageProps) => {
 
                 {/* Size Selection */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Size</label>
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="block text-sm font-medium text-gray-700">Size</label>
+                    <button 
+                      onClick={() => navigate('/size-guide')}
+                      className="text-sm text-[#009fe3] hover:text-blue-600 underline"
+                    >
+                      Size Guide
+                    </button>
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {sizeOptions.map((size) => (
                       <button 
