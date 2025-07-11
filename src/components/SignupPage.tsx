@@ -9,10 +9,12 @@ interface SignupPageProps {
 
 const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    newsletter: false
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -20,16 +22,20 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
   const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
   const validateForm = () => {
-    if (!formData.fullName.trim()) {
-      setMessage({ type: 'error', text: 'Full name is required' });
+    if (!formData.firstName.trim()) {
+      setMessage({ type: 'error', text: 'First name is required' });
+      return false;
+    }
+    if (!formData.lastName.trim()) {
+      setMessage({ type: 'error', text: 'Last name is required' });
       return false;
     }
     if (!formData.email.trim()) {
@@ -63,10 +69,17 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
         password: formData.password,
         options: {
           data: {
-            full_name: formData.fullName
+            first_name: formData.firstName,
+            last_name: formData.lastName
           }
         }
       });
+
+      if (!error && formData.newsletter) {
+        await supabase
+          .from('newsletter_subscribers')
+          .upsert([{ email: formData.email }], { onConflict: 'email' });
+      }
 
       if (error) {
         setMessage({ type: 'error', text: error.message });
@@ -77,10 +90,12 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
         });
         // Clear form
         setFormData({
-          fullName: '',
+          firstName: '',
+          lastName: '',
           email: '',
           password: '',
-          confirmPassword: ''
+          confirmPassword: '',
+          newsletter: false
         });
         // Redirect to login after a delay
         setTimeout(() => {
@@ -124,20 +139,38 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
         <form className="mt-8 space-y-6" onSubmit={handleSignup}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                Full name
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                First name
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  id="fullName"
-                  name="fullName"
+                  id="firstName"
+                  name="firstName"
                   type="text"
                   required
-                  value={formData.fullName}
+                  value={formData.firstName}
                   onChange={handleInputChange}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
-                  placeholder="Full name"
+                  placeholder="First name"
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                Last name
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  required
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                  placeholder="Last name"
                 />
               </div>
             </div>
@@ -216,6 +249,20 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                id="newsletter"
+                name="newsletter"
+                type="checkbox"
+                checked={formData.newsletter}
+                onChange={handleInputChange}
+                className="h-4 w-4 text-[#009fe3] border-gray-300 rounded focus:ring-[#009fe3]"
+              />
+              <label htmlFor="newsletter" className="ml-2 block text-sm text-gray-700">
+                Subscribe to our newsletter
+              </label>
             </div>
           </div>
 
