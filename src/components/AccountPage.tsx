@@ -92,6 +92,7 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
 
   const loadUserData = async () => {
     try {
+      console.log('Starting loadUserData...');
       setIsLoading(true);
       
       // Get current user
@@ -125,17 +126,22 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
 
       // Load preferences
       try {
+        console.log('Loading preferences for user:', currentUser.id);
         const { data: userPrefs, error: prefsError } = await supabase
           .from('user_preferences')
           .select('*')
           .eq('user_id', currentUser.id)
           .single();
 
+        console.log('Preferences query result:', { userPrefs, prefsError });
+
         if (prefsError && prefsError.code !== 'PGRST116') { // PGRST116 = no rows returned
           console.error('Error loading preferences:', prefsError);
         } else if (userPrefs) {
+          console.log('Found existing preferences:', userPrefs);
           setPreferences(userPrefs);
         } else {
+          console.log('No preferences found, creating default preferences...');
           // Create default preferences if none exist
           const { data: newPrefs, error: createError } = await supabase
             .from('user_preferences')
@@ -148,9 +154,12 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
             .select()
             .single();
 
+          console.log('Create preferences result:', { newPrefs, createError });
+
           if (createError) {
             console.error('Error creating preferences:', createError);
           } else if (newPrefs) {
+            console.log('Created new preferences:', newPrefs);
             setPreferences(newPrefs);
           }
         }
@@ -162,6 +171,7 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
       console.error('Error loading user data:', error);
       setMessage({ type: 'error', text: 'Failed to load account information' });
     } finally {
+      console.log('loadUserData completed, setting isLoading to false');
       setIsLoading(false);
     }
   };
@@ -733,7 +743,9 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Preferences</h2>
                 
-                {preferences ? (
+                {(() => {
+                  console.log('Preferences tab render - preferences:', preferences, 'isLoading:', isLoading);
+                  return preferences ? (
                   <div className="space-y-6">
                     {/* Email Preferences */}
                     <div className="border border-gray-200 rounded-lg p-6">
@@ -798,7 +810,8 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
                     <div className="w-16 h-16 border-2 border-gray-300 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <p className="text-gray-600">Loading preferences...</p>
                   </div>
-                )}
+                );
+                })()}
               </div>
             )}
           </div>
