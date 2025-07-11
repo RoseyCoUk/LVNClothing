@@ -1,4 +1,7 @@
--- Add missing columns to user_preferences table
+-- Fix user_preferences table by adding missing columns
+-- Run this in the Supabase SQL Editor
+
+-- Add missing columns if they don't exist
 ALTER TABLE user_preferences 
 ADD COLUMN IF NOT EXISTS email_order_confirmations BOOLEAN DEFAULT true,
 ADD COLUMN IF NOT EXISTS email_newsletter BOOLEAN DEFAULT true,
@@ -15,4 +18,10 @@ WHERE email_order_confirmations IS NULL OR email_newsletter IS NULL OR email_pro
 -- Add comments for documentation
 COMMENT ON COLUMN user_preferences.email_order_confirmations IS 'Whether the user wants to receive order confirmation emails';
 COMMENT ON COLUMN user_preferences.email_newsletter IS 'Whether the user wants to receive newsletter emails';
-COMMENT ON COLUMN user_preferences.email_product_recommendations IS 'Whether the user wants to receive product recommendation emails'; 
+COMMENT ON COLUMN user_preferences.email_product_recommendations IS 'Whether the user wants to receive product recommendation emails';
+
+-- Verify the table structure
+SELECT column_name, data_type, is_nullable, column_default 
+FROM information_schema.columns 
+WHERE table_name = 'user_preferences' 
+ORDER BY ordinal_position; 
