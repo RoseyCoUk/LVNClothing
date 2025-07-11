@@ -332,7 +332,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
       const checkoutRequest = {
         line_items: lineItems,
         metadata: metadata,
-        success_url: `${window.location.origin}?success=true`,
+        success_url: `${window.location.origin}/success`,
         cancel_url: window.location.href,
         mode: 'payment' as const,
         customer_email: shippingInfo.email,
