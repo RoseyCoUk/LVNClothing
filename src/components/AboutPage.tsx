@@ -18,11 +18,13 @@ import {
   MapPin,
   Gift
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const AboutPage = () => {
+  const navigate = useNavigate();
   const scrollToShop = () => {
-    // This would navigate to shop page in a real app
-    window.scrollTo(0, 0);
+    // Navigate to the shop page
+    navigate('/shop');
   };
 
   const scrollToEmailSignup = () => {
@@ -38,7 +40,6 @@ const AboutPage = () => {
       <section className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-[#009fe3] text-white overflow-hidden">
         {/* Background Image with Low Opacity */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/8439093/pexels-photo-8439093.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop')] bg-cover bg-center opacity-20"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 via-gray-800/70 to-[#009fe3]/80"></div>
         </div>
 
@@ -314,11 +315,13 @@ const AboutPage = () => {
                 <span>Join the Movement</span>
               </button>
 
-              {/* Optional Third CTA for Future */}
+              {/* TODO: Implement Gift Merch to a Friend functionality in the future */}
+              {/*
               <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 inline-flex items-center space-x-2">
                 <Gift className="w-5 h-5" />
                 <span>Gift Merch to a Friend</span>
               </button>
+              */}
             </div>
             
 
