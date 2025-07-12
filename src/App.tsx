@@ -142,7 +142,7 @@ const App = () => {
               <>
                 <UrgencyBar />
                 <Hero onShopClick={handleShopClick} />
-                <TopSellers onProductClick={handleProductClick} onViewAllClick={handleShopClick} />
+                <TopSellers onViewAllClick={handleShopClick} />
                 <MovementSection />
                 <ProductBundles />
                 <Testimonials />
@@ -150,13 +150,13 @@ const App = () => {
               </>
             } />
             <Route path="/shop" element={
-              <ShopPage onProductClick={handleProductClick} />
+                <ShopPage onProductClick={handleProductClick} />
             } />
             <Route path="/about" element={
-              <AboutPage />
+                <AboutPage />
             } />
             <Route path="/contact" element={
-              <ContactPage />
+                <ContactPage />
             } />
             <Route path="/login" element={<LoginPage onBack={handleBackToHome} onSignupClick={handleSignupClick} />} />
             <Route path="/signup" element={<SignupPage onBack={handleBackToHome} onLoginClick={handleLoginClick} />} />

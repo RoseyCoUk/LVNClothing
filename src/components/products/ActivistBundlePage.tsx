@@ -835,7 +835,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                       }`}
                     >
                       {size} Pack
-                    </button>
+                  </button>
                   ))}
                 </div>
               </div>
@@ -853,7 +853,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                       }`}
                     >
                       {size} Set
-                    </button>
+                  </button>
                   ))}
                 </div>
               </div>

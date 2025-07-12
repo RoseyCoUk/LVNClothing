@@ -120,7 +120,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
       name: `${productData.name} - ${currentVariant.color}`,
       price: currentVariant.price,
       image: currentVariant.images[0],
-      color: selectedColor,
+        color: selectedColor,
       quantity: quantity
     };
     

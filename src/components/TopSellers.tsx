@@ -1,127 +1,82 @@
-import { useState } from 'react';
-import { Star, Eye, Clock, ArrowRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowRight } from 'lucide-react';
+import ProductCard from './ProductCard';
+import { getProducts, Product } from '../lib/api';
 
 interface TopSellersProps {
-  onProductClick: (productId: string) => void;
   onViewAllClick?: () => void;
 }
 
-const TopSellers = ({ onProductClick, onViewAllClick }: TopSellersProps) => {
+const TopSellers = ({ onViewAllClick }: TopSellersProps) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // --- Product data is updated with image and hoverImage properties ---
-  const apparelProducts = [
-    {
-      id: 1,
-      name: "Reform UK Hoodie",
-      price: 49.99,
-      image: "Hoodie/Men/ReformMenHoodieBlack1.webp",
-      hoverImage: "Hoodie/Men/ReformMenHoodieBlack2.webp",
-      rating: 5,
-      shipping: "Ships in 48H"
-    },
-    {
-      id: 2,
-      name: "Reform UK T-Shirt",
-      price: 24.99,
-      image: "Tshirt/Men/ReformMenTshirtWhite1.webp",
-      hoverImage: "Tshirt/Men/ReformMenTshirtWhite2.webp",
-      rating: 5,
-      shipping: "Ships in 48H"
-    },
-    {
-      id: 3,
-      name: "Reform UK Cap",
-      price: 19.99,
-      image: "Cap/ReformCapBlue1.webp",
-      hoverImage: "Cap/ReformCapBlack2.webp",
-      rating: 5,
-      shipping: "Ships in 48H"
-    }
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const fetchedProducts = await getProducts();
+        setProducts(fetchedProducts);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch products');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
-  const gearProducts = [
-    {
-      id: 6,
-      name: "Reform UK Mug",
-      price: 19.99,
-      image: "MugMouse/ReformMug1.webp",
-      hoverImage: "MugMouse/ReformMug5.webp",
-      rating: 4,
-      shipping: "Ships in 48H"
-    },
-    {
-      id: 8,
-      name: "Reform UK Stickers",
-      price: 9.99,
-      image: "StickerToteWater/ReformStickersMain2.webp",
-      hoverImage: "StickerToteWater/ReformStickersMain3.webp",
-      rating: 5,
-      shipping: "Ships in 48H"
-    },
-    {
-      id: 9,
-      name: "Reform UK Badge Set",
-      price: 9.99,
-      image: "Badge/ReformBadgeSetMain3.webp",
-      hoverImage: "Badge/ReformBadgeSetMain5.webp",
-      rating: 5,
-      shipping: "Ships in 48H"
-    }
-  ];
+  // Helper function to categorize products (same as ShopPage)
+  const getCategoryForProduct = (product: Product) => {
+    const cat = product.category?.toLowerCase() || '';
+    const tags = (product.tags || []).map((t: string) => t.toLowerCase());
+    if (cat.includes('bundle') || tags.includes('bundle')) return 'bundles';
+    if (cat.includes('apparel') || tags.includes('apparel') || ['t-shirt','tshirt','hoodie','cap','hat'].some(type => cat.includes(type) || tags.includes(type))) return 'apparel';
+    if (cat.includes('gear') || tags.includes('gear')) return 'gear';
+    // Fallbacks for known gear types
+    if (['mug','keychain','tote','bottle','pad','mouse','sticker'].some(type => cat.includes(type) || tags.includes(type))) return 'gear';
+    return 'gear'; // Default to gear if not matched
+  };
 
-  // State to track which product card is being hovered over
-  const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
+  // Get top selling apparel products (first 3)
+  const apparelProducts = products
+    .filter(product => getCategoryForProduct(product) === 'apparel')
+    .sort((a, b) => (b.reviews || 0) - (a.reviews || 0))
+    .slice(0, 3);
 
-  const ProductCard = ({ product }: { product: typeof apparelProducts[0] }) => (
-    <div
-      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 group cursor-pointer flex flex-col"
-      onClick={() => onProductClick(product.id)}
-      onMouseEnter={() => setHoveredProduct(product.id)}
-      onMouseLeave={() => setHoveredProduct(null)}
-    >
-      <div className="relative overflow-hidden rounded-t-lg aspect-square">
-        {/* --- FIX: Image source changes on hover --- */}
-        <img
-          src={hoveredProduct === product.id ? product.hoverImage : product.image}
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-      </div>
-      
-      <div className="p-4 flex-grow flex flex-col">
-        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
-        
-        <div className="flex items-center mb-2">
-          {[...Array(5)].map((_, i) => (
-            <Star
-              key={i}
-              className={`w-4 h-4 ${i < product.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-            />
-          ))}
-          <span className="text-sm text-gray-600 ml-2">({product.rating}.0)</span>
+  // Get top selling gear products (first 3)
+  const gearProducts = products
+    .filter(product => getCategoryForProduct(product) === 'gear')
+    .sort((a, b) => (b.reviews || 0) - (a.reviews || 0))
+    .slice(0, 3);
+
+  if (loading) {
+    return (
+      <section id="top-sellers" className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading top sellers...</p>
+          </div>
         </div>
+      </section>
+    );
+  }
 
-        <div className="flex-grow"></div>
-
-        <div className="flex items-center justify-between mb-4 mt-2">
-            <span className="text-lg font-bold text-[#009fe3]">£{product.price.toFixed(2)}</span>
-            <div className="text-xs text-green-600 flex items-center">
-                <Clock className="w-3 h-3 mr-1" />
-                <span>{product.shipping}</span>
+  if (error) {
+    return (
+      <section id="top-sellers" className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center">
+            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <p className="text-red-800">Error: {error}</p>
             </div>
+          </div>
         </div>
-
-        {/* --- FIX: Replaced "Add to Cart" with "View Options" button --- */}
-        <button
-          onClick={() => onProductClick(product.id)}
-          className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
-        >
-          <Eye className="w-4 h-4" />
-          <span>View Options</span>
-        </button>
-      </div>
-    </div>
-  );
+      </section>
+    );
+  }
 
   return (
     <section id="top-sellers" className="py-16 bg-gray-50">
@@ -136,24 +91,28 @@ const TopSellers = ({ onProductClick, onViewAllClick }: TopSellersProps) => {
         </div>
         
         {/* Apparel Section */}
-        <div className="mb-12">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Top Selling Apparel</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {apparelProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+        {apparelProducts.length > 0 && (
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Top Selling Apparel</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {apparelProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Gear & Goods Section */}
-        <div className="mb-12">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Top Selling Gear & Goods</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {gearProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+        {gearProducts.length > 0 && (
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Top Selling Gear & Goods</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {gearProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* View All Button */}
         <div className="text-center mt-8">
