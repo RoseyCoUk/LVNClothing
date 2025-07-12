@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle, Package, ArrowRight, Download, Mail, Clock, Phone } from 'lucide-react';
+import { CheckCircle, Package, ArrowRight, Mail, Clock, Phone } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface SuccessPageProps {
@@ -376,18 +376,6 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
               <span>Continue Shopping</span>
               <ArrowRight className="w-5 h-5" />
             </button>
-            
-            <div className="flex space-x-4">
-              <button className="flex-1 border-2 border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3] font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
-                <Download className="w-4 h-4" />
-                <span>Download Receipt</span>
-              </button>
-              
-              <button className="flex-1 border-2 border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3] font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
-                <Package className="w-4 h-4" />
-                <span>Track Order</span>
-              </button>
-            </div>
           </div>
 
           {/* Support Message */}
