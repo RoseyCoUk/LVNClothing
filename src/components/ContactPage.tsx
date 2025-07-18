@@ -24,6 +24,7 @@ import {
 import { FAQS } from './faqs';
 import FAQAccordion from './FAQAccordion';
 import { useNavigate } from 'react-router-dom';
+import { SiX, SiTiktok } from 'react-icons/si';
 
 const ContactPage = () => {
   const navigate = useNavigate();
@@ -252,11 +253,17 @@ const ContactPage = () => {
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <p className="font-medium text-gray-900 mb-3">Follow Us</p>
                 <div className="flex space-x-3">
-                  <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                  <a href="https://www.facebook.com/profile.php?id=61578282817124" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
                     <Facebook className="w-5 h-5" />
                   </a>
-                  <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                  <a href="https://www.instagram.com/backreformuk/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
                     <Instagram className="w-5 h-5" />
+                  </a>
+                  <a href="https://x.com/backreformuk" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                    <SiX className="w-5 h-5" />
+                  </a>
+                  <a href="https://www.tiktok.com/@backreformuk?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                    <SiTiktok className="w-5 h-5" />
                   </a>
                 </div>
               </div>

@@ -1,5 +1,8 @@
 import React from 'react';
 import { Facebook, Instagram, Shield, Truck, CreditCard, Mail, MapPin, MessageCircle } from 'lucide-react';
+import { SiX, SiTiktok } from 'react-icons/si';
+// Add TikTok import if available
+// import { Tiktok } from 'lucide-react';
 
 interface FooterProps {
   onPageNavigation?: (page: string) => void;
@@ -58,11 +61,17 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
               Run by Reform UK volunteers and supporters.
             </p>
             <div className="flex space-x-4">
-              <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+              <a href="https://www.facebook.com/profile.php?id=61578282817124" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+              <a href="https://www.instagram.com/backreformuk/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
                 <Instagram className="w-5 h-5" />
+              </a>
+              <a href="https://x.com/backreformuk" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                <SiX className="w-5 h-5" />
+              </a>
+              <a href="https://www.tiktok.com/@backreformuk?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                <SiTiktok className="w-5 h-5" />
               </a>
             </div>
           </div>
