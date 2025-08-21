@@ -5,7 +5,6 @@ export const config = {
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import Stripe from "npm:stripe@17.7.0";
 import { createClient } from "npm:@supabase/supabase-js@2.49.1";
-import { sendOrderEmail } from '../_shared/email.ts';
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts"
 // supabase/functions/stripe-webhook/index.ts
 
@@ -200,21 +199,6 @@ const handler = async (req: Request) => {
 
           console.log(`[stripe-webhook] Order saved successfully with ID: ${data.id}`);
           
-          // Send order confirmation email
-          try {
-            console.log(`[stripe-webhook] Sending order confirmation email to ${customerEmail}`);
-            const emailResponse = await sendOrderEmail(data.id, customerEmail);
-            
-            if (emailResponse.ok) {
-              console.log(`[stripe-webhook] Order confirmation email sent successfully`);
-            } else {
-              console.error(`[stripe-webhook] Failed to send order confirmation email:`, await emailResponse.text());
-            }
-          } catch (emailError) {
-            console.error(`[stripe-webhook] Error sending order confirmation email:`, emailError);
-            // Don't fail the webhook if email fails
-          }
-
           return new Response(
             JSON.stringify({ 
               success: true, 

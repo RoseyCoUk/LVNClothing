@@ -175,15 +175,46 @@ serve(async (req: Request) => {
       ];
     }
 
+    // Validate session parameters
+    console.log('Final session parameters:', JSON.stringify(sessionParams, null, 2));
+    
+    if (!sessionParams.success_url || !sessionParams.cancel_url) {
+      console.error('Missing required URLs:', { success_url: sessionParams.success_url, cancel_url: sessionParams.cancel_url });
+      return new Response(JSON.stringify({ error: 'Missing required success_url or cancel_url' }), {
+        status: 400,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    }
+
     console.log('Calling Stripe API to create checkout session...');
-    const session = await stripe.checkout.sessions.create(sessionParams);
-    console.log('Stripe API call completed successfully');
+    
+    // Validate environment variables
+    if (!stripeSecret) {
+      console.error('STRIPE_SECRET_KEY is not configured');
+      return new Response(JSON.stringify({ error: 'Stripe is not configured' }), {
+        status: 500,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    }
+    
+    try {
+      const session = await stripe.checkout.sessions.create(sessionParams);
+      console.log('Stripe API call completed successfully');
+      console.log(`Created checkout session ${session.id} for email ${customer_email}`);
 
-    console.log(`Created checkout session ${session.id} for email ${customer_email}`);
-
-    return new Response(JSON.stringify({ sessionId: session.id, url: session.url }), {
-      headers: { ...headers, "Content-Type": "application/json" },
-    });
+      return new Response(JSON.stringify({ sessionId: session.id, url: session.url }), {
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    } catch (stripeError) {
+      console.error('Stripe API error:', stripeError);
+      return new Response(JSON.stringify({ 
+        error: 'Failed to create Stripe checkout session',
+        details: stripeError.message || 'Unknown Stripe error'
+      }), {
+        status: 500,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    }
   } catch (err) {
     console.error('Checkout error:', err);
     return new Response(JSON.stringify({ error: String(err) }), {
