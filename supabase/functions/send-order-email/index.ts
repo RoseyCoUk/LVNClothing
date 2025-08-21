@@ -232,37 +232,26 @@ serve(async (req) => {
 
     console.log('Order found:', orderData)
 
-    // Fetch order items with product names
-    const { data: itemsData, error: itemsError } = await supabase
-      .from('order_items')
-      .select('*')
-      .eq('order_id', orderData.id)
-
-    if (itemsError) {
-      console.error('Error fetching order items:', itemsError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch order items' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+    // Get order items from the orders table (items field) instead of order_items table
+    let orderItems: OrderItem[] = [];
+    
+    if (orderData.items && Array.isArray(orderData.items)) {
+      // Items are stored directly in the orders table
+      orderItems = orderData.items.map((item: any) => ({
+        id: item.id || 'unknown',
+        product_name: item.price_data?.product_data?.name || item.description || 'Unknown Product',
+        quantity: item.quantity || 1,
+        unit_price: item.price_data?.unit_amount || Math.round(parseFloat(item.price || '0') * 100) // Convert to pence
+      }));
+      console.log('Order items found in orders table:', orderItems);
+    } else {
+      console.warn('No items found in orders table or items field is not an array');
     }
-
-    console.log('Order items found:', itemsData)
 
     // Check if items exist
-    if (!itemsData || itemsData.length === 0) {
-      console.warn('No items found for this order')
+    if (orderItems.length === 0) {
+      console.warn('No items found for this order');
     }
-
-    // Format order items with safe property access
-    const orderItems: OrderItem[] = itemsData.map((item: any) => ({
-      id: item.id,
-      product_name: item.name ?? 'Unnamed Product',
-      quantity: item.quantity,
-      unit_price: Math.round(parseFloat(item.price) * 100) // Convert from decimal to pence (integer)
-    }))
 
     // Validate that we have the minimum required data for email sending
     if (!orderData.customer_email) {

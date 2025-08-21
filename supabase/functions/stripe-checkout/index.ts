@@ -116,10 +116,16 @@ serve(async (req: Request) => {
       success_url,
       cancel_url,
       customer_creation: 'always',
-      // Remove collect_shipping_address as it's not a valid Stripe parameter
+      // Add shipping address collection
+      shipping_address_collection: {
+        allowed_countries: ['GB', 'US', 'CA', 'AU', 'DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'IE', 'AT', 'CH', 'SE', 'NO', 'DK', 'FI', 'PL', 'CZ', 'HU', 'RO', 'BG', 'HR', 'SI', 'SK', 'LT', 'LV', 'EE', 'CY', 'MT', 'LU']
+      },
       metadata: {
         ...(userId ? { user_id: userId } : {}),
         ...(metadata || {}),
+        // Add order items to metadata for webhook processing
+        items: line_items ? JSON.stringify(line_items) : (price_id ? JSON.stringify([{ price: price_id, quantity: 1 }]) : '[]'),
+        order_type: line_items ? 'cart_checkout' : 'single_product'
       },
     };
 
