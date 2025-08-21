@@ -45,8 +45,13 @@ serve(async (req) => {
     
     // Handle test request
     if (test) {
+      console.log('Test request received - function is accessible')
       return new Response(
-        JSON.stringify({ success: true, message: 'send-order-email function is accessible' }),
+        JSON.stringify({ 
+          success: true, 
+          message: 'send-order-email function is accessible',
+          timestamp: new Date().toISOString()
+        }),
         { 
           status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

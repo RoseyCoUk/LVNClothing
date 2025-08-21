@@ -62,7 +62,7 @@ fi
 print_status "Deploying Edge Functions..."
 
 # Deploy each function individually for better error handling
-functions=("stripe-webhook" "send-order-email" "manual-test-insert")
+functions=("stripe-webhook2" "send-order-email" "manual-test-insert")
 
 for func in "${functions[@]}"; do
     print_status "Deploying $func..."
@@ -134,7 +134,7 @@ echo "========================"
 echo ""
 echo "Next steps:"
 echo "1. Configure Stripe webhook endpoint:"
-echo "   URL: $project_url/functions/v1/stripe-webhook"
+echo "   URL: $project_url/functions/v1/stripe-webhook2"
 echo "   Events: checkout.session.completed"
 echo ""
 echo "2. Test the integration:"

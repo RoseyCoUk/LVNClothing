@@ -51,8 +51,13 @@ serve(async (req) => {
 
     if (action === 'test') {
       // Simple test action to verify function accessibility
+      console.log('Test action received - function is accessible')
       return new Response(
-        JSON.stringify({ success: true, message: 'manual-test-insert function is accessible' }),
+        JSON.stringify({ 
+          success: true, 
+          message: 'manual-test-insert function is accessible',
+          timestamp: new Date().toISOString()
+        }),
         { 
           status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
