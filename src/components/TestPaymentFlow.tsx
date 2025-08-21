@@ -47,6 +47,13 @@ const TestPaymentFlow = () => {
     quantity: number;
     selected: boolean;
     price_pence: number;
+    variants?: {
+      size?: string;
+      color?: string;
+      gender?: string;
+      setSize?: string;
+      packSize?: string;
+    };
   }>>([]);
 
   // Load real products from database
@@ -58,14 +65,44 @@ const TestPaymentFlow = () => {
         setLiveProducts(products);
         
         // Initialize selected products with ALL products from database
-        const initialSelected = products.map(product => ({
-          id: product.id,
-          name: product.name,
-          price: product.price_pence / 100, // Convert pence to pounds
-          price_pence: product.price_pence,
-          quantity: 1,
-          selected: product.name.includes('Hoodie') || product.name.includes('T-Shirt') // Default select hoodie and t-shirt
-        }));
+        const initialSelected = products.map(product => {
+          let variants;
+          
+          if (product.category === 'apparel') {
+            // Apparel products: size, color, gender
+            variants = {
+              size: 'M',
+              color: 'Black',
+              gender: 'Men'
+            };
+          } else if (product.name.includes('Cap')) {
+            // Caps: color variants
+            variants = {
+              color: 'Black'
+            };
+          } else if (product.name.includes('Badge')) {
+            // Badges: set size variants
+            variants = {
+              setSize: 'Set of 5'
+            };
+          } else if (product.name.includes('Stickers')) {
+            // Stickers: pack size variants
+            variants = {
+              packSize: 'Pack of 10'
+            };
+          }
+          // Mouse pads, mugs, tote bags, and water bottles have no variants
+          
+          return {
+            id: product.id,
+            name: product.name,
+            price: product.price_pence / 100, // Convert pence to pounds
+            price_pence: product.price_pence,
+            quantity: 1,
+            selected: product.name.includes('Hoodie') || product.name.includes('T-Shirt'), // Default select hoodie and t-shirt
+            variants: variants
+          };
+        });
         
         setSelectedProducts(initialSelected);
         addTestResult('Products', 'success', `Loaded ${products.length} live products from database`);
@@ -73,8 +110,8 @@ const TestPaymentFlow = () => {
         addTestResult('Products', 'error', 'Failed to load products', error.message);
         // Fallback to test products if loading fails
         setSelectedProducts([
-          { id: 'test-hoodie', name: 'Test Reform UK Hoodie', price: 34.99, price_pence: 3499, quantity: 1, selected: true },
-          { id: 'test-tshirt', name: 'Test Reform UK T-Shirt', price: 19.99, price_pence: 1999, quantity: 1, selected: false }
+          { id: 'test-hoodie', name: 'Test Reform UK Hoodie', price: 34.99, price_pence: 3499, quantity: 1, selected: true, variants: { size: 'M', color: 'Black', gender: 'Men' } },
+          { id: 'test-tshirt', name: 'Test Reform UK T-Shirt', price: 19.99, price_pence: 1999, quantity: 1, selected: false, variants: { size: 'M', color: 'White', gender: 'Men' } }
         ]);
       } finally {
         setProductsLoading(false);
@@ -110,6 +147,21 @@ const TestPaymentFlow = () => {
     setSelectedProducts(prev => prev.map(product => 
       product.id === productId 
         ? { ...product, [field]: value }
+        : product
+    ));
+  };
+
+  // Handle product variant changes
+  const handleVariantChange = (productId: string, variantField: 'size' | 'color' | 'gender' | 'setSize' | 'packSize', value: string) => {
+    setSelectedProducts(prev => prev.map(product => 
+      product.id === productId 
+        ? { 
+            ...product, 
+            variants: { 
+              ...product.variants, 
+              [variantField]: value 
+            } 
+          }
         : product
     ));
   };
@@ -157,7 +209,7 @@ const TestPaymentFlow = () => {
           id: product.id,
           name: product.name,
           price: product.price,
-          quantity: product.quantity
+          image: `/products/${product.name.toLowerCase().replace(/\s+/g, '-')}.webp` // Default image path
         });
         addTestResult('Step 1', 'success', `Added ${product.name} to cart`);
       });
@@ -243,8 +295,18 @@ const TestPaymentFlow = () => {
         quantity: product.quantity,
       }));
 
+      // Prepare metadata with variant information
+      const metadata: any = {};
+      getSelectedProducts().forEach((product, index) => {
+        if (product.variants) {
+          metadata[`product_${index + 1}_name`] = product.name;
+          metadata[`product_${index + 1}_variants`] = JSON.stringify(product.variants);
+        }
+      });
+
       const checkoutData = {
         line_items: lineItems,
+        metadata: metadata,
         success_url: `${window.location.origin}/success`,
         cancel_url: `${window.location.origin}/shop`,
         mode: 'payment' as const,
@@ -469,7 +531,8 @@ const TestPaymentFlow = () => {
           id: product.id,
           name: product.name,
           price: product.price,
-          quantity: product.quantity
+          quantity: product.quantity,
+          variants: product.variants
         }))
       };
       
@@ -1246,32 +1309,132 @@ const TestPaymentFlow = () => {
               <>
                 <div className="space-y-4">
                   {selectedProducts.map((product) => (
-                    <div key={product.id} className="flex items-center space-x-4 p-3 bg-white rounded-lg border hover:border-green-300 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={product.selected}
-                        onChange={(e) => handleProductChange(product.id, 'selected', e.target.checked)}
-                        className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-                      />
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{product.name}</h4>
-                        <p className="text-sm text-gray-600">£{product.price.toFixed(2)}</p>
-                        {product.name.includes('Bundle') && (
-                          <span className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                            Bundle
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <label className="text-sm text-gray-600">Qty:</label>
+                    <div key={product.id} className="p-4 bg-white rounded-lg border hover:border-green-300 transition-colors">
+                      <div className="flex items-start space-x-4">
                         <input
-                          type="number"
-                          min="1"
-                          max="10"
-                          value={product.quantity}
-                          onChange={(e) => handleProductChange(product.id, 'quantity', parseInt(e.target.value) || 1)}
-                          className="w-16 px-2 py-1 border border-gray-300 rounded text-sm"
+                          type="checkbox"
+                          checked={product.selected}
+                          onChange={(e) => handleProductChange(product.id, 'selected', e.target.checked)}
+                          className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 mt-1"
                         />
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-900">{product.name}</h4>
+                          <p className="text-sm text-gray-600">£{product.price.toFixed(2)}</p>
+                          {product.name.includes('Bundle') && (
+                            <span className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                              Bundle
+                            </span>
+                          )}
+                          
+                          {/* Variant Selection for Products */}
+                          {product.variants && (
+                            <div className="mt-3 space-y-2">
+                              <div className="flex items-center space-x-4 flex-wrap">
+                                {/* Apparel Variants */}
+                                {product.variants.size && (
+                                  <div className="flex items-center space-x-2">
+                                    <label className="text-xs text-gray-600">Size:</label>
+                                    <select
+                                      value={product.variants.size || 'M'}
+                                      onChange={(e) => handleVariantChange(product.id, 'size', e.target.value)}
+                                      className="text-xs border border-gray-300 rounded px-2 py-1"
+                                    >
+                                      <option value="XS">XS</option>
+                                      <option value="S">S</option>
+                                      <option value="M">M</option>
+                                      <option value="L">L</option>
+                                      <option value="XL">XL</option>
+                                      <option value="XXL">XXL</option>
+                                    </select>
+                                  </div>
+                                )}
+                                
+                                {/* Color Variants */}
+                                {product.variants.color && (
+                                  <div className="flex items-center space-x-2">
+                                    <label className="text-xs text-gray-600">Color:</label>
+                                    <select
+                                      value={product.variants.color || 'Black'}
+                                      onChange={(e) => handleVariantChange(product.id, 'color', e.target.value)}
+                                      className="text-xs border border-gray-300 rounded px-2 py-1"
+                                    >
+                                      <option value="Black">Black</option>
+                                      <option value="White">White</option>
+                                      <option value="Blue">Blue</option>
+                                      <option value="Red">Red</option>
+                                      <option value="Charcoal">Charcoal</option>
+                                      <option value="Ash Grey">Ash Grey</option>
+                                      <option value="Light Grey">Light Grey</option>
+                                      <option value="Navy">Navy</option>
+                                    </select>
+                                  </div>
+                                )}
+                                
+                                {/* Gender Variants */}
+                                {product.variants.gender && (
+                                  <div className="flex items-center space-x-2">
+                                    <label className="text-xs text-gray-600">Gender:</label>
+                                    <select
+                                      value={product.variants.gender || 'Men'}
+                                      onChange={(e) => handleVariantChange(product.id, 'gender', e.target.value)}
+                                      className="text-xs border border-gray-300 rounded px-2 py-1"
+                                    >
+                                      <option value="Men">Men</option>
+                                      <option value="Women">Women</option>
+                                      <option value="Unisex">Unisex</option>
+                                    </select>
+                                  </div>
+                                )}
+                                
+                                {/* Badge Set Size Variants */}
+                                {product.variants.setSize && (
+                                  <div className="flex items-center space-x-2">
+                                    <label className="text-xs text-gray-600">Set Size:</label>
+                                    <select
+                                      value={product.variants.setSize || 'Set of 5'}
+                                      onChange={(e) => handleVariantChange(product.id, 'setSize', e.target.value)}
+                                      className="text-xs border border-gray-300 rounded px-2 py-1"
+                                    >
+                                      <option value="Set of 5">Set of 5</option>
+                                      <option value="Set of 10">Set of 10</option>
+                                      <option value="Set of 25">Set of 25</option>
+                                      <option value="Set of 50">Set of 50</option>
+                                    </select>
+                                  </div>
+                                )}
+                                
+                                {/* Sticker Pack Size Variants */}
+                                {product.variants.packSize && (
+                                  <div className="flex items-center space-x-2">
+                                    <label className="text-xs text-gray-600">Pack Size:</label>
+                                    <select
+                                      value={product.variants.packSize || 'Pack of 10'}
+                                      onChange={(e) => handleVariantChange(product.id, 'packSize', e.target.value)}
+                                      className="text-xs border border-gray-300 rounded px-2 py-1"
+                                    >
+                                      <option value="Pack of 10">Pack of 10</option>
+                                      <option value="Pack of 25">Pack of 25</option>
+                                      <option value="Pack of 50">Pack of 50</option>
+                                      <option value="Pack of 100">Pack of 100</option>
+                                    </select>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <label className="text-sm text-gray-600">Qty:</label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="10"
+                            value={product.quantity}
+                            onChange={(e) => handleProductChange(product.id, 'quantity', parseInt(e.target.value) || 1)}
+                            className="w-16 px-2 py-1 border border-gray-300 rounded text-sm"
+                          />
+                        </div>
                       </div>
                     </div>
                   ))}
