@@ -20,6 +20,25 @@ const TestPaymentFlow = () => {
   const [customTestEmail, setCustomTestEmail] = useState('');
   const [testMode, setTestMode] = useState(false);
   const [manualSessionId, setManualSessionId] = useState('');
+  
+  // Manual address entry for testing
+  const [manualAddress, setManualAddress] = useState({
+    name: 'Test Customer',
+    email: 'test@example.com',
+    phone: '+44123456789',
+    line1: '123 Test Street',
+    line2: 'Test Apartment',
+    city: 'London',
+    state: 'England',
+    postal_code: 'SW1A 1AA',
+    country: 'GB'
+  });
+  
+  // Product selection for testing
+  const [selectedProducts, setSelectedProducts] = useState([
+    { id: 'test-hoodie', name: 'Test Reform UK Hoodie', price: 34.99, quantity: 1, selected: true },
+    { id: 'test-tshirt', name: 'Test Reform UK T-Shirt', price: 19.99, quantity: 1, selected: false }
+  ]);
 
   const testProducts = [
     {
@@ -48,6 +67,33 @@ const TestPaymentFlow = () => {
       details,
       timestamp: new Date().toLocaleTimeString()
     }]);
+  };
+
+  // Handle address field changes
+  const handleAddressChange = (field: string, value: string) => {
+    setManualAddress(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle product selection and quantity changes
+  const handleProductChange = (productId: string, field: 'selected' | 'quantity', value: boolean | number) => {
+    setSelectedProducts(prev => prev.map(product => 
+      product.id === productId 
+        ? { ...product, [field]: value }
+        : product
+    ));
+  };
+
+  // Get selected products for testing
+  const getSelectedProducts = () => {
+    return selectedProducts.filter(product => product.selected);
+  };
+
+  // Calculate total for selected products
+  const getSelectedProductsTotal = () => {
+    return getSelectedProducts().reduce((total, product) => total + (product.price * product.quantity), 0);
   };
 
   const testStep1_AddToCart = () => {
@@ -188,20 +234,28 @@ const TestPaymentFlow = () => {
           action: 'createTestOrder',
           sessionId: sessionId,
           customerEmail: emailToUse,
-          items: [
-            {
-              id: 'test-hoodie',
-              name: 'Test Reform UK Hoodie',
-              price: 34.99,
-              quantity: 1
-            }
-          ]
+          address: manualAddress,
+          items: getSelectedProducts().map(product => ({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: product.quantity
+          }))
         }),
       });
 
       if (response.ok) {
         const responseData = await response.json();
         addTestResult('Step 3', 'success', 'Test order created successfully!', responseData);
+        
+        // Show what was used for the test
+        addTestResult('Step 3', 'info', 'Test order created with:', {
+          customer: manualAddress.name,
+          email: emailToUse,
+          address: `${manualAddress.line1}, ${manualAddress.city}, ${manualAddress.postal_code}`,
+          products: getSelectedProducts().map(p => `${p.name} x${p.quantity}`),
+          total: `£${getSelectedProductsTotal().toFixed(2)}`
+        });
         
         // Now call the send-order-email function with the created order
         addTestResult('Step 3', 'info', 'Sending test email...');
@@ -652,6 +706,195 @@ const TestPaymentFlow = () => {
             </button>
           </div>
 
+          {/* Manual Address Entry Section */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-blue-900">Manual Address Entry</h3>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setManualAddress({
+                    name: 'John Smith',
+                    email: 'john.smith@example.com',
+                    phone: '+44123456789',
+                    line1: '456 Oak Avenue',
+                    line2: 'Flat 2B',
+                    city: 'Manchester',
+                    state: 'Greater Manchester',
+                    postal_code: 'M1 1AA',
+                    country: 'GB'
+                  })}
+                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                >
+                  Load UK Address
+                </button>
+                <button
+                  onClick={() => setManualAddress({
+                    name: 'Test Customer',
+                    email: 'test@example.com',
+                    phone: '+44123456789',
+                    line1: '123 Test Street',
+                    line2: 'Test Apartment',
+                    city: 'London',
+                    state: 'England',
+                    postal_code: 'SW1A 1AA',
+                    country: 'GB'
+                  })}
+                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                >
+                  Load Test Address
+                </button>
+                <button
+                  onClick={() => setManualAddress({
+                    name: '',
+                    email: '',
+                    phone: '',
+                    line1: '',
+                    line2: '',
+                    city: '',
+                    state: '',
+                    postal_code: '',
+                    country: ''
+                  })}
+                  className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-blue-800 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  value={manualAddress.name}
+                  onChange={(e) => handleAddressChange('name', e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  placeholder="Customer Name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-800 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={manualAddress.email}
+                  onChange={(e) => handleAddressChange('email', e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  placeholder="customer@example.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-800 mb-1">Phone</label>
+                <input
+                  type="tel"
+                  value={manualAddress.phone}
+                  onChange={(e) => handleAddressChange('phone', e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  placeholder="+44123456789"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-800 mb-1">Address Line 1</label>
+                <input
+                  type="text"
+                  value={manualAddress.line1}
+                  onChange={(e) => handleAddressChange('line1', e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  placeholder="Street Address"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-800 mb-1">Address Line 2</label>
+                <input
+                  type="text"
+                  value={manualAddress.line2}
+                  onChange={(e) => handleAddressChange('line2', e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  placeholder="Apartment, Suite, etc."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-800 mb-1">City</label>
+                <input
+                  type="text"
+                  value={manualAddress.city}
+                  onChange={(e) => handleAddressChange('city', e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  placeholder="City"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-800 mb-1">State/County</label>
+                <input
+                  type="text"
+                  value={manualAddress.state}
+                  onChange={(e) => handleAddressChange('state', e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  placeholder="State or County"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-800 mb-1">Postal Code</label>
+                <input
+                  type="text"
+                  value={manualAddress.postal_code}
+                  onChange={(e) => handleAddressChange('postal_code', e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  placeholder="Postal Code"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-blue-800 mb-1">Country</label>
+                <input
+                  type="text"
+                  value={manualAddress.country}
+                  onChange={(e) => handleAddressChange('country', e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  placeholder="GB"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Product Selection Section */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+            <h3 className="text-lg font-semibold text-green-900 mb-4">Product Selection</h3>
+            <div className="space-y-4">
+              {selectedProducts.map((product) => (
+                <div key={product.id} className="flex items-center space-x-4 p-3 bg-white rounded-lg border">
+                  <input
+                    type="checkbox"
+                    checked={product.selected}
+                    onChange={(e) => handleProductChange(product.id, 'selected', e.target.checked)}
+                    className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                  />
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900">{product.name}</h4>
+                    <p className="text-sm text-gray-600">£{product.price.toFixed(2)}</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <label className="text-sm text-gray-600">Qty:</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={product.quantity}
+                      onChange={(e) => handleProductChange(product.id, 'quantity', parseInt(e.target.value) || 1)}
+                      className="w-16 px-2 py-1 border border-gray-300 rounded text-sm"
+                    />
+                  </div>
+                </div>
+              ))}
+              <div className="mt-4 p-3 bg-green-100 rounded-lg">
+                <p className="text-green-800 font-medium">
+                  Selected Products Total: £{getSelectedProductsTotal().toFixed(2)}
+                </p>
+                <p className="text-green-700 text-sm">
+                  {getSelectedProducts().length} product(s) selected
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Test Results */}
           {testResults.length > 0 && (
             <div className="bg-gray-50 rounded-lg p-6">
@@ -709,10 +952,11 @@ const TestPaymentFlow = () => {
               ) : (
                 <p>1. <strong>No sign-in needed</strong> - Guest checkout works without authentication</p>
               )}
-              <p>2. <strong>Test Checkout</strong> - Creates Stripe session, test order, and sends email</p>
-              <p>3. <strong>Run Full Test</strong> - Tests the complete flow automatically</p>
-              <p>4. <strong>Manual Test Data</strong> - Manually insert test data and test email</p>
-              <p>5. <strong>Check Results</strong> - Review the detailed test results below</p>
+              <p>2. <strong>Customize Address & Products</strong> - Use the forms above to set test data</p>
+              <p>3. <strong>Test Checkout</strong> - Creates Stripe session, test order with your data, and sends email</p>
+              <p>4. <strong>Run Full Test</strong> - Tests the complete flow automatically</p>
+              <p>5. <strong>Manual Test Data</strong> - Manually insert test data and test email</p>
+              <p>6. <strong>Check Results</strong> - Review the detailed test results below</p>
             </div>
           </div>
         </div>

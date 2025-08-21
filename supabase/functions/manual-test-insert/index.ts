@@ -51,7 +51,7 @@ serve(async (req) => {
 
     if (action === 'createTestOrder') {
       // Create a test order for testing purposes
-      const { sessionId, customerEmail, items } = await req.json()
+      const { sessionId, customerEmail, items, address } = await req.json()
       
       if (!sessionId || !customerEmail) {
         throw new Error('Missing required parameters: sessionId and customerEmail')
@@ -64,16 +64,16 @@ serve(async (req) => {
           customer_email: customerEmail,
           items: items,
           customer_details: {
-            name: 'Test Customer',
+            name: address?.name || 'Test Customer',
             email: customerEmail,
-            phone: '+44123456789',
+            phone: address?.phone || '+44123456789',
             address: {
-              city: 'London',
-              line1: '123 Test Street',
-              line2: 'Test Apartment',
-              state: 'England',
-              country: 'GB',
-              postal_code: 'SW1A 1AA',
+              city: address?.city || 'London',
+              line1: address?.line1 || '123 Test Street',
+              line2: address?.line2 || 'Test Apartment',
+              state: address?.state || 'England',
+              country: address?.country || 'GB',
+              postal_code: address?.postal_code || 'SW1A 1AA',
             },
             tax_ids: [],
             tax_exempt: 'none'
