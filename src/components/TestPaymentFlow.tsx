@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CreditCard, ShoppingCart, CheckCircle, AlertTriangle, Package, Clock, User, UserX, Mail } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { createCheckoutSession } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
+import { getProducts, Product } from '../lib/api';
 
 const TestPaymentFlow = () => {
   const { addToCart, cartItems, getTotalPrice, clearCart } = useCart();
@@ -34,30 +35,57 @@ const TestPaymentFlow = () => {
     country: 'GB'
   });
   
-  // Product selection for testing
-  const [selectedProducts, setSelectedProducts] = useState([
-    { id: 'test-hoodie', name: 'Test Reform UK Hoodie', price: 34.99, quantity: 1, selected: true },
-    { id: 'test-tshirt', name: 'Test Reform UK T-Shirt', price: 19.99, quantity: 1, selected: false }
-  ]);
+  // Real products from database
+  const [liveProducts, setLiveProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  
+  // Product selection for testing (now using real products)
+  const [selectedProducts, setSelectedProducts] = useState<Array<{
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    selected: boolean;
+    price_pence: number;
+  }>>([]);
 
-  const testProducts = [
-    {
-      id: 'test-hoodie',
-      name: 'Test Reform UK Hoodie',
-      price: 34.99,
-      image: 'Hoodie/Men/ReformMenHoodieBlack1.webp'
-    },
-    {
-      id: 'test-tshirt',
-      name: 'Test Reform UK T-Shirt',
-      price: 19.99,
-      image: 'Tshirt/Men/ReformMenTshirtWhite1.webp'
-    }
-  ];
+  // Load real products from database
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setProductsLoading(true);
+        const products = await getProducts();
+        setLiveProducts(products);
+        
+        // Initialize selected products with first few products
+        const initialSelected = products.slice(0, 3).map(product => ({
+          id: product.id,
+          name: product.name,
+          price: product.price_pence / 100, // Convert pence to pounds
+          price_pence: product.price_pence,
+          quantity: 1,
+          selected: product.name.includes('Hoodie') || product.name.includes('T-Shirt') // Default select hoodie and t-shirt
+        }));
+        
+        setSelectedProducts(initialSelected);
+        addTestResult('Products', 'success', `Loaded ${products.length} live products from database`);
+      } catch (error: any) {
+        addTestResult('Products', 'error', 'Failed to load products', error.message);
+        // Fallback to test products if loading fails
+        setSelectedProducts([
+          { id: 'test-hoodie', name: 'Test Reform UK Hoodie', price: 34.99, price_pence: 3499, quantity: 1, selected: true },
+          { id: 'test-tshirt', name: 'Test Reform UK T-Shirt', price: 19.99, price_pence: 1999, quantity: 1, selected: false }
+        ]);
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+    
+    loadProducts();
+  }, []);
 
-  // 🔧 TASK: Test with Reform UK Hoodie (live mode price ID)
-  // 📌 Using the live price ID for comprehensive test coverage
-  const testPriceId = 'price_1Rhsh5GDbOGEgNLwpqIVX80W'; // Reform UK Hoodie
+  // 🔧 TASK: Test with live products from database
+  // 📌 Using real product data for comprehensive test coverage
 
   const addTestResult = (step: string, status: 'success' | 'error' | 'info', message: string, details?: unknown) => {
     setTestResults(prev => [...prev, {
@@ -96,6 +124,18 @@ const TestPaymentFlow = () => {
     return getSelectedProducts().reduce((total, product) => total + (product.price * product.quantity), 0);
   };
 
+  // Calculate shipping based on live rules (Free over £50)
+  const calculateShipping = (subtotal: number) => {
+    return subtotal >= 50 ? 0 : 3.99;
+  };
+
+  // Get total with shipping
+  const getTotalWithShipping = () => {
+    const subtotal = getSelectedProductsTotal();
+    const shipping = calculateShipping(subtotal);
+    return subtotal + shipping;
+  };
+
   const testStep1_AddToCart = () => {
     setCurrentStep(1);
     addTestResult('Step 1', 'info', 'Testing add to cart functionality...');
@@ -105,13 +145,31 @@ const TestPaymentFlow = () => {
       clearCart();
       addTestResult('Step 1', 'success', 'Cart cleared');
       
-      // Add test products
-      testProducts.forEach(product => {
-        addToCart(product);
+      // Add selected products to cart
+      const selectedProds = getSelectedProducts();
+      if (selectedProds.length === 0) {
+        addTestResult('Step 1', 'error', 'No products selected. Please select at least one product.');
+        return;
+      }
+      
+      selectedProds.forEach(product => {
+        addToCart({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: product.quantity
+        });
         addTestResult('Step 1', 'success', `Added ${product.name} to cart`);
       });
       
-      addTestResult('Step 1', 'success', `Cart now has ${cartItems.length + testProducts.length} items, total: £${(getTotalPrice() + testProducts.reduce((sum, p) => sum + p.price, 0)).toFixed(2)}`);
+      const subtotal = getSelectedProductsTotal();
+      const shipping = calculateShipping(subtotal);
+      const total = subtotal + shipping;
+      
+      addTestResult('Step 1', 'success', `Cart now has ${cartItems.length} items`);
+      addTestResult('Step 1', 'info', `Subtotal: £${subtotal.toFixed(2)}`);
+      addTestResult('Step 1', 'info', `Shipping: ${shipping === 0 ? 'FREE' : `£${shipping.toFixed(2)}`}`);
+      addTestResult('Step 1', 'success', `Total: £${total.toFixed(2)}`);
       
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -173,15 +231,27 @@ const TestPaymentFlow = () => {
     addTestResult('Step 3', 'info', 'Address and product validation passed');
     
     try {
+      // Prepare line items from selected products
+      const lineItems = getSelectedProducts().map(product => ({
+        price_data: {
+          currency: 'gbp',
+          product_data: {
+            name: product.name,
+          },
+          unit_amount: product.price_pence, // Use pence for Stripe
+        },
+        quantity: product.quantity,
+      }));
+
       const checkoutData = {
-        price_id: testPriceId,
+        line_items: lineItems,
         success_url: `${window.location.origin}/success`,
         cancel_url: `${window.location.origin}/shop`,
         mode: 'payment' as const,
         customer_email: checkoutType === 'guest' ? manualAddress.email : undefined
       };
       
-      addTestResult('Step 3', 'info', 'Calling createCheckoutSession...', checkoutData);
+      addTestResult('Step 3', 'info', 'Calling createCheckoutSession with live products...', checkoutData);
       
       const response = await createCheckoutSession(checkoutData);
       
@@ -1162,42 +1232,74 @@ const TestPaymentFlow = () => {
 
           {/* Product Selection Section */}
           <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
-            <h3 className="text-lg font-semibold text-green-900 mb-4">Product Selection</h3>
-            <div className="space-y-4">
-              {selectedProducts.map((product) => (
-                <div key={product.id} className="flex items-center space-x-4 p-3 bg-white rounded-lg border">
-                  <input
-                    type="checkbox"
-                    checked={product.selected}
-                    onChange={(e) => handleProductChange(product.id, 'selected', e.target.checked)}
-                    className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-                  />
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">{product.name}</h4>
-                    <p className="text-sm text-gray-600">£{product.price.toFixed(2)}</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <label className="text-sm text-gray-600">Qty:</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="10"
-                      value={product.quantity}
-                      onChange={(e) => handleProductChange(product.id, 'quantity', parseInt(e.target.value) || 1)}
-                      className="w-16 px-2 py-1 border border-gray-300 rounded text-sm"
-                    />
+            <h3 className="text-lg font-semibold text-green-900 mb-4">
+              Product Selection
+              {productsLoading && <span className="ml-2 text-sm text-gray-500">(Loading live products...)</span>}
+            </h3>
+            
+            {productsLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading live products from database...</p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-4">
+                  {selectedProducts.map((product) => (
+                    <div key={product.id} className="flex items-center space-x-4 p-3 bg-white rounded-lg border hover:border-green-300 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={product.selected}
+                        onChange={(e) => handleProductChange(product.id, 'selected', e.target.checked)}
+                        className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                      />
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900">{product.name}</h4>
+                        <p className="text-sm text-gray-600">£{product.price.toFixed(2)}</p>
+                        {product.name.includes('Bundle') && (
+                          <span className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                            Bundle
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <label className="text-sm text-gray-600">Qty:</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="10"
+                          value={product.quantity}
+                          onChange={(e) => handleProductChange(product.id, 'quantity', parseInt(e.target.value) || 1)}
+                          className="w-16 px-2 py-1 border border-gray-300 rounded text-sm"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-4 p-3 bg-green-100 rounded-lg">
+                  <div className="space-y-2">
+                    <p className="text-green-800 text-sm">
+                      <strong>Selected Products:</strong> {getSelectedProducts().length} product(s)
+                    </p>
+                    <p className="text-green-800 text-sm">
+                      <strong>Subtotal:</strong> £{getSelectedProductsTotal().toFixed(2)}
+                    </p>
+                    <p className="text-green-800 text-sm">
+                      <strong>Shipping:</strong> {calculateShipping(getSelectedProductsTotal()) === 0 ? 'FREE' : `£${calculateShipping(getSelectedProductsTotal()).toFixed(2)}`}
+                      {getSelectedProductsTotal() >= 50 && (
+                        <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                          Free over £50!
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-green-900 font-semibold text-lg">
+                      <strong>Total:</strong> £{getTotalWithShipping().toFixed(2)}
+                    </p>
                   </div>
                 </div>
-              ))}
-              <div className="mt-4 p-3 bg-green-100 rounded-lg">
-                <p className="text-green-800 font-medium">
-                  Selected Products Total: £{getSelectedProductsTotal().toFixed(2)}
-                </p>
-                <p className="text-green-700 text-sm">
-                  {getSelectedProducts().length} product(s) selected
-                </p>
-              </div>
-            </div>
+              </>
+            )}
           </div>
 
           {/* Test Results */}
@@ -1248,14 +1350,23 @@ const TestPaymentFlow = () => {
             </div>
           )}
 
+          {/* Live Products Info */}
+          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-semibold text-blue-900 mb-2">Live Products Info</h4>
+            <div className="text-blue-700 text-sm space-y-1">
+              <p><strong>Products Loaded:</strong> {liveProducts.length} products from database</p>
+              <p><strong>Products Available:</strong> {liveProducts.map(p => p.name).join(', ')}</p>
+              <p><strong>Selected Products:</strong> {getSelectedProducts().length} items</p>
+              <p><strong>Current Email:</strong> {manualAddress.email || 'Not set'}</p>
+            </div>
+          </div>
+
           {/* Environment Debug Info */}
           <div className="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-4">
             <h4 className="font-semibold text-gray-900 mb-2">Environment Debug Info</h4>
             <div className="text-gray-700 text-sm space-y-1">
               <p><strong>VITE_SUPABASE_URL:</strong> {import.meta.env.VITE_SUPABASE_URL ? '✅ Configured' : '❌ Missing'}</p>
               <p><strong>VITE_SUPABASE_ANON_KEY:</strong> {import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ Configured' : '❌ Missing'}</p>
-              <p><strong>Current Email:</strong> {manualAddress.email || 'Not set'}</p>
-              <p><strong>Selected Products:</strong> {getSelectedProducts().length} items</p>
             </div>
           </div>
 
