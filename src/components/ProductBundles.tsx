@@ -378,6 +378,14 @@ const ProductBundles = () => {
       bundleContents
     };
     
+    // Store detailed variant selections in sessionStorage for checkout
+    const variantSelections = {
+      bundleId: activeBundle,
+      selections: bundleSelections[activeBundle as keyof typeof bundleSelections],
+      timestamp: Date.now()
+    };
+    sessionStorage.setItem('bundleVariantSelections', JSON.stringify(variantSelections));
+    
     addToCart(bundleItem);
     navigate('/checkout');
   };
@@ -399,6 +407,14 @@ const ProductBundles = () => {
       isBundle: true,
       bundleContents
     };
+    
+    // Store detailed variant selections in sessionStorage for checkout
+    const variantSelections = {
+      bundleId: activeBundle,
+      selections: bundleSelections[activeBundle as keyof typeof bundleSelections],
+      timestamp: Date.now()
+    };
+    sessionStorage.setItem('bundleVariantSelections', JSON.stringify(variantSelections));
     
     addToCart(bundleItem);
     navigate('/checkout');

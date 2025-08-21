@@ -100,40 +100,122 @@ serve(async (req) => {
         console.log('Session ID:', session.id)
         console.log('Customer email:', session.customer_details?.email)
         console.log('Full customer details:', JSON.stringify(session.customer_details, null, 2))
+        console.log('Session metadata:', JSON.stringify(session.metadata, null, 2))
 
         try {
-          // Parse items from metadata or use empty array
-          let items = []
-          if (session.metadata?.items) {
-            try {
-              items = JSON.parse(session.metadata.items)
-            } catch (parseError) {
-              console.warn('Failed to parse items metadata:', parseError)
-              items = []
-            }
+          console.log(`[stripe-webhook] Processing checkout session: ${session.id}`);
+          console.log(`[stripe-webhook] Customer email: ${session.customer_details?.email}`);
+          
+          // Retrieve the session with expanded line_items to get full product details
+          const expandedSession = await stripe.checkout.sessions.retrieve(session.id, {
+            expand: ['line_items']
+          });
+          
+          console.log('Expanded session:', JSON.stringify(expandedSession, null, 2));
+          
+          // Get line items from expanded Stripe session data
+          let lineItems = []
+          if (expandedSession.line_items?.data) {
+            lineItems = expandedSession.line_items.data
+            console.log(`[stripe-webhook] Line items from expanded session:`, lineItems);
+          } else {
+            console.log('[stripe-webhook] No line items found in expanded session data');
           }
+
+          // Process product information from metadata to create readable order items
+          const processedItems = []
+          
+          // Extract product names and variants from metadata
+          const productNames = {}
+          const productVariants = {}
+          
+          // Parse metadata to get product names and variants
+          Object.keys(expandedSession.metadata).forEach(key => {
+            if (key.startsWith('product_') && key.endsWith('_name')) {
+              const productNum = key.replace('product_', '').replace('_name', '')
+              productNames[productNum] = expandedSession.metadata[key]
+            }
+            if (key.startsWith('product_') && key.endsWith('_variants')) {
+              const productNum = key.replace('product_', '').replace('_variants', '')
+              try {
+                productVariants[productNum] = JSON.parse(expandedSession.metadata[key])
+              } catch (e) {
+                productVariants[productNum] = {}
+              }
+            }
+          })
+
+          // Process each line item to include product names and variants
+          lineItems.forEach((item, index) => {
+            const productNum = (index + 1).toString()
+            
+            // Try to get product name from metadata first, then fall back to Stripe data
+            let productName = productNames[productNum];
+            if (!productName) {
+              // Fall back to Stripe's product data or description
+              productName = item.price?.product?.name || item.description || 'Unknown Product';
+            }
+            
+            const variants = productVariants[productNum] || {}
+            
+            // Create a processed item with readable product information
+            const processedItem = {
+              id: item.id || `item_${index}`,
+              price_data: {
+                currency: item.currency || 'gbp',
+                product_data: {
+                  name: productName,
+                  description: `${productName}${Object.keys(variants).length > 0 ? ` - ${Object.keys(variants).map(key => `${key}: ${variants[key]}`).join(', ')}` : ''}`
+                },
+                unit_amount: item.amount_unit_price || item.amount_total
+              },
+              quantity: item.quantity || 1
+            }
+            
+            processedItems.push(processedItem)
+          })
+
+          // If no line items were processed, create a fallback item from session data
+          if (processedItems.length === 0) {
+            console.log('[stripe-webhook] No line items processed, creating fallback item from session data');
+            const fallbackItem = {
+              id: `fallback_${expandedSession.id}`,
+              price_data: {
+                currency: 'gbp',
+                product_data: {
+                  name: expandedSession.metadata?.product_name || 'Product',
+                  description: 'Product purchased via Stripe checkout'
+                },
+                unit_amount: expandedSession.amount_total || 0
+              },
+              quantity: 1
+            };
+            processedItems.push(fallbackItem);
+          }
+
+          console.log('Processed items:', JSON.stringify(processedItems, null, 2))
 
           // Insert order into database
           const { data, error } = await supabase
             .from('orders')
             .insert({
-              stripe_session_id: session.id,
-              customer_email: session.customer_details?.email || 'unknown@example.com',
-              items: items,
+              stripe_session_id: expandedSession.id,
+              customer_email: expandedSession.customer_details?.email || 'unknown@example.com',
+              items: processedItems, // Use processed items instead of raw items
               customer_details: {
-                name: session.customer_details?.name || null,
-                email: session.customer_details?.email || null,
-                phone: session.customer_details?.phone || null,
+                name: expandedSession.customer_details?.name || null,
+                email: expandedSession.customer_details?.email || null,
+                phone: expandedSession.customer_details?.phone || null,
                 address: {
-                  city: session.customer_details?.address?.city || null,
-                  line1: session.customer_details?.address?.line1 || null,
-                  line2: session.customer_details?.address?.line2 || null,
-                  state: session.customer_details?.address?.state || null,
-                  country: session.customer_details?.address?.country || null,
-                  postal_code: session.customer_details?.address?.postal_code || null,
+                  city: expandedSession.customer_details?.address?.city || null,
+                  line1: expandedSession.customer_details?.address?.line1 || null,
+                  line2: expandedSession.customer_details?.address?.line2 || null,
+                  state: expandedSession.customer_details?.address?.state || null,
+                  country: expandedSession.customer_details?.address?.country || null,
+                  postal_code: expandedSession.customer_details?.address?.postal_code || null,
                 },
-                tax_ids: session.customer_details?.tax_ids || [],
-                tax_exempt: session.customer_details?.tax_exempt || 'none'
+                tax_ids: expandedSession.customer_details?.tax_ids || [],
+                tax_exempt: expandedSession.customer_details?.tax_exempt || 'none'
               },
               created_at: new Date().toISOString()
             })

@@ -318,6 +318,35 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
         shipping_address: `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.postcode}`,
       };
       
+      // Add product names and variants to metadata for webhook processing
+      cartItems.forEach((item, index) => {
+        metadata[`product_${index + 1}_name`] = item.name;
+        
+        // Initialize variants object
+        const variants: Record<string, any> = {};
+        
+        // Check if this is a bundle item and retrieve variant selections from sessionStorage
+        if (item.isBundle) {
+          try {
+            const storedSelections = sessionStorage.getItem('bundleVariantSelections');
+            if (storedSelections) {
+              const variantSelections = JSON.parse(storedSelections);
+              // Check if the stored selections are recent (within last 30 minutes)
+              if (Date.now() - variantSelections.timestamp < 30 * 60 * 1000) {
+                // Use stored selections as variants
+                Object.assign(variants, variantSelections.selections);
+              }
+            }
+          } catch (e) {
+            console.warn('Failed to parse stored variant selections:', e);
+          }
+        }
+        
+        if (Object.keys(variants).length > 0) {
+          metadata[`product_${index + 1}_variants`] = JSON.stringify(variants);
+        }
+      });
+      
       // Add items summary if there's space (keep total under 500 chars)
       const itemsJson = JSON.stringify(itemsSummary);
       if (itemsJson.length <= 200) { // Leave room for other metadata

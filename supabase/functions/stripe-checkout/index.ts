@@ -115,9 +115,11 @@ serve(async (req: Request) => {
           console.log('User authenticated successfully:', userId);
         } else {
           console.log('User authentication failed:', getUserError);
+          // Don't throw error, just proceed without user ID
         }
       } catch (err) {
         console.warn('Error while authenticating user. Proceeding as guest.', err);
+        // Don't throw error, just proceed without user ID
       }
     } else {
       console.log('No authorization header, proceeding as guest');
