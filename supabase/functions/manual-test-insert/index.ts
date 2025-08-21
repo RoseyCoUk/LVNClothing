@@ -49,6 +49,53 @@ serve(async (req) => {
       )
     }
 
+    if (action === 'createTestOrder') {
+      // Create a test order for testing purposes
+      const { sessionId, customerEmail, items } = await req.json()
+      
+      if (!sessionId || !customerEmail) {
+        throw new Error('Missing required parameters: sessionId and customerEmail')
+      }
+
+      const { data, error } = await supabase
+        .from('orders')
+        .insert({
+          stripe_session_id: sessionId,
+          customer_email: customerEmail,
+          items: items,
+          customer_details: {
+            name: 'Test Customer',
+            email: customerEmail,
+            phone: '+44123456789',
+            address: {
+              city: 'London',
+              line1: '123 Test Street',
+              line2: 'Test Apartment',
+              state: 'England',
+              country: 'GB',
+              postal_code: 'SW1A 1AA',
+            },
+            tax_ids: [],
+            tax_exempt: 'none'
+          },
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single()
+
+      if (error) {
+        throw new Error(`Failed to create test order: ${error.message}`)
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, data }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
     // Default action: insert test data
     const { data, error } = await supabase
       .from('orders')

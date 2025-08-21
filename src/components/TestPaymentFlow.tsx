@@ -135,11 +135,13 @@ const TestPaymentFlow = () => {
       addTestResult('Step 3', 'info', 'Simulating redirect to Stripe checkout...');
       
       // Simulate successful payment and redirect to success page
-      setTimeout(() => {
-        addTestResult('Step 3', 'success', 'Payment completed! Redirecting to success page...');
+      setTimeout(async () => {
+        addTestResult('Step 3', 'success', 'Payment completed! Creating test order...');
         
-        // Call the manual-test-insert Supabase Edge Function (test mode only)
-        callManualTestInsert(response.sessionId, testEmail);
+        // Call the manual-test-insert Supabase Edge Function to create test order and send email
+        await callManualTestInsert(response.sessionId, testEmail);
+        
+        addTestResult('Step 3', 'success', 'Test complete! Redirecting to success page...');
         
         // Redirect to success page with test parameters
         window.location.href = `/success?test=payment&session_id=${response.sessionId}&email=${encodeURIComponent(testEmail)}`;
@@ -163,39 +165,85 @@ const TestPaymentFlow = () => {
   // Function to call the manual-test-insert Supabase Edge Function (test mode only)
   const callManualTestInsert = async (sessionId: string, customerEmail: string) => {
     try {
-      addTestResult('Step 3', 'info', 'Calling manual-test-insert Supabase Edge Function...');
+      addTestResult('Step 3', 'info', 'Creating test order in database...');
       
       // Use custom test email if provided, otherwise use the default customer email
       const emailToUse = customTestEmail || customerEmail;
       addTestResult('Step 3', 'info', `Using email: ${emailToUse} ${customTestEmail ? '(custom test email)' : '(default email)'}`);
       
-      // Get your Supabase project URL from environment or replace with actual URL
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-ref.supabase.co';
+      // Get your Supabase project URL from environment
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      
+      if (!supabaseUrl) {
+        throw new Error('VITE_SUPABASE_URL not configured');
+      }
       
       const response = await fetch(`${supabaseUrl}/functions/v1/manual-test-insert`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'}`,
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({
+          action: 'createTestOrder',
           sessionId: sessionId,
           customerEmail: emailToUse,
+          items: [
+            {
+              id: 'test-hoodie',
+              name: 'Test Reform UK Hoodie',
+              price: 34.99,
+              quantity: 1
+            }
+          ]
         }),
       });
 
       if (response.ok) {
         const responseData = await response.json();
-        addTestResult('Step 3', 'success', 'Test order created and email sent successfully!', responseData);
+        addTestResult('Step 3', 'success', 'Test order created successfully!', responseData);
+        
+        // Now call the send-order-email function with the created order
+        addTestResult('Step 3', 'info', 'Sending test email...');
+        await sendTestEmail(responseData.data.id, emailToUse);
+        
       } else {
         const errorData = await response.text();
-        addTestResult('Step 3', 'error', 'Failed to create test order and send email', {
+        addTestResult('Step 3', 'error', 'Failed to create test order', {
           status: response.status,
           error: errorData
         });
       }
     } catch (error: any) {
-      addTestResult('Step 3', 'error', 'Error calling manual-test-insert function', error.message);
+      addTestResult('Step 3', 'error', 'Error creating test order', error.message);
+    }
+  };
+
+  // Add this function to send test email
+  const sendTestEmail = async (orderId: string, email: string) => {
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          order_id: orderId,
+          customerEmail: email,
+        }),
+      });
+
+      if (response.ok) {
+        addTestResult('Step 3', 'success', 'Test email sent successfully!');
+      } else {
+        const errorData = await response.text();
+        addTestResult('Step 3', 'error', 'Failed to send test email', errorData);
+      }
+    } catch (error: any) {
+      addTestResult('Step 3', 'error', 'Error sending test email', error.message);
     }
   };
 
@@ -584,6 +632,25 @@ const TestPaymentFlow = () => {
               Test Webhook
             </button>
           </div>
+          
+          {/* Additional Test Buttons */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+            <button
+              onClick={insertManualTestData}
+              className="p-3 border border-gray-300 rounded-lg hover:border-[#009fe3] hover:text-[#009fe3] transition-colors text-sm"
+            >
+              <Package className="w-4 h-4 mx-auto mb-1" />
+              Manual Test Data
+            </button>
+            <button
+              onClick={runFullTest}
+              disabled={isProcessing}
+              className="p-3 border border-[#009fe3] bg-[#009fe3] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm disabled:opacity-50"
+            >
+              <CheckCircle className="w-4 h-4 mx-auto mb-1" />
+              {isProcessing ? 'Running...' : 'Run Full Test'}
+            </button>
+          </div>
 
           {/* Test Results */}
           {testResults.length > 0 && (
@@ -642,9 +709,10 @@ const TestPaymentFlow = () => {
               ) : (
                 <p>1. <strong>No sign-in needed</strong> - Guest checkout works without authentication</p>
               )}
-              <p>2. <strong>Run Full Test</strong> - This will test the complete flow automatically</p>
-              <p>3. <strong>Individual Tests</strong> - Use the buttons above to test specific components</p>
-              <p>4. <strong>Check Results</strong> - Review the detailed test results below</p>
+              <p>2. <strong>Test Checkout</strong> - Creates Stripe session, test order, and sends email</p>
+              <p>3. <strong>Run Full Test</strong> - Tests the complete flow automatically</p>
+              <p>4. <strong>Manual Test Data</strong> - Manually insert test data and test email</p>
+              <p>5. <strong>Check Results</strong> - Review the detailed test results below</p>
             </div>
           </div>
         </div>
