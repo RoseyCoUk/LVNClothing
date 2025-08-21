@@ -57,8 +57,8 @@ const TestPaymentFlow = () => {
         const products = await getProducts();
         setLiveProducts(products);
         
-        // Initialize selected products with first few products
-        const initialSelected = products.slice(0, 3).map(product => ({
+        // Initialize selected products with ALL products from database
+        const initialSelected = products.map(product => ({
           id: product.id,
           name: product.name,
           price: product.price_pence / 100, // Convert pence to pounds
