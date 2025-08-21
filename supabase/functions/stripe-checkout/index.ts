@@ -115,19 +115,16 @@ Deno.serve(async (req) => {
       console.log('Line items validation passed');
     }
 
+    // Simplified customer handling - just use customer_email for guest checkout
     let userId: string | null = null;
-    let customerId: string | null = null;
-
+    
+    // Try to get user ID from auth header if present
     const authHeader = req.headers.get('Authorization');
-    const token = authHeader?.replace('Bearer ', '').trim();
-
-    if (token) {
+    if (authHeader) {
       try {
+        const token = authHeader.replace('Bearer ', '').trim();
         const { data: { user }, error: getUserError } = await supabase.auth.getUser(token);
-
-        if (getUserError) {
-          console.warn('JWT invalid or expired. Proceeding as guest.');
-        } else if (user) {
+        if (!getUserError && user) {
           userId = user.id;
         }
       } catch (err) {
@@ -135,61 +132,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (userId) {
-      // Try to find an existing Stripe customer for the authenticated user
-      const { data: customer, error: getCustomerError } = await supabase
-        .from('stripe_customers')
-        .select('customer_id')
-        .eq('user_id', userId)
-        .is('deleted_at', null)
-        .maybeSingle();
-
-      if (getCustomerError) {
-        console.error('Failed to fetch customer information from the database for user:', getCustomerError);
-        // Continue without customerId if there's an error, a new one will be created
-      } else if (customer?.customer_id) {
-        customerId = customer.customer_id;
-      }
-    }
-
-    // If no customerId found (either guest or new authenticated user), create a new Stripe customer
-    if (!customerId) {
-      const customerData: Stripe.CustomerCreateParams = {};
-      if (userId) {
-        // If authenticated, try to get email and link customer
-        const { data: { user: authenticatedUser } } = await supabase.auth.admin.getUserById(userId);
-        if (authenticatedUser?.email) {
-          customerData.email = authenticatedUser.email;
-        }
-        customerData.metadata = { userId: userId };
-      } else {
-        // For guest users, you might want to add some identifier or just leave it
-        customerData.description = 'Guest customer from Bolt checkout';
-      }
-
-      const newCustomer = await stripe.customers.create(customerData);
-      customerId = newCustomer.id;
-
-      // Only save the customer record if we have a userId to link it to
-      if (userId) {
-        const { error: createCustomerError } = await supabase.from('stripe_customers').insert({
-          user_id: userId,
-          customer_id: newCustomer.id,
-        });
-
-        if (createCustomerError) {
-          console.error('Failed to save new customer information in the database:', createCustomerError);
-          // Proceed with checkout even if we couldn't save the customer mapping
-        }
-      }
-      
-      console.log(`Created new Stripe customer: ${customerId} (linked to user ${userId || 'guest'})`);
-    }
-
     // create Checkout Session
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
-      customer: customerId,
-      customer_email: !customerId ? customer_email : undefined, // Only use customer_email for guest checkout
+      customer_email: customer_email, // Always use customer_email for simplicity
       payment_method_types: ['card'],
       mode,
       success_url,
@@ -226,7 +171,7 @@ Deno.serve(async (req) => {
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 
-    console.log(`Created checkout session ${session.id} for customer ${customerId}`);
+    console.log(`Created checkout session ${session.id} for email ${customer_email}`);
 
     return corsResponse({ sessionId: session.id, url: session.url });
   } catch (error: unknown) {
