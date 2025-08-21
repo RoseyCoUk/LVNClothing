@@ -74,21 +74,44 @@ function corsResponse(body: string | object | null, status = 200, request?: Requ
 Deno.serve(async (req) => {
   try {
     // Log the request details for debugging
-    console.log('Request received:', {
-      method: req.method,
-      url: req.url,
-      origin: req.headers.get('Origin'),
-      userAgent: req.headers.get('User-Agent'),
-      contentType: req.headers.get('Content-Type')
-    });
+    console.log('=== REQUEST RECEIVED ===');
+    console.log('Method:', req.method);
+    console.log('URL:', req.url);
+    console.log('Origin:', req.headers.get('Origin'));
+    console.log('User-Agent:', req.headers.get('User-Agent'));
+    console.log('Content-Type:', req.headers.get('Content-Type'));
+    console.log('All headers:', Object.fromEntries(req.headers.entries()));
+    console.log('========================');
 
+    // Handle CORS preflight
     if (req.method === 'OPTIONS') {
       console.log('Handling OPTIONS request for CORS preflight');
-      return corsResponse({}, 204, req);
+      
+      const response = new Response(null, {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-User-Agent, apikey',
+          'Access-Control-Max-Age': '86400',
+        }
+      });
+      
+      console.log('OPTIONS response headers:', Object.fromEntries(response.headers.entries()));
+      return response;
     }
 
     if (req.method !== 'POST') {
-      return corsResponse({ error: 'Method not allowed' }, 405, req);
+      console.log('Method not allowed:', req.method);
+      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+        status: 405,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-User-Agent, apikey',
+        }
+      });
     }
 
     const { price_id, line_items, metadata, success_url, cancel_url, mode, customer_email, shipping_rate_id } = await req.json();
@@ -122,17 +145,41 @@ Deno.serve(async (req) => {
 
     if (error) {
       console.error('Parameter validation error:', error);
-      return corsResponse({ error }, 400, req);
+      return new Response(JSON.stringify({ error }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-User-Agent, apikey',
+        }
+      });
     }
 
     // Validate that either price_id or line_items is provided
     if (!price_id && !line_items) {
-      return corsResponse({ error: 'Either price_id or line_items must be provided' }, 400, req);
+      return new Response(JSON.stringify({ error: 'Either price_id or line_items must be provided' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-User-Agent, apikey',
+        }
+      });
     }
 
     // Validate customer_email is provided
     if (!customer_email) {
-      return corsResponse({ error: 'customer_email is required' }, 400, req);
+      return new Response(JSON.stringify({ error: 'customer_email is required' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-User-Agent, apikey',
+        }
+      });
     }
 
     // Validate line_items structure if provided
@@ -150,11 +197,27 @@ Deno.serve(async (req) => {
         
         if (!item.price_data || !item.price_data.currency || !item.price_data.product_data || !item.price_data.unit_amount) {
           console.error('Invalid line_items structure:', item);
-          return corsResponse({ error: 'Invalid line_items structure. Each item must have price_data with currency, product_data, and unit_amount' }, 400, req);
+          return new Response(JSON.stringify({ error: 'Invalid line_items structure. Each item must have price_data with currency, product_data, and unit_amount' }), {
+            status: 400,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-User-Agent, apikey',
+            }
+          });
         }
         if (!item.quantity || item.quantity < 1) {
           console.error('Invalid quantity in line_items:', item);
-          return corsResponse({ error: 'Invalid quantity in line_items. Quantity must be at least 1' }, 400, req);
+          return new Response(JSON.stringify({ error: 'Invalid quantity in line_items. Quantity must be at least 1' }), {
+            status: 400,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-User-Agent, apikey',
+            }
+          });
         }
       }
       console.log('Line items validation passed');
@@ -218,13 +281,29 @@ Deno.serve(async (req) => {
 
     console.log(`Created checkout session ${session.id} for email ${customer_email}`);
 
-    return corsResponse({ sessionId: session.id, url: session.url }, 200, req);
+    return new Response(JSON.stringify({ sessionId: session.id, url: session.url }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-User-Agent, apikey',
+      }
+    });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error(`Checkout error: ${errorMessage}`);
     console.error(`Error stack: ${error instanceof Error ? error.stack : 'No stack trace'}`);
     console.error(`Request data:`, { price_id, line_items, metadata, success_url, cancel_url, mode, customer_email, shipping_rate_id });
-    return corsResponse({ error: errorMessage }, 500, req);
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-User-Agent, apikey',
+      }
+    });
   }
 });
 

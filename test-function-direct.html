@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Edge Function Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .result { margin: 20px 0; padding: 15px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Direct Edge Function Test</h1>
+    <p>Testing the stripe-checkout function directly without Supabase client</p>
+    
+    <button onclick="testDirectCall()">Test Direct Function Call</button>
+    <button onclick="testOptions()">Test OPTIONS Request</button>
+    
+    <div id="result"></div>
+
+    <script>
+        const FUNCTION_URL = 'https://nsmrxwnrtsllxvplazmm.supabase.co/functions/v1/stripe-checkout';
+        // You'll need to get this from your Supabase dashboard: Settings > API > Project API keys > anon public
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
+        
+        function showResult(message, isSuccess = true, data = null) {
+            const element = document.getElementById('result');
+            element.className = `result ${isSuccess ? 'success' : 'error'}`;
+            
+            let html = `<h3>${isSuccess ? 'Success' : 'Error'}</h3><p>${message}</p>`;
+            if (data) {
+                html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+            element.innerHTML = html;
+        }
+
+        async function testDirectCall() {
+            try {
+                const testData = {
+                    line_items: [{
+                        price_data: {
+                            currency: 'gbp',
+                            product_data: { name: 'Test Product' },
+                            unit_amount: 1000
+                        },
+                        quantity: 1
+                    }],
+                    success_url: `${window.location.origin}/success`,
+                    cancel_url: window.location.href,
+                    mode: 'payment',
+                    customer_email: 'test@example.com'
+                };
+
+                console.log('Sending request to:', FUNCTION_URL);
+                console.log('Request data:', testData);
+                console.log('Origin:', window.location.origin);
+
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': window.location.origin,
+                        'apikey': SUPABASE_ANON_KEY // Add the apikey header
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('Direct function call successful!', true, {
+                        status: response.status,
+                        headers: Object.fromEntries(response.headers.entries()),
+                        data: data
+                    });
+                } else {
+                    const errorText = await response.text();
+                    showResult(`Function call failed with status ${response.status}`, false, {
+                        status: response.status,
+                        headers: Object.fromEntries(response.headers.entries()),
+                        error: errorText
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showResult(`Error calling function: ${error.message}`, false, { error: error.message });
+            }
+        }
+
+        async function testOptions() {
+            try {
+                console.log('Testing OPTIONS request to:', FUNCTION_URL);
+                
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+
+                console.log('OPTIONS response status:', response.status);
+                console.log('OPTIONS response headers:', Object.fromEntries(response.headers.entries()));
+
+                showResult('OPTIONS request completed', true, {
+                    status: response.status,
+                    headers: Object.fromEntries(response.headers.entries())
+                });
+            } catch (error) {
+                console.error('OPTIONS error:', error);
+                showResult(`OPTIONS request failed: ${error.message}`, false, { error: error.message });
+            }
+        }
+    </script>
+</body>
+</html>
