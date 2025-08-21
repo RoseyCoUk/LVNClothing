@@ -49,6 +49,17 @@ serve(async (req) => {
       )
     }
 
+    if (action === 'test') {
+      // Simple test action to verify function accessibility
+      return new Response(
+        JSON.stringify({ success: true, message: 'manual-test-insert function is accessible' }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
     if (action === 'createTestOrder') {
       // Create a test order for testing purposes
       const { sessionId, customerEmail, items, address } = await req.json()

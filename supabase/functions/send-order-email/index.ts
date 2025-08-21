@@ -36,11 +36,23 @@ serve(async (req) => {
   try {
     console.log('send-order-email function triggered')
     
-    const { order_id, orderId, customerEmail }: RequestBody = await req.json()
+    const { order_id, orderId, customerEmail, test }: RequestBody & { test?: boolean } = await req.json()
     
     console.log('Received order_id:', order_id)
     console.log('Received orderId (legacy):', orderId)
     console.log('Received customerEmail:', customerEmail)
+    console.log('Received test:', test)
+    
+    // Handle test request
+    if (test) {
+      return new Response(
+        JSON.stringify({ success: true, message: 'send-order-email function is accessible' }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
     
     if ((!order_id && !orderId) || !customerEmail) {
       return new Response(

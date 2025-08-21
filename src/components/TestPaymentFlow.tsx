@@ -309,6 +309,9 @@ const TestPaymentFlow = () => {
     try {
       addTestResult('Step 3', 'info', `Calling send-order-email function for order ${orderId} to ${email}`);
       
+      // Debug: Log email function call
+      console.log('🔍 Debug: sendTestEmail called with:', { orderId, email });
+      
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       
       if (!supabaseUrl) {
@@ -322,6 +325,7 @@ const TestPaymentFlow = () => {
       };
       
       addTestResult('Step 3', 'info', 'Request body:', requestBody);
+      console.log('🔍 Debug: Email request body:', requestBody);
       
       const response = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
         method: 'POST',
@@ -332,14 +336,19 @@ const TestPaymentFlow = () => {
         body: JSON.stringify(requestBody),
       });
 
+      console.log('🔍 Debug: Email response status:', response.status);
+      console.log('🔍 Debug: Email response ok:', response.ok);
+
       addTestResult('Step 3', 'info', `Response status: ${response.status}`);
 
       if (response.ok) {
         const responseData = await response.json();
+        console.log('🔍 Debug: Email response data:', responseData);
         addTestResult('Step 3', 'success', 'Test email sent successfully!', responseData);
         return true;
       } else {
         const errorData = await response.text();
+        console.log('🔍 Debug: Email error data:', errorData);
         addTestResult('Step 3', 'error', 'Failed to send test email', {
           status: response.status,
           error: errorData
@@ -347,6 +356,7 @@ const TestPaymentFlow = () => {
         return false;
       }
     } catch (error: any) {
+      console.log('🔍 Debug: Exception in sendTestEmail:', error);
       addTestResult('Step 3', 'error', 'Error sending test email', error.message);
       return false;
     }
@@ -357,11 +367,20 @@ const TestPaymentFlow = () => {
     try {
       addTestResult('Email Test', 'info', 'Testing email function directly...');
       
+      // Debug: Log current state
+      console.log('🔍 Debug: Current manual address:', manualAddress);
+      console.log('🔍 Debug: Selected products:', getSelectedProducts());
+      console.log('🔍 Debug: Environment variables:', {
+        supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
+        hasAnonKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY
+      });
+      
       // First create a test order
       const testOrderId = `test_order_${Date.now()}`;
       const testEmail = manualAddress.email || 'test@example.com';
       
       addTestResult('Email Test', 'info', `Creating test order with ID: ${testOrderId}`);
+      addTestResult('Email Test', 'info', `Using email: ${testEmail}`);
       
       // Create test order first
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -371,28 +390,36 @@ const TestPaymentFlow = () => {
         return;
       }
       
+      const requestBody = {
+        action: 'createTestOrder',
+        sessionId: `test_session_${Date.now()}`,
+        customerEmail: testEmail,
+        address: manualAddress,
+        items: getSelectedProducts().map(product => ({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: product.quantity
+        }))
+      };
+      
+      console.log('🔍 Debug: Request body for manual-test-insert:', requestBody);
+      
       const createResponse = await fetch(`${supabaseUrl}/functions/v1/manual-test-insert`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
         },
-        body: JSON.stringify({
-          action: 'createTestOrder',
-          sessionId: `test_session_${Date.now()}`,
-          customerEmail: testEmail,
-          address: manualAddress,
-          items: getSelectedProducts().map(product => ({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            quantity: product.quantity
-          }))
-        }),
+        body: JSON.stringify(requestBody),
       });
+
+      console.log('🔍 Debug: Create response status:', createResponse.status);
+      console.log('🔍 Debug: Create response ok:', createResponse.ok);
 
       if (createResponse.ok) {
         const createData = await createResponse.json();
+        console.log('🔍 Debug: Create response data:', createData);
         addTestResult('Email Test', 'success', 'Test order created successfully!', createData);
         
         // Now test the email function
@@ -407,13 +434,92 @@ const TestPaymentFlow = () => {
         }
       } else {
         const errorData = await createResponse.text();
+        console.log('🔍 Debug: Create error data:', errorData);
         addTestResult('Email Test', 'error', 'Failed to create test order for email test', {
           status: createResponse.status,
           error: errorData
         });
       }
     } catch (error: any) {
+      console.log('🔍 Debug: Exception in testEmailFunction:', error);
       addTestResult('Email Test', 'error', 'Error testing email function', error.message);
+    }
+  };
+
+  // Add this function to test Edge Functions accessibility
+  const testEdgeFunctions = async () => {
+    try {
+      addTestResult('Edge Function Test', 'info', 'Testing Edge Functions accessibility...');
+      
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      
+      if (!supabaseUrl) {
+        addTestResult('Edge Function Test', 'error', 'VITE_SUPABASE_URL not configured');
+        return;
+      }
+      
+      // Test manual-test-insert function
+      addTestResult('Edge Function Test', 'info', 'Testing manual-test-insert function...');
+      
+      const testResponse = await fetch(`${supabaseUrl}/functions/v1/manual-test-insert`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          action: 'test',
+          test: true
+        }),
+      });
+      
+      console.log('🔍 Debug: manual-test-insert test response:', {
+        status: testResponse.status,
+        ok: testResponse.ok
+      });
+      
+      if (testResponse.ok) {
+        addTestResult('Edge Function Test', 'success', 'manual-test-insert function is accessible');
+      } else {
+        const errorData = await testResponse.text();
+        addTestResult('Edge Function Test', 'error', 'manual-test-insert function test failed', {
+          status: testResponse.status,
+          error: errorData
+        });
+      }
+      
+      // Test send-order-email function
+      addTestResult('Edge Function Test', 'info', 'Testing send-order-email function...');
+      
+      const emailTestResponse = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          test: true
+        }),
+      });
+      
+      console.log('🔍 Debug: send-order-email test response:', {
+        status: emailTestResponse.status,
+        ok: emailTestResponse.ok
+      });
+      
+      if (emailTestResponse.ok) {
+        addTestResult('Edge Function Test', 'success', 'send-order-email function is accessible');
+      } else {
+        const errorData = await emailTestResponse.text();
+        addTestResult('Edge Function Test', 'error', 'send-order-email function test failed', {
+          status: emailTestResponse.status,
+          error: errorData
+        });
+      }
+      
+    } catch (error: any) {
+      console.log('🔍 Debug: Exception in testEdgeFunctions:', error);
+      addTestResult('Edge Function Test', 'error', 'Error testing Edge Functions', error.message);
     }
   };
 
@@ -860,6 +966,13 @@ const TestPaymentFlow = () => {
             >
               <Mail className="w-4 h-4 mx-auto mb-1" />
               Test Email Function
+            </button>
+            <button
+              onClick={testEdgeFunctions}
+              className="p-3 border border-purple-300 rounded-lg hover:border-purple-500 hover:text-purple-600 transition-colors text-sm"
+            >
+              <Package className="w-4 h-4 mx-auto mb-1" />
+              Test Edge Functions
             </button>
           </div>
 
