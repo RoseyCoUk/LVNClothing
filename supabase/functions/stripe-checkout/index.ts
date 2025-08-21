@@ -40,7 +40,7 @@ function corsResponse(body: string | object | null, status = 200, request?: Requ
   const headers = {
     'Access-Control-Allow-Origin': isAllowedOrigin ? origin : allowedOrigins[0],
     'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-User-Agent',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-User-Agent, apikey',
     'Access-Control-Max-Age': '86400', // 24 hours
   };
 
