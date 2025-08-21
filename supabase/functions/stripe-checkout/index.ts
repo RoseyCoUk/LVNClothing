@@ -194,6 +194,9 @@ Deno.serve(async (req) => {
       mode,
       success_url,
       cancel_url,
+      // Enable customer details collection for address and contact info
+      customer_creation: 'always',
+      collect_shipping_address: true,
       metadata: {
         ...(userId ? { user_id: userId } : {}),
         ...(metadata || {}),
