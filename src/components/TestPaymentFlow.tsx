@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CreditCard, ShoppingCart, CheckCircle, AlertTriangle, Package, Clock, User, UserX } from 'lucide-react';
+import { CreditCard, ShoppingCart, CheckCircle, AlertTriangle, Package, Clock, User, UserX, Mail } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { createCheckoutSession } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
@@ -195,17 +195,16 @@ const TestPaymentFlow = () => {
       // For test mode, simulate the redirect and success flow
       addTestResult('Step 3', 'info', 'Simulating redirect to Stripe checkout...');
       
-      // Simulate successful payment and redirect to success page
+      // Simulate successful payment and create test order
       setTimeout(async () => {
         addTestResult('Step 3', 'success', 'Payment completed! Creating test order...');
         
         // Call the manual-test-insert Supabase Edge Function to create test order and send email
         await callManualTestInsert(response.sessionId, manualAddress.email);
         
-        addTestResult('Step 3', 'success', 'Test complete! Redirecting to success page...');
-        
-        // Redirect to success page with test parameters
-        window.location.href = `/success?test=payment&session_id=${response.sessionId}&email=${encodeURIComponent(manualAddress.email)}`;
+        // Don't redirect immediately - let the user see the test results
+        addTestResult('Step 3', 'success', 'Test complete! Check the results above and your email.');
+        addTestResult('Step 3', 'info', 'You can manually navigate to /success if needed.');
       }, 2000);
 
       return response;
@@ -308,7 +307,21 @@ const TestPaymentFlow = () => {
   // Add this function to send test email
   const sendTestEmail = async (orderId: string, email: string) => {
     try {
+      addTestResult('Step 3', 'info', `Calling send-order-email function for order ${orderId} to ${email}`);
+      
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      
+      if (!supabaseUrl) {
+        addTestResult('Step 3', 'error', 'VITE_SUPABASE_URL not configured');
+        return false;
+      }
+      
+      const requestBody = {
+        order_id: orderId,
+        customerEmail: email,
+      };
+      
+      addTestResult('Step 3', 'info', 'Request body:', requestBody);
       
       const response = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
         method: 'POST',
@@ -316,20 +329,91 @@ const TestPaymentFlow = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
         },
-        body: JSON.stringify({
-          order_id: orderId,
-          customerEmail: email,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      addTestResult('Step 3', 'info', `Response status: ${response.status}`);
+
       if (response.ok) {
-        addTestResult('Step 3', 'success', 'Test email sent successfully!');
+        const responseData = await response.json();
+        addTestResult('Step 3', 'success', 'Test email sent successfully!', responseData);
+        return true;
       } else {
         const errorData = await response.text();
-        addTestResult('Step 3', 'error', 'Failed to send test email', errorData);
+        addTestResult('Step 3', 'error', 'Failed to send test email', {
+          status: response.status,
+          error: errorData
+        });
+        return false;
       }
     } catch (error: any) {
       addTestResult('Step 3', 'error', 'Error sending test email', error.message);
+      return false;
+    }
+  };
+
+  // Add this function to test email function directly
+  const testEmailFunction = async () => {
+    try {
+      addTestResult('Email Test', 'info', 'Testing email function directly...');
+      
+      // First create a test order
+      const testOrderId = `test_order_${Date.now()}`;
+      const testEmail = manualAddress.email || 'test@example.com';
+      
+      addTestResult('Email Test', 'info', `Creating test order with ID: ${testOrderId}`);
+      
+      // Create test order first
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      
+      if (!supabaseUrl) {
+        addTestResult('Email Test', 'error', 'VITE_SUPABASE_URL not configured');
+        return;
+      }
+      
+      const createResponse = await fetch(`${supabaseUrl}/functions/v1/manual-test-insert`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          action: 'createTestOrder',
+          sessionId: `test_session_${Date.now()}`,
+          customerEmail: testEmail,
+          address: manualAddress,
+          items: getSelectedProducts().map(product => ({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: product.quantity
+          }))
+        }),
+      });
+
+      if (createResponse.ok) {
+        const createData = await createResponse.json();
+        addTestResult('Email Test', 'success', 'Test order created successfully!', createData);
+        
+        // Now test the email function
+        addTestResult('Email Test', 'info', 'Testing email sending...');
+        const emailResult = await sendTestEmail(createData.data.id, testEmail);
+        
+        if (emailResult) {
+          addTestResult('Email Test', 'success', 'Email function test completed successfully!');
+          addTestResult('Email Test', 'info', `Check your email at: ${testEmail}`);
+        } else {
+          addTestResult('Email Test', 'error', 'Email function test failed');
+        }
+      } else {
+        const errorData = await createResponse.text();
+        addTestResult('Email Test', 'error', 'Failed to create test order for email test', {
+          status: createResponse.status,
+          error: errorData
+        });
+      }
+    } catch (error: any) {
+      addTestResult('Email Test', 'error', 'Error testing email function', error.message);
     }
   };
 
@@ -770,6 +854,13 @@ const TestPaymentFlow = () => {
               <CheckCircle className="w-4 h-4 mx-auto mb-1" />
               {isProcessing ? 'Running...' : 'Run Full Test'}
             </button>
+            <button
+              onClick={testEmailFunction}
+              className="p-3 border border-green-300 rounded-lg hover:border-green-500 hover:text-green-600 transition-colors text-sm"
+            >
+              <Mail className="w-4 h-4 mx-auto mb-1" />
+              Test Email Function
+            </button>
           </div>
 
           {/* Manual Address Entry Section */}
@@ -1043,6 +1134,17 @@ const TestPaymentFlow = () => {
               </div>
             </div>
           )}
+
+          {/* Environment Debug Info */}
+          <div className="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <h4 className="font-semibold text-gray-900 mb-2">Environment Debug Info</h4>
+            <div className="text-gray-700 text-sm space-y-1">
+              <p><strong>VITE_SUPABASE_URL:</strong> {import.meta.env.VITE_SUPABASE_URL ? '✅ Configured' : '❌ Missing'}</p>
+              <p><strong>VITE_SUPABASE_ANON_KEY:</strong> {import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ Configured' : '❌ Missing'}</p>
+              <p><strong>Current Email:</strong> {manualAddress.email || 'Not set'}</p>
+              <p><strong>Selected Products:</strong> {getSelectedProducts().length} items</p>
+            </div>
+          </div>
 
           {/* Instructions */}
           <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
