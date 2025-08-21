@@ -116,7 +116,7 @@ serve(async (req: Request) => {
       success_url,
       cancel_url,
       customer_creation: 'always',
-      collect_shipping_address: true,
+      // Remove collect_shipping_address as it's not a valid Stripe parameter
       metadata: {
         ...(userId ? { user_id: userId } : {}),
         ...(metadata || {}),
