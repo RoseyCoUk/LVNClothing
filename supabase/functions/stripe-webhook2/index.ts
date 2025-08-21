@@ -87,38 +87,92 @@ const handler = async (req: Request) => {
         try {
           console.log(`[stripe-webhook] Processing checkout session: ${session.id}`);
           console.log(`[stripe-webhook] Customer email: ${customerEmail}`);
+          console.log(`[stripe-webhook] Session metadata:`, session.metadata);
           
-          // Parse items from metadata or use empty array
-          let items = []
-          if (session.metadata?.items) {
-            try {
-              items = JSON.parse(session.metadata.items)
-              console.log(`[stripe-webhook] Parsed items from metadata:`, items);
-            } catch (parseError) {
-              console.warn('[stripe-webhook] Failed to parse items metadata:', parseError)
-              items = []
+          // Process product information from metadata to create readable order items
+          const processedItems = []
+          
+          // Extract product names and variants from metadata
+          const productNames = {}
+          const productVariants = {}
+          
+          // Parse metadata to get product names and variants
+          Object.keys(session.metadata || {}).forEach(key => {
+            if (key.startsWith('product_') && key.endsWith('_name')) {
+              const productNum = key.replace('product_', '').replace('_name', '')
+              productNames[productNum] = session.metadata[key]
             }
-          } else {
-            console.log('[stripe-webhook] No items metadata found, using empty array');
+            if (key.startsWith('product_') && key.endsWith('_variants')) {
+              const productNum = key.replace('product_', '').replace('_variants', '')
+              try {
+                productVariants[productNum] = JSON.parse(session.metadata[key])
+              } catch (e) {
+                productVariants[productNum] = {}
+              }
+            }
+          })
+
+          // Process each line item to include product names and variants
+          if (session.line_items?.data) {
+            session.line_items.data.forEach((item: any, index: number) => {
+              const productNum = (index + 1).toString()
+              
+              // Try to get product name from metadata first, then fall back to Stripe data
+              let productName = productNames[productNum];
+              if (!productName) {
+                // Fall back to Stripe's product data or description
+                productName = item.price?.product?.name || item.description || 'Unknown Product';
+              }
+              
+              const variants = productVariants[productNum] || {}
+              
+              // Create a processed item with readable product information
+              const processedItem = {
+                id: item.id || `item_${index}`,
+                price_data: {
+                  currency: item.currency || 'gbp',
+                  product_data: {
+                    name: productName,
+                    description: `${productName}${Object.keys(variants).length > 0 ? ` - ${Object.keys(variants).map(key => `${key}: ${variants[key]}`).join(', ')}` : ''}`
+                  },
+                  unit_amount: item.amount_unit_price || item.amount_total
+                },
+                quantity: item.quantity || 1
+              }
+              
+              processedItems.push(processedItem)
+            })
           }
 
-          // Sanitize line items for DB insert
-          const sanitizedItems = session.line_items?.data.map((item: any) => ({
-            name: item.description,
-            quantity: item.quantity,
-            price: item.amount_total / 100,
-          })) ?? [];
+          // If no line items were processed, create a fallback item from session data
+          if (processedItems.length === 0) {
+            console.log('[stripe-webhook] No line items processed, creating fallback item from session data');
+            const fallbackItem = {
+              id: `fallback_${session.id}`,
+              price_data: {
+                currency: 'gbp',
+                product_data: {
+                  name: session.metadata?.product_name || 'Product',
+                  description: 'Product purchased via Stripe checkout'
+                },
+                unit_amount: session.amount_total || 0
+              },
+              quantity: 1
+            };
+            processedItems.push(fallbackItem);
+          }
+
+          console.log('Processed items:', JSON.stringify(processedItems, null, 2))
           
           // Extract user_id from metadata if provided
           const userId = session.metadata?.user_id || null;
-          console.log(`[stripe-webhook] Session metadata:`, session.metadata);
           console.log(`[stripe-webhook] User ID from metadata:`, userId);
           console.log(`[stripe-webhook] Amount total:`, session.amount_total);
           
           const orderInsert = {
             stripe_session_id: session.id,
             customer_email: customerEmail,
-            items: sanitizedItems,
+            items: processedItems, // Use processed items instead of sanitized items
             customer_details: session.customer_details || null,
             amount_total: session.amount_total || null, // Amount in cents
             user_id: userId, // Link to Supabase user if provided
@@ -144,63 +198,21 @@ const handler = async (req: Request) => {
             )
           }
 
-          // Insert order items into order_items table
-          if (session.line_items && session.line_items.data && session.line_items.data.length > 0) {
-            console.log(`[stripe-webhook] Inserting ${session.line_items.data.length} order items`);
-            
-            const orderItems = session.line_items.data.map((item: any) => ({
-              order_id: data.id,
-              name: item.description || 'Unknown Product',
-              quantity: item.quantity || 1,
-              price: (item.amount_total / 100).toString() // Convert from cents to decimal
-            }));
-
-            const { error: itemsError } = await supabase
-              .from('order_items')
-              .insert(orderItems);
-
-            if (itemsError) {
-              console.error('[stripe-webhook] Error inserting order items:', itemsError);
-              // Don't fail the entire request, just log the error
-            } else {
-              console.log(`[stripe-webhook] Successfully inserted ${orderItems.length} order items`);
-            }
-          } else {
-            console.log('[stripe-webhook] No line items found in session, skipping order_items insertion');
-          }
-
-          console.log('[stripe-webhook] Order saved successfully:', {
-            id: data.id,
-            stripe_session_id: data.stripe_session_id,
-            readable_order_id: data.readable_order_id,
-            customer_email: data.customer_email,
-            created_at: data.created_at
-          });
-
-          // Call the send-order-email function with order_id for direct lookup
+          console.log(`[stripe-webhook] Order saved successfully with ID: ${data.id}`);
+          
+          // Send order confirmation email
           try {
-            console.log('[stripe-webhook] Calling send-order-email function with order_id:', data.id);
-            const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${supabaseServiceKey}`,
-              },
-              body: JSON.stringify({
-                order_id: data.id,
-                customerEmail: customerEmail,
-              }),
-            });
-
+            console.log(`[stripe-webhook] Sending order confirmation email to ${customerEmail}`);
+            const emailResponse = await sendOrderEmail(data.id, customerEmail);
+            
             if (emailResponse.ok) {
-              const emailResult = await emailResponse.json();
-              console.log('[stripe-webhook] Email sent successfully:', emailResult);
+              console.log(`[stripe-webhook] Order confirmation email sent successfully`);
             } else {
-              const errorText = await emailResponse.text();
-              console.error('[stripe-webhook] Failed to send email:', errorText);
+              console.error(`[stripe-webhook] Failed to send order confirmation email:`, await emailResponse.text());
             }
           } catch (emailError) {
-            console.error('[stripe-webhook] Error calling email function:', emailError);
+            console.error(`[stripe-webhook] Error sending order confirmation email:`, emailError);
+            // Don't fail the webhook if email fails
           }
 
           return new Response(

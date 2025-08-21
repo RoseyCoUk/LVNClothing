@@ -236,13 +236,25 @@ serve(async (req) => {
     let orderItems: OrderItem[] = [];
     
     if (orderData.items && Array.isArray(orderData.items)) {
+      console.log('Raw order items from database:', JSON.stringify(orderData.items, null, 2));
+      
       // Items are stored directly in the orders table
-      orderItems = orderData.items.map((item: any) => ({
-        id: item.id || 'unknown',
-        product_name: item.price_data?.product_data?.name || item.description || 'Unknown Product',
-        quantity: item.quantity || 1,
-        unit_price: item.price_data?.unit_amount || Math.round(parseFloat(item.price || '0') * 100) // Convert to pence
-      }));
+      orderItems = orderData.items.map((item: any) => {
+        console.log('Processing item:', JSON.stringify(item, null, 2));
+        console.log('Item price_data:', item.price_data);
+        console.log('Item price_data.product_data:', item.price_data?.product_data);
+        console.log('Item price_data.product_data.name:', item.price_data?.product_data?.name);
+        
+        const orderItem = {
+          id: item.id || 'unknown',
+          product_name: item.price_data?.product_data?.name || item.description || 'Unknown Product',
+          quantity: item.quantity || 1,
+          unit_price: item.price_data?.unit_amount || Math.round(parseFloat(item.price || '0') * 100) // Convert to pence
+        };
+        
+        console.log('Created order item:', orderItem);
+        return orderItem;
+      });
       console.log('Order items found in orders table:', orderItems);
     } else {
       console.warn('No items found in orders table or items field is not an array');
