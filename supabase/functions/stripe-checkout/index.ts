@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
         metadata: 'optional_object',
         success_url: 'string',
         mode: { values: ['payment', 'subscription'] },
-        customer_email: 'optional_string',
+        customer_email: 'string', // Make customer_email required
         shipping_rate_id: 'optional_string',
       },
     );
@@ -88,6 +88,11 @@ Deno.serve(async (req) => {
     // Validate that either price_id or line_items is provided
     if (!price_id && !line_items) {
       return corsResponse({ error: 'Either price_id or line_items must be provided' }, 400);
+    }
+
+    // Validate customer_email is provided
+    if (!customer_email) {
+      return corsResponse({ error: 'customer_email is required' }, 400);
     }
 
     // Validate line_items structure if provided
