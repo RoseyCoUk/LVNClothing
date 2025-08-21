@@ -13,7 +13,8 @@ serve(async (req) => {
   }
 
   try {
-    const { action, orderId, customerDetails } = await req.json()
+    const requestBody = await req.json()
+    const { action, orderId, customerDetails, sessionId, customerEmail, items, address } = requestBody
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
@@ -67,7 +68,6 @@ serve(async (req) => {
 
     if (action === 'createTestOrder') {
       // Create a test order for testing purposes
-      const { sessionId, customerEmail, items, address } = await req.json()
       
       if (!sessionId || !customerEmail) {
         throw new Error('Missing required parameters: sessionId and customerEmail')
