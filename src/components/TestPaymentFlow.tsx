@@ -157,13 +157,28 @@ const TestPaymentFlow = () => {
     addTestResult('Step 3', 'info', 'Testing checkout session creation...');
     addTestResult('Step 3', 'info', 'Note: This test will fail if Stripe environment variables are not configured');
     
+    // Validate that required address fields are filled
+    if (!manualAddress.email || !manualAddress.name || !manualAddress.line1 || !manualAddress.city || !manualAddress.postal_code) {
+      addTestResult('Step 3', 'error', 'Please fill in all required address fields before testing checkout');
+      addTestResult('Step 3', 'info', 'Required: Email, Name, Address Line 1, City, Postal Code');
+      return null;
+    }
+    
+    // Validate that at least one product is selected
+    if (getSelectedProducts().length === 0) {
+      addTestResult('Step 3', 'error', 'Please select at least one product before testing checkout');
+      return null;
+    }
+    
+    addTestResult('Step 3', 'info', 'Address and product validation passed');
+    
     try {
       const checkoutData = {
         price_id: testPriceId,
         success_url: `${window.location.origin}/success`,
         cancel_url: `${window.location.origin}/shop`,
         mode: 'payment' as const,
-        customer_email: checkoutType === 'guest' ? testEmail : undefined
+        customer_email: checkoutType === 'guest' ? manualAddress.email : undefined
       };
       
       addTestResult('Step 3', 'info', 'Calling createCheckoutSession...', checkoutData);
@@ -185,12 +200,12 @@ const TestPaymentFlow = () => {
         addTestResult('Step 3', 'success', 'Payment completed! Creating test order...');
         
         // Call the manual-test-insert Supabase Edge Function to create test order and send email
-        await callManualTestInsert(response.sessionId, testEmail);
+        await callManualTestInsert(response.sessionId, manualAddress.email);
         
         addTestResult('Step 3', 'success', 'Test complete! Redirecting to success page...');
         
         // Redirect to success page with test parameters
-        window.location.href = `/success?test=payment&session_id=${response.sessionId}&email=${encodeURIComponent(testEmail)}`;
+        window.location.href = `/success?test=payment&session_id=${response.sessionId}&email=${encodeURIComponent(manualAddress.email)}`;
       }, 2000);
 
       return response;
@@ -213,9 +228,9 @@ const TestPaymentFlow = () => {
     try {
       addTestResult('Step 3', 'info', 'Creating test order in database...');
       
-      // Use custom test email if provided, otherwise use the default customer email
-      const emailToUse = customTestEmail || customerEmail;
-      addTestResult('Step 3', 'info', `Using email: ${emailToUse} ${customTestEmail ? '(custom test email)' : '(default email)'}`);
+      // Use manual address email as primary, fallback to custom test email, then customerEmail
+      const emailToUse = manualAddress.email || customTestEmail || customerEmail;
+      addTestResult('Step 3', 'info', `Using email: ${emailToUse} (from manual address form)`);
       
       // Get your Supabase project URL from environment
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -761,24 +776,47 @@ const TestPaymentFlow = () => {
                 </button>
               </div>
             </div>
+            
+            {/* Test Summary */}
+            <div className="mb-4 p-3 bg-blue-100 rounded-lg">
+              <p className="text-blue-800 text-sm font-medium">Test Order Summary:</p>
+              <p className="text-blue-700 text-sm">
+                Customer: <strong>{manualAddress.name || 'Not set'}</strong> | 
+                Email: <strong>{manualAddress.email || 'Not set'}</strong> | 
+                Address: <strong>{manualAddress.line1 && manualAddress.city ? `${manualAddress.line1}, ${manualAddress.city}` : 'Incomplete'}</strong>
+              </p>
+              <p className="text-blue-700 text-sm">
+                Products: <strong>{getSelectedProducts().length} selected</strong> | 
+                Total: <strong>£{getSelectedProductsTotal().toFixed(2)}</strong>
+              </p>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-blue-800 mb-1">Full Name</label>
+                <label className="block text-sm font-medium text-blue-800 mb-1">
+                  Full Name <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   value={manualAddress.name}
                   onChange={(e) => handleAddressChange('name', e.target.value)}
-                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  className={`w-full px-3 py-2 border rounded-md text-sm ${
+                    !manualAddress.name ? 'border-red-300 bg-red-50' : 'border-blue-300'
+                  }`}
                   placeholder="Customer Name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-blue-800 mb-1">Email</label>
+                <label className="block text-sm font-medium text-blue-800 mb-1">
+                  Email <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="email"
                   value={manualAddress.email}
                   onChange={(e) => handleAddressChange('email', e.target.value)}
-                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  className={`w-full px-3 py-2 border rounded-md text-sm ${
+                    !manualAddress.email ? 'border-red-300 bg-red-50' : 'border-blue-300'
+                  }`}
                   placeholder="customer@example.com"
                 />
               </div>
@@ -793,12 +831,16 @@ const TestPaymentFlow = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-blue-800 mb-1">Address Line 1</label>
+                <label className="block text-sm font-medium text-blue-800 mb-1">
+                  Address Line 1 <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   value={manualAddress.line1}
                   onChange={(e) => handleAddressChange('line1', e.target.value)}
-                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  className={`w-full px-3 py-2 border rounded-md text-sm ${
+                    !manualAddress.line1 ? 'border-red-300 bg-red-50' : 'border-blue-300'
+                  }`}
                   placeholder="Street Address"
                 />
               </div>
@@ -813,12 +855,16 @@ const TestPaymentFlow = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-blue-800 mb-1">City</label>
+                <label className="block text-sm font-medium text-blue-800 mb-1">
+                  City <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   value={manualAddress.city}
                   onChange={(e) => handleAddressChange('city', e.target.value)}
-                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  className={`w-full px-3 py-2 border rounded-md text-sm ${
+                    !manualAddress.city ? 'border-red-300 bg-red-50' : 'border-blue-300'
+                  }`}
                   placeholder="City"
                 />
               </div>
@@ -833,12 +879,16 @@ const TestPaymentFlow = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-blue-800 mb-1">Postal Code</label>
+                <label className="block text-sm font-medium text-blue-800 mb-1">
+                  Postal Code <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   value={manualAddress.postal_code}
                   onChange={(e) => handleAddressChange('postal_code', e.target.value)}
-                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+                  className={`w-full px-3 py-2 border rounded-md text-sm ${
+                    !manualAddress.postal_code ? 'border-red-300 bg-red-50' : 'border-blue-300'
+                  }`}
                   placeholder="Postal Code"
                 />
               </div>
