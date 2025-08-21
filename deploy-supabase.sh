@@ -62,7 +62,7 @@ fi
 print_status "Deploying Edge Functions..."
 
 # Deploy each function individually for better error handling
-functions=("stripe-webhook2" "send-order-email" "manual-test-insert")
+functions=("stripe-checkout" "stripe-webhook2" "send-order-email" "manual-test-insert")
 
 for func in "${functions[@]}"; do
     print_status "Deploying $func..."

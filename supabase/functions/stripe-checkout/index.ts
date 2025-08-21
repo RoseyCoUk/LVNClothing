@@ -20,11 +20,28 @@ const stripe = new Stripe(stripeSecret, {
 });
 
 // Helper function to create responses with CORS headers
-function corsResponse(body: string | object | null, status = 200) {
+function corsResponse(body: string | object | null, status = 200, request?: Request) {
+  // Get the origin from the request headers
+  const origin = request?.headers.get('Origin');
+  
+  // Define allowed origins
+  const allowedOrigins = [
+    'https://backreform.co.uk',
+    'https://www.backreform.co.uk',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+  ];
+  
+  // Check if the origin is allowed
+  const isAllowedOrigin = origin && allowedOrigins.includes(origin);
+  
   const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Origin': isAllowedOrigin ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-User-Agent',
+    'Access-Control-Max-Age': '86400', // 24 hours
   };
 
   // For 204 No Content, don't include Content-Type or body
@@ -43,12 +60,22 @@ function corsResponse(body: string | object | null, status = 200) {
 
 Deno.serve(async (req) => {
   try {
+    // Log the request details for debugging
+    console.log('Request received:', {
+      method: req.method,
+      url: req.url,
+      origin: req.headers.get('Origin'),
+      userAgent: req.headers.get('User-Agent'),
+      contentType: req.headers.get('Content-Type')
+    });
+
     if (req.method === 'OPTIONS') {
-      return corsResponse({}, 204);
+      console.log('Handling OPTIONS request for CORS preflight');
+      return corsResponse({}, 204, req);
     }
 
     if (req.method !== 'POST') {
-      return corsResponse({ error: 'Method not allowed' }, 405);
+      return corsResponse({ error: 'Method not allowed' }, 405, req);
     }
 
     const { price_id, line_items, metadata, success_url, cancel_url, mode, customer_email, shipping_rate_id } = await req.json();
@@ -82,17 +109,17 @@ Deno.serve(async (req) => {
 
     if (error) {
       console.error('Parameter validation error:', error);
-      return corsResponse({ error }, 400);
+      return corsResponse({ error }, 400, req);
     }
 
     // Validate that either price_id or line_items is provided
     if (!price_id && !line_items) {
-      return corsResponse({ error: 'Either price_id or line_items must be provided' }, 400);
+      return corsResponse({ error: 'Either price_id or line_items must be provided' }, 400, req);
     }
 
     // Validate customer_email is provided
     if (!customer_email) {
-      return corsResponse({ error: 'customer_email is required' }, 400);
+      return corsResponse({ error: 'customer_email is required' }, 400, req);
     }
 
     // Validate line_items structure if provided
@@ -110,11 +137,11 @@ Deno.serve(async (req) => {
         
         if (!item.price_data || !item.price_data.currency || !item.price_data.product_data || !item.price_data.unit_amount) {
           console.error('Invalid line_items structure:', item);
-          return corsResponse({ error: 'Invalid line_items structure. Each item must have price_data with currency, product_data, and unit_amount' }, 400);
+          return corsResponse({ error: 'Invalid line_items structure. Each item must have price_data with currency, product_data, and unit_amount' }, 400, req);
         }
         if (!item.quantity || item.quantity < 1) {
           console.error('Invalid quantity in line_items:', item);
-          return corsResponse({ error: 'Invalid quantity in line_items. Quantity must be at least 1' }, 400);
+          return corsResponse({ error: 'Invalid quantity in line_items. Quantity must be at least 1' }, 400, req);
         }
       }
       console.log('Line items validation passed');
@@ -178,13 +205,13 @@ Deno.serve(async (req) => {
 
     console.log(`Created checkout session ${session.id} for email ${customer_email}`);
 
-    return corsResponse({ sessionId: session.id, url: session.url });
+    return corsResponse({ sessionId: session.id, url: session.url }, 200, req);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error(`Checkout error: ${errorMessage}`);
     console.error(`Error stack: ${error instanceof Error ? error.stack : 'No stack trace'}`);
     console.error(`Request data:`, { price_id, line_items, metadata, success_url, cancel_url, mode, customer_email, shipping_rate_id });
-    return corsResponse({ error: errorMessage }, 500);
+    return corsResponse({ error: errorMessage }, 500, req);
   }
 });
 
