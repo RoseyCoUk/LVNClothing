@@ -11,6 +11,18 @@ interface StripeSession {
   id: string
   customer_details: {
     email: string
+    name?: string
+    phone?: string
+    address?: {
+      city?: string
+      line1?: string
+      line2?: string
+      state?: string
+      country?: string
+      postal_code?: string
+    }
+    tax_ids?: string[]
+    tax_exempt?: string
   }
   metadata: {
     items?: string
@@ -87,6 +99,7 @@ serve(async (req) => {
         const session = event.data.object as Stripe.Checkout.Session
         console.log('Session ID:', session.id)
         console.log('Customer email:', session.customer_details?.email)
+        console.log('Full customer details:', JSON.stringify(session.customer_details, null, 2))
 
         try {
           // Parse items from metadata or use empty array
@@ -107,6 +120,21 @@ serve(async (req) => {
               stripe_session_id: session.id,
               customer_email: session.customer_details?.email || 'unknown@example.com',
               items: items,
+              customer_details: {
+                name: session.customer_details?.name || null,
+                email: session.customer_details?.email || null,
+                phone: session.customer_details?.phone || null,
+                address: {
+                  city: session.customer_details?.address?.city || null,
+                  line1: session.customer_details?.address?.line1 || null,
+                  line2: session.customer_details?.address?.line2 || null,
+                  state: session.customer_details?.address?.state || null,
+                  country: session.customer_details?.address?.country || null,
+                  postal_code: session.customer_details?.address?.postal_code || null,
+                },
+                tax_ids: session.customer_details?.tax_ids || [],
+                tax_exempt: session.customer_details?.tax_exempt || 'none'
+              },
               created_at: new Date().toISOString()
             })
             .select()

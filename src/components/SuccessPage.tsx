@@ -12,6 +12,15 @@ interface SuccessPageProps {
 const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, email, readableOrderId }) => {
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [addressForm, setAddressForm] = useState({
+    line1: '',
+    line2: '',
+    city: '',
+    state: '',
+    postal_code: ''
+  });
+  const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
 
   useEffect(() => {
     const handleEmailSending = async () => {
@@ -47,7 +56,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
                       try {
               const { data: orders, error } = await supabase
                 .from('orders')
-                .select('readable_order_id, customer_email, created_at')
+                .select('readable_order_id, customer_email, created_at, customer_details, stripe_session_id')
                 .eq('stripe_session_id', session_id)
                 .limit(1);
 
@@ -176,6 +185,20 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
     handleEmailSending();
   }, [sessionId, email]);
 
+  // Pre-populate address form when order details are loaded
+  useEffect(() => {
+    if (orderDetails?.customer_details?.address) {
+      const address = orderDetails.customer_details.address;
+      setAddressForm({
+        line1: address.line1 || '',
+        line2: address.line2 || '',
+        city: address.city || '',
+        state: address.state || '',
+        postal_code: address.postal_code || ''
+      });
+    }
+  }, [orderDetails]);
+
   // Function to call the send-order-email Supabase Edge Function
   const callSendOrderEmail = async (sessionId: string, customerEmail: string) => {
     try {
@@ -248,6 +271,57 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  // Check if order is missing address information
+  const isAddressIncomplete = (order: any) => {
+    if (!order?.customer_details?.address) return true;
+    const address = order.customer_details.address;
+    return !address.line1 || !address.city || !address.postal_code;
+  };
+
+  // Update address information
+  const updateAddress = async () => {
+    if (!orderDetails?.stripe_session_id) return;
+    
+    setIsUpdatingAddress(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          customer_details: {
+            ...orderDetails.customer_details,
+            address: {
+              ...orderDetails.customer_details?.address,
+              ...addressForm
+            }
+          }
+        })
+        .eq('stripe_session_id', orderDetails.stripe_session_id);
+
+      if (error) {
+        console.error('Error updating address:', error);
+        alert('Failed to update address. Please contact support.');
+      } else {
+        // Refresh order details
+        const { data: updatedOrder } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('stripe_session_id', orderDetails.stripe_session_id)
+          .single();
+        
+        if (updatedOrder) {
+          setOrderDetails(updatedOrder);
+          setShowAddressForm(false);
+          alert('Address updated successfully!');
+        }
+      }
+    } catch (error) {
+      console.error('Error updating address:', error);
+      alert('Failed to update address. Please contact support.');
+    } finally {
+      setIsUpdatingAddress(false);
+    }
   };
 
   return (
@@ -338,6 +412,111 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
                   </span>
                 </div>
               </div>
+              
+              {/* Address Completion Section */}
+              {isAddressIncomplete(orderDetails) && (
+                <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <h4 className="font-semibold text-yellow-800 mb-3">
+                    ⚠️ Address Information Incomplete
+                  </h4>
+                  <p className="text-yellow-700 text-sm mb-4">
+                    We noticed your order is missing some address information. Please complete the details below to ensure proper delivery.
+                  </p>
+                  
+                  {!showAddressForm ? (
+                    <button
+                      onClick={() => setShowAddressForm(true)}
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded text-sm font-medium"
+                    >
+                      Complete Address
+                    </button>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-yellow-800 mb-1">
+                            Address Line 1 *
+                          </label>
+                          <input
+                            type="text"
+                            value={addressForm.line1}
+                            onChange={(e) => setAddressForm(prev => ({ ...prev, line1: e.target.value }))}
+                            className="w-full px-3 py-2 border border-yellow-300 rounded-md text-sm"
+                            placeholder="Street address"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-yellow-800 mb-1">
+                            Address Line 2
+                          </label>
+                          <input
+                            type="text"
+                            value={addressForm.line2}
+                            onChange={(e) => setAddressForm(prev => ({ ...prev, line2: e.target.value }))}
+                            className="w-full px-3 py-2 border border-yellow-300 rounded-md text-sm"
+                            placeholder="Apartment, suite, etc."
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-yellow-800 mb-1">
+                            City *
+                          </label>
+                          <input
+                            type="text"
+                            value={addressForm.city}
+                            onChange={(e) => setAddressForm(prev => ({ ...prev, city: e.target.value }))}
+                            className="w-full px-3 py-2 border border-yellow-300 rounded-md text-sm"
+                            placeholder="City"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-yellow-800 mb-1">
+                            State/County
+                          </label>
+                          <input
+                            type="text"
+                            value={addressForm.state}
+                            onChange={(e) => setAddressForm(prev => ({ ...prev, state: e.target.value }))}
+                            className="w-full px-3 py-2 border border-yellow-300 rounded-md text-sm"
+                            placeholder="State or County"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-yellow-800 mb-1">
+                            Postal Code *
+                          </label>
+                          <input
+                            type="text"
+                            value={addressForm.postal_code}
+                            onChange={(e) => setAddressForm(prev => ({ ...prev, postal_code: e.target.value }))}
+                            className="w-full px-3 py-2 border border-yellow-300 rounded-md text-sm"
+                            placeholder="Postal code"
+                            required
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-3 pt-2">
+                        <button
+                          onClick={updateAddress}
+                          disabled={isUpdatingAddress || !addressForm.line1 || !addressForm.city || !addressForm.postal_code}
+                          className="bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium"
+                        >
+                          {isUpdatingAddress ? 'Updating...' : 'Update Address'}
+                        </button>
+                        <button
+                          onClick={() => setShowAddressForm(false)}
+                          className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm font-medium"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             <div className="bg-gray-50 rounded-lg p-6 mb-8">

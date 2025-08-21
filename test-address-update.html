@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Customer Address - Reform UK</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #009fe3;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .order-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            border-left: 4px solid #009fe3;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #009fe3;
+        }
+        .required {
+            color: #dc3545;
+        }
+        .btn {
+            background: #009fe3;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background: #0086c3;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Update Customer Address</h1>
+        
+        <div class="order-info">
+            <h3>Order Information</h3>
+            <p><strong>Customer:</strong> Miss m j Deighton</p>
+            <p><strong>Email:</strong> michelle.mjd@outlook.com</p>
+            <p><strong>Current Address:</strong> Only country (GB) and postal code (ME13 0AL) are available</p>
+            <p><strong>Missing:</strong> Street address, city, and state/county</p>
+        </div>
+
+        <div id="alert" style="display: none;"></div>
+
+        <form id="addressForm">
+            <div class="grid">
+                <div class="form-group">
+                    <label for="line1">Address Line 1 <span class="required">*</span></label>
+                    <input type="text" id="line1" name="line1" required placeholder="Street address">
+                </div>
+                
+                <div class="form-group">
+                    <label for="line2">Address Line 2</label>
+                    <input type="text" id="line2" name="line2" placeholder="Apartment, suite, etc.">
+                </div>
+                
+                <div class="form-group">
+                    <label for="city">City <span class="required">*</span></label>
+                    <input type="text" id="city" name="city" required placeholder="City">
+                </div>
+                
+                <div class="form-group">
+                    <label for="state">State/County</label>
+                    <input type="text" id="state" name="state" placeholder="State or County">
+                </div>
+                
+                <div class="form-group">
+                    <label for="postal_code">Postal Code <span class="required">*</span></label>
+                    <input type="text" id="postal_code" name="postal_code" value="ME13 0AL" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <input type="text" id="country" name="country" value="GB" readonly>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <button type="submit" class="btn" id="submitBtn">Update Address</button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // You'll need to replace these with your actual Supabase credentials
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        // The order ID for Miss Deighton's order (you'll need to find this)
+        const ORDER_ID = 'YOUR_ORDER_ID';
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert alert-${type}`;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function resetForm() {
+            document.getElementById('addressForm').reset();
+            document.getElementById('postal_code').value = 'ME13 0AL';
+            document.getElementById('country').value = 'GB';
+        }
+
+        async function updateAddress(formData) {
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Updating...';
+
+            try {
+                // Prepare customer details object
+                const customerDetails = {
+                    name: "Miss m j Deighton",
+                    email: "michelle.mjd@outlook.com",
+                    phone: null,
+                    address: {
+                        city: formData.city,
+                        line1: formData.line1,
+                        line2: formData.line2,
+                        state: formData.state,
+                        country: "GB",
+                        postal_code: "ME13 0AL",
+                    },
+                    tax_ids: [],
+                    tax_exempt: "none"
+                };
+
+                // Call the manual-test-insert function to update the order
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/manual-test-insert`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                    body: JSON.stringify({
+                        action: 'updateCustomerDetails',
+                        orderId: ORDER_ID,
+                        customerDetails: customerDetails
+                    }),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showAlert('Address updated successfully!', 'success');
+                    console.log('Update result:', result);
+                } else {
+                    const error = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${error}`);
+                }
+            } catch (error) {
+                console.error('Error updating address:', error);
+                showAlert(`Failed to update address: ${error.message}`, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Update Address';
+            }
+        }
+
+        document.getElementById('addressForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Validate required fields
+            if (!data.line1 || !data.city || !data.postal_code) {
+                showAlert('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            await updateAddress(data);
+        });
+
+        // Show instructions
+        showAlert('Please fill in the missing address information for Miss Deighton\'s order. Make sure to get the correct details from the customer.', 'success');
+    </script>
+</body>
+</html>
