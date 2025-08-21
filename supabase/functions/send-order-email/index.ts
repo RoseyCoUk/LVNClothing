@@ -283,7 +283,7 @@ serve(async (req) => {
     });
 
     // Format email body
-    const emailBody = formatOrderEmail(orderData.readable_order_id || 'Processing...', orderItems, orderTotal)
+    const emailBody = formatOrderEmail(orderData.readable_order_id || 'Processing...', orderItems, orderTotal, orderData.customer_details)
 
     // Load email configuration from environment variables
     const resendApiKey = Deno.env.get('RESEND_API_KEY')
@@ -420,7 +420,7 @@ serve(async (req) => {
   }
 })
 
-function formatOrderEmail(orderId: string, items: OrderItem[], total: number): string {
+function formatOrderEmail(orderId: string, items: OrderItem[], total: number, customerDetails?: any): string {
   // Handle fallback for missing readable order ID
   const displayOrderId = orderId === 'Processing...' ? 'Processing...' : orderId
   
@@ -470,6 +470,25 @@ function formatOrderEmail(orderId: string, items: OrderItem[], total: number): s
               <p style="margin: 8px 0; font-size: 16px;"><strong>Order ID:</strong> <span style="color: #009fe3; font-weight: bold;">${displayOrderId}</span></p>
               <p style="margin: 8px 0; font-size: 16px;"><strong>Date:</strong> <span style="font-weight: bold;">${new Date().toLocaleDateString('en-GB')}</span></p>
             </div>
+            
+            <!-- Customer Information -->
+            ${customerDetails ? `
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+              <h3 style="color: #1a1a1a; margin-bottom: 15px; font-size: 20px;">Customer Information</h3>
+              <p style="margin: 8px 0; font-size: 16px;"><strong>Name:</strong> <span style="font-weight: bold;">${customerDetails.name || 'Not provided'}</span></p>
+              <p style="margin: 8px 0; font-size: 16px;"><strong>Email:</strong> <span style="font-weight: bold;">${customerDetails.email || 'Not provided'}</span></p>
+              ${customerDetails.phone ? `<p style="margin: 8px 0; font-size: 16px;"><strong>Phone:</strong> <span style="font-weight: bold;">${customerDetails.phone}</span></p>` : ''}
+              ${customerDetails.address ? `
+              <p style="margin: 8px 0; font-size: 16px;"><strong>Shipping Address:</strong></p>
+              <div style="margin-left: 20px; color: #666;">
+                <p style="margin: 4px 0;">${customerDetails.address.line1 || ''}</p>
+                ${customerDetails.address.line2 ? `<p style="margin: 4px 0;">${customerDetails.address.line2}</p>` : ''}
+                <p style="margin: 4px 0;">${customerDetails.address.city || ''}, ${customerDetails.address.state || ''} ${customerDetails.address.postal_code || ''}</p>
+                <p style="margin: 4px 0;">${customerDetails.address.country || ''}</p>
+              </div>
+              ` : ''}
+            </div>
+            ` : ''}
             
             <!-- Order Details Table -->
             <h3 style="color: #1a1a1a; margin-bottom: 15px; font-size: 20px;">Order Details</h3>

@@ -272,9 +272,26 @@ const TestPaymentFlow = () => {
           total: `£${getSelectedProductsTotal().toFixed(2)}`
         });
         
+        // Show the complete data structure being sent
+        addTestResult('Step 3', 'info', 'Complete test data sent:', {
+          sessionId: sessionId,
+          customerEmail: emailToUse,
+          address: manualAddress,
+          items: getSelectedProducts().map(product => ({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: product.quantity
+          }))
+        });
+        
         // Now call the send-order-email function with the created order
         addTestResult('Step 3', 'info', 'Sending test email...');
         await sendTestEmail(responseData.data.id, emailToUse);
+        
+        // Verify the order was created with correct data
+        addTestResult('Step 3', 'info', 'Verifying order data in database...');
+        await verifyOrderData(responseData.data.id);
         
       } else {
         const errorData = await response.text();
@@ -313,6 +330,40 @@ const TestPaymentFlow = () => {
       }
     } catch (error: any) {
       addTestResult('Step 3', 'error', 'Error sending test email', error.message);
+    }
+  };
+
+  // Add this function to verify order data in database
+  const verifyOrderData = async (orderId: string) => {
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      
+      const response = await fetch(`${supabaseUrl}/rest/v1/orders?id=eq.${orderId}&select=*`, {
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+      });
+
+      if (response.ok) {
+        const orderData = await response.json();
+        if (orderData && orderData.length > 0) {
+          const order = orderData[0];
+          addTestResult('Step 3', 'success', 'Order verified in database:', {
+            id: order.id,
+            customer_email: order.customer_email,
+            customer_details: order.customer_details,
+            items: order.items,
+            created_at: order.created_at
+          });
+        } else {
+          addTestResult('Step 3', 'error', 'Order not found in database');
+        }
+      } else {
+        addTestResult('Step 3', 'error', 'Failed to verify order data');
+      }
+    } catch (error: any) {
+      addTestResult('Step 3', 'error', 'Error verifying order data', error.message);
     }
   };
 
