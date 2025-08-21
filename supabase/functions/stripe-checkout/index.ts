@@ -96,17 +96,40 @@ serve(async (req: Request) => {
     // Try to get user ID from auth header if present
     let userId: string | null = null;
     const authHeader = req.headers.get('Authorization');
+    
     if (authHeader) {
       try {
+        console.log('Attempting to authenticate user...');
         const token = authHeader.replace('Bearer ', '').trim();
-        const { data: { user }, error: getUserError } = await supabase.auth.getUser(token);
+        
+        // Add timeout to prevent hanging
+        const authPromise = supabase.auth.getUser(token);
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Authentication timeout')), 5000)
+        );
+        
+        const { data: { user }, error: getUserError } = await Promise.race([authPromise, timeoutPromise]);
+        
         if (!getUserError && user) {
           userId = user.id;
+          console.log('User authenticated successfully:', userId);
+        } else {
+          console.log('User authentication failed:', getUserError);
         }
       } catch (err) {
-        console.warn('Error while authenticating user. Proceeding as guest.');
+        console.warn('Error while authenticating user. Proceeding as guest.', err);
       }
+    } else {
+      console.log('No authorization header, proceeding as guest');
     }
+
+    console.log('Creating Stripe checkout session with params:', {
+      customer_email,
+      mode,
+      has_line_items: !!line_items,
+      has_price_id: !!price_id,
+      has_user_id: !!userId
+    });
 
     // Create Checkout Session
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
@@ -150,7 +173,9 @@ serve(async (req: Request) => {
       ];
     }
 
+    console.log('Calling Stripe API to create checkout session...');
     const session = await stripe.checkout.sessions.create(sessionParams);
+    console.log('Stripe API call completed successfully');
 
     console.log(`Created checkout session ${session.id} for email ${customer_email}`);
 

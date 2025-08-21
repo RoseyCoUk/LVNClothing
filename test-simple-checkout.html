@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Checkout Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .result { margin: 20px 0; padding: 15px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Simple Checkout Test</h1>
+    <p>Testing the stripe-checkout function with minimal data</p>
+    
+    <button onclick="testSimpleCheckout()">Test Simple Checkout</button>
+    <button onclick="testWithSupabaseClient()">Test with Supabase Client</button>
+    
+    <div id="result"></div>
+
+    <script>
+        const FUNCTION_URL = 'https://nsmrxwnrtsllxvplazmm.supabase.co/functions/v1/stripe-checkout';
+        
+        function showResult(message, isSuccess = true, data = null) {
+            const element = document.getElementById('result');
+            element.className = `result ${isSuccess ? 'success' : 'error'}`;
+            
+            let html = `<h3>${isSuccess ? 'Success' : 'Error'}</h3><p>${message}</p>`;
+            if (data) {
+                html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+            element.innerHTML = html;
+        }
+
+        async function testSimpleCheckout() {
+            try {
+                const testData = {
+                    customer_email: 'test@example.com',
+                    mode: 'payment',
+                    success_url: 'https://backreform.co.uk/success',
+                    cancel_url: 'https://backreform.co.uk/cancel',
+                    line_items: [{
+                        price_data: {
+                            currency: 'gbp',
+                            product_data: { name: 'Test Product' },
+                            unit_amount: 1000
+                        },
+                        quantity: 1
+                    }]
+                };
+
+                console.log('Testing simple checkout...');
+                console.log('Request data:', testData);
+
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': window.location.origin,
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhem1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0OTY0NTIsImV4cCI6MjA2NzA3MjQ1Mn0.XyHiuQHXW_laGE4Caond1-8xK-2B4NzDzIOX8baD4UM'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('Simple checkout successful!', true, data);
+                } else {
+                    const errorText = await response.text();
+                    showResult(`Checkout failed with status ${response.status}`, false, { error: errorText });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showResult(`Error: ${error.message}`, false, { error: error.message });
+            }
+        }
+
+        async function testWithSupabaseClient() {
+            try {
+                // Simulate the Supabase client call
+                const testData = {
+                    customer_email: 'test@example.com',
+                    mode: 'payment',
+                    success_url: 'https://backreform.co.uk/success',
+                    cancel_url: 'https://backreform.co.uk/cancel',
+                    line_items: [{
+                        price_data: {
+                            currency: 'gbp',
+                            product_data: { name: 'Test Product' },
+                            unit_amount: 1000
+                        },
+                        quantity: 1
+                    }]
+                };
+
+                console.log('Testing with Supabase client simulation...');
+                
+                // This simulates how your frontend calls the function
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': window.location.origin,
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhem1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0OTY0NTIsImV4cCI6MjA2NzA3MjQ1Mn0.XyHiuQHXW_laGE4Caond1-8xK-2B4NzDzIOX8baD4UM'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('Supabase client simulation successful!', true, data);
+                } else {
+                    const errorText = await response.text();
+                    showResult(`Supabase client simulation failed with status ${response.status}`, false, { error: errorText });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showResult(`Error: ${error.message}`, false, { error: error.message });
+            }
+        }
+    </script>
+</body>
+</html>
