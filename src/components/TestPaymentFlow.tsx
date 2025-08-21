@@ -53,6 +53,14 @@ const TestPaymentFlow = () => {
       gender?: string;
       setSize?: string;
       packSize?: string;
+      // Bundle variants
+      tshirt_size?: string;
+      tshirt_color?: string;
+      tshirt_gender?: string;
+      hoodie_size?: string;
+      hoodie_color?: string;
+      hoodie_gender?: string;
+      cap_color?: string;
     };
   }>>([]);
 
@@ -68,7 +76,7 @@ const TestPaymentFlow = () => {
         const initialSelected = products.map(product => {
           let variants;
           
-          if (product.category === 'apparel') {
+          if (product.name.includes('Hoodie') || product.name.includes('T-Shirt')) {
             // Apparel products: size, color, gender
             variants = {
               size: 'M',
@@ -76,7 +84,7 @@ const TestPaymentFlow = () => {
               gender: 'Men'
             };
           } else if (product.name.includes('Cap')) {
-            // Caps: color variants
+            // Caps: color variants only (no size/gender)
             variants = {
               color: 'Black'
             };
@@ -90,6 +98,35 @@ const TestPaymentFlow = () => {
             variants = {
               packSize: 'Pack of 10'
             };
+          } else if (product.name.includes('Bundle')) {
+            // Bundles: variants based on contained products
+            if (product.name.includes('Starter')) {
+              // Starter Bundle: T-shirt (size, color, gender) + Tote Bag (no variants)
+              variants = {
+                tshirt_size: 'M',
+                tshirt_color: 'Black',
+                tshirt_gender: 'Men'
+              };
+            } else if (product.name.includes('Champion')) {
+              // Champion Bundle: Hoodie (size, color, gender) + Cap (color) + Tote Bag (no variants)
+              variants = {
+                hoodie_size: 'M',
+                hoodie_color: 'Black',
+                hoodie_gender: 'Men',
+                cap_color: 'Black'
+              };
+            } else if (product.name.includes('Activist')) {
+              // Activist Bundle: Hoodie + T-shirt + Cap + Tote Bag + more
+              variants = {
+                hoodie_size: 'M',
+                hoodie_color: 'Black',
+                hoodie_gender: 'Men',
+                tshirt_size: 'M',
+                tshirt_color: 'White',
+                tshirt_gender: 'Men',
+                cap_color: 'Black'
+              };
+            }
           }
           // Mouse pads, mugs, tote bags, and water bottles have no variants
           
@@ -152,7 +189,7 @@ const TestPaymentFlow = () => {
   };
 
   // Handle product variant changes
-  const handleVariantChange = (productId: string, variantField: 'size' | 'color' | 'gender' | 'setSize' | 'packSize', value: string) => {
+  const handleVariantChange = (productId: string, variantField: string, value: string) => {
     setSelectedProducts(prev => prev.map(product => 
       product.id === productId 
         ? { 
@@ -1417,6 +1454,117 @@ const TestPaymentFlow = () => {
                                       <option value="Pack of 50">Pack of 50</option>
                                       <option value="Pack of 100">Pack of 100</option>
                                     </select>
+                                  </div>
+                                )}
+
+                                {/* Bundle Variants */}
+                                {product.name.includes('Bundle') && product.variants && (
+                                  <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
+                                    <p className="text-xs font-medium text-blue-800 mb-2">Bundle Contents:</p>
+                                    <div className="space-y-1">
+                                      {/* Starter Bundle */}
+                                      {product.variants.tshirt_size && (
+                                        <div className="flex items-center space-x-2">
+                                          <label className="text-xs text-blue-700">T-Shirt Size:</label>
+                                          <select
+                                            value={product.variants.tshirt_size || 'M'}
+                                            onChange={(e) => handleVariantChange(product.id, 'tshirt_size', e.target.value)}
+                                            className="text-xs border border-blue-300 rounded px-1 py-0.5"
+                                          >
+                                            <option value="XS">XS</option>
+                                            <option value="S">S</option>
+                                            <option value="M">M</option>
+                                            <option value="L">L</option>
+                                            <option value="XL">XL</option>
+                                            <option value="XXL">XXL</option>
+                                          </select>
+                                          <select
+                                            value={product.variants.tshirt_color || 'Black'}
+                                            onChange={(e) => handleVariantChange(product.id, 'tshirt_color', e.target.value)}
+                                            className="text-xs border border-blue-300 rounded px-1 py-0.5"
+                                          >
+                                            <option value="Black">Black</option>
+                                            <option value="White">White</option>
+                                            <option value="Blue">Blue</option>
+                                            <option value="Red">Red</option>
+                                            <option value="Charcoal">Charcoal</option>
+                                            <option value="Ash Grey">Ash Grey</option>
+                                            <option value="Light Grey">Light Grey</option>
+                                            <option value="Navy">Navy</option>
+                                          </select>
+                                          <select
+                                            value={product.variants.tshirt_gender || 'Men'}
+                                            onChange={(e) => handleVariantChange(product.id, 'tshirt_gender', e.target.value)}
+                                            className="text-xs border border-blue-300 rounded px-1 py-0.5"
+                                          >
+                                            <option value="Men">Men</option>
+                                            <option value="Women">Women</option>
+                                            <option value="Unisex">Unisex</option>
+                                          </select>
+                                        </div>
+                                      )}
+                                      
+                                      {/* Hoodie variants for Champion and Activist bundles */}
+                                      {product.variants.hoodie_size && (
+                                        <div className="flex items-center space-x-2">
+                                          <label className="text-xs text-blue-700">Hoodie Size:</label>
+                                          <select
+                                            value={product.variants.hoodie_size || 'M'}
+                                            onChange={(e) => handleVariantChange(product.id, 'hoodie_size', e.target.value)}
+                                            className="text-xs border border-blue-300 rounded px-1 py-0.5"
+                                          >
+                                            <option value="XS">XS</option>
+                                            <option value="S">S</option>
+                                            <option value="M">M</option>
+                                            <option value="L">L</option>
+                                            <option value="XL">XL</option>
+                                            <option value="XXL">XXL</option>
+                                          </select>
+                                          <select
+                                            value={product.variants.hoodie_color || 'Black'}
+                                            onChange={(e) => handleVariantChange(product.id, 'hoodie_color', e.target.value)}
+                                            className="text-xs border border-blue-300 rounded px-1 py-0.5"
+                                          >
+                                            <option value="Black">Black</option>
+                                            <option value="White">White</option>
+                                            <option value="Blue">Blue</option>
+                                            <option value="Red">Red</option>
+                                            <option value="Charcoal">Charcoal</option>
+                                            <option value="Ash Grey">Ash Grey</option>
+                                            <option value="Light Grey">Light Grey</option>
+                                            <option value="Navy">Navy</option>
+                                          </select>
+                                          <select
+                                            value={product.variants.hoodie_gender || 'Men'}
+                                            onChange={(e) => handleVariantChange(product.id, 'hoodie_gender', e.target.value)}
+                                            className="text-xs border border-blue-300 rounded px-1 py-0.5"
+                                          >
+                                            <option value="Men">Men</option>
+                                            <option value="Women">Women</option>
+                                            <option value="Unisex">Unisex</option>
+                                          </select>
+                                        </div>
+                                      )}
+                                      
+                                      {/* Cap color for Champion and Activist bundles */}
+                                      {product.variants.cap_color && (
+                                        <div className="flex items-center space-x-2">
+                                          <label className="text-xs text-blue-700">Cap Color:</label>
+                                          <select
+                                            value={product.variants.cap_color || 'Black'}
+                                            onChange={(e) => handleVariantChange(product.id, 'cap_color', e.target.value)}
+                                            className="text-xs border border-blue-300 rounded px-1 py-0.5"
+                                          >
+                                            <option value="Black">Black</option>
+                                            <option value="White">White</option>
+                                            <option value="Blue">Blue</option>
+                                            <option value="Red">Red</option>
+                                            <option value="Charcoal">Charcoal</option>
+                                            <option value="Navy">Navy</option>
+                                          </select>
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
                                 )}
                               </div>
