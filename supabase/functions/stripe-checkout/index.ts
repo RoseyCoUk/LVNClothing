@@ -37,8 +37,21 @@ function corsResponse(body: string | object | null, status = 200, request?: Requ
   // Check if the origin is allowed
   const isAllowedOrigin = origin && allowedOrigins.includes(origin);
   
+  // Log CORS decision for debugging
+  console.log('CORS decision:', {
+    origin,
+    isAllowedOrigin,
+    allowedOrigins
+  });
+  
+  // Always allow the requesting origin if it's in our allowed list
+  const corsOrigin = isAllowedOrigin ? origin : '*';
+  
+  // For debugging, temporarily allow all origins
+  const finalCorsOrigin = '*';
+  
   const headers = {
-    'Access-Control-Allow-Origin': isAllowedOrigin ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Origin': finalCorsOrigin,
     'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-User-Agent, apikey',
     'Access-Control-Max-Age': '86400', // 24 hours
