@@ -177,6 +177,8 @@ Deno.serve(async (req) => {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error(`Checkout error: ${errorMessage}`);
+    console.error(`Error stack: ${error instanceof Error ? error.stack : 'No stack trace'}`);
+    console.error(`Request data:`, { price_id, line_items, metadata, success_url, cancel_url, mode, customer_email, shipping_rate_id });
     return corsResponse({ error: errorMessage }, 500);
   }
 });

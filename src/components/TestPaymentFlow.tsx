@@ -347,7 +347,7 @@ const TestPaymentFlow = () => {
         success_url: `${window.location.origin}/success`,
         cancel_url: `${window.location.origin}/shop`,
         mode: 'payment' as const,
-        customer_email: checkoutType === 'guest' ? manualAddress.email : undefined
+        customer_email: manualAddress.email // Always provide customer_email
       };
       
       addTestResult('Step 3', 'info', 'Calling createCheckoutSession with live products...', checkoutData);
