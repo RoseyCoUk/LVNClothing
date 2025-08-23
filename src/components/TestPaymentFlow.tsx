@@ -461,7 +461,8 @@ const TestPaymentFlow = () => {
           id: product.id,
           name: product.name,
           price: product.price,
-          quantity: product.quantity
+          quantity: product.quantity,
+          variants: product.variants || null  // Include variants if they exist
         }))
       };
       
@@ -498,12 +499,21 @@ const TestPaymentFlow = () => {
             id: product.id,
             name: product.name,
             price: product.price,
-            quantity: product.quantity
+            quantity: product.quantity,
+            variants: product.variants || null
           }))
         });
         
         // Now call the send-order-email function with the created order
         addTestResult('Step 3', 'info', 'Sending test email...');
+        
+        // Debug: Log the order data structure before sending email
+        addTestResult('Step 3', 'info', 'Order data structure before sending email:', {
+          orderId: responseData.data.id,
+          items: responseData.data.items,
+          customerEmail: emailToUse
+        });
+        
         await sendTestEmail(responseData.data.id, emailToUse);
         
         // Verify the order was created with correct data
@@ -806,6 +816,60 @@ const TestPaymentFlow = () => {
         
       } catch (error: any) {
         addTestResult('Stripe Checkout', 'error', 'Stripe checkout test exception', error.message);
+      }
+    };
+    
+    // Function to debug order data structure
+    const debugOrderData = async () => {
+      try {
+        addTestResult('Debug Order', 'info', 'Debugging order data structure...');
+        
+        // Get the most recent order from the database
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        
+        if (!supabaseUrl || !supabaseAnonKey) {
+          addTestResult('Debug Order', 'error', 'Missing environment variables');
+          return;
+        }
+        
+        const response = await fetch(`${supabaseUrl}/rest/v1/orders?select=*&order=created_at.desc&limit=1`, {
+          headers: {
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+            'apikey': supabaseAnonKey,
+          },
+        });
+        
+        if (response.ok) {
+          const orders = await response.json();
+          if (orders && orders.length > 0) {
+            const latestOrder = orders[0];
+            addTestResult('Debug Order', 'success', 'Latest order found:', {
+              id: latestOrder.id,
+              readable_order_id: latestOrder.readable_order_id,
+              customer_email: latestOrder.customer_email,
+              created_at: latestOrder.created_at,
+              items_count: latestOrder.items ? latestOrder.items.length : 0,
+              items_structure: latestOrder.items ? latestOrder.items[0] : 'No items'
+            });
+            
+            // Show the complete items array
+            if (latestOrder.items && latestOrder.items.length > 0) {
+              addTestResult('Debug Order', 'info', 'Complete items array:', latestOrder.items);
+            }
+          } else {
+            addTestResult('Debug Order', 'error', 'No orders found in database');
+          }
+        } else {
+          const errorData = await response.text();
+          addTestResult('Debug Order', 'error', 'Failed to fetch orders', {
+            status: response.status,
+            error: errorData
+          });
+        }
+        
+      } catch (error: any) {
+        addTestResult('Debug Order', 'error', 'Error debugging order data', error.message);
       }
     };
 
@@ -1470,6 +1534,13 @@ const TestPaymentFlow = () => {
             >
               <Package className="w-4 h-4 mx-auto mb-1" />
               Test Stripe Checkout Function
+            </button>
+            <button
+              onClick={debugOrderData}
+              className="p-3 border border-pink-300 rounded-lg hover:border-pink-500 hover:text-pink-600 transition-colors text-sm"
+            >
+              <Package className="w-4 h-4 mx-auto mb-1" />
+              Debug Order Data
             </button>
           </div>
 

@@ -17,6 +17,7 @@ interface OrderItem {
   product_name: string;
   quantity: number;
   unit_price: number; // Price in pence (integer)
+  variants?: any; // Product variants (size, color, gender, etc.)
 }
 
 interface Order {
@@ -241,21 +242,56 @@ serve(async (req) => {
       // Items are stored directly in the orders table
       orderItems = orderData.items.map((item: any) => {
         console.log('Processing item:', JSON.stringify(item, null, 2));
-        console.log('Item price_data:', item.price_data);
-        console.log('Item price_data.product_data:', item.price_data?.product_data);
-        console.log('Item price_data.product_data.name:', item.price_data?.product_data?.name);
+        
+        // Handle different item formats:
+        // 1. Stripe format: { price_data: { product_data: { name: "..." }, unit_amount: 999 } }
+        // 2. Test format: { name: "Product Name", price: 19.99 }
+        // 3. Fallback: { description: "..." }
+        
+        let productName = 'Unknown Product';
+        let unitPrice = 0;
+        
+        if (item.price_data?.product_data?.name) {
+          // Stripe format
+          productName = item.price_data.product_data.name;
+          unitPrice = item.price_data.unit_amount || 0;
+        } else if (item.name) {
+          // Test format or direct name
+          productName = item.name;
+          unitPrice = Math.round(parseFloat(item.price || '0') * 100); // Convert pounds to pence
+        } else if (item.description) {
+          // Fallback description
+          productName = item.description;
+          unitPrice = Math.round(parseFloat(item.price || '0') * 100);
+        }
         
         const orderItem = {
           id: item.id || 'unknown',
-          product_name: item.price_data?.product_data?.name || item.description || 'Unknown Product',
+          product_name: productName,
           quantity: item.quantity || 1,
-          unit_price: item.price_data?.unit_amount || Math.round(parseFloat(item.price || '0') * 100) // Convert to pence
+          unit_price: unitPrice,
+          variants: item.variants || null  // Include variants if they exist
         };
         
         console.log('Created order item:', orderItem);
+        
+        // Log variants if they exist
+        if (item.variants && Object.keys(item.variants).length > 0) {
+          console.log('Item has variants:', item.variants);
+        }
+        
         return orderItem;
       });
       console.log('Order items found in orders table:', orderItems);
+      
+      // Log the first few items for debugging
+      if (orderItems.length > 0) {
+        console.log('First item details:', {
+          raw: orderData.items[0],
+          processed: orderItems[0],
+          hasVariants: !!(orderData.items[0].variants && Object.keys(orderData.items[0].variants).length > 0)
+        });
+      }
     } else {
       console.warn('No items found in orders table or items field is not an array');
     }
@@ -446,9 +482,29 @@ function formatOrderEmail(orderId: string, items: OrderItem[], total: number, cu
     const unitPrice = (item.unit_price / 100).toFixed(2) // Convert from pence to pounds
     const itemTotal = ((item.unit_price * item.quantity) / 100).toFixed(2) // Convert from pence to pounds
     
+    // Format variants if they exist
+    let variantsText = '';
+    if (item.variants && Object.keys(item.variants).length > 0) {
+      const variantPairs = Object.entries(item.variants)
+        .filter(([key, value]) => value && value !== '') // Only show non-empty variants
+        .map(([key, value]) => {
+          // Format the key names to be more readable
+          const keyName = key
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, l => l.toUpperCase());
+          return `${keyName}: ${value}`;
+        });
+      
+      if (variantPairs.length > 0) {
+        variantsText = `<br><small style="color: #666; font-style: italic;">${variantPairs.join(', ')}</small>`;
+      }
+    }
+    
     return `
       <tr>
-        <td style="padding: 12px; border-bottom: 1px solid #eee;">${item.product_name}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #eee;">
+          ${item.product_name}${variantsText}
+        </td>
         <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
         <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">£${unitPrice}</td>
         <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">£${itemTotal}</td>
@@ -552,9 +608,29 @@ function formatInternalEmail(orderData: any, items: OrderItem[], total: number):
     const unitPrice = (item.unit_price / 100).toFixed(2) // Convert from pence to pounds
     const itemTotal = ((item.unit_price * item.quantity) / 100).toFixed(2) // Convert from pence to pounds
     
+    // Format variants if they exist
+    let variantsText = '';
+    if (item.variants && Object.keys(item.variants).length > 0) {
+      const variantPairs = Object.entries(item.variants)
+        .filter(([key, value]) => value && value !== '') // Only show non-empty variants
+        .map(([key, value]) => {
+          // Format the key names to be more readable
+          const keyName = key
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, l => l.toUpperCase());
+          return `${keyName}: ${value}`;
+        });
+      
+      if (variantPairs.length > 0) {
+        variantsText = `<br><small style="color: #666; font-style: italic;">${variantPairs.join(', ')}</small>`;
+      }
+    }
+    
     return `
       <tr>
-        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.product_name}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd;">
+          ${item.product_name}${variantsText}
+        </td>
         <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.quantity}</td>
         <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">£${unitPrice}</td>
         <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">£${itemTotal}</td>
