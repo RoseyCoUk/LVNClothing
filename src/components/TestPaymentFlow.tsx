@@ -656,6 +656,136 @@ const TestPaymentFlow = () => {
     }
   };
 
+  // Add this function to test basic Supabase connectivity
+  const testSupabaseConnectivity = async () => {
+    try {
+      addTestResult('Connectivity', 'info', 'Testing basic Supabase connectivity...');
+      
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      addTestResult('Connectivity', 'info', `Testing connection to: ${supabaseUrl}`);
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        addTestResult('Connectivity', 'error', 'Missing environment variables', {
+          hasUrl: !!supabaseUrl,
+          hasKey: !!supabaseAnonKey
+        });
+        return;
+      }
+      
+      // Test basic REST API access
+      try {
+        const restResponse = await fetch(`${supabaseUrl}/rest/v1/products?select=id&limit=1`, {
+          headers: {
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+            'apikey': supabaseAnonKey,
+          },
+        });
+        
+        if (restResponse.ok) {
+          addTestResult('Connectivity', 'success', 'REST API is accessible');
+        } else {
+          addTestResult('Connectivity', 'error', 'REST API test failed', {
+            status: restResponse.status,
+            statusText: restResponse.statusText
+          });
+        }
+      } catch (restError: any) {
+        addTestResult('Connectivity', 'error', 'REST API test exception', restError.message);
+      }
+      
+      // Test Edge Functions base URL
+      try {
+        const edgeResponse = await fetch(`${supabaseUrl}/functions/v1/`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+          },
+        });
+        
+        addTestResult('Connectivity', 'info', `Edge Functions base response: ${edgeResponse.status}`);
+        
+        if (edgeResponse.status === 404) {
+          addTestResult('Connectivity', 'info', 'Edge Functions base returns 404 (expected)');
+        } else if (edgeResponse.ok) {
+          addTestResult('Connectivity', 'success', 'Edge Functions base is accessible');
+        } else {
+          addTestResult('Connectivity', 'error', 'Edge Functions base test failed', {
+            status: edgeResponse.status,
+            statusText: edgeResponse.statusText
+          });
+        }
+      } catch (edgeError: any) {
+        addTestResult('Connectivity', 'error', 'Edge Functions base test exception', edgeError.message);
+      }
+      
+          } catch (error: any) {
+        addTestResult('Connectivity', 'error', 'Connectivity test failed', error.message);
+      }
+    };
+    
+    // Test the specific Stripe checkout function
+    const testStripeCheckoutFunction = async () => {
+      try {
+        addTestResult('Stripe Checkout', 'info', 'Testing Stripe checkout function directly...');
+        
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        
+        if (!supabaseUrl || !supabaseAnonKey) {
+          addTestResult('Stripe Checkout', 'error', 'Missing environment variables');
+          return;
+        }
+        
+        const testData = {
+          customer_email: 'test@example.com',
+          line_items: [
+            {
+              price_data: {
+                currency: 'gbp',
+                product_data: {
+                  name: 'Test Product',
+                },
+                unit_amount: 999, // £9.99 in pence
+              },
+              quantity: 1,
+            },
+          ],
+          success_url: `${window.location.origin}/success`,
+          cancel_url: `${window.location.origin}/shop`,
+          mode: 'payment',
+        };
+        
+        addTestResult('Stripe Checkout', 'info', 'Sending test data to stripe-checkout function:', testData);
+        
+        const response = await fetch(`${supabaseUrl}/functions/v1/stripe-checkout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+          },
+          body: JSON.stringify(testData),
+        });
+        
+        addTestResult('Stripe Checkout', 'info', `Response status: ${response.status}`);
+        
+        if (response.ok) {
+          const responseData = await response.json();
+          addTestResult('Stripe Checkout', 'success', 'Stripe checkout function is working!', responseData);
+        } else {
+          const errorData = await response.text();
+          addTestResult('Stripe Checkout', 'error', 'Stripe checkout function failed', {
+            status: response.status,
+            error: errorData
+          });
+        }
+        
+      } catch (error: any) {
+        addTestResult('Stripe Checkout', 'error', 'Stripe checkout test exception', error.message);
+      }
+    };
+
   // Add this function to test manual-test-insert directly with hardcoded values
   const testManualTestInsertDirectly = async () => {
     try {
@@ -1303,6 +1433,20 @@ const TestPaymentFlow = () => {
             >
               <Package className="w-4 h-4 mx-auto mb-1" />
               Test Manual Insert Directly
+            </button>
+            <button
+              onClick={testSupabaseConnectivity}
+              className="p-3 border border-red-300 rounded-lg hover:border-red-500 hover:text-red-600 transition-colors text-sm"
+            >
+              <Package className="w-4 h-4 mx-auto mb-1" />
+              Test Supabase Connectivity
+            </button>
+            <button
+              onClick={testStripeCheckoutFunction}
+              className="p-3 border border-indigo-300 rounded-lg hover:border-indigo-500 hover:text-indigo-600 transition-colors text-sm"
+            >
+              <Package className="w-4 h-4 mx-auto mb-1" />
+              Test Stripe Checkout Function
             </button>
           </div>
 
