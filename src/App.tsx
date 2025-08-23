@@ -30,6 +30,8 @@ import UrgencyBar from './components/UrgencyBar';
 import ProductBundles from './components/ProductBundles';
 import CartDrawer from './components/CartDrawer';
 import CartPopup from './components/CartPopup';
+import PrintfulTest from './components/PrintfulTest';
+import PrintfulProductDetailWrapper from './components/PrintfulProductDetailWrapper';
 
 // Product Pages
 import TShirtPage from './components/products/TShirtPage';
@@ -174,6 +176,8 @@ const App = () => {
             <Route path="/size-guide" element={<SizeGuidePage onBack={handleBackToHome} />} />
             <Route path="/accessibility" element={<AccessibilityPage onBack={handleBackToHome} />} />
             <Route path="/test-payment" element={<TestPaymentFlow />} />
+            <Route path="/printful-test" element={<PrintfulTest />} />
+            <Route path="/printful-product/:id" element={<PrintfulProductDetailWrapper />} />
             
             {/* Product Routes */}
             <Route path="/product/reform-uk-tshirt" element={<TShirtPage onBack={handleBackToShop} />} />
