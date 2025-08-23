@@ -35,6 +35,21 @@ const TestPaymentFlow = () => {
     country: 'GB'
   });
   
+  // Ensure email is always set
+  useEffect(() => {
+    if (!manualAddress.email) {
+      setManualAddress(prev => ({
+        ...prev,
+        email: testEmail || 'test@example.com'
+      }));
+    }
+  }, [testEmail, manualAddress.email]);
+  
+  // Debug: Log manual address changes
+  useEffect(() => {
+    console.log('🔍 Debug: manualAddress changed:', manualAddress);
+  }, [manualAddress]);
+  
   // Real products from database
   const [liveProducts, setLiveProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
@@ -304,12 +319,13 @@ const TestPaymentFlow = () => {
     addTestResult('Step 3', 'info', 'Testing checkout session creation...');
     addTestResult('Step 3', 'info', 'Note: This test will fail if Stripe environment variables are not configured');
     
-    // Validate that required address fields are filled
-    if (!manualAddress.email || !manualAddress.name || !manualAddress.line1 || !manualAddress.city || !manualAddress.postal_code) {
-      addTestResult('Step 3', 'error', 'Please fill in all required address fields before testing checkout');
-      addTestResult('Step 3', 'info', 'Required: Email, Name, Address Line 1, City, Postal Code');
-      return null;
-    }
+          // Validate that required address fields are filled
+      if (!manualAddress.email || !manualAddress.name || !manualAddress.line1 || !manualAddress.city || !manualAddress.postal_code) {
+        addTestResult('Step 3', 'error', 'Please fill in all required address fields before testing checkout');
+        addTestResult('Step 3', 'info', 'Required: Email, Name, Address Line 1, City, Postal Code');
+        addTestResult('Step 3', 'error', `Current values: Email=${manualAddress.email || 'MISSING'}, Name=${manualAddress.name || 'MISSING'}, Address=${manualAddress.line1 || 'MISSING'}, City=${manualAddress.city || 'MISSING'}, Postal=${manualAddress.postal_code || 'MISSING'}`);
+        return null;
+      }
     
     // Validate that at least one product is selected
     if (getSelectedProducts().length === 0) {
@@ -354,6 +370,12 @@ const TestPaymentFlow = () => {
       
       const response = await createCheckoutSession(checkoutData);
       
+      // Validate the response
+      if (!response || !response.sessionId) {
+        addTestResult('Step 3', 'error', 'Invalid checkout response - missing sessionId', response);
+        return null;
+      }
+      
       addTestResult('Step 3', 'success', 'Checkout session created successfully!', {
         sessionId: response.sessionId,
         url: response.url
@@ -367,6 +389,9 @@ const TestPaymentFlow = () => {
       // Simulate successful payment and create test order
       setTimeout(async () => {
         addTestResult('Step 3', 'success', 'Payment completed! Creating test order...');
+        
+        // Debug: Log the values being passed
+        addTestResult('Step 3', 'info', `Debug: About to call callManualTestInsert with sessionId=${response.sessionId}, email=${manualAddress.email}`);
         
         // Call the manual-test-insert Supabase Edge Function to create test order and send email
         await callManualTestInsert(response.sessionId, manualAddress.email);
@@ -396,9 +421,20 @@ const TestPaymentFlow = () => {
     try {
       addTestResult('Step 3', 'info', 'Creating test order in database...');
       
+      // Validate required parameters
+      if (!sessionId) {
+        throw new Error('sessionId is required but was not provided');
+      }
+      
       // Use manual address email as primary, fallback to custom test email, then customerEmail
       const emailToUse = manualAddress.email || customTestEmail || customerEmail;
+      
+      if (!emailToUse) {
+        throw new Error('No valid email found. Please fill in the email field in the address form.');
+      }
+      
       addTestResult('Step 3', 'info', `Using email: ${emailToUse} (from manual address form)`);
+      addTestResult('Step 3', 'info', `Using sessionId: ${sessionId}`);
       
       // Get your Supabase project URL from environment
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -407,24 +443,28 @@ const TestPaymentFlow = () => {
         throw new Error('VITE_SUPABASE_URL not configured');
       }
       
+      const requestBody = {
+        action: 'createTestOrder',
+        sessionId: sessionId,
+        customerEmail: emailToUse,
+        address: manualAddress,
+        items: getSelectedProducts().map(product => ({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: product.quantity
+        }))
+      };
+      
+      addTestResult('Step 3', 'info', 'Request body for manual-test-insert:', requestBody);
+      
       const response = await fetch(`${supabaseUrl}/functions/v1/manual-test-insert`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
         },
-        body: JSON.stringify({
-          action: 'createTestOrder',
-          sessionId: sessionId,
-          customerEmail: emailToUse,
-          address: manualAddress,
-          items: getSelectedProducts().map(product => ({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            quantity: product.quantity
-          }))
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (response.ok) {
@@ -613,6 +653,70 @@ const TestPaymentFlow = () => {
     } catch (error: any) {
       console.log('🔍 Debug: Exception in testEmailFunction:', error);
       addTestResult('Email Test', 'error', 'Error testing email function', error.message);
+    }
+  };
+
+  // Add this function to test manual-test-insert directly with hardcoded values
+  const testManualTestInsertDirectly = async () => {
+    try {
+      addTestResult('Direct Test', 'info', 'Testing manual-test-insert function directly with hardcoded values...');
+      
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      
+      if (!supabaseUrl) {
+        addTestResult('Direct Test', 'error', 'VITE_SUPABASE_URL not configured');
+        return;
+      }
+      
+      const hardcodedData = {
+        action: 'createTestOrder',
+        sessionId: `test_session_${Date.now()}`,
+        customerEmail: 'test@example.com',
+        address: {
+          name: 'Test Customer',
+          email: 'test@example.com',
+          phone: '+44123456789',
+          line1: '123 Test Street',
+          line2: 'Test Apartment',
+          city: 'London',
+          state: 'England',
+          postal_code: 'SW1A 1AA',
+          country: 'GB'
+        },
+        items: [
+          {
+            id: 'test-product-1',
+            name: 'Test Product 1',
+            price: 19.99,
+            quantity: 1
+          }
+        ]
+      };
+      
+      addTestResult('Direct Test', 'info', 'Sending hardcoded test data:', hardcodedData);
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/manual-test-insert`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify(hardcodedData),
+      });
+      
+      if (response.ok) {
+        const responseData = await response.json();
+        addTestResult('Direct Test', 'success', 'Direct test successful!', responseData);
+      } else {
+        const errorData = await response.text();
+        addTestResult('Direct Test', 'error', 'Direct test failed', {
+          status: response.status,
+          error: errorData
+        });
+      }
+      
+    } catch (error: any) {
+      addTestResult('Direct Test', 'error', 'Error in direct test', error.message);
     }
   };
 
@@ -828,6 +932,31 @@ const TestPaymentFlow = () => {
     setTestResults([]);
     setCurrentStep(0);
     
+    // Pre-test validation
+    addTestResult('Test Start', 'info', 'Validating test setup...');
+    
+    if (!manualAddress.email) {
+      addTestResult('Test Start', 'error', 'Email is required but not set. Please fill in the email field.');
+      setIsProcessing(false);
+      return;
+    }
+    
+    if (!manualAddress.name || !manualAddress.line1 || !manualAddress.city || !manualAddress.postal_code) {
+      addTestResult('Test Start', 'error', 'Required address fields are missing. Please fill in all required fields.');
+      setIsProcessing(false);
+      return;
+    }
+    
+    if (getSelectedProducts().length === 0) {
+      addTestResult('Test Start', 'error', 'No products selected. Please select at least one product.');
+      setIsProcessing(false);
+      return;
+    }
+    
+    addTestResult('Test Start', 'success', 'Test setup validation passed');
+    
+    // If guest checkout is selected, sign out first to ensure no active session
+    
     // If guest checkout is selected, sign out first to ensure no active session
     if (checkoutType === 'guest') {
       addTestResult('Test Start', 'info', 'Preparing for guest checkout test...');
@@ -907,6 +1036,30 @@ const TestPaymentFlow = () => {
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Payment Flow Test</h1>
             <p className="text-gray-600">Test the complete payment integration from cart to completion</p>
+          </div>
+
+          {/* Test Setup Status */}
+          <div className="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <h3 className="font-semibold text-gray-900 mb-3">Test Setup Status</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <div className={`p-2 rounded ${manualAddress.email ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                <strong>Email:</strong> {manualAddress.email || 'Missing'}
+              </div>
+              <div className={`p-2 rounded ${manualAddress.name ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                <strong>Name:</strong> {manualAddress.name || 'Missing'}
+              </div>
+              <div className={`p-2 rounded ${manualAddress.line1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                <strong>Address:</strong> {manualAddress.line1 || 'Missing'}
+              </div>
+              <div className={`p-2 rounded ${getSelectedProducts().length > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                <strong>Products:</strong> {getSelectedProducts().length} selected
+              </div>
+            </div>
+            {(!manualAddress.email || !manualAddress.name || !manualAddress.line1 || getSelectedProducts().length === 0) && (
+              <div className="mt-3 p-2 bg-yellow-100 border border-yellow-300 rounded text-yellow-800 text-sm">
+                ⚠️ Please fill in all required fields before running the test
+              </div>
+            )}
           </div>
 
           {/* Checkout Type Selector */}
@@ -1144,6 +1297,13 @@ const TestPaymentFlow = () => {
               <Package className="w-4 h-4 mx-auto mb-1" />
               Test Edge Functions
             </button>
+            <button
+              onClick={testManualTestInsertDirectly}
+              className="p-3 border border-orange-300 rounded-lg hover:border-orange-500 hover:text-orange-600 transition-colors text-sm"
+            >
+              <Package className="w-4 h-4 mx-auto mb-1" />
+              Test Manual Insert Directly
+            </button>
           </div>
 
           {/* Manual Address Entry Section */}
@@ -1182,6 +1342,18 @@ const TestPaymentFlow = () => {
                   className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
                 >
                   Load Test Address
+                </button>
+                <button
+                  onClick={() => {
+                    setManualAddress(prev => ({
+                      ...prev,
+                      email: testEmail || 'test@example.com'
+                    }));
+                    addTestResult('Manual', 'info', `Reset email to: ${testEmail || 'test@example.com'}`);
+                  }}
+                  className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                >
+                  Reset Email
                 </button>
                 <button
                   onClick={() => setManualAddress({
