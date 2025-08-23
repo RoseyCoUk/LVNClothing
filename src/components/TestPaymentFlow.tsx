@@ -371,13 +371,22 @@ const TestPaymentFlow = () => {
       const response = await createCheckoutSession(checkoutData);
       
       // Validate the response
-      if (!response || !response.sessionId) {
-        addTestResult('Step 3', 'error', 'Invalid checkout response - missing sessionId', response);
+      if (!response) {
+        addTestResult('Step 3', 'error', 'No checkout response received');
         return null;
       }
       
+      // Check for either sessionId or id (Stripe returns 'id')
+      const sessionId = response.sessionId || response.id;
+      if (!sessionId) {
+        addTestResult('Step 3', 'error', 'Invalid checkout response - missing sessionId or id', response);
+        return null;
+      }
+      
+      addTestResult('Step 3', 'info', `Checkout response validated - using sessionId: ${sessionId}`);
+      
       addTestResult('Step 3', 'success', 'Checkout session created successfully!', {
-        sessionId: response.sessionId,
+        sessionId: sessionId,
         url: response.url
       });
       
@@ -391,10 +400,10 @@ const TestPaymentFlow = () => {
         addTestResult('Step 3', 'success', 'Payment completed! Creating test order...');
         
         // Debug: Log the values being passed
-        addTestResult('Step 3', 'info', `Debug: About to call callManualTestInsert with sessionId=${response.sessionId}, email=${manualAddress.email}`);
+        addTestResult('Step 3', 'info', `Debug: About to call callManualTestInsert with sessionId=${sessionId}, email=${manualAddress.email}`);
         
         // Call the manual-test-insert Supabase Edge Function to create test order and send email
-        await callManualTestInsert(response.sessionId, manualAddress.email);
+        await callManualTestInsert(sessionId, manualAddress.email);
         
         // Don't redirect immediately - let the user see the test results
         addTestResult('Step 3', 'success', 'Test complete! Check the results above and your email.');
@@ -781,6 +790,12 @@ const TestPaymentFlow = () => {
         if (response.ok) {
           const responseData = await response.json();
           addTestResult('Stripe Checkout', 'success', 'Stripe checkout function is working!', responseData);
+          
+          // Show the session ID that was returned
+          const sessionId = responseData.id || responseData.sessionId;
+          if (sessionId) {
+            addTestResult('Stripe Checkout', 'info', `Session ID: ${sessionId}`);
+          }
         } else {
           const errorData = await response.text();
           addTestResult('Stripe Checkout', 'error', 'Stripe checkout function failed', {
@@ -2016,6 +2031,9 @@ const TestPaymentFlow = () => {
                 <li>Your payment flow, database operations, and emails are all working correctly</li>
                 <li>This error does not affect your actual application functionality</li>
               </ul>
+              <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 text-xs">
+                <strong>Note:</strong> The CORS error in the console is harmless and can be ignored. Your payment system is working correctly!
+              </div>
             </div>
           </div>
 

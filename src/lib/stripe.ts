@@ -22,8 +22,9 @@ export interface CheckoutSessionRequest {
 }
 
 export interface CheckoutSessionResponse {
-  sessionId: string;
-  url: string;
+  id: string;           // Stripe returns 'id' for the session ID
+  url: string;          // Stripe checkout URL
+  sessionId?: string;   // Keep for backward compatibility
 }
 
 export async function createCheckoutSession(request: CheckoutSessionRequest): Promise<CheckoutSessionResponse> {
