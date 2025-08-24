@@ -82,6 +82,14 @@ const ShippingTestDashboard: React.FC = () => {
       const allPassed = Object.values(results).every(Boolean)
       setTestResults(prev => ({ ...prev, moneyUtils: allPassed }))
       console.log('Money utils test results:', results)
+      
+      // Show detailed results in console
+      if (!allPassed) {
+        console.log('❌ Money utils test failed. Details:')
+        Object.entries(results).forEach(([key, value]) => {
+          console.log(`${key}: ${value ? '✅ PASS' : '❌ FAIL'}`)
+        })
+      }
     } catch (error) {
       console.error('❌ Money utils test failed:', error)
       setTestResults(prev => ({ ...prev, moneyUtils: false }))
