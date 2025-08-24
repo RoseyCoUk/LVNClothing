@@ -76,7 +76,7 @@ const ShippingTestDashboard: React.FC = () => {
     }
   }
 
-  const testMoneyUtils = () => {
+  const runMoneyUtilsTest = () => {
     try {
       const results = testMoneyUtils()
       const allPassed = Object.values(results).every(Boolean)
@@ -123,7 +123,7 @@ const ShippingTestDashboard: React.FC = () => {
     setTestResults({})
     
     // Run utility tests
-    testMoneyUtils()
+    runMoneyUtilsTest()
     testTypes()
     testDataValidation()
     
@@ -166,7 +166,7 @@ const ShippingTestDashboard: React.FC = () => {
             </button>
             
             <button
-              onClick={testMoneyUtils}
+              onClick={runMoneyUtilsTest}
               className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
             >
               Test Money Utils
