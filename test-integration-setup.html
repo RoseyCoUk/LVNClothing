@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Testing Setup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .code {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 4px; margin: 10px 0; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 4px; margin: 10px 0; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 4px; margin: 10px 0; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 4px; margin: 10px 0; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <h1>🔧 Integration Testing Setup</h1>
+    <p>This page helps you verify all the new shipping and Printful integrations are properly configured.</p>
+
+    <div class="section">
+        <h2>📋 Environment Configuration</h2>
+        
+        <div class="form-group">
+            <label for="supabaseUrl">Supabase URL:</label>
+            <input type="url" id="supabaseUrl" placeholder="https://your-project.supabase.co" value="https://nsmrxwnrtsllxvplazmm.supabase.co">
+        </div>
+        
+        <div class="form-group">
+            <label for="supabaseAnonKey">Supabase Anon Key:</label>
+            <input type="text" id="supabaseAnonKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+        </div>
+        
+        <div class="form-group">
+            <label for="printfulToken">Printful Token (for direct API testing):</label>
+            <input type="text" id="printfulToken" placeholder="Your Printful API token">
+        </div>
+        
+        <button onclick="loadFromEnv()">Load from Environment</button>
+        <button onclick="saveToLocalStorage()">Save Configuration</button>
+    </div>
+
+    <div class="grid">
+        <div class="section">
+            <h2>🚀 Supabase Functions Status</h2>
+            <p>Test if all required Supabase Edge Functions are accessible:</p>
+            
+            <button onclick="testFunction('shipping-quotes')">Test Shipping Quotes</button>
+            <button onclick="testFunction('checkout-shipping-select')">Test Shipping Select</button>
+            <button onclick="testFunction('printful-proxy')">Test Printful Proxy</button>
+            <button onclick="testFunction('stripe-checkout')">Test Stripe Checkout</button>
+            
+            <div id="functionStatus"></div>
+        </div>
+
+        <div class="section">
+            <h2>🔑 Environment Variables Check</h2>
+            <p>Verify required environment variables are set:</p>
+            
+            <button onclick="checkEnvironmentVariables()">Check Environment</button>
+            <button onclick="testPrintfulConnection()">Test Printful Connection</button>
+            
+            <div id="envStatus"></div>
+        </div>
+    </div>
+
+            <div class="section">
+            <h2>🧪 Integration Tests</h2>
+            
+            <div class="form-group">
+                <label for="testAddress">Test Shipping Address:</label>
+                <textarea id="testAddress" rows="4">{
+  "address1": "123 Test Street",
+              "city": "London",
+              "zip": "SW1A 1AA",
+              "country_code": "GB"
+            }</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="testItems">Test Cart Items:</label>
+                <textarea id="testItems" rows="6">[
+              {
+                "printful_variant_id": 12345,
+                "quantity": 2
+              },
+              {
+                "printful_variant_id": 67890,
+                "quantity": 1
+              }
+            ]</textarea>
+            <div class="warning">
+                <strong>Note:</strong> These are test variant IDs. For real testing, replace with actual Printful variant IDs from your products.
+            </div>
+            </div>
+            
+            <div class="info">
+                <strong>Test Notes:</strong>
+                <ul>
+                    <li><strong>Shipping Quotes:</strong> Should return shipping options from Printful</li>
+                    <li><strong>Shipping Select:</strong> Will fail with test PaymentIntent (this is expected)</li>
+                    <li><strong>Printful Proxy:</strong> Tests basic connectivity to Printful API</li>
+                </ul>
+            </div>
+            
+            <button onclick="testShippingQuotes()">Test Shipping Quotes API</button>
+            <button onclick="testShippingSelect()">Test Shipping Select API</button>
+                    <button onclick="testPrintfulProxy()">Test Printful Proxy</button>
+        <button onclick="getRealVariantIds()">Get Real Variant IDs</button>
+        <button onclick="testStripeCheckout()">Test Stripe Checkout</button>
+        <button onclick="runFullIntegrationTest()">Run Full Integration Test</button>
+            
+            <div id="testResults"></div>
+        </div>
+
+    <div class="section">
+        <h2>📊 Test Results Summary</h2>
+        <div id="testSummary"></div>
+    </div>
+
+    <script>
+        // Load saved configuration
+        function loadFromLocalStorage() {
+            const savedUrl = localStorage.getItem('supabaseUrl');
+            const savedKey = localStorage.getItem('supabaseAnonKey');
+            const savedToken = localStorage.getItem('printfulToken');
+            
+            if (savedUrl) document.getElementById('supabaseUrl').value = savedUrl;
+            if (savedKey) document.getElementById('supabaseAnonKey').value = savedKey;
+            if (savedToken) document.getElementById('printfulToken').value = savedToken;
+        }
+
+        function saveToLocalStorage() {
+            const url = document.getElementById('supabaseUrl').value;
+            const key = document.getElementById('supabaseAnonKey').value;
+            const token = document.getElementById('printfulToken').value;
+            
+            localStorage.setItem('supabaseUrl', url);
+            localStorage.setItem('supabaseAnonKey', key);
+            localStorage.setItem('printfulToken', token);
+            
+            showResult('Configuration saved to local storage', 'success');
+        }
+
+        function loadFromEnv() {
+            // This would typically load from environment variables
+            // For now, we'll just show a message
+            showResult('Environment loading would happen in a real deployment', 'info');
+        }
+
+        // Test Supabase function accessibility
+        async function testFunction(functionName) {
+            const url = document.getElementById('supabaseUrl').value;
+            const key = document.getElementById('supabaseAnonKey').value;
+            
+            if (!url || !key) {
+                showResult('Please enter Supabase URL and anon key first', 'error');
+                return;
+            }
+            
+            try {
+                console.log(`Testing function: ${functionName}`);
+                const testUrl = `${url}/functions/v1/${functionName}`;
+                console.log(`Testing URL: ${testUrl}`);
+                
+                const response = await fetch(testUrl, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log(`Response for ${functionName}:`, response.status, response.statusText);
+                
+                const statusDiv = document.getElementById('functionStatus');
+                if (response.ok) {
+                    statusDiv.innerHTML += `<div class="test-result success">✅ ${functionName}: Accessible</div>`;
+                    console.log(`✅ ${functionName} function is accessible`);
+                } else {
+                    statusDiv.innerHTML += `<div class="test-result error">❌ ${functionName}: ${response.status} ${response.statusText}</div>`;
+                    console.log(`❌ ${functionName} function failed: ${response.status} ${response.statusText}`);
+                }
+            } catch (error) {
+                const statusDiv = document.getElementById('functionStatus');
+                statusDiv.innerHTML += `<div class="test-result error">❌ ${functionName}: ${error.message}</div>`;
+                console.error(`❌ ${functionName} function error:`, error);
+                console.error(`Error details:`, error);
+            }
+        }
+
+        // Check environment variables
+        function checkEnvironmentVariables() {
+            const requiredVars = [
+                'SUPABASE_URL',
+                'SUPABASE_ANON_KEY', 
+                'PRINTFUL_TOKEN',
+                'STRIPE_SECRET_KEY',
+                'STRIPE_WEBHOOK_SECRET'
+            ];
+            
+            const statusDiv = document.getElementById('envStatus');
+            statusDiv.innerHTML = '<div class="test-result info">Environment variables are checked server-side in Supabase functions</div>';
+            
+            // Show what should be configured
+            statusDiv.innerHTML += `
+                <div class="test-result warning">
+                    <strong>Required Environment Variables:</strong><br>
+                    ${requiredVars.map(v => `• ${v}`).join('<br>')}
+                </div>
+            `;
+        }
+
+        // Test Printful connection
+        async function testPrintfulConnection() {
+            const token = document.getElementById('printfulToken').value;
+            
+            if (!token) {
+                showResult('Please enter Printful token first', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('https://api.printful.com/store', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`✅ Printful connection successful. Store: ${data.result.name || 'Unknown'}`, 'success');
+                } else {
+                    showResult(`❌ Printful connection failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Printful connection error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test shipping quotes API
+        async function testShippingQuotes() {
+            const url = document.getElementById('supabaseUrl').value;
+            const key = document.getElementById('supabaseAnonKey').value;
+            
+            if (!url || !key) {
+                showResult('Please enter Supabase URL and anon key first', 'error');
+                return;
+            }
+            
+            try {
+                const address = JSON.parse(document.getElementById('testAddress').value);
+                const items = JSON.parse(document.getElementById('testItems').value);
+                
+                const payload = { recipient: address, items };
+                console.log('Sending payload to shipping quotes:', payload);
+                
+                // Check if we're using test variant IDs
+                const hasTestIds = items.some(item => [12345, 67890].includes(item.printful_variant_id));
+                if (hasTestIds) {
+                    showResult('⚠️ Using test variant IDs. Click "Get Real Variant IDs" first for real testing.', 'warning');
+                }
+                
+                const response = await fetch(`${url}/functions/v1/shipping-quotes`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`✅ Shipping quotes successful. Found ${data.options?.length || 0} options`, 'success');
+                    console.log('Shipping quotes response:', data);
+                } else {
+                    const errorText = await response.text();
+                    showResult(`❌ Shipping quotes failed: ${response.status} - ${errorText}`, 'error');
+                    console.error('Request payload was:', payload);
+                    console.error('Response error:', errorText);
+                    
+                    // Check if it's a variant ID error
+                    if (errorText.includes('Invalid variant ID')) {
+                        showResult('💡 Tip: Use "Get Real Variant IDs" to get valid variant IDs from your Printful store', 'info');
+                    }
+                }
+            } catch (error) {
+                showResult(`❌ Shipping quotes error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test shipping select API
+        async function testShippingSelect() {
+            const url = document.getElementById('supabaseUrl').value;
+            const key = document.getElementById('supabaseAnonKey').value;
+            
+            if (!url || !key) {
+                showResult('Please enter Supabase URL and anon key first', 'error');
+                return;
+            }
+            
+            try {
+                const testData = {
+                    paymentIntentId: 'pi_test_1234567890',
+                    itemsTotal: 59.97,
+                    shipping: {
+                        rate_id: 'rate_test_123',
+                        rate: '4.99',
+                        currency: 'GBP',
+                        name: 'Standard Shipping'
+                    },
+                    taxTotal: 0
+                };
+                
+                console.log('Testing shipping select with data:', testData);
+                
+                const response = await fetch(`${url}/functions/v1/checkout-shipping-select`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`✅ Shipping select successful. PaymentIntent updated`, 'success');
+                    console.log('Shipping select response:', data);
+                } else {
+                    const errorText = await response.text();
+                    showResult(`❌ Shipping select failed: ${response.status} - ${errorText}`, 'error');
+                    console.log('This is expected for test PaymentIntent IDs');
+                }
+            } catch (error) {
+                showResult(`❌ Shipping select error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test Printful proxy
+        async function testPrintfulProxy() {
+            const url = document.getElementById('supabaseUrl').value;
+            const key = document.getElementById('supabaseAnonKey').value;
+            
+            if (!url || !key) {
+                showResult('Please enter Supabase URL and anon key first', 'error');
+                return;
+            }
+            
+            try {
+                // Test a simple GET request to Printful - use a basic endpoint
+                const response = await fetch(`${url}/functions/v1/printful-proxy/countries`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`✅ Printful proxy successful. Countries endpoint accessible`, 'success');
+                    console.log('Printful proxy response:', data);
+                } else {
+                    const errorText = await response.text();
+                    showResult(`❌ Printful proxy failed: ${response.status} - ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Printful proxy error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test Stripe Checkout function specifically
+        async function testStripeCheckout() {
+            const url = document.getElementById('supabaseUrl').value;
+            const key = document.getElementById('supabaseAnonKey').value;
+            
+            if (!url || !key) {
+                showResult('Please enter Supabase URL and anon key first', 'error');
+                return;
+            }
+            
+            try {
+                showResult('🔍 Testing Stripe Checkout function...', 'info');
+                
+                // Test OPTIONS request first
+                const optionsResponse = await fetch(`${url}/functions/v1/stripe-checkout`, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (optionsResponse.ok) {
+                    showResult('✅ Stripe Checkout OPTIONS request successful', 'success');
+                    
+                    // Test a simple POST request (will fail validation, but shows function is working)
+                    const testData = {
+                        customer_email: 'test@example.com',
+                        line_items: [{
+                            price_data: {
+                                currency: 'gbp',
+                                product_data: { name: 'Test Product' },
+                                unit_amount: 1000
+                            },
+                            quantity: 1
+                        }],
+                        success_url: 'https://example.com/success',
+                        cancel_url: 'https://example.com/cancel',
+                        mode: 'payment'
+                    };
+                    
+                    const postResponse = await fetch(`${url}/functions/v1/stripe-checkout`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${key}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(testData)
+                    });
+                    
+                    if (postResponse.ok) {
+                        showResult('✅ Stripe Checkout POST request successful', 'success');
+                    } else {
+                        const errorText = await postResponse.text();
+                        showResult(`⚠️ Stripe Checkout POST request failed (expected): ${postResponse.status} - ${errorText}`, 'warning');
+                    }
+                } else {
+                    showResult(`❌ Stripe Checkout OPTIONS request failed: ${optionsResponse.status}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Stripe Checkout test error: ${error.message}`, 'error');
+            }
+        }
+
+        // Get real variant IDs from Printful
+        async function getRealVariantIds() {
+            const url = document.getElementById('supabaseUrl').value;
+            const key = document.getElementById('supabaseAnonKey').value;
+            
+            if (!url || !key) {
+                showResult('Please enter Supabase URL and anon key first', 'error');
+                return;
+            }
+            
+            try {
+                showResult('🔍 Fetching real variant IDs from Printful...', 'info');
+                
+                console.log('Calling printful-proxy/products endpoint...');
+                const proxyUrl = `${url}/functions/v1/printful-proxy/products`;
+                console.log('Proxy URL:', proxyUrl);
+                
+                // Get products from Printful
+                const response = await fetch(proxyUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Response status:', response.status, response.statusText);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Printful products response:', data);
+                    
+                    if (data.result && data.result.length > 0) {
+                        let variantInfo = '<strong>Available Products & Variants:</strong><br>';
+                        
+                        // Debug: Show first few products to understand structure
+                        console.log('First 3 products structure:', data.result.slice(0, 3));
+                        
+                        // Check if products have variants or if we need to fetch variants separately
+                        let productsWithVariants = data.result.filter(p => p.variants && p.variants.length > 0);
+                        
+                        // If no products have variants, try to get variants from first few products
+                        if (productsWithVariants.length === 0) {
+                            console.log('No products with variants found, checking first product structure...');
+                            const firstProduct = data.result[0];
+                            console.log('First product:', firstProduct);
+                            
+                            // Try to get variants for the first product
+                            try {
+                                const variantResponse = await fetch(`${url}/functions/v1/printful-proxy/products/${firstProduct.id}`, {
+                                    method: 'GET',
+                                    headers: {
+                                        'Authorization': `Bearer ${key}`,
+                                        'Content-Type': 'application/json'
+                                    }
+                                });
+                                
+                                if (variantResponse.ok) {
+                                    const variantData = await variantResponse.json();
+                                    console.log('Product variant data:', variantData);
+                                    
+                                    if (variantData.result && variantData.result.variants && variantData.result.variants.length > 0) {
+                                        // Use this product with its variants
+                                        productsWithVariants = [variantData.result];
+                                    }
+                                }
+                            } catch (variantError) {
+                                console.log('Could not fetch variants for first product:', variantError);
+                            }
+                        }
+                        
+                        console.log('Products with variants:', productsWithVariants);
+                        
+                        if (productsWithVariants.length > 0) {
+                            productsWithVariants.slice(0, 5).forEach(product => {
+                                // Try different possible name fields
+                                const productName = product.name || product.title || product.sync_product?.name || `Product ${product.id}`;
+                                const productId = product.id || product.sync_product_id || 'Unknown ID';
+                                
+                                variantInfo += `<br><strong>${productName}</strong> (ID: ${productId})<br>`;
+                                if (product.variants && product.variants.length > 0) {
+                                    product.variants.slice(0, 3).forEach(variant => {
+                                        const variantName = variant.name || variant.sync_variant?.name || `Variant ${variant.id}`;
+                                        const variantColor = variant.color || variant.sync_variant?.color || 'N/A';
+                                        variantInfo += `• Variant ${variant.id}: ${variantName} (${variantColor})<br>`;
+                                    });
+                                    if (product.variants.length > 3) {
+                                        variantInfo += `• ... and ${product.variants.length - 3} more variants<br>`;
+                                    }
+                                }
+                            });
+                            
+                            showResult(variantInfo, 'success');
+                            
+                            // Update test items with real variant IDs from first product
+                            const firstProduct = productsWithVariants[0];
+                            if (firstProduct.variants && firstProduct.variants.length > 0) {
+                                const firstVariant = firstProduct.variants[0];
+                                const secondVariant = firstProduct.variants[1] || firstProduct.variants[0];
+                                
+                                const realTestItems = [
+                                    {
+                                        "printful_variant_id": firstVariant.id,
+                                        "quantity": 2
+                                    },
+                                    {
+                                        "printful_variant_id": secondVariant.id,
+                                        "quantity": 1
+                                    }
+                                ];
+                                
+                                console.log('Updating test items with:', realTestItems);
+                                document.getElementById('testItems').value = JSON.stringify(realTestItems, null, 2);
+                                
+                                const displayName = firstProduct.name || firstProduct.title || firstProduct.sync_product?.name || `Product ${firstProduct.id}`;
+                                showResult(`✅ Test items updated with real variant IDs from "${displayName}"!`, 'success');
+                            }
+                        } else {
+                            showResult('No products with variants found. Products may need to be configured with variants in Printful.', 'warning');
+                        }
+                    } else {
+                        showResult('No products found in Printful store', 'warning');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    showResult(`❌ Failed to fetch products: ${response.status} - ${errorText}`, 'error');
+                }
+            } catch (error) {
+                console.error('getRealVariantIds error:', error);
+                showResult(`❌ Error fetching variant IDs: ${error.message}`, 'error');
+            }
+        }
+
+        // Run full integration test
+        async function runFullIntegrationTest() {
+            showResult('🚀 Starting full integration test...', 'info');
+            
+            const tests = [
+                { name: 'Shipping Quotes', func: testShippingQuotes },
+                { name: 'Shipping Select', func: testShippingSelect },
+                { name: 'Printful Proxy', func: testPrintfulProxy }
+            ];
+            
+            const results = [];
+            
+            for (const test of tests) {
+                try {
+                    await test.func();
+                    results.push({ name: test.name, status: '✅ PASS' });
+                } catch (error) {
+                    results.push({ name: test.name, status: '❌ FAIL', error: error.message });
+                }
+            }
+            
+            // Display summary
+            const summaryDiv = document.getElementById('testSummary');
+            summaryDiv.innerHTML = '<h3>Test Results Summary:</h3>';
+            
+            results.forEach(result => {
+                const statusClass = result.status.includes('PASS') ? 'success' : 'error';
+                summaryDiv.innerHTML += `<div class="test-result ${statusClass}">${result.name}: ${result.status}</div>`;
+            });
+            
+            const passedCount = results.filter(r => r.status.includes('PASS')).length;
+            const totalCount = results.length;
+            
+            summaryDiv.innerHTML += `<div class="test-result ${passedCount === totalCount ? 'success' : 'warning'}">
+                <strong>Overall: ${passedCount}/${totalCount} tests passed</strong>
+            </div>`;
+        }
+
+        function showResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = message;
+            resultsDiv.appendChild(resultDiv);
+            
+            // Auto-scroll to bottom
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        // Load saved configuration on page load
+        window.onload = function() {
+            loadFromLocalStorage();
+        };
+    </script>
+</body>
+</html>

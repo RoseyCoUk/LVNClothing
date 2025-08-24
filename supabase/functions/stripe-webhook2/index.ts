@@ -199,6 +199,15 @@ const handler = async (req: Request) => {
 
           console.log(`[stripe-webhook] Order saved successfully with ID: ${data.id}`);
           
+          // Create Printful order with shipping rate ID
+          try {
+            await createPrintfulOrder(session, processedItems, data.id);
+          } catch (printfulError) {
+            console.error('[stripe-webhook] Failed to create Printful order:', printfulError);
+            // Don't fail the webhook - order is still saved in database
+            // You might want to implement retry logic or manual order creation
+          }
+          
           return new Response(
             JSON.stringify({ 
               success: true, 
@@ -235,6 +244,154 @@ const handler = async (req: Request) => {
   } catch (err) {
     console.error('Handler Error:', err.message, err);
     return new Response('Handler Error', { status: 500 });
+  }
+}
+
+// Create Printful order with shipping rate ID from PaymentIntent metadata
+async function createPrintfulOrder(session: Stripe.Checkout.Session, processedItems: any[], orderId: string) {
+  try {
+    console.log('[printful-order] Starting Printful order creation');
+    
+    // Get the PaymentIntent to extract shipping metadata
+    let paymentIntent: Stripe.PaymentIntent | null = null;
+    if (session.payment_intent && typeof session.payment_intent === 'string') {
+      paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent);
+    }
+    
+    if (!paymentIntent) {
+      throw new Error('No PaymentIntent found in session');
+    }
+    
+    // Extract shipping rate ID from PaymentIntent metadata
+    const shippingRateId = paymentIntent.metadata?.printful_shipping_rate_id;
+    if (!shippingRateId) {
+      console.warn('[printful-order] No shipping rate ID found in PaymentIntent metadata');
+      // You might want to use a default shipping method or fail gracefully
+      return;
+    }
+    
+    console.log('[printful-order] Shipping rate ID:', shippingRateId);
+    
+    // Extract customer details from session
+    const customerDetails = session.customer_details;
+    if (!customerDetails) {
+      throw new Error('No customer details found in session');
+    }
+    
+    // Build recipient object for Printful
+    const recipient = {
+      name: `${customerDetails.name || ''}`,
+      address1: customerDetails.address?.line1 || '',
+      address2: customerDetails.address?.line2 || '',
+      city: customerDetails.address?.city || '',
+      state_code: customerDetails.address?.state || '',
+      country_code: customerDetails.address?.country || 'GB',
+      zip: customerDetails.address?.postal_code || '',
+      phone: customerDetails.phone || '',
+      email: customerDetails.email || ''
+    };
+    
+    // Convert processed items to Printful format
+    const items = processedItems.map(item => {
+      // Extract printful_variant_id from item metadata
+      const printfulVariantId = item.metadata?.printful_variant_id;
+      
+      if (!printfulVariantId) {
+        console.warn(`[printful-order] No printful_variant_id found for item: ${item.price_data?.product_data?.name}`);
+        console.warn(`[printful-order] Item metadata:`, item.metadata);
+        console.warn(`[printful-order] Item structure:`, JSON.stringify(item, null, 2));
+        
+        // You might want to implement a product mapping system or fail gracefully
+        // For now, we'll skip items without printful_variant_id
+        return null;
+      }
+      
+      return {
+        variant_id: parseInt(printfulVariantId),
+        quantity: item.quantity
+      };
+    }).filter(Boolean); // Remove null items
+    
+    if (items.length === 0) {
+      throw new Error('No valid items found for Printful order');
+    }
+    
+    // Prepare order payload for Printful
+    const orderPayload = {
+      recipient,
+      items,
+      shipping: {
+        rate_id: shippingRateId
+      },
+      // Optional: Add external_id to link with your database order
+      external_id: orderId,
+      // Optional: Add retail_costs if you want to override Printful's pricing
+      // retail_costs: {
+      //   currency: 'GBP',
+      //   subtotal: session.amount_subtotal / 100, // Convert from cents
+      //   shipping: (session.amount_total - session.amount_subtotal) / 100,
+      //   tax: 0
+      // }
+    };
+    
+    console.log('[printful-order] Order payload:', JSON.stringify(orderPayload, null, 2));
+    
+    // Call Printful API through your proxy function
+    const printfulResponse = await fetch(`${supabaseUrl}/functions/v1/printful-proxy/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseServiceKey}`,
+      },
+      body: JSON.stringify(orderPayload)
+    });
+    
+    if (!printfulResponse.ok) {
+      const errorText = await printfulResponse.text();
+      console.error('[printful-order] Printful API error:', printfulResponse.status, errorText);
+      throw new Error(`Printful API error: ${printfulResponse.status} - ${errorText}`);
+    }
+    
+    const printfulResult = await printfulResponse.json();
+    console.log('[printful-order] Printful order created successfully:', printfulResult);
+    
+    // Optionally confirm the order immediately
+    if (printfulResult.result?.id) {
+      const confirmResponse = await fetch(`${supabaseUrl}/functions/v1/printful-proxy/orders/${printfulResult.result.id}/confirm`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+        }
+      });
+      
+      if (confirmResponse.ok) {
+        const confirmResult = await confirmResponse.json();
+        console.log('[printful-order] Order confirmed successfully:', confirmResult);
+      } else {
+        console.warn('[printful-order] Failed to confirm order automatically');
+      }
+    }
+    
+    // Update your database order with Printful order ID
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({ 
+        printful_order_id: printfulResult.result?.id,
+        printful_shipping_rate_id: shippingRateId,
+        status: 'printful_created'
+      })
+      .eq('id', orderId);
+    
+    if (updateError) {
+      console.error('[printful-order] Failed to update order with Printful ID:', updateError);
+    }
+    
+    console.log('[printful-order] Printful order creation completed successfully');
+    
+  } catch (error) {
+    console.error('[printful-order] Error creating Printful order:', error);
+    throw error;
   }
 }
 

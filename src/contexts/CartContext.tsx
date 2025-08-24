@@ -12,6 +12,7 @@ export interface CartItem {
   price: number;
   image: string;
   quantity: number;
+  printful_variant_id?: number; // Printful variant ID for shipping calculations
   isBundle?: boolean;
   bundleContents?: BundleContent[];
 }

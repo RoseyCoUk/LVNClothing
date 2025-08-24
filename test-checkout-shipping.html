@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Shipping Select API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #009fe3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0086c3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+        .error {
+            border-color: #ff6b6b;
+            background: #ffe6e6;
+            color: #d63031;
+        }
+        .success {
+            border-color: #00b894;
+            background: #e6f7f4;
+            color: #00b894;
+        }
+        .breakdown {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .breakdown h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .breakdown-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Checkout Shipping Select API Test</h1>
+    
+    <div class="form-group">
+        <label for="supabaseUrl">Supabase URL:</label>
+        <input type="text" id="supabaseUrl" placeholder="https://your-project.supabase.co" value="https://nsmrxwnrtsllxvplazmm.supabase.co">
+    </div>
+    
+    <div class="form-group">
+        <label for="anonKey">Supabase Anon Key:</label>
+        <input type="text" id="anonKey" placeholder="Your anon key">
+    </div>
+    
+    <div class="form-group">
+        <label for="paymentIntentId">PaymentIntent ID:</label>
+        <input type="text" id="paymentIntentId" placeholder="pi_1234567890" value="pi_test_123">
+    </div>
+    
+    <div class="form-group">
+        <label for="itemsTotal">Items Total (£):</label>
+        <input type="number" id="itemsTotal" value="29.99" step="0.01" min="0">
+    </div>
+    
+    <div class="form-group">
+        <label for="shippingRateId">Shipping Rate ID:</label>
+        <input type="text" id="shippingRateId" value="STANDARD" placeholder="e.g., STANDARD">
+    </div>
+    
+    <div class="form-group">
+        <label for="shippingRate">Shipping Rate (£):</label>
+        <input type="number" id="shippingRate" value="3.99" step="0.01" min="0">
+    </div>
+    
+    <div class="form-group">
+        <label for="shippingCurrency">Currency:</label>
+        <select id="shippingCurrency">
+            <option value="GBP">GBP (£)</option>
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="shippingName">Shipping Name:</label>
+        <input type="text" id="shippingName" value="Standard Delivery" placeholder="e.g., Standard Delivery">
+    </div>
+    
+    <div class="form-group">
+        <label for="taxTotal">Tax Total (£):</label>
+        <input type="number" id="taxTotal" value="0" step="0.01" min="0">
+    </div>
+    
+    <div class="form-group">
+        <label for="orderDraftId">Order Draft ID (optional):</label>
+        <input type="text" id="orderDraftId" placeholder="draft_123">
+    </div>
+    
+    <button onclick="testShippingSelect()">Test Shipping Select</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <div id="result" class="result" style="display: none;"></div>
+    
+    <script>
+        async function testShippingSelect() {
+            const resultDiv = document.getElementById('result');
+            const supabaseUrl = document.getElementById('supabaseUrl').value;
+            const anonKey = document.getElementById('anonKey').value;
+            
+            if (!supabaseUrl || !anonKey) {
+                showResult('Please enter both Supabase URL and Anon Key', 'error');
+                return;
+            }
+            
+            const requestData = {
+                paymentIntentId: document.getElementById('paymentIntentId').value,
+                itemsTotal: parseFloat(document.getElementById('itemsTotal').value),
+                shipping: {
+                    rate_id: document.getElementById('shippingRateId').value,
+                    rate: document.getElementById('shippingRate').value,
+                    currency: document.getElementById('shippingCurrency').value,
+                    name: document.getElementById('shippingName').value
+                },
+                taxTotal: parseFloat(document.getElementById('taxTotal').value) || undefined,
+                orderDraftId: document.getElementById('orderDraftId').value || undefined
+            };
+            
+            // Validate required fields
+            if (!requestData.paymentIntentId || !requestData.itemsTotal || !requestData.shipping.rate_id || !requestData.shipping.rate) {
+                showResult('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            try {
+                showResult('Updating PaymentIntent with shipping...', 'success');
+                
+                const response = await fetch(`${supabaseUrl}/functions/v1/checkout-shipping-select`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${anonKey}`,
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.ok) {
+                    let html = '<h3>PaymentIntent Updated Successfully!</h3>';
+                    
+                    html += `
+                        <div class="breakdown">
+                            <h4>PaymentIntent Details</h4>
+                            <div class="breakdown-row">
+                                <span>ID:</span>
+                                <span>${data.paymentIntent.id}</span>
+                            </div>
+                            <div class="breakdown-row">
+                                <span>Amount:</span>
+                                <span>${data.paymentIntent.amount} (${data.paymentIntent.currency})</span>
+                            </div>
+                            <div class="breakdown-row">
+                                <span>Status:</span>
+                                <span>${data.paymentIntent.status}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    if (data.breakdown) {
+                        html += `
+                            <div class="breakdown">
+                                <h4>Amount Breakdown</h4>
+                                <div class="breakdown-row">
+                                    <span>Items:</span>
+                                    <span>${data.breakdown.items} pence</span>
+                                </div>
+                                <div class="breakdown-row">
+                                    <span>Shipping:</span>
+                                    <span>${data.breakdown.shipping} pence</span>
+                                </div>
+                                <div class="breakdown-row">
+                                    <span>Tax:</span>
+                                    <span>${data.breakdown.tax} pence</span>
+                                </div>
+                                <div class="breakdown-row">
+                                    <span>Total:</span>
+                                    <span>${data.breakdown.total} pence</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    showResult(html, 'success');
+                } else {
+                    showResult('Failed to update PaymentIntent', 'error');
+                }
+                
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.className = `result ${type}`;
+            resultDiv.style.display = 'block';
+        }
+        
+        function clearResults() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'none';
+        }
+        
+        // Auto-fill anon key from localStorage if available
+        const savedAnonKey = localStorage.getItem('supabase_anon_key');
+        if (savedAnonKey) {
+            document.getElementById('anonKey').value = savedAnonKey;
+        }
+        
+        // Save anon key to localStorage when changed
+        document.getElementById('anonKey').addEventListener('change', function() {
+            localStorage.setItem('supabase_anon_key', this.value);
+        });
+        
+        // Auto-calculate total when values change
+        function updateTotal() {
+            const itemsTotal = parseFloat(document.getElementById('itemsTotal').value) || 0;
+            const shippingRate = parseFloat(document.getElementById('shippingRate').value) || 0;
+            const taxTotal = parseFloat(document.getElementById('taxTotal').value) || 0;
+            const total = itemsTotal + shippingRate + taxTotal;
+            
+            // You could display this total somewhere if needed
+            console.log('Calculated total:', total);
+        }
+        
+        // Add event listeners for auto-calculation
+        document.getElementById('itemsTotal').addEventListener('input', updateTotal);
+        document.getElementById('shippingRate').addEventListener('input', updateTotal);
+        document.getElementById('taxTotal').addEventListener('input', updateTotal);
+    </script>
+</body>
+</html>

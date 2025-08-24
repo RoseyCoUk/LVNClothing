@@ -16,10 +16,21 @@ const allowed = new Set([
   "https://www.backreform.co.uk",
   "http://localhost:3000",
   "http://localhost:5173",
+  "http://localhost:8080",
+  "file://",
 ]);
 
 function cors(origin: string | null) {
-  const allow = origin && allowed.has(origin) ? origin : "https://backreform.co.uk";
+  // Handle file:// protocol and null origins for local testing
+  let allow: string;
+  if (!origin || origin === 'null' || origin.startsWith('file://')) {
+    allow = "*"; // Allow all origins for local testing
+  } else if (allowed.has(origin)) {
+    allow = origin;
+  } else {
+    allow = "https://backreform.co.uk";
+  }
+  
   return {
     "Access-Control-Allow-Origin": allow,
     "Vary": "Origin",
@@ -154,9 +165,22 @@ serve(async (req: Request) => {
       },
     };
 
-    // Add line items
+    // Add line items with printful_variant_id metadata
     if (line_items) {
-      sessionParams.line_items = line_items;
+      // Enhance line items with printful_variant_id if available
+      sessionParams.line_items = line_items.map(item => {
+        const enhancedItem = { ...item };
+        
+        // If the item has printful_variant_id in metadata, preserve it
+        if (item.metadata?.printful_variant_id) {
+          enhancedItem.metadata = {
+            ...enhancedItem.metadata,
+            printful_variant_id: item.metadata.printful_variant_id
+          };
+        }
+        
+        return enhancedItem;
+      });
     } else if (price_id) {
       sessionParams.line_items = [
         {

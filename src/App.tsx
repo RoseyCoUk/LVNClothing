@@ -32,6 +32,9 @@ import CartDrawer from './components/CartDrawer';
 import CartPopup from './components/CartPopup';
 import PrintfulTest from './components/PrintfulTest';
 import PrintfulProductDetailWrapper from './components/PrintfulProductDetailWrapper';
+import ShippingTest from './components/ShippingTest';
+import ShippingTestDashboard from './components/ShippingTestDashboard';
+import ShippingExample from './components/checkout/ShippingExample';
 
 // Product Pages
 import TShirtPage from './components/products/TShirtPage';
@@ -48,6 +51,7 @@ import ChampionBundlePage from './components/products/ChampionBundlePage';
 import ActivistBundlePage from './components/products/ActivistBundlePage';
 
 import { CartProvider } from './contexts/CartContext';
+import { ShippingProvider } from './contexts/ShippingContext';
 
 const App = () => {
   const navigate = useNavigate();
@@ -136,7 +140,8 @@ const App = () => {
 
   return (
     <CartProvider>
-      <div className="min-h-screen bg-white">
+      <ShippingProvider>
+        <div className="min-h-screen bg-white">
         <Header currentPage={currentPage} setCurrentPage={handleNavigation} onLoginClick={handleLoginClick} onSignupClick={handleSignupClick} />
         <main>
           <Routes>
@@ -177,6 +182,9 @@ const App = () => {
             <Route path="/accessibility" element={<AccessibilityPage onBack={handleBackToHome} />} />
             <Route path="/test-payment" element={<TestPaymentFlow />} />
             <Route path="/printful-test" element={<PrintfulTest />} />
+            <Route path="/shipping-test" element={<ShippingTest />} />
+            <Route path="/shipping-dashboard" element={<ShippingTestDashboard />} />
+            <Route path="/shipping-example" element={<ShippingExample />} />
             <Route path="/printful-product/:id" element={<PrintfulProductDetailWrapper />} />
             
             {/* Product Routes */}
@@ -200,7 +208,8 @@ const App = () => {
         <Footer onPageNavigation={(page) => navigate(`/${page}`)} />
         <CartDrawer onCheckoutClick={handleCheckoutClick} />
         <CartPopup />
-      </div>
+        </div>
+      </ShippingProvider>
     </CartProvider>
   );
 };

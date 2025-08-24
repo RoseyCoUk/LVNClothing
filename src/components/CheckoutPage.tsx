@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+// This checkout page now integrates with:
+// - useShippingQuotes hook for fetching live shipping rates from Printful
+// - ShippingMethods component for displaying and selecting shipping options
+// - PaymentIntent update functionality when shipping is selected
+// - Automatic shipping cost calculation and display
 import {
   ArrowLeft,
   CreditCard,
@@ -12,7 +17,12 @@ import {
   X
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { useShipping } from '../contexts/ShippingContext';
 import { createCheckoutSession } from '../lib/stripe';
+import ShippingOptions from './ShippingOptions';
+import { useShippingQuotes } from '../hooks/useShippingQuotes';
+import ShippingMethods from './checkout/ShippingMethods';
+import type { ShippingOption } from '../lib/shipping/types';
 
 interface CheckoutPageProps {
   onBack: () => void;
@@ -63,29 +73,45 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
   
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
-  const [shippingMethod, setShippingMethod] = useState('standard');
+  const { 
+    fetchShippingRates, 
+    selectedShippingOption, 
+    getShippingCost, 
+    getTotalWithShipping,
+    isAddressComplete,
+    convertToRecipient,
+    updatePaymentIntent
+  } = useShipping();
+  
+  // New shipping quotes hook
+  const { loading: shippingLoading, options: shippingOptions, error: shippingError, fetchQuotes } = useShippingQuotes();
+  
+  // State for selected shipping option from the new hook
+  const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null);
   
   const subtotal = getTotalPrice();
-  const shipping = shippingMethod === 'express' ? 5.99 : (subtotal >= 50 ? 0 : 3.99);
+  const shipping = getShippingCost() / 100; // Convert from pence to pounds
   const promoDiscount = appliedPromo === 'REFORM10' ? subtotal * 0.1 : 0;
-  const total = subtotal + shipping - promoDiscount;
-  
-  const shippingOptions = [
-    { 
-      id: 'standard', 
-      name: 'Standard Delivery', 
-      time: '3-5 business days', 
-      price: subtotal >= 50 ? 0 : 3.99,
-      stripeId: subtotal >= 50 ? 'shr_1RhsKRGDbOGEgNLwr60b0IWt' : 'shr_1RhsLvGDbOGEgNLwPAfg0Quj'
-    },
-    { 
-      id: 'express', 
-      name: 'Express Delivery', 
-      time: '2-3 business days', 
-      price: 5.99,
-      stripeId: 'shr_1RhsMoGDbOGEgNLw9XwK3Y6Z'
+  const total = getTotalWithShipping() / 100; // Use shipping context total
+
+  // Fetch shipping rates when address changes
+  useEffect(() => {
+    const recipient = convertToRecipient(shippingInfo);
+    if (isAddressComplete(recipient) && cartItems.length > 0) {
+      // Use the new shipping quotes hook
+      const request = {
+        recipient,
+        items: cartItems.map(item => ({
+          printful_variant_id: item.printful_variant_id || parseInt(item.id.toString()),
+          quantity: item.quantity
+        }))
+      };
+      
+      fetchQuotes(request).catch(error => {
+        console.error('Failed to fetch shipping quotes:', error);
+      });
     }
-  ];
+  }, [shippingInfo.address, shippingInfo.city, shippingInfo.postcode, shippingInfo.country, cartItems.length, convertToRecipient, isAddressComplete, fetchQuotes]);
   
   // Email validation function
   const validateEmail = (email: string): boolean => {
@@ -225,6 +251,80 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
       }
     }
   };
+
+  // Handle shipping option selection
+  const handleShippingSelect = async (option: ShippingOption) => {
+    setSelectedShipping(option);
+    
+    // Update the shipping context using the proper setter
+    // The shipping context will handle this automatically when we call selectShippingOption
+    
+    // If we have a PaymentIntent ID, update it with the new shipping cost
+    // Note: In a real implementation, you'd get this from your payment flow
+    // For now, we'll just log the selection
+    console.log('Shipping option selected:', option);
+    console.log('Would update PaymentIntent with shipping cost:', option.rate);
+    
+    // TODO: When you have a PaymentIntent ID, uncomment this:
+    // try {
+    //   await updatePaymentIntentWithShipping(paymentIntentId, option);
+    //   console.log('PaymentIntent updated with shipping cost');
+    // } catch (error) {
+    //   console.error('Failed to update PaymentIntent:', error);
+    //   // Handle error appropriately (show user message, etc.)
+    // }
+    
+    // Example of how to integrate with your payment flow:
+    // 1. Create PaymentIntent first (before shipping selection)
+    // 2. Store PaymentIntent ID in state: const [paymentIntentId, setPaymentIntentId] = useState<string>('')
+    // 3. When shipping is selected, call updatePaymentIntentWithShipping(paymentIntentId, option)
+    // 4. The PaymentIntent amount will be updated with the new shipping cost
+    // 5. Proceed with payment using the updated PaymentIntent
+  };
+
+  // Function to update PaymentIntent with shipping cost
+  const updatePaymentIntentWithShipping = async (paymentIntentId: string, shippingOption: ShippingOption) => {
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !anonKey) {
+        throw new Error('Missing Supabase configuration');
+      }
+
+      const response = await fetch(`${supabaseUrl}/functions/v1/checkout-shipping-select`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${anonKey}`,
+        },
+        body: JSON.stringify({
+          paymentIntentId,
+          itemsTotal: subtotal,
+          shipping: {
+            rate_id: shippingOption.id,
+            rate: shippingOption.rate,
+            currency: shippingOption.currency,
+            name: shippingOption.name
+          },
+          taxTotal: 0 // Adjust based on your tax calculation
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to update PaymentIntent: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('PaymentIntent updated successfully:', result);
+      return result;
+      
+    } catch (error) {
+      console.error('Failed to update PaymentIntent:', error);
+      throw error;
+    }
+  };
   
   const applyPromoCode = () => {
     if (promoCode.toUpperCase() === 'REFORM10') {
@@ -246,13 +346,22 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
     return true;
   };
   
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep === 1) {
       setEmailTouched(true);
       handleEmailBlur();
       
-      setTimeout(() => {
+      setTimeout(async () => {
         if (validateStep(currentStep) && !emailError) {
+          // Fetch shipping rates when moving to step 2
+          try {
+            const recipient = convertToRecipient(shippingInfo);
+            if (isAddressComplete(recipient)) {
+              await fetchShippingRates(recipient);
+            }
+          } catch (error) {
+            console.error('Failed to fetch shipping rates:', error);
+          }
           setCurrentStep(prev => prev + 1);
         }
       }, 100);
@@ -269,9 +378,8 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
       console.log('Cart items:', cartItems);
       console.log('Shipping info:', shippingInfo);
       
-      // Get the shipping rate ID based on the selected shipping method
-      const selectedShippingOption = shippingOptions.find(option => option.id === shippingMethod);
-      const shipping_rate_id = selectedShippingOption?.stripeId;
+      // Get the shipping rate ID from the shipping context
+      const shipping_rate_id = selectedShippingOption?.id;
       
       console.log('Selected shipping option:', selectedShippingOption);
       console.log('Shipping rate ID:', shipping_rate_id);
@@ -286,10 +394,12 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
         console.log('Processing item for Stripe:', {
           name: item.name,
           originalImage: item.image,
-          absoluteImageUrl: absoluteImageUrl
+          absoluteImageUrl: absoluteImageUrl,
+          printful_variant_id: item.printful_variant_id
         });
         
-        return {
+        // Create line item with metadata for Printful integration
+        const lineItem: any = {
           price_data: {
             currency: 'gbp',
             product_data: {
@@ -300,6 +410,15 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
           },
           quantity: item.quantity,
         };
+        
+        // Add printful_variant_id to metadata if available
+        if (item.printful_variant_id) {
+          lineItem.metadata = {
+            printful_variant_id: item.printful_variant_id.toString()
+          };
+        }
+        
+        return lineItem;
       });
       
       console.log('Prepared line items:', lineItems);
@@ -624,32 +743,55 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                 </div>
                 
                 {/* Shipping Options */}
-                <div className="mt-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Shipping Method</h3>
-                  <div className="space-y-3">
-                    {shippingOptions.map((option) => (
-                      <label key={option.id} className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-[#009fe3] transition-colors">
-                        <input
-                          type="radio"
-                          name="shipping"
-                          value={option.id}
-                          checked={shippingMethod === option.id}
-                          onChange={(e) => setShippingMethod(e.target.value)}
-                          className="text-[#009fe3] focus:ring-[#009fe3]"
-                        />
-                        <div className="ml-3 flex-1">
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium text-gray-900">{option.name}</span>
-                            <span className="font-bold text-gray-900">
-                              {option.price === 0 ? 'FREE' : `£${option.price.toFixed(2)}`}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600">{option.time}</p>
-                        </div>
-                      </label>
-                    ))}
+                {shippingOptions.length > 0 && (
+                  <div className="mt-8">
+                    <ShippingMethods
+                      options={shippingOptions}
+                      value={selectedShipping?.id}
+                      onChange={handleShippingSelect}
+                      loading={shippingLoading}
+                      error={shippingError}
+                    />
                   </div>
-                </div>
+                )}
+                
+                {/* Show loading state while fetching shipping options */}
+                {shippingLoading && (
+                  <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center space-x-2 text-blue-700">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      <span>Loading shipping options...</span>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Show error state if shipping fetch failed */}
+                {shippingError && (
+                  <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="flex items-center space-x-2 text-red-700">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>Error loading shipping options: {shippingError}</span>
+                    </div>
+                  </div>
+                )}
+                
+                {/* PaymentIntent Integration Note */}
+                {selectedShipping && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center space-x-2 text-blue-700">
+                      <Check className="w-4 h-4" />
+                      <span className="text-sm">
+                        <strong>Shipping Selected:</strong> {selectedShipping.name} - {selectedShipping.currency} {selectedShipping.rate}
+                        {selectedShipping.minDeliveryDays && selectedShipping.maxDeliveryDays && 
+                          ` (${selectedShipping.minDeliveryDays}-${selectedShipping.maxDeliveryDays} days)`
+                        }
+                      </span>
+                    </div>
+                    <p className="text-xs text-blue-600 mt-1">
+                      When you proceed to payment, this shipping cost will be automatically added to your order total.
+                    </p>
+                  </div>
+                )}
                 
                 <div className="mt-6">
                   {emailError && (

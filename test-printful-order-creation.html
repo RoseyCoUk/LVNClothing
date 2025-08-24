@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printful Order Creation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .code {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🛍️ Printful Order Creation Test</h1>
+    <p>This page demonstrates the complete flow from shipping selection to Printful order creation.</p>
+
+    <div class="section">
+        <h2>📋 Complete Integration Flow</h2>
+        <p>The system now works as follows:</p>
+        <ol>
+            <li><strong>User selects shipping</strong> → Shipping rate ID is stored</li>
+            <li><strong>Checkout proceeds</strong> → PaymentIntent is created with shipping metadata</li>
+            <li><strong>Payment succeeds</strong> → Webhook extracts shipping rate ID</li>
+            <li><strong>Printful order created</strong> → Uses the selected shipping rate</li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <h2>🔧 Key Implementation Details</h2>
+        
+        <h3>1. Frontend: Line Items with Printful Variant IDs</h3>
+        <div class="code">// In CheckoutPage.tsx - line items now include printful_variant_id
+const lineItems = cartItems.map(item => {
+  const lineItem = {
+    price_data: {
+      currency: 'gbp',
+      product_data: {
+        name: item.name,
+        images: [absoluteImageUrl],
+      },
+      unit_amount: Math.round(item.price * 100),
+    },
+    quantity: item.quantity,
+  };
+  
+  // Add printful_variant_id to metadata if available
+  if (item.printful_variant_id) {
+    lineItem.metadata = {
+      printful_variant_id: item.printful_variant_id.toString()
+    };
+  }
+  
+  return lineItem;
+});</div>
+
+        <h3>2. Backend: Checkout Session Preserves Metadata</h3>
+        <div class="code">// In stripe-checkout function - preserves printful_variant_id
+sessionParams.line_items = line_items.map(item => {
+  const enhancedItem = { ...item };
+  
+  if (item.metadata?.printful_variant_id) {
+    enhancedItem.metadata = {
+      ...enhancedItem.metadata,
+      printful_variant_id: item.metadata.printful_variant_id
+    };
+  }
+  
+  return enhancedItem;
+});</div>
+
+        <h3>3. Webhook: Extracts Shipping Rate ID</h3>
+        <div class="code">// In stripe-webhook2 - extracts shipping rate from PaymentIntent
+const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent);
+const shippingRateId = paymentIntent.metadata?.printful_shipping_rate_id;
+
+if (!shippingRateId) {
+  console.warn('No shipping rate ID found in PaymentIntent metadata');
+  return;
+}</div>
+
+        <h3>4. Printful Order Creation</h3>
+        <div class="code">// Creates order with selected shipping rate
+const orderPayload = {
+  recipient,
+  items,
+  shipping: {
+    rate_id: shippingRateId  // ← Uses the selected rate
+  },
+  external_id: orderId
+};
+
+const printfulResponse = await fetch('/functions/v1/printful-proxy/orders', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(orderPayload)
+});</div>
+    </div>
+
+    <div class="section">
+        <h2>🧪 Testing the Integration</h2>
+        
+        <div class="form-group">
+            <label for="testData">Test Data (JSON):</label>
+            <textarea id="testData" rows="10" placeholder="Paste test data here...">{
+  "cartItems": [
+    {
+      "id": 1,
+      "name": "Reform UK T-Shirt",
+      "price": 19.99,
+      "quantity": 2,
+      "printful_variant_id": 12345
+    },
+    {
+      "id": 2,
+      "name": "Reform UK Hoodie",
+      "price": 39.99,
+      "quantity": 1,
+      "printful_variant_id": 67890
+    }
+  ],
+  "shippingAddress": {
+    "name": "John Smith",
+    "address1": "123 Main Street",
+    "city": "London",
+    "postcode": "SW1A 1AA",
+    "country": "GB"
+  },
+  "selectedShipping": {
+    "id": "rate_123456",
+    "name": "Standard Shipping",
+    "rate": "4.99",
+    "currency": "GBP"
+  }
+}</textarea>
+        </div>
+
+        <button onclick="testLineItems()">Test Line Items Creation</button>
+        <button onclick="testCheckoutSession()">Test Checkout Session</button>
+        <button onclick="testWebhookProcessing()">Test Webhook Processing</button>
+        <button onclick="testPrintfulOrder()">Test Printful Order Creation</button>
+
+        <div id="results"></div>
+    </div>
+
+    <div class="section">
+        <h2>⚠️ Important Notes</h2>
+        
+        <div class="highlight">
+            <h4>🔄 Data Flow Requirements</h4>
+            <ul>
+                <li><strong>Cart items must have</strong> <code>printful_variant_id</code></li>
+                <li><strong>Shipping selection must happen</strong> before checkout</li>
+                <li><strong>PaymentIntent metadata</strong> must include shipping rate ID</li>
+                <li><strong>Webhook must process</strong> the complete order data</li>
+            </ul>
+        </div>
+
+        <div class="error">
+            <h4>🚨 Common Issues</h4>
+            <ul>
+                <li><strong>Missing printful_variant_id:</strong> Items won't be processed by Printful</li>
+                <li><strong>No shipping selection:</strong> Order will fail to create</li>
+                <li><strong>Metadata too large:</strong> Stripe has 500 character limit</li>
+                <li><strong>Webhook failures:</strong> Orders won't be created automatically</li>
+            </ul>
+        </div>
+
+        <div class="success">
+            <h4>✅ Success Indicators</h4>
+            <ul>
+                <li><strong>Webhook logs show:</strong> "Printful order created successfully"</li>
+                <li><strong>Database updated:</strong> Order has <code>printful_order_id</code></li>
+                <li><strong>Printful dashboard:</strong> Shows new order with correct shipping</li>
+                <li><strong>Order status:</strong> Set to "printful_created"</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📚 Next Steps</h2>
+        <ol>
+            <li><strong>Update your product data</strong> to include <code>printful_variant_id</code></li>
+            <li><strong>Test the complete flow</strong> from cart to Printful order creation</li>
+            <li><strong>Monitor webhook logs</strong> for any errors or issues</li>
+            <li><strong>Verify Printful orders</strong> are created with correct shipping rates</li>
+            <li><strong>Implement error handling</strong> for failed order creation</li>
+        </ol>
+    </div>
+
+    <script>
+        function displayResult(title, content, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = type;
+            resultDiv.innerHTML = `<h4>${title}</h4><div class="code">${content}</div>`;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        function testLineItems() {
+            try {
+                const testData = JSON.parse(document.getElementById('testData').value);
+                const lineItems = testData.cartItems.map(item => {
+                    const lineItem = {
+                        price_data: {
+                            currency: 'gbp',
+                            product_data: {
+                                name: item.name,
+                                images: ['https://example.com/image.jpg'],
+                            },
+                            unit_amount: Math.round(item.price * 100),
+                        },
+                        quantity: item.quantity,
+                    };
+                    
+                    if (item.printful_variant_id) {
+                        lineItem.metadata = {
+                            printful_variant_id: item.printful_variant_id.toString()
+                        };
+                    }
+                    
+                    return lineItem;
+                });
+                
+                displayResult('✅ Line Items Created', JSON.stringify(lineItems, null, 2), 'success');
+            } catch (error) {
+                displayResult('❌ Error Creating Line Items', error.message, 'error');
+            }
+        }
+
+        function testCheckoutSession() {
+            try {
+                const testData = JSON.parse(document.getElementById('testData').value);
+                const lineItems = testData.cartItems.map(item => {
+                    const lineItem = {
+                        price_data: {
+                            currency: 'gbp',
+                            product_data: { name: item.name },
+                            unit_amount: Math.round(item.price * 100),
+                        },
+                        quantity: item.quantity,
+                    };
+                    
+                    if (item.printful_variant_id) {
+                        lineItem.metadata = {
+                            printful_variant_id: item.printful_variant_id.toString()
+                        };
+                    }
+                    
+                    return lineItem;
+                });
+                
+                const sessionParams = {
+                    customer_email: 'test@example.com',
+                    line_items: lineItems,
+                    metadata: {
+                        shipping_rate_id: testData.selectedShipping.id,
+                        items: JSON.stringify(lineItems)
+                    }
+                };
+                
+                displayResult('✅ Checkout Session Params', JSON.stringify(sessionParams, null, 2), 'success');
+            } catch (error) {
+                displayResult('❌ Error Creating Session Params', error.message, 'error');
+            }
+        }
+
+        function testWebhookProcessing() {
+            try {
+                const testData = JSON.parse(document.getElementById('testData').value);
+                
+                // Simulate webhook processing
+                const processedItems = testData.cartItems.map((item, index) => ({
+                    id: `item_${index}`,
+                    price_data: {
+                        currency: 'gbp',
+                        product_data: { name: item.name },
+                        unit_amount: Math.round(item.price * 100),
+                    },
+                    quantity: item.quantity,
+                    metadata: {
+                        printful_variant_id: item.printful_variant_id.toString()
+                    }
+                }));
+                
+                const webhookData = {
+                    session_id: 'cs_test_123',
+                    payment_intent: 'pi_test_123',
+                    customer_details: testData.shippingAddress,
+                    processed_items: processedItems,
+                    metadata: {
+                        shipping_rate_id: testData.selectedShipping.id
+                    }
+                };
+                
+                displayResult('✅ Webhook Data Structure', JSON.stringify(webhookData, null, 2), 'success');
+            } catch (error) {
+                displayResult('❌ Error Processing Webhook', error.message, 'error');
+            }
+        }
+
+        function testPrintfulOrder() {
+            try {
+                const testData = JSON.parse(document.getElementById('testData').value);
+                
+                const recipient = {
+                    name: testData.shippingAddress.name,
+                    address1: testData.shippingAddress.address1,
+                    city: testData.shippingAddress.city,
+                    country_code: testData.shippingAddress.country,
+                    zip: testData.shippingAddress.postcode
+                };
+                
+                const items = testData.cartItems.map(item => ({
+                    variant_id: item.printful_variant_id,
+                    quantity: item.quantity
+                }));
+                
+                const orderPayload = {
+                    recipient,
+                    items,
+                    shipping: {
+                        rate_id: testData.selectedShipping.id
+                    },
+                    external_id: 'order_123'
+                };
+                
+                displayResult('✅ Printful Order Payload', JSON.stringify(orderPayload, null, 2), 'success');
+            } catch (error) {
+                displayResult('❌ Error Creating Printful Order', error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
