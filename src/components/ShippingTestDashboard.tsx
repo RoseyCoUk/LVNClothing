@@ -96,7 +96,7 @@ const ShippingTestDashboard: React.FC = () => {
     }
   }
 
-  const testTypes = () => {
+  const runTypesTest = () => {
     try {
       const results = testTypes()
       setTestResults(prev => ({ ...prev, types: true }))
@@ -124,7 +124,7 @@ const ShippingTestDashboard: React.FC = () => {
     
     // Run utility tests
     runMoneyUtilsTest()
-    testTypes()
+    runTypesTest()
     testDataValidation()
     
     // Run integration tests
@@ -173,7 +173,7 @@ const ShippingTestDashboard: React.FC = () => {
             </button>
             
             <button
-              onClick={testTypes}
+              onClick={runTypesTest}
               className="w-full bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
             >
               Test Types
