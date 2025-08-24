@@ -1,0 +1,12 @@
+# Copy this file to .env.local and fill in your actual values
+
+# Supabase Configuration
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+
+# Stripe Configuration (if using Stripe)
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key_here
+
+# Other Configuration
+VITE_APP_NAME=Reform UK Store
+VITE_APP_VERSION=1.0.0

@@ -6007,3 +6007,65 @@ export interface operations {
         };
     };
 }
+
+// Enhanced types for the new product structure
+export interface PrintfulProduct {
+  id: number;
+  name: string;
+  description?: string;
+  category: 'tshirt' | 'hoodie' | 'cap' | 'tote' | 'water-bottle' | 'mug' | 'mouse-pad';
+  variants: PrintfulVariant[];
+  isUnisex?: boolean;
+  hasDarkLightVariants?: boolean;
+  image?: string;
+  brand?: string;
+  model?: string;
+  currency?: string;
+  is_discontinued?: boolean;
+  avg_fulfillment_time?: number;
+  origin_country?: string | null;
+}
+
+export interface PrintfulVariant {
+  id: number;
+  name: string;
+  color: 'dark' | 'light' | string;
+  size?: 'XS' | 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL' | '4XL';
+  price: string;
+  in_stock: boolean;
+  printful_variant_id: number;
+  color_code?: string;
+  color_code2?: string;
+  image?: string;
+  availability_regions?: Record<string, string>;
+  material?: Array<{
+    name: string;
+    percentage: number;
+  }>;
+}
+
+export interface BundleProduct {
+  id: string;
+  name: string;
+  description: string;
+  products: BundleItem[];
+  totalPrice: number;
+  savings: number;
+  image?: string;
+}
+
+export interface BundleItem {
+  product: PrintfulProduct;
+  variant: PrintfulVariant;
+  quantity: number;
+}
+
+export interface StickerAddon {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  printful_variant_id: number;
+  availableFor: ('tshirt' | 'hoodie' | 'cap' | 'tote')[];
+}

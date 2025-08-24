@@ -45,13 +45,14 @@ import WaterBottlePage from './components/products/WaterBottlePage';
 import MugPage from './components/products/MugPage';
 import MousePadPage from './components/products/MousePadPage';
 import StickersPage from './components/products/StickersPage';
-import BadgeSetPage from './components/products/BadgeSetPage';
+
 import StarterBundlePage from './components/products/StarterBundlePage';
 import ChampionBundlePage from './components/products/ChampionBundlePage';
 import ActivistBundlePage from './components/products/ActivistBundlePage';
 
 import { CartProvider } from './contexts/CartContext';
 import { ShippingProvider } from './contexts/ShippingContext';
+import PrintfulStatus from './components/PrintfulStatus';
 
 const App = () => {
   const navigate = useNavigate();
@@ -196,7 +197,7 @@ const App = () => {
             <Route path="/product/reform-uk-mug" element={<MugPage onBack={handleBackToShop} />} />
             <Route path="/product/reform-uk-mouse-pad" element={<MousePadPage onBack={handleBackToShop} />} />
             <Route path="/product/reform-uk-stickers" element={<StickersPage onBack={handleBackToShop} />} />
-            <Route path="/product/reform-uk-badge-set" element={<BadgeSetPage onBack={handleBackToShop} />} />
+
             <Route path="/product/starter-bundle" element={<StarterBundlePage onBack={handleBackToShop} />} />
             <Route path="/product/champion-bundle" element={<ChampionBundlePage onBack={handleBackToShop} />} />
             <Route path="/product/activist-bundle" element={<ActivistBundlePage onBack={handleBackToShop} />} />
@@ -208,6 +209,7 @@ const App = () => {
         <Footer onPageNavigation={(page) => navigate(`/${page}`)} />
         <CartDrawer onCheckoutClick={handleCheckoutClick} />
         <CartPopup />
+        <PrintfulStatus />
         </div>
       </ShippingProvider>
     </CartProvider>

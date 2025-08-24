@@ -14,34 +14,24 @@ import {
   ChevronRight,
   Check,
   Info,
-  Clock
+  Clock,
+  Loader2
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
+import { usePrintfulProduct } from '../../hooks/usePrintfulProducts';
+import { useVariantSelection } from '../../hooks/useVariantSelection';
+import { useStickerAddons, getAvailableStickers } from '../../hooks/useStickerAddons';
+import StickerAddonSelector from '../StickerAddonSelector';
+import type { PrintfulProduct, PrintfulVariant } from '../../types/printful';
 
-// Fix 2: Add proper TypeScript interfaces
+// Enhanced TypeScript interfaces for Printful integration
 interface Color {
   name: string;
   value: string;
   border?: boolean;
-}
-
-interface Variant {
-  id: number;
-  gender: string;
-  color: string;
-  price: number;
-  inStock: boolean;
-  stockCount: number;
-  rating: number;
-  reviews: number;
-  images: string[];
-}
-
-interface Variants {
-  [key: number]: Variant;
 }
 
 interface OrderToConfirm {
@@ -51,14 +41,13 @@ interface OrderToConfirm {
   quantity: number;
   priceId: string;
   variants: {
-    gender: string;
     color: string;
     size: string;
   };
 }
 
-// --- FIX: T-Shirt data is moved OUTSIDE the component to ensure it's a stable constant ---
-const productData = {
+// Default product data for fallback (when Printful data is loading)
+const defaultProductData = {
   id: 2,
   name: "Reform UK T-Shirt",
   description: "Comfortable cotton t-shirt featuring the Reform UK logo. Made from premium cotton for all-day comfort and durability. A classic fit that works for any occasion.",
@@ -67,32 +56,14 @@ const productData = {
   materials: "100% cotton",
   category: 'apparel',
   shipping: "Ships in 48H",
-  defaultVariant: 205, // Default to Men's Black
   variantDetails: {
-    genders: ['Men', 'Women'],
-    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+    sizes: ['XS', 'S', 'M', 'L', 'XL', '2XL'],
     colors: [
-        { name: 'White', value: '#FFFFFF', border: true }, { name: 'Light Grey', value: '#E5E5E5', border: true }, { name: 'Ash Grey', value: '#B0B0B0' }, { name: 'Charcoal', value: '#333333' }, { name: 'Black', value: '#000000' }, { name: 'Royal Blue', value: '#0B4C8A' }, { name: 'Red', value: '#B31217' }
+        { name: 'Black', value: '#000000', border: true }, 
+        { name: 'White', value: '#FFFFFF', border: true }, 
+        { name: 'Navy', value: '#0B4C8A', border: true }
     ] as Color[]
-  },
-  variants: {
-    // Men's T-Shirts - 6 images each
-    201: { id: 201, gender: 'Men', color: 'White', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtWhite${i + 1}.webp`) },
-    202: { id: 202, gender: 'Men', color: 'Light Grey', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtLightGrey${i + 1}.webp`) },
-    203: { id: 203, gender: 'Men', color: 'Ash Grey', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtAshGrey${i + 1}.webp`) },
-    204: { id: 204, gender: 'Men', color: 'Charcoal', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtCharcoal${i + 1}.webp`) },
-    205: { id: 205, gender: 'Men', color: 'Black', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtBlack${i + 1}.webp`) },
-    206: { id: 206, gender: 'Men', color: 'Royal Blue', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtBlue${i + 1}.webp`) },
-    207: { id: 207, gender: 'Men', color: 'Red', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 89, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtRed${i + 1}.webp`) },
-    // Women's T-Shirts - 5 images each
-    211: { id: 211, gender: 'Women', color: 'White', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtWhite${i + 1}.webp`) },
-    212: { id: 212, gender: 'Women', color: 'Light Grey', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtLightGrey${i + 1}.webp`) },
-    213: { id: 213, gender: 'Women', color: 'Ash Grey', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtAshGrey${i + 1}.webp`) },
-    214: { id: 214, gender: 'Women', color: 'Charcoal', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtCharcoal${i + 1}.webp`) },
-    215: { id: 215, gender: 'Women', color: 'Black', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtBlack${i + 1}.webp`) },
-    216: { id: 216, gender: 'Women', color: 'Royal Blue', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtBlue${i + 1}.webp`) },
-    217: { id: 217, gender: 'Women', color: 'Red', price: 24.99, inStock: true, stockCount: 22, rating: 5, reviews: 75, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Women/ReformWomenTshirtRed${i + 1}.webp`) },
-  } as Variants // Fix 3: Add proper typing to variants object
+  }
 };
 
 interface TShirtPageProps {
@@ -106,204 +77,311 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
   const navigate = useNavigate();
   
-  const defaultVariant = productData.variants[productData.defaultVariant as keyof typeof productData.variants];
+  // Printful integration - using a sample t-shirt product ID
+  // In production, you'd get this from your product catalog
+  const { product: printfulProduct, loading: printfulLoading, error: printfulError } = usePrintfulProduct(1);
+  
+  // Use Printful data if available, otherwise fall back to default data
+  const productData = printfulProduct || defaultProductData;
+  
+  // Variant selection hook
+  const {
+    selection,
+    availableColors,
+    availableSizes,
+    selectedVariant,
+    setColor,
+    setSize,
+    isVariantAvailable,
+    getVariantPrice,
+    resetSelection
+  } = useVariantSelection(printfulProduct?.variants || []);
+  
+  // Get fallback colors and sizes when Printful fails
+  const fallbackColors = defaultProductData.variantDetails.colors.map(c => c.name);
+  const fallbackSizes = defaultProductData.variantDetails.sizes;
+  
+  // Use Printful data if available, otherwise fall back to default data
+  const effectiveColors = availableColors.length > 0 ? availableColors : fallbackColors;
+  const effectiveSizes = availableSizes.length > 0 ? availableSizes : fallbackSizes;
+  
+  // Fallback function for checking variant availability when Printful fails
+  const isVariantAvailableFallback = (color: string, size: string) => {
+    if (printfulProduct?.variants && printfulProduct.variants.length > 0) {
+      return isVariantAvailable(color, size);
+    }
+    // When using fallback data, all combinations are available
+    return fallbackColors.includes(color) && fallbackSizes.includes(size);
+  };
+
+  // Initialize selection with first available color and size if not set
+  useEffect(() => {
+    if (!selection.color && effectiveColors.length > 0) {
+      setColor(effectiveColors[0]);
+    }
+    if (!selection.size && effectiveSizes.length > 0) {
+      setSize(effectiveSizes[0]);
+    }
+  }, [effectiveColors, effectiveSizes, selection.color, selection.size, setColor, setSize]);
 
   // State
-  const [currentVariant, setCurrentVariant] = useState<Variant>(defaultVariant);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState('M');
-  const [selectedColor, setSelectedColor] = useState(defaultVariant.color);
-  const [selectedGender, setSelectedGender] = useState(defaultVariant.gender);
   const [activeTab, setActiveTab] = useState('description');
   const [isWishlisted, setIsWishlisted] = useState(false);
 
-  // Effect to update the variant when color or gender changes
-  useEffect(() => {
-    const newVariant = Object.values(productData.variants).find(
-      (variant: Variant) => variant.gender === selectedGender && variant.color === selectedColor
-    );
-    // Only update state if the variant has actually changed
-    if (newVariant && newVariant.id !== currentVariant.id) {
-      setCurrentVariant(newVariant);
-      setSelectedImage(0); // Reset to the first image ONLY when the variant changes
-    }
-  }, [selectedColor, selectedGender, currentVariant.id]);
+  // Sticker add-ons
+  const {
+    selectedStickers,
+    updateStickerQuantity,
+    getTotalStickerPrice
+  } = useStickerAddons();
+
+  // Available stickers for t-shirts
+  const availableStickers = getAvailableStickers('tshirt');
+
+  // Get current product images (use Printful variant image or fallback)
+  const currentImages = selectedVariant?.image 
+    ? [selectedVariant.image]
+    : (() => {
+        // Fallback to default images based on selected color
+        const colorImageMap: Record<string, string> = {
+          'Black': '/Tshirt/Men/ReformMenTshirtBlack1.webp',
+          'White': '/Tshirt/Men/ReformMenTshirtWhite1.webp',
+          'Navy': '/Tshirt/Men/ReformMenTshirtBlue1.webp'
+        };
+        return [colorImageMap[selection.color] || '/Tshirt/Men/ReformMenTshirtBlack1.webp'];
+      })();
+
+  // Helper function to get default color codes for colors
+  const getDefaultColorCode = (color: string): string => {
+    const colorMap: Record<string, string> = {
+      'Black': '#000000',
+      'White': '#FFFFFF',
+      'Navy': '#0B4C8A',
+      'Charcoal': '#333333',
+      'Light Grey': '#E5E5E5',
+      'Ash Grey': '#B0B0B0',
+      'Royal Blue': '#0B4C8A',
+      'Red': '#B31217'
+    };
+    return colorMap[color] || '#CCCCCC';
+  };
+
+  // Get current price including stickers
+  const basePrice = selectedVariant ? parseFloat(selectedVariant.price) : 24.99;
+  const stickerPrice = getTotalStickerPrice();
+  const currentPrice = basePrice + stickerPrice;
+
+  // Handle color selection
+  const handleColorSelect = (color: string) => {
+    setColor(color);
+    setSelectedImage(0);
+  };
+
+  // Handle size selection
+  const handleSizeSelect = (size: string) => {
+    setSize(size);
+  };
 
   const handleAddToCart = () => {
-    if (!selectedColor) {
-      alert('Please select a color.');
-      return;
-    }
-    if (!selectedSize) {
-      alert('Please select a size.');
+    if (!selectedVariant) {
+      alert('Please select a variant.');
       return;
     }
     
-    // Updated the name to include the selected size
+    // Add main product to cart
     const itemToAdd = {
-      id: `${currentVariant.id}-${selectedSize}`, // Create a unique ID for the cart item including size
-      name: `${productData.name} - ${currentVariant.gender}'s ${currentVariant.color} (Size: ${selectedSize})`,
-      price: currentVariant.price,
-      image: currentVariant.images[0],
-      size: selectedSize,
-      quantity: quantity
+      id: `${selectedVariant.id}-${selection.size}`,
+      name: `${productData.name} - ${selection.color} (Size: ${selection.size})`,
+      price: basePrice,
+      image: currentImages[0],
+      quantity: quantity,
+      printful_variant_id: selectedVariant.printful_variant_id
     };
+    
     addToCart(itemToAdd);
+    
+    // Add stickers to cart
+    selectedStickers.forEach(stickerItem => {
+      const stickerCartItem = {
+        id: `sticker-${stickerItem.sticker.id}`,
+        name: `${stickerItem.sticker.name} (Add-on)`,
+        price: stickerItem.sticker.price,
+        image: stickerItem.sticker.image,
+        quantity: stickerItem.quantity,
+        printful_variant_id: stickerItem.sticker.printful_variant_id
+      };
+      addToCart(stickerCartItem);
+    });
+    
+    // Show success message
+    alert('Added to cart!');
   };
 
-  const handleBuyNow = () => {
-    if (!selectedColor) {
-      alert('Please select a color.');
+  const handleBuyNow = async () => {
+    if (!selectedVariant) {
+      alert('Please select a variant.');
       return;
     }
-    if (!selectedSize) {
-      alert('Please select a size.');
-      return;
-    }
-    // Add to cart and get updated cart items
-    const itemToAdd = {
-      id: `${currentVariant.id}-${selectedSize}`,
-      name: `${productData.name} - ${currentVariant.gender}'s ${currentVariant.color} (Size: ${selectedSize})`,
-      price: currentVariant.price,
-      image: currentVariant.images[0],
-      size: selectedSize,
-      quantity: quantity
-    };
-    
-    const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
-    
-    // Store cart items in sessionStorage to ensure they're available on checkout page
-    sessionStorage.setItem('tempCartItems', JSON.stringify(updatedCartItems));
-    
-    // Navigate to checkout
-    navigate('/checkout');
-  };
 
-  const handleConfirmCheckout = async () => {
-    if (!orderToConfirm) {
-      console.error('No order to confirm');
-      return;
-    }
-    
-    setShowOrderOverview(false);
     setIsLoading(true);
-    
     try {
-      const { url } = await createCheckoutSession({
-        price_id: orderToConfirm.priceId,
-        success_url: `${window.location.origin}?success=true`,
-        cancel_url: window.location.href,
-        mode: 'payment',
-        customer_email: await promptForEmail()
+      const cartItems = addToCartAndGetUpdated({
+        id: `${selectedVariant.id}-${selection.size}`,
+        name: `${productData.name} - ${selection.color} (Size: ${selection.size})`,
+        price: basePrice,
+        image: currentImages[0],
+        printful_variant_id: selectedVariant.printful_variant_id
       });
-      
-      window.location.href = url;
+
+      // Add stickers to cart for checkout
+      selectedStickers.forEach(stickerItem => {
+        const stickerCartItem = {
+          id: `sticker-${stickerItem.sticker.id}`,
+          name: `${stickerItem.sticker.name} (Add-on)`,
+          price: stickerItem.sticker.price,
+          image: stickerItem.sticker.image,
+          quantity: stickerItem.quantity,
+          printful_variant_id: stickerItem.sticker.printful_variant_id
+        };
+        addToCart(stickerCartItem);
+      });
+
+      const checkoutRequest = {
+        line_items: cartItems.map(item => ({
+          price_data: {
+            currency: 'gbp',
+            product_data: {
+              name: item.name,
+              images: [item.image],
+            },
+            unit_amount: Math.round(item.price * 100), // Convert to cents
+          },
+          quantity: item.quantity,
+        })),
+        success_url: `${window.location.origin}/success`,
+        cancel_url: `${window.location.origin}/shop`,
+        mode: 'payment' as const,
+      };
+
+      const session = await createCheckoutSession(checkoutRequest);
+      if (session?.url) {
+        window.location.href = session.url;
+      }
     } catch (error) {
       console.error('Error creating checkout session:', error);
-      
-      // Show a more user-friendly error message
-      if (error instanceof Error && error.message.includes('Stripe API key is not configured')) {
-        alert('Stripe payment is not configured. This is expected in development environment.');
-      } else {
-        alert('Failed to start checkout process. Please try again later.');
-      }
+      alert('Error creating checkout session. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Helper function to prompt for email if user is not logged in
-  const promptForEmail = async (): Promise<string> => {
-    // Check if user is logged in via Supabase
-    const { data } = await supabase.auth.getSession();
-    if (data.session?.user?.email) {
-      return data.session.user.email;
+  const handleImageChange = (direction: 'next' | 'prev') => {
+    if (direction === 'next') {
+      setSelectedImage((prev) => (prev + 1) % currentImages.length);
+    } else {
+      setSelectedImage((prev) => (prev - 1 + currentImages.length) % currentImages.length);
     }
-    
-    // If not logged in, prompt for email
-    const email = prompt('Please enter your email address to receive order confirmation:');
-    if (!email) {
-      throw new Error('Email is required for checkout');
-    }
-    
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      throw new Error('Please enter a valid email address');
-    }
-    
-    return email;
   };
 
-  const nextImage = () => {
-    setSelectedImage((prev) => (prev + 1) % currentVariant.images.length);
-  };
+  // Loading state
+  if (printfulLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Loading product details...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const prevImage = () => {
-    setSelectedImage((prev) => (prev - 1 + currentVariant.images.length) % currentVariant.images.length);
-  };
-
-  const reviews = [
-    { id: 1, name: "Mike R.", rating: 5, date: "1 week ago", comment: "Great quality t-shirt, fits perfectly and the print is excellent!", verified: true },
-    { id: 2, name: "Lisa K.", rating: 5, date: "2 weeks ago", comment: "Love the design and the fabric is really comfortable.", verified: true },
-    { id: 3, name: "Tom B.", rating: 4, date: "1 month ago", comment: "Good quality shirt, exactly what I expected.", verified: true }
-  ];
+  // Error state
+  if (printfulError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <p className="font-bold">Error loading product</p>
+            <p>{printfulError}</p>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="min-h-screen bg-gray-50">
-      {/* Breadcrumb */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <nav className="text-sm text-gray-600">
-            <div className="flex items-center space-x-2">
-              <button onClick={onBack} className="hover:text-[#009fe3] transition-colors">Home</button>
-              <span className="text-gray-400">/</span>
-              <button onClick={onBack} className="hover:text-[#009fe3] transition-colors">Shop</button>
-              <span className="text-gray-400">/</span>
-              <span className="text-[#009fe3] font-semibold">{productData.name}</span>
-            </div>
-          </nav>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <button
+              onClick={onBack}
+              className="flex items-center text-gray-600 hover:text-gray-900"
+            >
+              <ChevronLeft className="h-5 w-5 mr-1" />
+              Back to Shop
+            </button>
+            <h1 className="text-xl font-semibold text-gray-900">Product Details</h1>
+            <div className="w-20"></div> {/* Spacer for centering */}
+          </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Product Images */}
-          <div key={currentVariant.id} className="space-y-4">
-            <div className="relative aspect-square bg-white rounded-lg overflow-hidden shadow-lg">
+          <div className="space-y-4">
+            <div className="relative aspect-square bg-white rounded-lg overflow-hidden">
               <img
-                src={currentVariant.images[selectedImage]}
-                alt={`${productData.name} - ${currentVariant.color} - ${currentVariant.gender} - Image ${selectedImage + 1}`}
+                src={currentImages[selectedImage]}
+                alt={`${productData.name} - ${selection.color}`}
                 className="w-full h-full object-cover"
               />
               
-              {currentVariant.images.length > 1 && (
+              {/* Image Navigation */}
+              {currentImages.length > 1 && (
                 <>
-                  <button onClick={prevImage} className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-colors z-10" aria-label="Previous image"><ChevronLeft className="w-5 h-5" /></button>
-                  <button onClick={nextImage} className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-colors z-10" aria-label="Next image"><ChevronRight className="w-5 h-5" /></button>
+                  <button
+                    onClick={() => handleImageChange('prev')}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-md"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={() => handleImageChange('next')}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-md"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
                 </>
-              )}
-
-              <div className="absolute top-4 left-4 z-10">
-                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${currentVariant.stockCount <= 10 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
-                  {currentVariant.stockCount <= 10 ? `Only ${currentVariant.stockCount} left` : 'In Stock'}
-                </span>
-              </div>
-              
-              {currentVariant.images.length > 1 && (
-                <div className="absolute bottom-4 right-4 bg-black/50 text-white px-2 py-1 rounded-full text-xs z-10">
-                  {selectedImage + 1} / {currentVariant.images.length}
-                </div>
               )}
             </div>
 
-            {currentVariant.images.length > 1 && (
-              <div className="flex space-x-2 overflow-x-auto pb-2">
-                {currentVariant.images.map((image: string, index: number) => (
-                  <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover aspect-square" />
+            {/* Thumbnail Images */}
+            {currentImages.length > 1 && (
+              <div className="flex space-x-2 overflow-x-auto">
+                {currentImages.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
+                      selectedImage === index ? 'border-blue-600' : 'border-gray-200'
+                    }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`${productData.name} ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>
@@ -313,199 +391,210 @@ const TShirtPage = ({ onBack }: TShirtPageProps) => {
           {/* Product Details */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{productData.name}</h1>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (<Star key={i} className={`w-5 h-5 ${i < currentVariant.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />))}
-                </div>
-                <span className="text-gray-600">({currentVariant.reviews} reviews)</span>
-              </div>
-              <div className="flex items-center space-x-3 mb-6">
-                <span className="text-3xl font-bold text-[#009fe3]">£{currentVariant.price.toFixed(2)}</span>
-              </div>
-              <div className="flex items-center space-x-2 text-green-600 mb-6">
-                <Clock className="w-4 h-4" />
-                <span className="font-semibold">{productData.shipping}</span>
-              </div>
+              <h1 className="text-3xl font-bold text-gray-900">{productData.name}</h1>
+              <p className="text-xl text-gray-600 mt-2">{productData.description}</p>
             </div>
 
-            {/* Color Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Color: <span className="font-semibold text-gray-900">{selectedColor}</span></label>
-              <div className="flex flex-wrap gap-3">
-                {productData.variantDetails.colors.map((color) => (
-                  <button key={color.name} onClick={() => setSelectedColor(color.name)} className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${selectedColor === color.name ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' : color.border ? 'border-gray-300 hover:border-gray-400' : 'border-gray-200 hover:border-gray-300'}`} style={{ backgroundColor: color.value }} title={color.name}>
-                    {selectedColor === color.name && (<div className="absolute inset-0 flex items-center justify-center"><Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Grey' ? 'text-gray-600' : 'text-white'}`} /></div>)}
-                  </button>
-                ))}
-              </div>
+            {/* Price */}
+            <div className="flex items-center space-x-4">
+              <span className="text-3xl font-bold text-gray-900">£{currentPrice.toFixed(2)}</span>
+              {selectedVariant && (
+                <span className="text-sm text-gray-500">
+                  {selectedVariant.in_stock ? 'In Stock' : 'Out of Stock'}
+                </span>
+              )}
             </div>
 
-            {/* Gender Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Gender</label>
-              <div className="flex gap-3">
-                {productData.variantDetails.genders.map((gender) => (
-                  <button key={gender} onClick={() => setSelectedGender(gender)} className={`px-6 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${selectedGender === gender ? 'border-[#009fe3] bg-[#009fe3] text-white' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'}`}>
-                    {gender}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Size Selection */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="block text-sm font-medium text-gray-700">Size</label>
-                <button 
-                  onClick={() => navigate('/size-guide')}
-                  className="text-sm text-[#009fe3] hover:text-blue-600 underline"
-                >
-                  Size Guide
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {productData.variantDetails.sizes.map((size) => (
-                  <button key={size} onClick={() => setSelectedSize(size)} className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${selectedSize === size ? 'border-[#009fe3] bg-[#009fe3] text-white' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'}`}>
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Quantity */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Quantity</label>
-              <div className="flex items-center space-x-3">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"><Minus className="w-4 h-4" /></button>
-                <span className="w-12 text-center font-semibold text-lg">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"><Plus className="w-4 h-4" /></button>
-              </div>
-            </div>
-
-            {/* Selection Summary */}
-            <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
-              <h4 className="font-semibold text-gray-900 mb-3">Your Selection:</h4>
-              <div className="space-y-2 text-sm text-gray-700">
-                <p>Color: <span className="font-medium text-gray-900">{selectedColor}</span></p>
-                <p>Gender: <span className="font-medium text-gray-900">{selectedGender}</span></p>
-                <p>Size: <span className="font-medium text-gray-900">{selectedSize}</span></p>
-                <p>Quantity: <span className="font-medium text-gray-900">{quantity}</span></p>
-              </div>
-            </div>
-
-            {/* Add to Cart & Actions */}
-            <div className="space-y-3">
-              <button 
-                onClick={handleBuyNow}
-                disabled={isLoading}
-                className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
-              >
-                {isLoading ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                ) : (
-                  <>
-                    <ShoppingCart className="w-5 h-5 mr-2" />
-                    Buy Now - £{currentVariant.price.toFixed(2)}
-                  </>
-                )}
-              </button>
-              
-              <button onClick={handleAddToCart} className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
-                <ShoppingCart className="w-5 h-5" />
-                <span>Add to Cart - £{(currentVariant.price * quantity).toFixed(2)}</span>
-              </button>
-              <div className="flex space-x-3">
-                <button onClick={() => setIsWishlisted(!isWishlisted)} className={`flex-1 border-2 font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 ${isWishlisted ? 'border-red-500 text-red-500 bg-red-50' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'}`}>
-                  <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
-                  <span>{isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}</span>
-                </button>
-                <button className="border-2 border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3] font-semibold p-3 rounded-lg transition-colors flex items-center justify-center">
-                  <Share2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t">
-              <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Free UK Shipping Over £30</p></div>
-              <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
-              <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Product Information Tabs */}
-        <div className="mt-16">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8">
-              {['description', 'features', 'reviews', 'care'].map((tab) => (
-                <button key={tab} onClick={() => setActiveTab(tab)} className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab ? 'border-[#009fe3] text-[#009fe3]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </button>
-              ))}
-            </nav>
-          </div>
-          <div className="py-8">
-            {activeTab === 'description' && (
-              <div className="prose max-w-none">
-                <p className="text-gray-700 leading-relaxed">{productData.description}</p>
-                <div className="mt-6"><h4 className="font-semibold text-gray-900 mb-2">Materials:</h4><p className="text-gray-700">{productData.materials}</p></div>
-              </div>
-            )}
-            {activeTab === 'features' && (
+            {/* Variant Selection */}
+            <div className="space-y-4">
+              {/* Color Selection */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Features</h3>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {productData.features.map((feature: string, index: number) => (<li key={index} className="flex items-center space-x-2"><Check className="w-4 h-4 text-green-500 flex-shrink-0" /><span className="text-gray-700">{feature}</span></li>))}
-                </ul>
-              </div>
-            )}
-            {activeTab === 'reviews' && (
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Customer Reviews</h3>
-                  <div className="flex items-center space-x-2">
-                    <div className="flex items-center">{[...Array(5)].map((_, i) => (<Star key={i} className={`w-4 h-4 ${i < currentVariant.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />))}</div>
-                    <span className="text-sm text-gray-600">({currentVariant.reviews} reviews)</span>
-                  </div>
+                <h3 className="text-sm font-medium text-gray-900 mb-2">Color</h3>
+                <div className="flex flex-wrap gap-3">
+                  {effectiveColors.map((color) => {
+                    // Get the color code for this color
+                    const colorCode = getDefaultColorCode(color);
+                    const isSelected = selection.color === color;
+                    
+                    return (
+                      <button
+                        key={color}
+                        onClick={() => handleColorSelect(color)}
+                        className={`relative w-8 h-8 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
+                          isSelected
+                            ? 'border-blue-600 ring-2 ring-blue-600 ring-offset-2'
+                            : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                        style={{ backgroundColor: colorCode }}
+                        title={color}
+                      >
+                        {isSelected && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-3 h-3 bg-white rounded-full shadow-sm"></div>
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
-                <div className="space-y-6">
-                  {reviews.map((review) => (
-                    <div key={review.id} className="border-b border-gray-200 pb-6">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2"><span className="font-semibold text-gray-900">{review.name}</span>{review.verified && (<span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Verified Purchase</span>)}</div>
-                        <span className="text-sm text-gray-500">{review.date}</span>
-                      </div>
-                      <div className="flex items-center mb-2">{[...Array(5)].map((_, i) => (<Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />))}</div>
-                      <p className="text-gray-700">{review.comment}</p>
-                    </div>
+                <p className="text-sm text-gray-600 mt-2">Selected: <span className="font-medium">{selection.color}</span></p>
+              </div>
+
+              {/* Size Selection */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-2">Size</h3>
+                <div className="flex flex-wrap gap-2">
+                  {effectiveSizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => handleSizeSelect(size)}
+                      disabled={!isVariantAvailableFallback(selection.color, size)}
+                      className={`px-4 py-2 rounded-lg border-2 transition-colors ${
+                        selection.size === size
+                          ? 'border-blue-600 bg-blue-50 text-blue-900'
+                          : isVariantAvailableFallback(selection.color, size)
+                          ? 'border-gray-200 hover:border-gray-300'
+                          : 'border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      {size}
+                    </button>
                   ))}
                 </div>
               </div>
-            )}
-            {activeTab === 'care' && (
+
+              {/* Quantity */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Care Instructions</h3>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start space-x-2"><Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" /><p className="text-blue-800">{productData.careInstructions}</p></div>
+                <h3 className="text-sm font-medium text-gray-900 mb-2">Quantity</h3>
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <span className="w-16 text-center text-lg font-medium">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex space-x-4">
+              <button
+                onClick={handleAddToCart}
+                disabled={!selectedVariant || !selectedVariant.in_stock}
+                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                <ShoppingCart className="h-5 w-5 inline mr-2" />
+                Add to Cart
+              </button>
+              <button
+                onClick={handleBuyNow}
+                disabled={!selectedVariant || !selectedVariant.in_stock || isLoading}
+                className="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin mx-auto" />
+                ) : (
+                  'Buy Now'
+                )}
+              </button>
+            </div>
+
+            {/* Additional Actions */}
+            <div className="flex items-center space-x-4 pt-4 border-t">
+              <button
+                onClick={() => setIsWishlisted(!isWishlisted)}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                  isWishlisted
+                    ? 'text-red-600 bg-red-50 border border-red-200'
+                    : 'text-gray-600 hover:text-gray-900 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-current' : ''}`} />
+                <span>{isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}</span>
+              </button>
+              <button className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 border border-gray-200 hover:bg-gray-50">
+                <Share2 className="h-5 w-5" />
+                <span>Share</span>
+              </button>
+            </div>
+
+            {/* Product Features */}
+            <div className="pt-6 border-t">
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Features</h3>
+              <ul className="space-y-2">
+                {('features' in productData && productData.features) ? 
+                  productData.features.map((feature: string, index: number) => (
+                    <li key={index} className="flex items-center text-gray-600">
+                      <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                      {feature}
+                    </li>
+                  ))
+                  : (
+                    <li className="flex items-center text-gray-600">
+                      <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                      100% premium cotton
+                    </li>
+                  )
+                }
+              </ul>
+            </div>
+
+            {/* Care Instructions */}
+            {('careInstructions' in productData && productData.careInstructions) && (
+              <div className="pt-6 border-t">
+                <h3 className="text-lg font-medium text-gray-900 mb-3">Care Instructions</h3>
+                <p className="text-gray-600">{productData.careInstructions}</p>
+              </div>
             )}
+
+            {/* Materials */}
+            {('materials' in productData && productData.materials) && (
+              <div className="pt-6 border-t">
+                <h3 className="text-lg font-medium text-gray-900 mb-3">Materials</h3>
+                <p className="text-gray-600">{productData.materials}</p>
+              </div>
+            )}
+
+            {/* Sticker Add-ons */}
+            <StickerAddonSelector
+              availableStickers={availableStickers}
+              selectedStickers={selectedStickers}
+              onStickerChange={(sticker, quantity) => updateStickerQuantity(sticker.id, quantity)}
+              className="pt-6 border-t"
+            />
           </div>
         </div>
       </div>
-      </div>
-      
+
       {/* Order Overview Modal */}
       {showOrderOverview && orderToConfirm && (
         <OrderOverviewModal
-          productDetails={orderToConfirm}
+          productDetails={{
+            productName: orderToConfirm.productName,
+            productImage: orderToConfirm.productImage,
+            price: orderToConfirm.price,
+            quantity: orderToConfirm.quantity,
+            priceId: orderToConfirm.priceId,
+            variants: orderToConfirm.variants,
+            isBundle: false,
+            bundleContents: []
+          }}
           onClose={() => setShowOrderOverview(false)}
-          onConfirm={handleConfirmCheckout}
+          onConfirm={() => {
+            setShowOrderOverview(false);
+            navigate('/checkout');
+          }}
         />
       )}
-    </>
+    </div>
   );
 };
 
