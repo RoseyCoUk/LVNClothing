@@ -29,7 +29,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
   global: {
     headers: {
-      'X-Client-Info': 'reformuk-web'
+      'X-Client-Info': 'lvnclothing-web'
     }
   }
 });

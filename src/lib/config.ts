@@ -1,4 +1,4 @@
-// Configuration management for ReformUK application
+// Configuration management for LVNClothing application
 export const config = {
   // Supabase Configuration
   supabase: {
@@ -71,7 +71,7 @@ export const config = {
 
 // Log configuration on import
 if (config.features.enableDebugLogging) {
-  console.log('🔧 ReformUK Configuration:', config.getDebugInfo());
+  console.log('🔧 LVNClothing Configuration:', config.getDebugInfo());
 }
 
 // Validate configuration on import

@@ -1,4 +1,4 @@
-// Test configuration for ReformUK application
+// Test configuration for LVNClothing application
 // This file is used to override production settings during testing
 
 export const testConfig = {
@@ -40,7 +40,7 @@ export const testConfig = {
   // Test data
   testData: {
     testUser: {
-      email: 'test@reformuk.com',
+      email: 'test@lvnclothing.com',
       password: 'testpassword123',
       firstName: 'Test',
       lastName: 'User'
@@ -88,7 +88,7 @@ export const testConfig = {
 };
 
 // Log test configuration on import
-console.log('🧪 ReformUK Test Configuration:', testConfig.getDebugInfo());
+console.log('🧪 LVNClothing Test Configuration:', testConfig.getDebugInfo());
 
 // Validate test configuration on import
 testConfig.validate();

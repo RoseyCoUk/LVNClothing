@@ -610,7 +610,7 @@ function formatOrderEmail(orderId: string, items: OrderItem[], total: number, cu
             <div style="background-color: #f8f9fa; padding: 25px; border-radius: 6px; border-left: 4px solid #009fe3;">
               <h3 style="color: #1a1a1a; margin-bottom: 15px; font-size: 18px;">What's Next?</h3>
               <p style="margin-bottom: 10px; font-size: 16px;">We're processing your order and will send you a shipping confirmation email once your items are on their way.</p>
-              <p style="margin-bottom: 0; font-size: 16px;">If you have any questions about your order, please contact us at <strong>support@backreform.co.uk</strong></p>
+              <p style="margin-bottom: 0; font-size: 16px;">If you have any questions about your order, please contact us at <strong>support@lvnclothing.com</strong></p>
             </div>
           </div>
         </div>

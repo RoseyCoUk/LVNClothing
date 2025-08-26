@@ -223,7 +223,7 @@ serve(async (req) => {
         </ul>
         
         <div style="text-align: center;">
-            <a href="https://reformuk.com/shop" class="cta-button">Shop Now & Use Your Code</a>
+            <a href="https://lvnclothing.com/shop" class="cta-button">Shop Now & Use Your Code</a>
         </div>
         
         <h3>What You'll Receive:</h3>

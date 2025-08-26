@@ -55,7 +55,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   // Load cart from localStorage on mount
   useEffect(() => {
     try {
-      const savedCart = localStorage.getItem('reformuk-cart');
+      const savedCart = localStorage.getItem('lvnclothing-cart');
       if (savedCart) {
         const parsedCart = JSON.parse(savedCart);
         setCartItems(parsedCart);
@@ -64,14 +64,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Error loading cart from localStorage:', error);
       // Clear corrupted localStorage data
-      localStorage.removeItem('reformuk-cart');
+      localStorage.removeItem('lvnclothing-cart');
     }
   }, []);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
     try {
-      localStorage.setItem('reformuk-cart', JSON.stringify(cartItems));
+      localStorage.setItem('lvnclothing-cart', JSON.stringify(cartItems));
     } catch (error) {
       console.error('Error saving cart to localStorage:', error);
     }

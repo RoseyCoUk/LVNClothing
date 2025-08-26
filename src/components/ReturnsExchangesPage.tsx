@@ -159,10 +159,10 @@ const ReturnsExchangesPage = ({ onBack }: ReturnsExchangesPageProps) => {
             </h3>
             <div className="bg-[#009fe3]/5 border border-[#009fe3]/20 rounded-lg p-6">
               <p className="text-gray-700 mb-4">
-                To initiate a return, please contact our Reform UK Support Team at{' '}
-                <a href="mailto:support@backreform.co.uk" className="text-[#009fe3] font-semibold hover:underline">
-                  support@backreform.co.uk
-                </a>{' '}
+                To initiate a return, please contact our LVN Clothing Support Team at{' '}
+                                  <a href="mailto:support@lvnclothing.com" className="text-[#009fe3] font-semibold hover:underline">
+                    support@lvnclothing.com
+                  </a>{' '}
                 to request a Return Authorisation. This will ensure your request is escalated to the relevant department for swift processing.
               </p>
               

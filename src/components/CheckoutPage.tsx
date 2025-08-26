@@ -59,7 +59,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
   useEffect(() => {
     // If user navigates directly to checkout with empty cart, try to restore from localStorage
     if (cartItems.length === 0) {
-      const savedCart = localStorage.getItem('reformuk-cart');
+      const savedCart = localStorage.getItem('lvnclothing-cart');
       if (savedCart) {
         try {
           const items = JSON.parse(savedCart);

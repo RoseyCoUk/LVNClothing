@@ -88,7 +88,7 @@ const ContactPage = () => {
               Contact Us
             </h1>
             <p className="text-lg text-gray-600 leading-relaxed">
-              Got a question? We're here to help. Our supporter-run team is committed to providing excellent service and transparent communication.
+              Got a question? We're here to help. Our fashion expert team is committed to providing excellent service and transparent communication.
             </p>
           </div>
         </div>
@@ -256,13 +256,13 @@ const ContactPage = () => {
                   <a href="https://www.facebook.com/profile.php?id=61578282817124" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
                     <Facebook className="w-5 h-5" />
                   </a>
-                  <a href="https://www.instagram.com/backreformuk/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                  <a href="https://www.instagram.com/lvnclothing/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
                     <Instagram className="w-5 h-5" />
                   </a>
-                  <a href="https://x.com/backreformuk" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
-                    <SiX className="w-5 h-5" />
+                  <a href="https://x.com/lvnclothing" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                    <SiX className="w-4 h-4" />
                   </a>
-                  <a href="https://www.tiktok.com/@backreformuk?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                  <a href="https://www.tiktok.com/@lvnclothing?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
                     <SiTiktok className="w-5 h-5" />
                   </a>
                 </div>

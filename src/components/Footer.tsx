@@ -51,26 +51,26 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
                 alt="Reform UK" 
                 className="h-8 w-auto"
               />
-              <span className="font-bold text-lg">Back Reform</span>
+              <span className="font-bold text-lg">LVN Clothing</span>
             </div>
             <p className="text-gray-400 mb-3 text-sm leading-relaxed">
-              Official merchandise supporting Reform UK's mission for real change in Britain. 
-              Every purchase helps fund our democratic movement.
+              Premium clothing and accessories for the modern lifestyle. 
+              Quality materials and contemporary designs.
             </p>
             <p className="text-gray-400 mb-4 text-sm leading-relaxed">
-              Run by Reform UK volunteers and supporters.
+              Run by fashion enthusiasts and style experts.
             </p>
             <div className="flex space-x-4">
               <a href="https://www.facebook.com/profile.php?id=61578282817124" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="https://www.instagram.com/backreformuk/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+              <a href="https://www.instagram.com/lvnclothing/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="https://x.com/backreformuk" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+              <a href="https://x.com/lvnclothing" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
                 <SiX className="w-5 h-5" />
               </a>
-              <a href="https://www.tiktok.com/@backreformuk?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+              <a href="https://www.tiktok.com/@lvnclothing?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
                 <SiTiktok className="w-5 h-5" />
               </a>
             </div>
@@ -112,13 +112,13 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4 text-[#009fe3]" />
-                <a href="mailto:support@backreform.co.uk" className="text-gray-400 hover:text-[#009fe3] transition-colors">
-                  support@backreform.co.uk
+                <a href="mailto:support@lvnclothing.com" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                  support@lvnclothing.com
                 </a>
               </div>
               <div className="flex items-start space-x-2">
                 <MapPin className="w-4 h-4 text-[#009fe3] mt-0.5" />
-                <span className="text-gray-400">Reform UK HQ<br />London, United Kingdom</span>
+                <span className="text-gray-400">LVN Clothing HQ<br />London, United Kingdom</span>
               </div>
             </div>
           </div>
@@ -136,9 +136,9 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
               <button onClick={() => handlePageClick('accessibility')} className="hover:text-white transition-colors">Accessibility</button>
             </div>
             <div className="text-sm text-gray-400 text-center md:text-right">
-              <p>© 2025 Back Reform. All rights reserved.</p>
+              <p>© 2025 LVN Clothing. All rights reserved.</p>
               <p className="mt-1">
-                Support the movement. Wear the movement.
+                Style the moment. Live the moment.
               </p>
             </div>
           </div>
