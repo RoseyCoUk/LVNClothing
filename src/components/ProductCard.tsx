@@ -32,11 +32,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Link
       to={productUrl}
-      className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col transition-transform hover:-translate-y-1 hover:shadow-2xl duration-200 focus:outline-none focus:ring-2 focus:ring-[#009fe3] group w-full h-full"
+      className="card-lvn rounded-none shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md hover:-translate-y-1 duration-200 focus:outline-none focus:ring-2 focus:ring-lvn-maroon group w-full h-full"
       aria-label={`View details for ${product.name}`}
     >
       {/* Product Image */}
-      <div className="bg-gray-100 aspect-square w-full flex items-center justify-center">
+      <div className="bg-lvn-off-white aspect-square w-full flex items-center justify-center relative">
         {product.image_url ? (
           <img 
             src={product.image_url} 
@@ -48,48 +48,60 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             }}
           />
         ) : null}
-        <div className={`w-full h-full flex items-center justify-center text-gray-400 ${product.image_url ? 'hidden' : ''}`}>
+        <div className={`w-full h-full flex items-center justify-center text-lvn-black/40 ${product.image_url ? 'hidden' : ''}`}>
           {product.image_url ? 'Image Failed to Load' : 'No Image'}
+        </div>
+        
+        {/* Faith Badge */}
+        <div className="absolute top-2 left-2 bg-lvn-maroon text-lvn-white px-2 py-1 text-xs font-semibold rounded-none">
+          LVN
         </div>
       </div>
       
-      {/* Product Details - Always visible on mobile, positioned below image on desktop */}
+      {/* Product Details */}
       <div className="p-4 md:p-6 flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-[#009fe3] transition-colors">
+          <h3 className="text-lg font-bold text-lvn-black mb-1 group-hover:text-lvn-maroon transition-colors">
             {product.name}
           </h3>
           
+          {/* Scripture snippet if available */}
+          {product.description && (
+            <p className="text-xs text-lvn-maroon italic mb-2 scripture-quote">
+              "{product.description.substring(0, 60)}..."
+            </p>
+          )}
+          
           <div className="flex items-center mb-2">
             <Star className="w-4 h-4 text-yellow-400 mr-1" fill="#facc15" />
-            <span className="text-sm font-semibold text-gray-700">
+            <span className="text-sm font-semibold text-lvn-black">
               {product.rating?.toFixed(1) ?? '5.0'}
             </span>
-            <span className="ml-2 text-xs text-gray-500">
+            <span className="ml-2 text-xs text-lvn-black/60">
               ({product.reviews?.toLocaleString() ?? 0})
             </span>
           </div>
           
-          <div className="text-xl font-bold text-[#009fe3] mb-2">
+          <div className="text-xl font-bold text-lvn-maroon mb-2">
             £{(product.price_pence / 100).toFixed(2)}
           </div>
           
-          <div className="flex items-center text-green-600 text-sm font-medium mb-4">
+          <div className="flex items-center text-lvn-black/70 text-sm font-medium mb-4">
             <Truck className="w-4 h-4 mr-1" /> 
-            Ships in 48H
+            Free UK shipping over £60
           </div>
         </div>
         
         <div className="space-y-2">
           <button 
             onClick={handleAddToCart}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-[#009fe3] hover:bg-blue-600 text-white font-bold rounded-xl text-base transition-colors"
+            className="btn-lvn-primary w-full flex items-center justify-center gap-2 text-base"
           >
             <ShoppingCart className="w-5 h-5" /> 
             Add to Cart
           </button>
           
-          <button className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold text-gray-800 text-base transition-colors group-hover:bg-gray-200">
+          <button className="btn-lvn-outline w-full flex items-center justify-center gap-2 text-base">
             <ChevronRight className="w-5 h-5" /> 
             View Options
           </button>

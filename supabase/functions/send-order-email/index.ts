@@ -397,7 +397,7 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Reform UK Shop <support@backreform.co.uk>',
+          from: 'LVN Clothing <support@lvnclothing.com>',
           to: customerEmail,
           subject: emailSubject,
           html: emailBody,
@@ -430,7 +430,7 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Reform UK Shop <support@backreform.co.uk>',
+          from: 'LVN Clothing <support@lvnclothing.com>',
           to: INTERNAL_EMAIL,
           subject: `New Order Placed: ${orderData.readable_order_id || 'Processing...'}`,
           html: internalEmailBody,
@@ -555,23 +555,25 @@ function formatOrderEmail(orderId: string, items: OrderItem[], total: number, cu
       <div style="max-width: 600px; margin: 0 auto; background-color: #f8f9fa; padding: 20px;">
         <div style="background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
           <!-- Header -->
-          <div style="background-color: #1a1a1a; color: white; padding: 30px; text-align: center;">
+          <div style="background-color: #000000; color: white; padding: 30px; text-align: center;">
             <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Order Confirmation</h1>
+            <p style="margin: 8px 0 0 0; font-size: 14px; color: #800000;">Under His Wings • Psalm 91</p>
           </div>
           
           <!-- Order Info -->
           <div style="padding: 30px;">
-            <h2 style="color: #1a1a1a; margin-bottom: 20px; font-size: 24px;">Thank you for your order!</h2>
+            <h2 style="color: #000000; margin-bottom: 20px; font-size: 24px;">Thank you for your order!</h2>
+            <p style="color: #800000; font-style: italic; margin-bottom: 20px; font-size: 16px;">"He who dwells in the shelter of the Most High will rest in the shadow of the Almighty." - Psalm 91:1</p>
             
             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
-              <p style="margin: 8px 0; font-size: 16px;"><strong>Order ID:</strong> <span style="color: #009fe3; font-weight: bold;">${displayOrderId}</span></p>
+              <p style="margin: 8px 0; font-size: 16px;"><strong>Order ID:</strong> <span style="color: #800000; font-weight: bold;">${displayOrderId}</span></p>
               <p style="margin: 8px 0; font-size: 16px;"><strong>Date:</strong> <span style="font-weight: bold;">${new Date().toLocaleDateString('en-GB')}</span></p>
             </div>
             
             <!-- Customer Information -->
             ${customerDetails ? `
             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
-              <h3 style="color: #1a1a1a; margin-bottom: 15px; font-size: 20px;">Customer Information</h3>
+              <h3 style="color: #000000; margin-bottom: 15px; font-size: 20px;">Customer Information</h3>
               <p style="margin: 8px 0; font-size: 16px;"><strong>Name:</strong> <span style="font-weight: bold;">${customerDetails.name || 'Not provided'}</span></p>
               <p style="margin: 8px 0; font-size: 16px;"><strong>Email:</strong> <span style="font-weight: bold;">${customerDetails.email || 'Not provided'}</span></p>
               ${customerDetails.phone ? `<p style="margin: 8px 0; font-size: 16px;"><strong>Phone:</strong> <span style="font-weight: bold;">${customerDetails.phone}</span></p>` : ''}
@@ -588,11 +590,11 @@ function formatOrderEmail(orderId: string, items: OrderItem[], total: number, cu
             ` : ''}
             
             <!-- Order Details Table -->
-            <h3 style="color: #1a1a1a; margin-bottom: 15px; font-size: 20px;">Order Details</h3>
+            <h3 style="color: #000000; margin-bottom: 15px; font-size: 20px;">Order Details</h3>
             <div style="overflow-x: auto;">
               <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; min-width: 400px;">
                 <thead>
-                  <tr style="background-color: #1a1a1a; color: white;">
+                  <tr style="background-color: #000000; color: white;">
                     <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Product</th>
                     <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd;">Qty</th>
                     <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Unit Price</th>
@@ -607,9 +609,10 @@ function formatOrderEmail(orderId: string, items: OrderItem[], total: number, cu
             </div>
             
             <!-- Next Steps -->
-            <div style="background-color: #f8f9fa; padding: 25px; border-radius: 6px; border-left: 4px solid #009fe3;">
-              <h3 style="color: #1a1a1a; margin-bottom: 15px; font-size: 18px;">What's Next?</h3>
+            <div style="background-color: #f8f9fa; padding: 25px; border-radius: 6px; border-left: 4px solid #800000;">
+              <h3 style="color: #000000; margin-bottom: 15px; font-size: 18px;">What's Next?</h3>
               <p style="margin-bottom: 10px; font-size: 16px;">We're processing your order and will send you a shipping confirmation email once your items are on their way.</p>
+              <p style="margin-bottom: 10px; font-size: 16px;">Thank you for supporting LVN Clothing and our mission to inspire through faith-based streetwear.</p>
               <p style="margin-bottom: 0; font-size: 16px;">If you have any questions about your order, please contact us at <strong>support@lvnclothing.com</strong></p>
             </div>
           </div>
@@ -617,8 +620,9 @@ function formatOrderEmail(orderId: string, items: OrderItem[], total: number, cu
         
         <!-- Footer -->
         <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
-          <p style="margin: 5px 0;">Thank you for supporting Reform UK!</p>
-          <p style="margin: 5px 0;">© 2024 Reform UK. All rights reserved.</p>
+          <p style="margin: 5px 0;">Thank you for supporting LVN Clothing!</p>
+          <p style="margin: 5px 0; color: #800000; font-style: italic;">Shelter. Strength. Style. • Under His Wings - Psalm 91</p>
+          <p style="margin: 5px 0;">© 2024 LVN Clothing. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -677,10 +681,11 @@ function formatInternalEmail(orderData: any, items: OrderItem[], total: number):
     </head>
     <body style="font-family: Arial, sans-serif; line-height: 1.4; color: #333; margin: 0; padding: 20px;">
       <div style="max-width: 800px; margin: 0 auto;">
-        <h1 style="color: #1a1a1a; margin-bottom: 20px;">New Order Placed</h1>
+        <h1 style="color: #000000; margin-bottom: 20px;">New Order Placed - LVN Clothing</h1>
+        <p style="color: #800000; font-style: italic; margin-bottom: 20px;">Psalm 91 Inspired Christian Streetwear</p>
         
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
-          <h2 style="color: #1a1a1a; margin-bottom: 15px;">Order Information</h2>
+          <h2 style="color: #000000; margin-bottom: 15px;">Order Information</h2>
           <p><strong>Order ID:</strong> ${orderData.readable_order_id || 'Processing...'}</p>
           <p><strong>Customer Email:</strong> ${orderData.customer_email}</p>
           <p><strong>Order Date:</strong> ${new Date(orderData.created_at).toLocaleString('en-GB')}</p>
@@ -688,7 +693,7 @@ function formatInternalEmail(orderData: any, items: OrderItem[], total: number):
         </div>
         
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
-          <h2 style="color: #1a1a1a; margin-bottom: 15px;">Customer Details</h2>
+          <h2 style="color: #000000; margin-bottom: 15px;">Customer Details</h2>
           <p><strong>Full Name:</strong> ${orderData.customer_details?.name || 'Not provided'}</p>
           <p><strong>Email:</strong> ${orderData.customer_email}</p>
           <p><strong>Phone:</strong> ${orderData.customer_details?.phone || 'Not provided'}</p>
@@ -704,10 +709,10 @@ function formatInternalEmail(orderData: any, items: OrderItem[], total: number):
         </div>
         
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
-          <h2 style="color: #1a1a1a; margin-bottom: 15px;">Ordered Items</h2>
+          <h2 style="color: #000000; margin-bottom: 15px;">Ordered Items</h2>
           <table style="width: 100%; border-collapse: collapse;">
             <thead>
-              <tr style="background-color: #1a1a1a; color: white;">
+              <tr style="background-color: #000000; color: white;">
                 <th style="padding: 8px; text-align: left;">Product</th>
                 <th style="padding: 8px; text-align: center;">Qty</th>
                 <th style="padding: 8px; text-align: right;">Unit Price</th>

@@ -21,21 +21,21 @@ import {
 } from 'lucide-react';
 
 interface ShopPageProps {
-  onProductClick: (productId: string) => void;
+  onProductClick?: (productId: string) => void;
 }
 
 const CATEGORY_DEFS = [
   { id: 'all', label: 'All Products' },
-  { id: 'apparel', label: 'Apparel' },
-  { id: 'gear', label: 'Gear & Goods' },
-  { id: 'bundles', label: 'Bundles' },
+  { id: 'apparel', label: 'Clothing' },
+  { id: 'gear', label: 'Accessories & Lifestyle' },
+  { id: 'bundles', label: 'Collections' },
 ];
 
 const TAG_DEFS = [
-  { id: 'new', name: 'New', color: 'bg-green-500' },
-  { id: 'bestseller', name: 'Bestseller', color: 'bg-orange-500' },
-  { id: 'limited', name: 'Limited Edition', color: 'bg-red-500' },
-  { id: 'bundle', name: 'Bundle Deals', color: 'bg-purple-500' },
+  { id: 'new', name: 'New', color: 'bg-lvn-maroon' },
+  { id: 'bestseller', name: 'Bestseller', color: 'bg-lvn-black' },
+  { id: 'limited', name: 'Limited Edition', color: 'bg-lvn-maroon' },
+  { id: 'bundle', name: 'Collection Deals', color: 'bg-lvn-black' },
 ];
 
 const getCategoryForProduct = (product: Product) => {
@@ -199,11 +199,11 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-lvn-off-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading products...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lvn-maroon mx-auto"></div>
+            <p className="mt-4 text-lvn-black/70">Loading products...</p>
           </div>
         </div>
       </div>
@@ -212,10 +212,10 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-lvn-off-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <div className="bg-red-50 border border-red-200 rounded-none p-4">
               <p className="text-red-800">Error: {error}</p>
             </div>
           </div>
@@ -225,13 +225,16 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-lvn-off-white">
       {/* Page Header */}
-      <section className="bg-white border-b">
+      <section className="bg-lvn-white border-b border-lvn-black/10">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center mb-6">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Shop Official Reform UK Merch</h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">Support the movement. Every purchase powers the mission.</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-lvn-black mb-4">LVN Clothing Collection</h1>
+            <p className="text-lg text-lvn-black/70 max-w-2xl mx-auto mb-4 scripture-quote">
+              "Shelter. Strength. Style."
+            </p>
+            <p className="text-lvn-maroon font-medium">Psalm 91 Inspired Apparel</p>
           </div>
         </div>
       </section>
@@ -263,8 +266,8 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
             {/* Sort Bar */}
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">{getCategoryHeading()}</h2>
-                <p className="text-gray-600">{sortedProducts.length} product{sortedProducts.length !== 1 ? 's' : ''}</p>
+                <h2 className="text-2xl font-bold text-lvn-black">{getCategoryHeading()}</h2>
+                <p className="text-lvn-black/70">{sortedProducts.length} product{sortedProducts.length !== 1 ? 's' : ''}</p>
               </div>
               <div className="flex items-center gap-2">
                 <label htmlFor="shop-sort" className="sr-only">Sort by</label>
@@ -272,7 +275,7 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
                   id="shop-sort"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="border border-lvn-black/20 rounded-none px-3 py-2 text-sm bg-lvn-white focus:outline-none focus:border-lvn-maroon"
                 >
                   <option value="popularity">Most Popular</option>
                   <option value="price-low">Price: Low to High</option>
@@ -286,13 +289,13 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
             {/* Product Grid */}
             {sortedProducts.length === 0 ? (
               <div className="text-center py-16">
-                <div className="text-gray-500 mb-4">
+                <div className="text-lvn-black/50 mb-4">
                   <p className="text-lg font-medium">No products found</p>
                   <p className="text-sm">Try adjusting your filters or search terms</p>
                 </div>
                 <button
                   onClick={clearFilters}
-                  className="text-[#009fe3] hover:text-blue-600 font-medium"
+                  className="text-lvn-maroon hover:text-lvn-black font-medium"
                 >
                   Clear all filters
                 </button>

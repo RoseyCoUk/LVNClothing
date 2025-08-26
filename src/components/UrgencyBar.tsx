@@ -1,14 +1,15 @@
 import React from 'react';
-import { Clock } from 'lucide-react';
+import { Truck, Heart } from 'lucide-react';
 
 const UrgencyBar: React.FC = () => {
   return (
-    <div className="bg-red-600 text-white py-2 px-4 text-center relative overflow-hidden">
+    <div className="bg-lvn-maroon text-lvn-white py-3 px-4 text-center relative overflow-hidden">
       <div className="flex items-center justify-center space-x-2 text-sm font-medium">
-        <Clock className="w-4 h-4" />
-        <span>Limited Time Offer: Best Shipping Rates - Ends Soon!</span>
+        <Truck className="w-4 h-4" />
+        <span>🚚 FREE UK SHIPPING OVER £60 • PREMIUM CHRISTIAN STREETWEAR</span>
+        <Heart className="w-4 h-4" />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-lvn-white/10 to-transparent animate-pulse"></div>
     </div>
   );
 };

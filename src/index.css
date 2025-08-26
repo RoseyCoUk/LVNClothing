@@ -2,12 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+/* LVN Clothing Brand Variables */
+:root {
+  --lvn-black: #000000;
+  --lvn-white: #FFFFFF;
+  --lvn-off-white: #F3F0E6;
+  --lvn-maroon: #800000;
+}
+
 /* Responsive Design Utilities */
 @layer base {
   /* Ensure proper viewport handling */
   html {
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
+    background-color: var(--lvn-off-white);
+    color: var(--lvn-black);
+  }
+  
+  body {
+    font-family: 'Inter', 'DM Sans', system-ui, sans-serif;
+    line-height: 1.6;
+    background-color: #F3F0E6;
+    color: #000000;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', 'DM Sans', system-ui, sans-serif;
+    font-weight: 600;
+  }
+  
+  .scripture-quote {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
   }
   
   /* Responsive typography */
@@ -31,6 +58,33 @@
 }
 
 @layer components {
+  /* LVN Button Styles */
+  .btn-lvn-primary {
+    @apply bg-lvn-maroon text-lvn-white font-semibold py-3 px-6 rounded-none hover:bg-black transition-colors duration-200;
+  }
+  
+  .btn-lvn-secondary {
+    @apply bg-transparent border border-lvn-maroon text-lvn-maroon font-semibold py-3 px-6 rounded-none hover:bg-lvn-maroon hover:text-lvn-white transition-colors duration-200;
+  }
+  
+  .btn-lvn-outline {
+    @apply bg-transparent border border-lvn-black text-lvn-black font-semibold py-3 px-6 rounded-none hover:bg-lvn-black hover:text-lvn-white transition-colors duration-200;
+  }
+  
+  /* LVN Card Styles */
+  .card-lvn {
+    @apply bg-lvn-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+  
+  /* LVN Text Styles */
+  .text-lvn-heading {
+    @apply font-semibold text-lvn-black;
+  }
+  
+  .text-lvn-scripture {
+    @apply font-display italic text-lvn-maroon;
+  }
+
   /* Responsive container utilities */
   .container-responsive {
     @apply w-full px-4 mx-auto;

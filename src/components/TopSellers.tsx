@@ -53,11 +53,11 @@ const TopSellers = ({ onViewAllClick }: TopSellersProps) => {
 
   if (loading) {
     return (
-      <section id="top-sellers" className="py-16 bg-gray-50">
+      <section id="featured-products" className="py-16 bg-lvnBg">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading top sellers...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lvn-maroon mx-auto"></div>
+            <p className="mt-4 text-lvn-black/70">Loading featured products...</p>
           </div>
         </div>
       </section>
@@ -66,10 +66,10 @@ const TopSellers = ({ onViewAllClick }: TopSellersProps) => {
 
   if (error) {
     return (
-      <section id="top-sellers" className="py-16 bg-gray-50">
+      <section id="featured-products" className="py-16 bg-lvnBg">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center">
-            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <div className="bg-red-50 border border-red-200 rounded-none p-4">
               <p className="text-red-800">Error: {error}</p>
             </div>
           </div>
@@ -79,21 +79,22 @@ const TopSellers = ({ onViewAllClick }: TopSellersProps) => {
   }
 
   return (
-    <section id="top-sellers" className="py-16 bg-gray-50">
+    <section id="featured-products" className="py-16 bg-lvnBg">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Shop Official Reform UK Merch
+          <h2 className="text-3xl md:text-4xl font-bold text-lvn-black mb-4">
+            Featured Collection
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Support the movement. Every purchase powers the mission.
+          <p className="text-lg text-lvn-black/70 max-w-2xl mx-auto scripture-quote">
+            "Shelter. Strength. Style."
           </p>
+          <p className="text-lvn-maroon font-medium mt-2">Psalm 91 Inspired Apparel</p>
         </div>
         
         {/* Apparel Section */}
         {apparelProducts.length > 0 && (
           <div className="mb-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Top Selling Apparel</h3>
+            <h3 className="text-2xl font-bold text-lvn-black mb-6 text-center">Premium Clothing</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {apparelProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
@@ -101,11 +102,11 @@ const TopSellers = ({ onViewAllClick }: TopSellersProps) => {
             </div>
           </div>
         )}
-
-        {/* Gear & Goods Section */}
+        
+        {/* Gear Section */}
         {gearProducts.length > 0 && (
           <div className="mb-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Top Selling Gear & Goods</h3>
+            <h3 className="text-2xl font-bold text-lvn-black mb-6 text-center">Accessories & Lifestyle</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {gearProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
@@ -113,16 +114,19 @@ const TopSellers = ({ onViewAllClick }: TopSellersProps) => {
             </div>
           </div>
         )}
-
+        
         {/* View All Button */}
-        <div className="text-center mt-8">
-          <button 
+        <div className="text-center">
+          <button
             onClick={onViewAllClick}
-            className="bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-200 flex items-center space-x-2 mx-auto"
+            className="btn-lvn-primary inline-flex items-center space-x-2 text-lg"
           >
-            <span>View All Merch</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>View Full Collection</span>
+            <ArrowRight className="w-5 h-5" />
           </button>
+          <p className="text-sm text-lvn-black/60 mt-3">
+            Free UK shipping on orders over £60
+          </p>
         </div>
       </div>
     </section>

@@ -62,12 +62,12 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-lvn-off-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <button
             onClick={onBack}
-            className="flex items-center space-x-2 text-gray-600 hover:text-[#009fe3] transition-colors mb-8"
+            className="flex items-center space-x-2 text-lvn-black/70 hover:text-lvn-maroon transition-colors mb-8"
           >
             <ArrowLeft className="w-5 h-5" />
             <span>Back to Shop</span>
@@ -75,15 +75,15 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
           
           <div className="text-center">
             <img 
-              src="/BackReformLogo.png" 
-              alt="Reform UK" 
+              src="/Leaven Logo.png" 
+              alt="LVN Clothing" 
               className="h-12 w-auto mx-auto mb-4"
             />
-            <h2 className="text-3xl font-bold text-gray-900">
-              Sign in to your account
+            <h2 className="text-3xl font-bold text-lvn-black">
+              Welcome Back
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Access your Reform UK merchandise orders and account
+            <p className="mt-2 text-sm text-lvn-black/70">
+              Sign in to access your LVN Clothing account and orders
             </p>
           </div>
         </div>
@@ -97,11 +97,13 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
         >
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email address
+              <label htmlFor="email" className="block text-sm font-medium text-lvn-black mb-2">
+                Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-lvn-black/40" />
+                </div>
                 <input
                   id="email"
                   name="email"
@@ -110,18 +112,20 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                  className="appearance-none relative block w-full px-3 py-3 pl-10 border border-lvn-black/20 rounded-none placeholder-lvn-black/50 text-lvn-black bg-lvn-white focus:outline-none focus:ring-2 focus:ring-lvn-maroon focus:border-transparent"
                   placeholder="Enter your email"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-lvn-black mb-2">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-lvn-black/40" />
+                </div>
                 <input
                   id="password"
                   name="password"
@@ -130,38 +134,36 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                  className="appearance-none relative block w-full px-3 py-3 pl-10 pr-10 border border-lvn-black/20 rounded-none placeholder-lvn-black/50 text-lvn-black bg-lvn-white focus:outline-none focus:ring-2 focus:ring-lvn-maroon focus:border-transparent"
                   placeholder="Enter your password"
                 />
                 <button
                   type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-lvn-black/40 hover:text-lvn-black" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-lvn-black/40 hover:text-lvn-black" />
+                  )}
                 </button>
               </div>
             </div>
           </div>
 
           {message && (
-            <div className={`rounded-lg p-4 ${
+            <div className={`flex items-center space-x-2 p-3 rounded-none border ${
               message.type === 'error' 
-                ? 'bg-red-50 border border-red-200' 
-                : 'bg-green-50 border border-green-200'
+                ? 'bg-red-50 border-red-200 text-red-800' 
+                : 'bg-green-50 border-green-200 text-green-800'
             }`}>
-              <div className="flex items-start space-x-3">
-                {message.type === 'error' ? (
-                  <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                ) : (
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                )}
-                <p className={`text-sm ${
-                  message.type === 'error' ? 'text-red-800' : 'text-green-800'
-                }`}>
-                  {message.text}
-                </p>
-              </div>
+              {message.type === 'error' ? (
+                <AlertCircle className="w-5 h-5" />
+              ) : (
+                <CheckCircle className="w-5 h-5" />
+              )}
+              <span className="text-sm font-medium">{message.text}</span>
             </div>
           )}
 
@@ -169,11 +171,13 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
             <button
               type="submit"
               disabled={isLoading}
-              onClick={handleLogin}  // Add direct click handler as fallback
-              className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-none text-lvn-white bg-lvn-maroon hover:bg-lvn-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lvn-maroon disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-lvn-white"></div>
+                  <span>Signing in...</span>
+                </div>
               ) : (
                 'Sign in'
               )}
@@ -181,45 +185,18 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
           </div>
 
           <div className="text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-lvn-black/70">
               Don't have an account?{' '}
               <button
                 type="button"
                 onClick={onSignupClick}
-                className="text-[#009fe3] hover:text-blue-600 font-semibold"
+                className="font-medium text-lvn-maroon hover:text-lvn-black transition-colors"
               >
                 Sign up here
               </button>
             </p>
           </div>
-
-          {/* Debug section - remove in production */}
-          <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-            <p className="text-xs text-gray-600 mb-2">Debug Info:</p>
-            <p className="text-xs text-gray-600">Supabase URL: {import.meta.env.VITE_SUPABASE_URL ? '✅ Set' : '❌ Missing'}</p>
-            <p className="text-xs text-gray-600">Supabase Key: {import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing'}</p>
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  const { session } = useAuth();
-                  alert(`Session check: ${session ? 'Session found' : 'No session'}`);
-                } catch (err) {
-                  alert('Session check failed');
-                }
-              }}
-              className="mt-2 text-xs bg-gray-500 text-white px-2 py-1 rounded"
-            >
-              Test Session
-            </button>
-          </div>
         </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
-            By signing in, you agree to our Terms of Service and Privacy Policy
-          </p>
-        </div>
       </div>
     </div>
   );

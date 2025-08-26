@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Heart, Flag, Shield, Package, CreditCard } from 'lucide-react';
+import { Heart, Shield, Users, BookOpen, Sparkles } from 'lucide-react';
 
 const MovementSection = () => {
   const scrollToEmailSignup = () => {
@@ -10,71 +10,72 @@ const MovementSection = () => {
   };
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-lvn-white">
       <div className="max-w-7xl mx-auto px-4">
         <div className="lg:grid lg:grid-cols-2 lg:gap-16 items-center">
           {/* Left Content */}
           <div className="mb-12 lg:mb-0">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-              More Than Just Merchandise
+            <h2 className="text-3xl md:text-4xl font-bold text-lvn-black mb-6">
+              Kingdom Leaven
             </h2>
-            <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-              When you wear Reform UK merchandise, you're not just making a fashion statement – 
-              you're joining a movement of people who believe in real change for Britain. Every 
-              purchase directly supports our mission to give voice to the forgotten majority.
+            <p className="text-lg text-lvn-black/70 mb-6 leading-relaxed">
+              Just as leaven works silently to transform dough, LVN Clothing spreads 
+              the Kingdom message through every piece we wear. Each garment carries 
+              the Gospel, transforming culture one interaction at a time.
             </p>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Together, we're building a better future for our communities, our economy, and our democracy.
-            </p>
+            <div className="scripture-quote text-lvn-maroon text-lg mb-8">
+              "The kingdom of heaven is like leaven that a woman took and hid in three measures of flour, till it was all leavened."
+              <span className="block text-sm font-medium mt-1">— Matthew 13:33</span>
+            </div>
             
             {/* Trust Icons Row */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
               <div className="text-center">
-                <div className="w-12 h-12 bg-[#009fe3] rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Flag className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 bg-lvn-maroon rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Sparkles className="w-6 h-6 text-lvn-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Printed in the UK</h3>
-                <p className="text-sm text-gray-600">Supporting local business</p>
+                <h3 className="font-semibold text-lvn-black mb-1">Cultural Transformation</h3>
+                <p className="text-sm text-lvn-black/70">Spreading the Kingdom</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-[#009fe3] rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Users className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 bg-lvn-maroon rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Users className="w-6 h-6 text-lvn-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">50K+ Supporters</h3>
-                <p className="text-sm text-gray-600">Nationwide movement</p>
+                <h3 className="font-semibold text-lvn-black mb-1">Faith Community</h3>
+                <p className="text-sm text-lvn-black/70">United in Christ</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-[#009fe3] rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Shield className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 bg-lvn-maroon rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Shield className="w-6 h-6 text-lvn-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Secure Checkout</h3>
-                <p className="text-sm text-gray-600">Safe & protected</p>
+                <h3 className="font-semibold text-lvn-black mb-1">Gospel Witness</h3>
+                <p className="text-sm text-lvn-black/70">Every piece tells a story</p>
               </div>
             </div>
             
             <button 
               onClick={scrollToEmailSignup}
-              className="bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-200"
+              className="btn-lvn-primary"
             >
-              Join the Movement
+              Join the Kingdom Movement
             </button>
           </div>
           
           {/* Right Visual */}
           <div className="relative">
-            <div className="bg-gradient-to-br from-[#009fe3] to-blue-600 rounded-2xl p-8 text-white">
+            <div className="bg-gradient-to-br from-lvn-maroon to-lvn-black rounded-none p-8 text-lvn-white">
               <div className="text-center mb-6">
-                <Flag className="w-16 h-16 mx-auto mb-4 opacity-80" />
-                <h3 className="text-2xl font-bold mb-2">Stand Together</h3>
-                <p className="text-blue-100">Your voice. Your choice. Your Britain.</p>
+                <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-80" />
+                <h3 className="text-2xl font-bold mb-2">Christus Victor</h3>
+                <p className="text-lvn-white/80">Kingdom. Leaven. Victory.</p>
               </div>
               
-              <div className="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur-sm">
+              <div className="bg-lvn-white bg-opacity-20 rounded-none p-4 backdrop-blur-sm">
                 <p className="text-sm italic text-center">
-                  "Reform UK merchandise isn't just clothing – it's a badge of hope for everyone 
-                  who believes Britain can do better."
+                  "Through clothing, we herald that Kingdom, pointing to the unstoppable growth 
+                  of Christ's reign on Earth."
                 </p>
-                <p className="text-sm font-semibold text-center mt-2">— Nigel Farage, Party Leader</p>
+                <p className="text-sm font-semibold text-center mt-2">— LVN Clothing Mission</p>
               </div>
             </div>
           </div>

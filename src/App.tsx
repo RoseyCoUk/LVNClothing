@@ -1,263 +1,255 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
-import MovementSection from './components/MovementSection';
-import Testimonials from './components/Testimonials';
-import TopSellers from './components/TopSellers';
-import EmailSignup from './components/EmailSignup';
 import ShopPage from './components/ShopPage';
-import AboutPage from './components/AboutPage';
-import ContactPage from './components/ContactPage';
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
-import AccountPage from './components/AccountPage';
-import CheckoutPage from './components/CheckoutPage';
 import SuccessPage from './components/SuccessPage';
-import OrdersPage from './components/OrdersPage';
-import TrackOrderPage from './components/TrackOrderPage';
-import FAQPage from './components/FAQPage';
-import PrivacyPolicyPage from './components/PrivacyPolicyPage';
-import CookiePolicyPage from './components/CookiePolicyPage';
-import TermsOfServicePage from './components/TermsOfServicePage';
-import ReturnsExchangesPage from './components/ReturnsExchangesPage';
-import ShippingInfoPage from './components/ShippingInfoPage';
-import SizeGuidePage from './components/SizeGuidePage';
-import AccessibilityPage from './components/AccessibilityPage';
-import TestPaymentFlow from './components/TestPaymentFlow';
 import UrgencyBar from './components/UrgencyBar';
-import ProductBundles from './components/ProductBundles';
+import TopSellers from './components/TopSellers';
+import MovementSection from './components/MovementSection';
+import Testimonials from './components/Testimonials';
+import EmailSignup from './components/EmailSignup';
 import CartDrawer from './components/CartDrawer';
-import CartPopup from './components/CartPopup';
-import PrintfulTest from './components/PrintfulTest';
-import PrintfulProductDetailWrapper from './components/PrintfulProductDetailWrapper';
-import ShippingTest from './components/ShippingTest';
-import ShippingTestDashboard from './components/ShippingTestDashboard';
-import ShippingExample from './components/checkout/ShippingExample';
+import CheckoutPage from './components/CheckoutPage';
+import AboutPage from './components/AboutPage';
 
-// Product Pages
-import TShirtPage from './components/products/TShirtPage';
-import HoodiePage from './components/products/HoodiePage';
-import CapPage from './components/products/CapPage';
-import ToteBagPage from './components/products/ToteBagPage';
-import WaterBottlePage from './components/products/WaterBottlePage';
-import MugPage from './components/products/MugPage';
-import MousePadPage from './components/products/MousePadPage';
-
-import StarterBundlePage from './components/products/StarterBundlePage';
-import ChampionBundlePage from './components/products/ChampionBundlePage';
-import ActivistBundlePage from './components/products/ActivistBundlePage';
-
+// Context Providers
+import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { ShippingProvider } from './contexts/ShippingContext';
-import { AuthProvider } from './contexts/AuthContext';
-import PrintfulStatus from './components/PrintfulStatus';
-import { performanceMonitor } from './lib/performance';
 
-const App = () => {
-  const navigate = useNavigate();
+// Error Boundary
+import ErrorBoundary from './components/ErrorBoundary';
+
+function AppContent() {
   const location = useLocation();
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState('home');
-
-  // Scroll to top on every route change
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
-
-  // Update currentPage based on location
-  useEffect(() => {
-    const path = location.pathname;
-    if (path === '/') setCurrentPage('home');
-    else if (path === '/shop') setCurrentPage('shop');
-    else if (path === '/about') setCurrentPage('about');
-    else if (path === '/contact') setCurrentPage('contact');
-    else if (path === '/login') setCurrentPage('login');
-    else if (path === '/signup') setCurrentPage('signup');
-    else if (path === '/account') setCurrentPage('account');
-    else if (path === '/checkout') setCurrentPage('checkout');
-    else if (path === '/orders') setCurrentPage('orders');
-    else if (path.startsWith('/product/')) setCurrentPage('product');
-    else setCurrentPage('home');
-  }, [location.pathname]);
-
-  // Performance monitoring for page loads
-  useEffect(() => {
-    // Start page load timer
-    performanceMonitor.startPageLoadTimer();
-    
-    // End timer when component mounts
-    performanceMonitor.endPageLoadTimer();
-    
-    // Monitor for performance issues
-    const handleError = (event: ErrorEvent) => {
-      if (event.error && event.error.message) {
-        performanceMonitor.recordError(event.error.message);
-      }
-    };
-    
-    // Add responsive performance monitoring
-    const handleResize = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      
-      // Log device characteristics for performance optimization
-      console.log('Device dimensions:', { width, height });
-      
-      // Adjust performance monitoring based on device capabilities
-      if (width < 768) {
-        // Mobile device - optimize for slower connections
-        performanceMonitor.setMobileMode(true);
-      } else {
-        performanceMonitor.setMobileMode(false);
-      }
-    };
-    
-    // Initial call
-    handleResize();
-    
-    window.addEventListener('error', handleError);
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      window.removeEventListener('error', handleError);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  const handleProductClick = (productId: string) => {
-    setSelectedProductId(productId);
-    // The routing will be handled by React Router
-  };
-
-  const handleBackToShop = () => {
-    setSelectedProductId(null);
-    navigate('/shop');
-  };
+  const navigate = useNavigate();
 
   const handleBackToHome = () => {
     navigate('/');
   };
 
-  const handleLoginClick = () => {
-    navigate('/login');
-  };
-
-  const handleSignupClick = () => {
-    navigate('/signup');
-  };
-
-  const handleCheckoutClick = () => {
-    navigate('/checkout');
-  };
-
-  const handleShopClick = () => {
-    navigate('/shop');
-  };
-
-  const handleNavigation = (page: string) => {
-    setCurrentPage(page);
-    switch (page) {
-      case 'home':
-        navigate('/');
-        break;
-      case 'shop':
-        navigate('/shop');
-        break;
-      case 'about':
-        navigate('/about');
-        break;
-      case 'contact':
-        navigate('/contact');
-        break;
-      case 'account':
-        navigate('/account');
-        break;
-      case 'orders':
-        navigate('/orders');
-        break;
-      default:
-        navigate('/');
-    }
-  };
+  // Determine current page for header
+  const currentPage = location.pathname === '/' ? 'home' : 
+                     location.pathname === '/shop' ? 'shop' : 
+                     location.pathname === '/about' ? 'about' : 
+                     location.pathname === '/contact' ? 'contact' : 'other';
 
   return (
-    <AuthProvider>
-      <CartProvider>
-        <ShippingProvider>
-          <div className="min-h-screen bg-white" role="application" aria-label="Reform UK E-commerce Platform">
-          <Header currentPage={currentPage} setCurrentPage={handleNavigation} onLoginClick={handleLoginClick} onSignupClick={handleSignupClick} />
-          <main role="main" id="main-content">
-          <Routes>
-            <Route path="/" element={
-              <>
-                <UrgencyBar />
-                <Hero onShopClick={handleShopClick} />
-                <TopSellers onViewAllClick={handleShopClick} />
-                <MovementSection />
-                <ProductBundles />
-                <Testimonials />
-                <EmailSignup />
-              </>
-            } />
-            <Route path="/shop" element={
-                <ShopPage onProductClick={handleProductClick} />
-            } />
-            <Route path="/about" element={
-                <AboutPage />
-            } />
-            <Route path="/contact" element={
-                <ContactPage />
-            } />
-            <Route path="/login" element={<LoginPage onBack={handleBackToHome} onSignupClick={handleSignupClick} />} />
-            <Route path="/signup" element={<SignupPage onBack={handleBackToHome} onLoginClick={handleLoginClick} />} />
-            <Route path="/account" element={<AccountPage onBack={handleBackToHome} />} />
-            <Route path="/checkout" element={<CheckoutPage onBack={handleBackToHome} />} />
-            <Route path="/success" element={<SuccessPage onBackToShop={handleBackToHome} />} />
-            <Route path="/orders" element={<OrdersPage onBack={handleBackToHome} />} />
-            <Route path="/track-order" element={<TrackOrderPage onBack={handleBackToHome} />} />
-            <Route path="/faq" element={<FAQPage onBack={handleBackToHome} />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicyPage onBack={handleBackToHome} />} />
-            <Route path="/cookie-policy" element={<CookiePolicyPage onBack={handleBackToHome} />} />
-            <Route path="/terms-of-service" element={<TermsOfServicePage onBack={handleBackToHome} />} />
-            <Route path="/returns-exchanges" element={<ReturnsExchangesPage onBack={handleBackToHome} />} />
-            <Route path="/shipping-info" element={<ShippingInfoPage onBack={handleBackToHome} />} />
-            <Route path="/size-guide" element={<SizeGuidePage onBack={handleBackToHome} />} />
-            <Route path="/accessibility" element={<AccessibilityPage onBack={handleBackToHome} />} />
-            <Route path="/test-payment" element={<TestPaymentFlow />} />
-            <Route path="/printful-test" element={<PrintfulTest />} />
-            <Route path="/shipping-test" element={<ShippingTest />} />
-            <Route path="/shipping-dashboard" element={<ShippingTestDashboard />} />
-            <Route path="/shipping-example" element={<ShippingExample />} />
-            <Route path="/printful-product/:id" element={<PrintfulProductDetailWrapper />} />
-            
-            {/* Product Routes */}
-            <Route path="/product/reform-uk-tshirt" element={<TShirtPage onBack={handleBackToShop} />} />
-            <Route path="/product/reform-uk-hoodie" element={<HoodiePage onBack={handleBackToShop} />} />
-            <Route path="/product/reform-uk-cap" element={<CapPage onBack={handleBackToShop} />} />
-            <Route path="/product/reform-uk-tote-bag" element={<ToteBagPage onBack={handleBackToShop} />} />
-            <Route path="/product/reform-uk-water-bottle" element={<WaterBottlePage onBack={handleBackToShop} />} />
-            <Route path="/product/reform-uk-mug" element={<MugPage onBack={handleBackToShop} />} />
-            <Route path="/product/reform-uk-mouse-pad" element={<MousePadPage onBack={handleBackToShop} />} />
+    <div className="min-h-screen bg-lvnBg" role="application" aria-label="LVN Clothing - Premium Christian Streetwear">
+      <Header 
+        currentPage={currentPage} 
+        setCurrentPage={(page) => {
+          switch (page) {
+            case 'home':
+              navigate('/');
+              break;
+            case 'shop':
+              navigate('/shop');
+              break;
+            case 'about':
+              navigate('/about');
+              break;
+            case 'contact':
+              navigate('/contact');
+              break;
+            default:
+              navigate('/');
+          }
+        }}
+      />
+      
+      <UrgencyBar />
+      
+      <main>
+        <Routes>
+          <Route path="/" element={
+            <>
+              <Hero onShopClick={() => navigate('/shop')} />
+              <TopSellers onViewAllClick={() => navigate('/shop')} />
+              <MovementSection />
+              <Testimonials />
+              <EmailSignup />
+            </>
+          } />
+          
+          <Route path="/shop" element={
+            <ShopPage onProductClick={(productId) => {
+              // Handle product click - could navigate to product detail page
+              console.log('Product clicked:', productId);
+            }} />
+          } />
+          
+          <Route path="/login" element={
+            <LoginPage 
+              onBack={() => navigate('/')}
+              onSignupClick={() => navigate('/signup')}
+            />
+          } />
+          
+          <Route path="/signup" element={
+            <SignupPage 
+              onBack={() => navigate('/')}
+              onLoginClick={() => navigate('/login')}
+            />
+          } />
+          
+          <Route path="/success" element={
+            <SuccessPage onBackToShop={() => navigate('/')} />
+          } />
+          
+          <Route path="/checkout" element={
+            <CheckoutPage onBack={() => navigate('/')} />
+          } />
+          
+          <Route path="/about" element={
+            <div className="min-h-screen bg-lvnBg py-20">
+              <div className="max-w-6xl mx-auto px-4">
+                {/* Hero Section */}
+                <div className="text-center mb-16">
+                  <img 
+                    src="/Leaven Logo.png" 
+                    alt="LVN Clothing" 
+                    className="w-32 h-32 mx-auto mb-8 object-contain"
+                  />
+                  <h1 className="text-5xl font-bold text-lvn-black mb-6">
+                    About Leaven Clothing
+                  </h1>
+                  <p className="text-xl text-lvn-black/70 max-w-3xl mx-auto leading-relaxed">
+                    Leaven Clothing — also known as LVN — is more than apparel. Our mission is to provide 
+                    excellent clothing while exercising the gifts God has given us for His glory.
+                  </p>
+                </div>
 
-            <Route path="/product/starter-bundle" element={<StarterBundlePage onBack={handleBackToShop} />} />
-            <Route path="/product/champion-bundle" element={<ChampionBundlePage onBack={handleBackToShop} />} />
-            <Route path="/product/activist-bundle" element={<ActivistBundlePage onBack={handleBackToShop} />} />
-            
-            {/* Fallback route for any other product URLs */}
-            <Route path="/product/:slug" element={<ShopPage onProductClick={handleProductClick} />} />
-          </Routes>
-        </main>
-        <Footer onPageNavigation={(page) => navigate(`/${page}`)} />
-        <CartDrawer onCheckoutClick={handleCheckoutClick} />
-        <CartPopup />
-        <PrintfulStatus />
-        </div>
-        </ShippingProvider>
-      </CartProvider>
-    </AuthProvider>
+                {/* Mission Statement */}
+                <div className="bg-lvn-white p-8 rounded-none shadow-sm mb-12">
+                  <h2 className="text-3xl font-bold text-lvn-black mb-6">Our Mission</h2>
+                  <div className="prose prose-lg max-w-none text-lvn-black/80 leading-relaxed space-y-4">
+                    <p>
+                      Every piece we design carries a Kingdom mindset: proclaiming that Christ is victorious 
+                      over sin and death, and that He is even now putting all of His enemies under His feet 
+                      (Psalm 110:1), until He returns to destroy the final enemy, death (1 Corinthians 15:20–26).
+                    </p>
+                    <p>
+                      Through clothing, we seek to herald that Kingdom, pointing to the unstoppable growth 
+                      of Christ's reign on Earth.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Final Statement */}
+                <div className="bg-lvn-maroon text-white p-8 rounded-none shadow-sm text-center">
+                  <p className="text-2xl font-bold mb-4">
+                    ⚜️ Leaven Clothing exists to build up the body of Christ, bear witness to the Kingdom, 
+                    and glorify God through the work of our hands.
+                  </p>
+                  <p className="text-lg opacity-90">
+                    Every piece carries the Gospel message.
+                  </p>
+                </div>
+              </div>
+            </div>
+          } />
+          
+          <Route path="/contact" element={
+            <div className="min-h-screen bg-lvnBg py-20">
+              <div className="max-w-4xl mx-auto px-4">
+                <h1 className="text-5xl font-bold text-lvn-black mb-8 text-center">
+                  Contact Us
+                </h1>
+                <p className="text-xl text-lvn-black/70 text-center mb-12">
+                  Get in touch with the LVN Clothing team
+                </p>
+                
+                <div className="bg-lvn-white p-8 rounded-none shadow-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                      <h3 className="text-2xl font-bold text-lvn-black mb-4">Get In Touch</h3>
+                      <p className="text-lvn-black/70 mb-6">
+                        Have questions about our clothing or mission? We'd love to hear from you.
+                      </p>
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-lvn-maroon rounded-full flex items-center justify-center">
+                            <span className="text-white text-sm">✉</span>
+                          </div>
+                          <span className="text-lvn-black">hello@lvnclothing.com</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-lvn-maroon rounded-full flex items-center justify-center">
+                            <span className="text-white text-sm">📍</span>
+                          </div>
+                          <span className="text-lvn-black">United Kingdom</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-2xl font-bold text-lvn-black mb-4">Contact Form</h3>
+                      <form className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-lvn-black mb-2">Name</label>
+                          <input 
+                            type="text" 
+                            className="w-full px-3 py-2 border border-gray-300 rounded-none focus:outline-none focus:ring-2 focus:ring-lvn-maroon focus:border-transparent"
+                            placeholder="Your name"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-lvn-black mb-2">Email</label>
+                          <input 
+                            type="email" 
+                            className="w-full px-3 py-2 border border-gray-300 rounded-none focus:outline-none focus:ring-2 focus:ring-lvn-maroon focus:border-transparent"
+                            placeholder="your@email.com"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-lvn-black mb-2">Message</label>
+                          <textarea 
+                            rows={4}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-none focus:outline-none focus:ring-2 focus:ring-lvn-maroon focus:border-transparent"
+                            placeholder="Your message"
+                          ></textarea>
+                        </div>
+                        <button 
+                          type="submit"
+                          className="w-full btn-lvn-primary"
+                        >
+                          Send Message
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          } />
+        </Routes>
+      </main>
+      
+      <CartDrawer onCheckoutClick={() => navigate('/checkout')} />
+      <Footer />
+    </div>
   );
-};
+}
+
+function App() {
+  return (
+    <ErrorBoundary>
+      <AuthProvider>
+        <CartProvider>
+          <ShippingProvider>
+            <Router>
+              <AppContent />
+            </Router>
+          </ShippingProvider>
+        </CartProvider>
+      </AuthProvider>
+    </ErrorBoundary>
+  );
+}
 
 export default App;

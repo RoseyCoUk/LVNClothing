@@ -3,7 +3,7 @@ import { X, Plus, Minus, ShoppingBag, Trash2, Package } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 
 interface CartDrawerProps {
-  onCheckoutClick: () => void;
+  onCheckoutClick?: () => void;
 }
 
 const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
@@ -36,17 +36,17 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
       />
       
       {/* Cart Drawer */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-50 transform transition-transform duration-300">
+      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-lvn-white shadow-xl z-50 transform transition-transform duration-300">
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b">
-            <h2 className="text-xl font-bold text-gray-900 flex items-center space-x-2">
+          <div className="flex items-center justify-between p-6 border-b border-lvn-black/10">
+            <h2 className="text-xl font-bold text-lvn-black flex items-center space-x-2">
               <ShoppingBag className="w-6 h-6" />
               <span>Your Cart</span>
             </h2>
             <button
               onClick={() => setIsCartOpen(false)}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2 hover:bg-lvn-off-white rounded-none transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -56,12 +56,12 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
           <div className="flex-1 overflow-y-auto p-6">
             {cartItems.length === 0 ? (
               <div className="text-center py-12">
-                <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Your cart is empty</h3>
-                <p className="text-gray-600 mb-6">Add some Reform UK merchandise to get started!</p>
+                <ShoppingBag className="w-16 h-16 text-lvn-black/30 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-lvn-black mb-2">Your cart is empty</h3>
+                <p className="text-lvn-black/70 mb-6">Add some LVN Clothing to get started!</p>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  className="btn-lvn-primary"
                 >
                   Continue Shopping
                 </button>
@@ -69,20 +69,20 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
             ) : (
               <div className="space-y-4">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="bg-gray-50 rounded-lg p-4">
+                  <div key={item.id} className="bg-lvn-off-white rounded-none p-4">
                     <div className="flex items-center space-x-4 mb-3">
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-16 h-16 object-cover rounded-lg"
+                        className="w-16 h-16 object-cover rounded-none"
                       />
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
-                        <p className="text-[#009fe3] font-bold">£{item.price.toFixed(2)}</p>
+                        <h3 className="font-semibold text-lvn-black mb-1">{item.name}</h3>
+                        <p className="text-lvn-maroon font-bold">£{item.price.toFixed(2)}</p>
                         {item.isBundle && (
                           <div className="flex items-center space-x-1 mt-1">
-                            <Package className="w-3 h-3 text-green-600" />
-                            <span className="text-xs text-green-600 font-medium">Bundle Deal</span>
+                            <Package className="w-3 h-3 text-lvn-maroon" />
+                            <span className="text-xs text-lvn-maroon font-medium">Collection Deal</span>
                           </div>
                         )}
                       </div>
@@ -95,12 +95,12 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
                               console.error('Failed to update quantity:', error);
                             }
                           }}
-                          className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                          className="p-1 hover:bg-lvn-black/10 rounded-none transition-colors"
                           disabled={item.quantity <= 1}
                         >
                           <Minus className="w-4 h-4" />
                         </button>
-                        <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                        <span className="w-8 text-center font-medium text-lvn-black">{item.quantity}</span>
                         <button
                           onClick={() => {
                             try {
@@ -109,39 +109,23 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
                               console.error('Failed to update quantity:', error);
                             }
                           }}
-                          className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                          className="p-1 hover:bg-lvn-black/10 rounded-none transition-colors"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
                       </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-lvn-black/70">
+                        Total: £{(item.price * item.quantity).toFixed(2)}
+                      </span>
                       <button
                         onClick={() => removeFromCart(item.id)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                        className="text-lvn-maroon hover:text-lvn-black transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-                    
-                    {/* Bundle Contents */}
-                    {item.isBundle && item.bundleContents && (
-                      <div className="mt-3 pt-3 border-t border-gray-200">
-                        <p className="text-xs font-medium text-gray-700 mb-2">Bundle includes:</p>
-                        <div className="space-y-1">
-                          {item.bundleContents.map((content, index) => (
-                            <div key={index} className="flex items-center space-x-2">
-                              <img 
-                                src={content.image} 
-                                alt={content.name}
-                                className="w-6 h-6 object-cover rounded"
-                              />
-                              <span className="text-xs text-gray-600">
-                                {content.name} ({content.variant})
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -150,30 +134,39 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
 
           {/* Footer */}
           {cartItems.length > 0 && (
-            <div className="border-t p-6 space-y-4">
-              <div className="flex items-center justify-between text-lg font-bold">
-                <span>Total:</span>
-                <span className="text-[#009fe3]">£{getTotalPrice().toFixed(2)}</span>
-              </div>
-              
-              <div className="space-y-3">
-                <button 
+            <div className="border-t border-lvn-black/10 p-6">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center text-lg font-bold text-lvn-black">
+                  <span>Total</span>
+                  <span>£{getTotalPrice().toFixed(2)}</span>
+                </div>
+                
+                <div className="text-sm text-lvn-black/70 bg-lvn-off-white p-3 rounded-none">
+                  <p className="flex items-center space-x-2 mb-1">
+                    <Package className="w-4 h-4 text-lvn-maroon" />
+                    <span>Free UK shipping on orders over £60</span>
+                  </p>
+                  {getTotalPrice() < 60 && (
+                    <p className="text-lvn-maroon font-medium">
+                      Add £{(60 - getTotalPrice()).toFixed(2)} more for free shipping
+                    </p>
+                  )}
+                </div>
+                
+                <button
                   onClick={handleCheckout}
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  className="w-full btn-lvn-primary text-lg"
                 >
                   Proceed to Checkout
                 </button>
+                
                 <button
-                  onClick={clearCart}
-                  className="w-full border-2 border-gray-300 text-gray-700 hover:border-red-500 hover:text-red-500 font-semibold py-3 px-6 rounded-lg transition-colors"
+                  onClick={() => setIsCartOpen(false)}
+                  className="w-full btn-lvn-outline"
                 >
-                  Clear Cart
+                  Continue Shopping
                 </button>
               </div>
-              
-              <p className="text-xs text-gray-500 text-center">
-                🇬🇧 Secure checkout • Best shipping rates
-              </p>
             </div>
           )}
         </div>

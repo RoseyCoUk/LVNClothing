@@ -4,13 +4,17 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'DM Sans', 'system-ui', 'sans-serif'],
+        display: ['Playfair Display', 'serif'],
       },
       colors: {
-        reform: {
-          blue: '#009fe3',
-          'blue-dark': '#0077b3',
-        }
+        lvn: {
+          black: '#000000',
+          white: '#FFFFFF',
+          'off-white': '#F8F6F1',
+          maroon: '#800000',
+        },
+        lvnBg: '#F3F0E6',
       },
       animation: {
         'bounce-slow': 'bounce 2s infinite',
