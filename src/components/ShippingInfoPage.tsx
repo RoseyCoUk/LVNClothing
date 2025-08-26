@@ -82,8 +82,8 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
                   <p className="text-sm text-gray-600">3-5 business days</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-gray-900">£3.99</p>
-                  <p className="text-xs text-green-600">Free over £50</p>
+                  <p className="font-semibold text-gray-900">From £3.99</p>
+                  <p className="text-xs text-blue-600">Best rates for multiple items</p>
                 </div>
               </div>
               
@@ -98,14 +98,14 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
                 </div>
               </div>
               
-              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+              <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <div>
-                  <h4 className="font-medium text-green-900">Free Shipping</h4>
-                  <p className="text-sm text-green-700">On orders over £50</p>
+                  <h4 className="font-medium text-blue-900">Bulk Shipping</h4>
+                  <p className="text-sm text-blue-700">Best rates for multiple items</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-green-900">£0.00</p>
-                  <p className="text-xs text-green-600">Standard delivery</p>
+                  <p className="font-semibold text-blue-900">Optimized</p>
+                  <p className="text-xs text-blue-600">Combined shipping</p>
                 </div>
               </div>
             </div>

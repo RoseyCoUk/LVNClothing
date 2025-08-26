@@ -1,0 +1,18 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:5173",
+  "loginUser": "Back Reform",
+  "loginPassword": "backreform",
+  "executionArgs": {
+    "projectName": "ReformUK",
+    "projectPath": "/Users/arnispiekus/Documents/Github/ReformUK",
+    "testIds": [],
+    "additionalInstruction": "Run comprehensive testing to identify any errors, bugs, or issues in the frontend application, including authentication, product management, cart functionality, checkout process, and all user interactions.",
+    "envs": {
+      "API_KEY": "sk-user-Rz-PGNthIZy6FHQsbdWY4B8bafWHH9zfyGP5IIxhSmS-oYPvusVhX3SG8nff0Hnjf4cXLX9RysNuvdki8myW1CnLDR5c2P8TLSIyExG8JZo8k2tIdFxHNB_AymcsP4ZXKq0"
+    }
+  },
+  "proxy": "http://629f6af4-9495-4fa5-bbca-417cf9122739:epMKJ4RNjETmZumXu5ZS7RDahcHcAZdm@tun.testsprite.com:8080"
+}

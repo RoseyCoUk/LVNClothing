@@ -1,21 +1,37 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
+import { createPerformanceMonitor, measureAsyncOperation } from '../_shared/performance.ts';
 
-const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
-const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY')!;
-const stripe = new Stripe(stripeSecret, {
-  appInfo: {
-    name: 'Bolt Integration',
-    version: '1.0.0',
-  },
-});
+// Get environment variables with better error handling
+const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? 'http://127.0.0.1:54321';
+const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZXZ0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
+const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY');
+
+const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+// Initialize Stripe only if we have the secret key
+let stripe: Stripe | null = null;
+if (stripeSecret) {
+  stripe = new Stripe(stripeSecret, {
+    appInfo: {
+      name: 'Reform UK Store',
+      version: '1.0.0',
+    },
+    // Add performance optimizations
+    timeout: 30000, // 30 second timeout
+    maxNetworkRetries: 3, // Retry failed requests
+  });
+}
 
 const allowed = new Set([
   "https://backreform.co.uk",
   "https://www.backreform.co.uk",
   "http://localhost:3000",
   "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "http://localhost:5176",
   "http://localhost:8080",
   "file://",
 ]);
@@ -42,6 +58,7 @@ function cors(origin: string | null) {
 }
 
 serve(async (req: Request) => {
+  const performanceMonitor = createPerformanceMonitor('stripe-checkout', req);
   const origin = req.headers.get("origin");
   const headers = cors(origin);
 
@@ -73,6 +90,7 @@ serve(async (req: Request) => {
 
     // Validate required parameters
     if (!customer_email) {
+      performanceMonitor.addWarning('Missing customer_email parameter');
       return new Response(JSON.stringify({ error: 'customer_email is required' }), {
         status: 400,
         headers: { ...headers, "Content-Type": "application/json" },
@@ -80,6 +98,7 @@ serve(async (req: Request) => {
     }
 
     if (!price_id && !line_items) {
+      performanceMonitor.addWarning('Missing both price_id and line_items parameters');
       return new Response(JSON.stringify({ error: 'Either price_id or line_items must be provided' }), {
         status: 400,
         headers: { ...headers, "Content-Type": "application/json" },
@@ -104,7 +123,31 @@ serve(async (req: Request) => {
       }
     }
 
-    // Try to get user ID from auth header if present
+    // Check if Stripe is configured
+    if (!stripe) {
+      console.error('STRIPE_SECRET_KEY is not configured');
+      
+      // Return a more helpful error response for development/testing
+      return new Response(JSON.stringify({ 
+        error: 'Stripe is not configured',
+        details: 'Please set STRIPE_SECRET_KEY in your environment variables or Supabase secrets',
+        test_mode: true,
+        request_data: {
+          customer_email,
+          line_items: line_items || [],
+          shipping_rate_id,
+          mode,
+          success_url,
+          cancel_url
+        },
+        message: 'This is expected in development environment. Configure Stripe keys to enable real payments.'
+      }), {
+        status: 500,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    }
+
+    // Try to get user ID from auth header if present, but don't fail if not present
     let userId: string | null = null;
     const authHeader = req.headers.get('Authorization');
     
@@ -133,7 +176,18 @@ serve(async (req: Request) => {
         // Don't throw error, just proceed without user ID
       }
     } else {
-      console.log('No authorization header, proceeding as guest');
+      console.log('No authorization header, proceeding as guest checkout');
+    }
+
+    // Validate that we have the minimum required data for checkout
+    if (!customer_email || !mode) {
+      return new Response(JSON.stringify({ 
+        error: 'Missing required parameters',
+        details: 'customer_email and mode are required for checkout'
+      }), {
+        status: 400,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
     }
 
     console.log('Creating Stripe checkout session with params:', {
@@ -141,7 +195,8 @@ serve(async (req: Request) => {
       mode,
       has_line_items: !!line_items,
       has_price_id: !!price_id,
-      has_user_id: !!userId
+      has_user_id: !!userId,
+      checkout_type: userId ? 'authenticated' : 'guest'
     });
 
     // Create Checkout Session
@@ -212,17 +267,13 @@ serve(async (req: Request) => {
 
     console.log('Calling Stripe API to create checkout session...');
     
-    // Validate environment variables
-    if (!stripeSecret) {
-      console.error('STRIPE_SECRET_KEY is not configured');
-      return new Response(JSON.stringify({ error: 'Stripe is not configured' }), {
-        status: 500,
-        headers: { ...headers, "Content-Type": "application/json" },
-      });
-    }
-    
     try {
-      const session = await stripe.checkout.sessions.create(sessionParams);
+      // Measure Stripe API call performance
+      const session = await measureAsyncOperation(
+        () => stripe!.checkout.sessions.create(sessionParams),
+        'Stripe checkout session creation'
+      );
+      
       console.log('Stripe API call completed successfully');
       console.log(`Created checkout session ${session.id} for email ${customer_email}`);
 
@@ -231,6 +282,8 @@ serve(async (req: Request) => {
       });
     } catch (stripeError) {
       console.error('Stripe API error:', stripeError);
+      performanceMonitor.incrementErrorCount();
+      
       return new Response(JSON.stringify({ 
         error: 'Failed to create Stripe checkout session',
         details: stripeError.message || 'Unknown Stripe error'
@@ -241,9 +294,13 @@ serve(async (req: Request) => {
     }
   } catch (err) {
     console.error('Checkout error:', err);
+    performanceMonitor.incrementErrorCount();
+    
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
       headers: { ...headers, "Content-Type": "application/json" },
     });
+  } finally {
+    performanceMonitor.end(200);
   }
 });

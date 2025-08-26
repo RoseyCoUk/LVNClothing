@@ -1,0 +1,137 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "React",
+    "Vite",
+    "Tailwind CSS",
+    "Supabase",
+    "Stripe",
+    "Deno",
+    "PostgreSQL"
+  ],
+  "features": [
+    {
+      "name": "User Authentication",
+      "description": "Complete user authentication system with login, registration, password reset, and account management",
+      "files": [
+        "src/contexts/AuthContext.tsx",
+        "src/components/AccountPage.tsx",
+        "src/components/LoginPage.tsx",
+        "src/components/RegisterPage.tsx",
+        "supabase/functions/newsletter-signup/index.ts",
+        "supabase/functions/delete-user-account/index.ts"
+      ]
+    },
+    {
+      "name": "Shopping Cart",
+      "description": "Persistent shopping cart with real-time updates, quantity management, and item persistence",
+      "files": [
+        "src/contexts/CartContext.tsx",
+        "src/components/CartPage.tsx",
+        "src/components/AddToCartButton.tsx",
+        "src/components/CartItem.tsx"
+      ]
+    },
+    {
+      "name": "Product Management",
+      "description": "Product catalog with variants, categories, and dynamic pricing including bundle discounts",
+      "files": [
+        "src/components/products/ActivistBundlePage.tsx",
+        "src/components/products/CapPage.tsx",
+        "src/components/products/ChampionBundlePage.tsx",
+        "src/components/products/HoodiePage.tsx",
+        "src/components/products/MousePadPage.tsx",
+        "src/components/products/MugPage.tsx",
+        "src/components/products/StarterBundlePage.tsx",
+        "src/components/products/StickerPage.tsx",
+        "src/components/products/ToteBagPage.tsx",
+        "src/components/products/TshirtPage.tsx",
+        "src/components/products/WaterBottlePage.tsx",
+        "src/hooks/cap-variants.ts",
+        "src/hooks/hoodie-variants.ts",
+        "src/hooks/mousepad-variants.ts",
+        "src/hooks/mug-variants.ts",
+        "src/hooks/tshirt-variants.ts",
+        "src/hooks/totebag-variants.ts",
+        "src/hooks/waterbottle-variants.ts"
+      ]
+    },
+    {
+      "name": "Checkout System",
+      "description": "Multi-step checkout process with Stripe integration, shipping calculations, and order management",
+      "files": [
+        "src/components/checkout/ShippingSection.tsx",
+        "src/components/checkout/ShippingMethods.tsx",
+        "src/components/checkout/ShippingExample.tsx",
+        "src/contexts/ShippingContext.tsx",
+        "src/lib/shipping/checkout.ts",
+        "src/lib/shipping/printful.ts",
+        "src/lib/shipping/types.ts",
+        "supabase/functions/stripe-checkout/index.ts",
+        "supabase/functions/stripe-webhook2/index.ts",
+        "supabase/functions/checkout-shipping-select/index.ts",
+        "supabase/functions/shipping-quotes/index.ts"
+      ]
+    },
+    {
+      "name": "Printful Integration",
+      "description": "Real-time inventory sync, pricing updates, and order fulfillment through Printful API",
+      "files": [
+        "src/lib/printful/client.ts",
+        "src/lib/printful/pricing.ts",
+        "src/lib/bundle-pricing.ts",
+        "supabase/functions/printful-proxy/index.ts",
+        "supabase/functions/send-order-email/index.ts"
+      ]
+    },
+    {
+      "name": "Order Management",
+      "description": "Order tracking, history, and management system with email notifications",
+      "files": [
+        "supabase/functions/send-order-email/index.ts",
+        "supabase/functions/cancel-order/index.ts",
+        "supabase/migrations/20250710030000_full_schema_and_products.sql"
+      ]
+    },
+    {
+      "name": "Performance Monitoring",
+      "description": "Performance testing and monitoring tools for page load optimization",
+      "files": [
+        "supabase/functions/performance-test/index.ts",
+        "supabase/functions/_shared/performance.ts"
+      ]
+    },
+    {
+      "name": "API Integration",
+      "description": "RESTful API endpoints and client-side API utilities for data management",
+      "files": [
+        "src/lib/api.ts",
+        "src/lib/config.ts",
+        "src/lib/cache/memoryCache.ts"
+      ]
+    },
+    {
+      "name": "UI Components",
+      "description": "Reusable UI components with modern design patterns and accessibility features",
+      "files": [
+        "src/components/Header.tsx",
+        "src/components/Footer.tsx",
+        "src/components/ProductCard.tsx",
+        "src/components/ProductGrid.tsx",
+        "src/components/AboutPage.tsx",
+        "src/components/AccessibilityPage.tsx"
+      ]
+    },
+    {
+      "name": "Database Schema",
+      "description": "PostgreSQL database with RLS policies, migrations, and seed data",
+      "files": [
+        "supabase/migrations/20250710030000_full_schema_and_products.sql",
+        "supabase/migrations/20250710040000_fix_product_prices.sql",
+        "supabase/migrations/20250710050000_fix_price_column_type.sql",
+        "supabase/seed.sql",
+        "supabase/apply-rls-policies.sql"
+      ]
+    }
+  ]
+}

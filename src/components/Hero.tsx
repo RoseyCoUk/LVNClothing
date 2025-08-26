@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Heart } from 'lucide-react';
+import { Heart } from 'lucide-react';
 
 interface HeroProps {
-  onShopClick?: () => void;
+  onShopClick: () => void;
 }
 
 const Hero = ({ onShopClick }: HeroProps) => {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [showPlaceholder, setShowPlaceholder] = useState(true);
+  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
-    // Simulate video load detection - in a real scenario you'd use iframe onload
+    // Simulate video loading time
     const timer = setTimeout(() => {
       setVideoLoaded(true);
+      
       // Keep placeholder visible for a brief moment to ensure smooth transition
       setTimeout(() => {
         setShowPlaceholder(false);
@@ -21,6 +23,11 @@ const Hero = ({ onShopClick }: HeroProps) => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  const handleVideoError = () => {
+    setVideoError(true);
+    setVideoLoaded(false);
+  };
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
@@ -38,26 +45,30 @@ const Hero = ({ onShopClick }: HeroProps) => {
       </div>
 
       {/* Vimeo Background Video - Full Width */}
-      <div 
-        className={`absolute inset-0 z-20 transition-opacity duration-1000 ${
-          videoLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <iframe
-          src="https://player.vimeo.com/video/1097368184?background=1&autoplay=1&muted=1&loop=0&title=0&byline=0&portrait=0&controls=0&playsinline=1"
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-          style={{
-            width: '100vw',
-            height: '56.25vw', // 16:9 aspect ratio
-            minHeight: '100vh',
-            minWidth: '177.78vh', // 16:9 aspect ratio
-          }}
-          frameBorder="0"
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowFullScreen
-          title="Reform UK Hero Video"
-        />
-      </div>
+      {!videoError && (
+        <div 
+          className={`absolute inset-0 z-20 transition-opacity duration-1000 ${
+            videoLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <iframe
+            src="https://player.vimeo.com/video/1097368184?background=1&autoplay=1&muted=1&loop=0&title=0&byline=0&portrait=0&controls=0&playsinline=1"
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            style={{
+              width: '100vw',
+              height: '56.25vw', // 16:9 aspect ratio
+              minHeight: '100vh',
+              minWidth: '177.78vh', // 16:9 aspect ratio
+            }}
+            frameBorder="0"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+            title="Reform UK Hero Video"
+            onError={handleVideoError}
+            onLoad={() => setVideoLoaded(true)}
+          />
+        </div>
+      )}
 
       {/* Dark overlay for text readability */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/40 z-30"></div>
@@ -89,7 +100,7 @@ const Hero = ({ onShopClick }: HeroProps) => {
         </div>
         
         <div className="text-gray-200">
-          <p className="text-sm drop-shadow-lg">🇬🇧 Proudly printed in the UK • Free shipping over £50</p>
+          <p className="text-sm drop-shadow-lg">🇬🇧 Proudly printed in the UK • Best shipping rates</p>
         </div>
       </div>
       

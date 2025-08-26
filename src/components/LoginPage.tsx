@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 interface LoginPageProps {
   onBack: () => void;
@@ -13,21 +13,40 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
+  const { signIn } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
+    console.log('🔍 handleLogin called with event:', e.type);
     e.preventDefault();
+    console.log('Login form submitted with:', { email, password: password ? '[REDACTED]' : 'empty' });
+    
     setIsLoading(true);
     setMessage(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      console.log('Attempting authentication...');
+      const { error } = await signIn(email, password);
+
+      console.log('Auth response:', { error: error?.message });
 
       if (error) {
-        setMessage({ type: 'error', text: error.message });
+        let errorMessage = error.message;
+        
+        // Provide more user-friendly error messages
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please try again.';
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Please check your email and confirm your account before signing in.';
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = 'Too many login attempts. Please wait a moment before trying again.';
+        } else if (error.message.includes('User not found')) {
+          errorMessage = 'No account found with this email address. Please sign up first.';
+        }
+        
+        console.log('Setting error message:', errorMessage);
+        setMessage({ type: 'error', text: errorMessage });
       } else {
+        console.log('Login successful, setting success message');
         setMessage({ type: 'success', text: 'Successfully logged in!' });
         // The auth state change will be handled by the parent component
         setTimeout(() => {
@@ -35,6 +54,7 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
         }, 1000);
       }
     } catch (error: any) {
+      console.error('Unexpected error during login:', error);
       setMessage({ type: 'error', text: 'An unexpected error occurred. Please try again.' });
     } finally {
       setIsLoading(false);
@@ -68,7 +88,13 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
           </div>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <form 
+          className="mt-8 space-y-6" 
+          onSubmit={handleLogin}
+          data-testid="login-form"
+          action="#"
+          method="post"
+        >
           <div className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -143,6 +169,7 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
             <button
               type="submit"
               disabled={isLoading}
+              onClick={handleLogin}  // Add direct click handler as fallback
               className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
             >
               {isLoading ? (
@@ -164,6 +191,27 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
                 Sign up here
               </button>
             </p>
+          </div>
+
+          {/* Debug section - remove in production */}
+          <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+            <p className="text-xs text-gray-600 mb-2">Debug Info:</p>
+            <p className="text-xs text-gray-600">Supabase URL: {import.meta.env.VITE_SUPABASE_URL ? '✅ Set' : '❌ Missing'}</p>
+            <p className="text-xs text-gray-600">Supabase Key: {import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing'}</p>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const { session } = useAuth();
+                  alert(`Session check: ${session ? 'Session found' : 'No session'}`);
+                } catch (err) {
+                  alert('Session check failed');
+                }
+              }}
+              className="mt-2 text-xs bg-gray-500 text-white px-2 py-1 rounded"
+            >
+              Test Session
+            </button>
           </div>
         </form>
 

@@ -19,8 +19,11 @@ import {
   CreditCard,
   MapPin,
   Phone,
-  Bell
+  Bell,
+  Download,
+  FileText
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { getUserOrders } from '../lib/stripe';
 
@@ -56,12 +59,13 @@ interface UserPreferences {
 }
 
 const AccountPage = ({ onBack }: AccountPageProps) => {
+  const { user: authUser, session, signOut } = useAuth();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
   const [isSavingPreferences, setIsSavingPreferences] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'orders' | 'preferences'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'orders' | 'preferences' | 'privacy'>('profile');
   
   // Profile editing
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -92,22 +96,21 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
 
   const loadUserData = async () => {
     try {
-      console.log('Starting loadUserData...');
       setIsLoading(true);
       
-      // Get current user
-      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-      
-      if (userError || !currentUser) {
-        throw new Error('User not authenticated');
+      // Check if user is authenticated
+      if (!authUser || !session) {
+        // Redirect to login page
+        window.location.href = '/login';
+        return;
       }
 
       const userProfile: UserProfile = {
-        id: currentUser.id,
-        email: currentUser.email || '',
-        full_name: currentUser.user_metadata?.full_name || '',
-        created_at: currentUser.created_at,
-        last_sign_in_at: currentUser.last_sign_in_at
+        id: authUser.id,
+        email: authUser.email || '',
+        full_name: authUser.user_metadata?.full_name || '',
+        created_at: authUser.created_at,
+        last_sign_in_at: authUser.last_sign_in_at
       };
 
       setUser(userProfile);
@@ -121,57 +124,107 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
         const userOrders = await getUserOrders();
         setOrders(userOrders);
       } catch (orderError) {
-        console.error('Error loading orders:', orderError);
+        console.error('Failed to load orders:', orderError);
+        // Set orders to empty array and show a subtle message
+        setOrders([]);
+        // Don't show error message to user as this is not critical functionality
       }
 
       // Load preferences
       try {
-        console.log('Loading preferences for user:', currentUser.id);
         const { data: userPrefs, error: prefsError } = await supabase
           .from('user_preferences')
           .select('*')
-          .eq('user_id', currentUser.id)
+          .eq('user_id', authUser.id)
           .single();
 
-        console.log('Preferences query result:', { userPrefs, prefsError });
-
         if (prefsError && prefsError.code !== 'PGRST116') { // PGRST116 = no rows returned
-          console.error('Error loading preferences:', prefsError);
+          console.error('Failed to load user preferences:', prefsError);
+          
+          // Handle specific preference loading errors
+          if (prefsError.code === '42501') {
+            console.warn('Access denied to user preferences - this may be a permissions issue');
+          } else if (prefsError.code === '42P01') {
+            console.warn('User preferences table not found - this may be a database schema issue');
+          }
+          
+          // Set default preferences on error
+          const defaultPrefs: UserPreferences = {
+            id: `pref_${authUser.id}`,
+            user_id: authUser.id,
+            email_order_confirmations: true,
+            email_newsletter: true,
+            email_product_recommendations: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+          setPreferences(defaultPrefs);
         } else if (userPrefs) {
-          console.log('Found existing preferences:', userPrefs);
           setPreferences(userPrefs);
         } else {
-          console.log('No preferences found, creating default preferences...');
           // Create default preferences if none exist
-          const { data: newPrefs, error: createError } = await supabase
-            .from('user_preferences')
-            .insert({
-              user_id: currentUser.id,
+          try {
+            const { data: newPrefs, error: createError } = await supabase
+              .from('user_preferences')
+              .insert([{
+                user_id: authUser.id,
+                email_order_confirmations: true,
+                email_newsletter: true,
+                email_product_recommendations: false
+              }])
+              .select()
+              .single();
+
+            if (createError) {
+              console.error('Failed to create default user preferences:', createError);
+              // Set default preferences locally if creation fails
+              const defaultPrefs: UserPreferences = {
+                id: `pref_${authUser.id}`,
+                user_id: authUser.id,
+                email_order_confirmations: true,
+                email_newsletter: true,
+                email_product_recommendations: false,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              };
+              setPreferences(defaultPrefs);
+            } else if (newPrefs) {
+              setPreferences(newPrefs);
+            }
+          } catch (createException) {
+            console.error('Exception creating default preferences:', createException);
+            // Set default preferences locally as fallback
+            const defaultPrefs: UserPreferences = {
+              id: `pref_${authUser.id}`,
+              user_id: authUser.id,
               email_order_confirmations: true,
               email_newsletter: true,
-              email_product_recommendations: true
-            })
-            .select()
-            .single();
-
-          console.log('Create preferences result:', { newPrefs, createError });
-
-          if (createError) {
-            console.error('Error creating preferences:', createError);
-          } else if (newPrefs) {
-            console.log('Created new preferences:', newPrefs);
-            setPreferences(newPrefs);
+              email_product_recommendations: false,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            };
+            setPreferences(defaultPrefs);
           }
         }
       } catch (prefsError) {
-        console.error('Error loading preferences:', prefsError);
+        console.error('Unexpected error loading preferences:', prefsError);
+        
+        // Set default preferences as fallback
+        const defaultPrefs: UserPreferences = {
+          id: `pref_${authUser.id}`,
+          user_id: authUser.id,
+          email_order_confirmations: true,
+          email_newsletter: true,
+          email_product_recommendations: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        setPreferences(defaultPrefs);
       }
 
     } catch (error) {
-      console.error('Error loading user data:', error);
       setMessage({ type: 'error', text: 'Failed to load account information' });
     } finally {
-      console.log('loadUserData completed, setting isLoading to false');
       setIsLoading(false);
     }
   };
@@ -180,12 +233,41 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
     try {
       setMessage(null);
       
+      // Validate profile data
+      if (!profileData.fullName.trim()) {
+        setMessage({ type: 'error', text: 'Full name is required' });
+        return;
+      }
+      
+      if (profileData.fullName.trim().length < 2) {
+        setMessage({ type: 'error', text: 'Full name must be at least 2 characters long' });
+        return;
+      }
+      
+      // Check if user is still authenticated
+      if (!authUser || !session) {
+        setMessage({ type: 'error', text: 'Your session has expired. Please log in again.' });
+        return;
+      }
+      
       const { error } = await supabase.auth.updateUser({
-        data: { full_name: profileData.fullName }
+        data: { full_name: profileData.fullName.trim() }
       });
 
       if (error) {
-        throw error;
+        console.error('Profile update error:', error);
+        
+        // Handle specific error types
+        if (error.message?.includes('JWT expired')) {
+          setMessage({ type: 'error', text: 'Your session has expired. Please log in again.' });
+        } else if (error.message?.includes('not authenticated')) {
+          setMessage({ type: 'error', text: 'You are not authenticated. Please log in again.' });
+        } else if (error.message?.includes('rate limit')) {
+          setMessage({ type: 'error', text: 'Too many update attempts. Please wait a moment before trying again.' });
+        } else {
+          setMessage({ type: 'error', text: error.message || 'Failed to update profile. Please try again.' });
+        }
+        return;
       }
 
       setMessage({ type: 'success', text: 'Profile updated successfully!' });
@@ -195,13 +277,20 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
       await loadUserData();
       
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to update profile' });
+      console.error('Profile update exception:', error);
+      setMessage({ type: 'error', text: 'An unexpected error occurred. Please try again.' });
     }
   };
 
   const handlePasswordChange = async () => {
     try {
       setMessage(null);
+      
+      // Validate password data
+      if (!passwordData.currentPassword.trim()) {
+        setMessage({ type: 'error', text: 'Current password is required' });
+        return;
+      }
       
       if (passwordData.newPassword !== passwordData.confirmPassword) {
         setMessage({ type: 'error', text: 'New passwords do not match' });
@@ -212,13 +301,33 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
         setMessage({ type: 'error', text: 'Password must be at least 6 characters long' });
         return;
       }
+      
+      // Check if user is still authenticated
+      if (!authUser || !session) {
+        setMessage({ type: 'error', text: 'Your session has expired. Please log in again.' });
+        return;
+      }
 
       const { error } = await supabase.auth.updateUser({
         password: passwordData.newPassword
       });
 
       if (error) {
-        throw error;
+        console.error('Password change error:', error);
+        
+        // Handle specific error types
+        if (error.message?.includes('JWT expired')) {
+          setMessage({ type: 'error', text: 'Your session has expired. Please log in again.' });
+        } else if (error.message?.includes('not authenticated')) {
+          setMessage({ type: 'error', text: 'You are not authenticated. Please log in again.' });
+        } else if (error.message?.includes('rate limit')) {
+          setMessage({ type: 'error', text: 'Too many password change attempts. Please wait a moment before trying again.' });
+        } else if (error.message?.includes('weak password')) {
+          setMessage({ type: 'error', text: 'Password is too weak. Please choose a stronger password.' });
+        } else {
+          setMessage({ type: 'error', text: error.message || 'Failed to change password. Please try again.' });
+        }
+        return;
       }
 
       setMessage({ type: 'success', text: 'Password changed successfully!' });
@@ -230,7 +339,8 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
       });
       
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to change password' });
+      console.error('Password change exception:', error);
+      setMessage({ type: 'error', text: 'An unexpected error occurred. Please try again.' });
     }
   };
 
@@ -242,10 +352,8 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
     try {
       setMessage(null);
       
-      // Get the current session to access the access token
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
+      // Use the session from auth context
+      if (!session) {
         throw new Error('No active session found');
       }
 
@@ -267,7 +375,7 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
       setMessage({ type: 'success', text: 'Account deleted successfully' });
       
       // Sign out the user
-      await supabase.auth.signOut();
+      await signOut();
       
       // Redirect to home after a delay
       setTimeout(() => {
@@ -276,6 +384,74 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
       
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Failed to delete account' });
+    }
+  };
+
+  const handleDataExport = async () => {
+    try {
+      setMessage(null);
+      
+      // Use user data from auth context
+      if (!authUser) {
+        throw new Error('No active session found');
+      }
+
+      // Get user orders
+      const userOrders = await getUserOrders();
+      
+      // Get user preferences
+      const { data: userPrefs } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', authUser.id)
+        .single();
+
+      // Prepare export data
+      const exportData = {
+        user: {
+          id: authUser.id,
+          email: authUser.email,
+          full_name: authUser.user_metadata?.full_name,
+          created_at: authUser.created_at,
+          last_sign_in_at: authUser.last_sign_in_at
+        },
+        orders: userOrders,
+        preferences: userPrefs,
+        export_date: new Date().toISOString()
+      };
+
+      // Create and download JSON file
+      const dataStr = JSON.stringify(exportData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `reform-uk-data-export-${authUser.id}-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      setMessage({ type: 'success', text: 'Data export completed successfully!' });
+      
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Failed to export data' });
+    }
+  };
+
+  const handleDataDeletion = async () => {
+    if (!confirm('Are you sure you want to delete your account and all associated data? This action cannot be undone and will permanently remove all your information from our system.')) {
+      return;
+    }
+
+    try {
+      setMessage(null);
+      
+      // Call the existing delete account function
+      await handleDeleteAccount();
+      
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Failed to delete data' });
     }
   };
 
@@ -300,23 +476,45 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
     try {
       setIsSavingPreferences(true);
       setMessage(null);
+      
+      // Check if user is still authenticated
+      if (!authUser || !session) {
+        setMessage({ type: 'error', text: 'Your session has expired. Please log in again.' });
+        return;
+      }
 
       const { error } = await supabase
         .from('user_preferences')
         .update({
           email_order_confirmations: preferences.email_order_confirmations,
           email_newsletter: preferences.email_newsletter,
-          email_product_recommendations: preferences.email_product_recommendations
+          email_product_recommendations: preferences.email_product_recommendations,
+          updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id);
 
       if (error) {
-        throw error;
+        console.error('Preferences update error:', error);
+        
+        // Handle specific error types
+        if (error.code === 'PGRST116') {
+          setMessage({ type: 'error', text: 'User preferences not found. Please refresh the page and try again.' });
+        } else if (error.code === '42501') {
+          setMessage({ type: 'error', text: 'Access denied. You may not have permission to update preferences.' });
+        } else if (error.message?.includes('JWT expired')) {
+          setMessage({ type: 'error', text: 'Your session has expired. Please log in again.' });
+        } else if (error.message?.includes('not authenticated')) {
+          setMessage({ type: 'error', text: 'You are not authenticated. Please log in again.' });
+        } else {
+          setMessage({ type: 'error', text: error.message || 'Failed to save preferences. Please try again.' });
+        }
+        return;
       }
 
       setMessage({ type: 'success', text: 'Preferences saved successfully!' });
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to save preferences' });
+      console.error('Preferences update exception:', error);
+      setMessage({ type: 'error', text: 'An unexpected error occurred. Please try again.' });
     } finally {
       setIsSavingPreferences(false);
     }
@@ -451,6 +649,18 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
                 >
                   <Settings className="w-5 h-5" />
                   <span>Preferences</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('privacy')}
+                  className={`w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 transition-colors ${
+                    activeTab === 'privacy'
+                      ? 'bg-[#009fe3] text-white'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <Shield className="w-5 h-5" />
+                  <span>Privacy & GDPR</span>
                 </button>
               </nav>
             </div>
@@ -744,7 +954,6 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Preferences</h2>
                 
                 {(() => {
-                  console.log('Preferences tab render - preferences:', preferences, 'isLoading:', isLoading);
                   return preferences ? (
                   <div className="space-y-6">
                     {/* Email Preferences */}
@@ -812,6 +1021,69 @@ const AccountPage = ({ onBack }: AccountPageProps) => {
                   </div>
                 );
                 })()}
+              </div>
+            )}
+
+            {/* Privacy & GDPR Tab */}
+            {activeTab === 'privacy' && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-6">Privacy & GDPR Compliance</h2>
+                
+                <div className="space-y-6">
+                  {/* Data Export Section */}
+                  <div className="border border-gray-200 rounded-lg p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <Download className="w-5 h-5 text-[#009fe3]" />
+                      <h3 className="text-lg font-semibold text-gray-900">Data Export</h3>
+                    </div>
+                    <p className="text-gray-600 mb-4">
+                      Download a copy of all your personal data stored in our system.
+                    </p>
+                    <button 
+                      onClick={handleDataExport}
+                      className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Export My Data</span>
+                    </button>
+                  </div>
+
+                  {/* Data Deletion Section */}
+                  <div className="border border-gray-200 rounded-lg p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <Trash2 className="w-5 h-5 text-red-600" />
+                      <h3 className="text-lg font-semibold text-gray-900">Data Deletion</h3>
+                    </div>
+                    <p className="text-gray-600 mb-4">
+                      Request permanent deletion of your account and all associated personal data.
+                    </p>
+                    <button 
+                      onClick={handleDataDeletion}
+                      className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete My Data</span>
+                    </button>
+                  </div>
+
+                  {/* Privacy Information */}
+                  <div className="border border-gray-200 rounded-lg p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <Eye className="w-5 h-5 text-[#009fe3]" />
+                      <h3 className="text-lg font-semibold text-gray-900">Your Rights</h3>
+                    </div>
+                    <div className="space-y-3 text-sm text-gray-600">
+                      <p>Under GDPR, you have the right to:</p>
+                      <ul className="list-disc list-inside space-y-1 ml-4">
+                        <li>Access your personal data</li>
+                        <li>Correct inaccurate data</li>
+                        <li>Request data deletion</li>
+                        <li>Export your data</li>
+                        <li>Withdraw consent</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

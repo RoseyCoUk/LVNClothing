@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, ShoppingCart } from 'lucide-react';
+import { Star, ShoppingCart, Truck } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { useBundlePricing } from '../hooks/useBundlePricing';
 
 interface Color {
   name: string;
@@ -72,13 +73,17 @@ type ProductOptions = {
 const ProductBundles = () => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
-  const [activeBundle, setActiveBundle] = useState('starter');
+  const [activeBundle, setActiveBundle] = useState<BundleKey>('starter');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Get bundle pricing from the new system
+  const { bundlePricing, loading: pricingLoading, error: pricingError } = useBundlePricing();
 
   // Variant selection states for each bundle
   const [bundleSelections, setBundleSelections] = useState<BundleSelections>({
     starter: {
       tshirt: { gender: 'Men', size: 'M', color: 'Black' },
+      cap: { color: 'Black' },
     },
     champion: {
       hoodie: { gender: 'Men', size: 'M', color: 'Black' },
@@ -95,7 +100,7 @@ const ProductBundles = () => {
   const productOptions: ProductOptions = {
     hoodie: {
       genders: ['Men', 'Women'] as const,
-      sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] as const,
+      sizes: ['S', 'M', 'L', 'XL', 'XXL'] as const,
       colors: [
         { name: 'White', value: '#FFFFFF', border: true },
         { name: 'Light Grey', value: '#E5E5E5', border: true },
@@ -108,7 +113,7 @@ const ProductBundles = () => {
     },
     tshirt: {
       genders: ['Men', 'Women'] as const,
-      sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] as const,
+      sizes: ['S', 'M', 'L', 'XL', 'XXL'] as const,
       colors: [
         { name: 'White', value: '#FFFFFF', border: true },
         { name: 'Light Grey', value: '#E5E5E5', border: true },
@@ -136,9 +141,9 @@ const ProductBundles = () => {
     starter: {
       id: 1,
       name: "Starter Bundle",
-      originalPrice: "£44.98",
-      bundlePrice: 34.99,
-      savings: "Save £9.99",
+      originalPrice: pricingLoading ? "..." : `£${bundlePricing.starter?.originalPrice.toFixed(2) || '54.97'}`,
+      bundlePrice: pricingLoading ? 0 : bundlePricing.starter?.price || 49.99,
+      savings: pricingLoading ? "..." : `Save £${bundlePricing.starter?.savings.absolute.toFixed(2) || '4.98'}`,
       image: "/starterbundle.png",
       urgency: "Limited Time Offer",
       popular: false,
@@ -146,7 +151,7 @@ const ProductBundles = () => {
         id: 'prod_ScXwG3hpBhqNZW',
         priceId: 'price_1RhsUsGDbOGEgNLw2LAVZoGb',
         name: 'Starter Bundle',
-        price: 34.99
+        price: pricingLoading ? 0 : bundlePricing.starter?.price || 49.99
       },
       items: [
         {
@@ -156,20 +161,25 @@ const ProductBundles = () => {
           baseImage: 'Tshirt/Men/ReformMenTshirtBlack1.webp'
         },
         {
-          type: 'totebag',
-          name: 'Reform UK Tote Bag',
-          variant: 'Black',
+          type: 'cap',
+          name: 'Reform UK Cap',
+          customizable: true,
+          baseImage: 'Cap/ReformCapBlack1.webp'
+        },
+        {
+          type: 'mug',
+          name: 'Reform UK Mug',
           customizable: false,
-          baseImage: 'StickerToteWater/ReformToteBagBlack1.webp'
+          baseImage: 'MugMouse/ReformMug1.webp'
         }
       ]
     },
     champion: {
       id: 2,
       name: "Champion Bundle",
-      originalPrice: "£114.96",
-      bundlePrice: 99.99,
-      savings: "Save £14.97",
+      originalPrice: pricingLoading ? "..." : `£${bundlePricing.champion?.originalPrice.toFixed(2) || '104.96'}`,
+      bundlePrice: pricingLoading ? 0 : bundlePricing.champion?.price || 89.99,
+      savings: pricingLoading ? "..." : `Save £${bundlePricing.champion?.savings.absolute.toFixed(2) || '14.97'}`,
       image: "/championbundle.png",
       urgency: "Most Popular",
       popular: true,
@@ -177,7 +187,7 @@ const ProductBundles = () => {
         id: 'prod_ScXvVATO8FKCvG',
         priceId: 'price_1RhsW8GDbOGEgNLwahSqdPDz',
         name: 'Champion Bundle',
-        price: 99.99
+        price: pricingLoading ? 0 : bundlePricing.champion?.price || 89.99
       },
       items: [
         {
@@ -185,12 +195,6 @@ const ProductBundles = () => {
           name: 'Reform UK Hoodie',
           customizable: true,
           baseImage: 'Hoodie/Men/ReformMenHoodieBlack1.webp'
-        },
-        {
-          type: 'cap',
-          name: 'Reform UK Cap',
-          customizable: true,
-          baseImage: 'Cap/ReformCapBlack1.webp'
         },
         {
           type: 'totebag',
@@ -205,15 +209,22 @@ const ProductBundles = () => {
           variant: 'White',
           customizable: false,
           baseImage: 'StickerToteWater/ReformWaterBottleWhite1.webp'
+        },
+        {
+          type: 'mousepad',
+          name: 'Reform UK Mouse Pad',
+          variant: 'White',
+          customizable: false,
+          baseImage: 'MugMouse/ReformMousePadWhite1.webp'
         }
       ]
     },
     activist: {
       id: 3,
       name: "Activist Bundle",
-      originalPrice: "£194.91",
-      bundlePrice: 169.99,
-      savings: "Save £24.92",
+      originalPrice: pricingLoading ? "..." : `£${bundlePricing.activist?.originalPrice.toFixed(2) || '159.93'}`,
+      bundlePrice: pricingLoading ? 0 : bundlePricing.activist?.price || 127.99,
+      savings: pricingLoading ? "..." : `Save £${bundlePricing.activist?.savings.absolute.toFixed(2) || '31.94'}`,
       image: "/activistbundle.png",
       urgency: "Best Value",
       popular: false,
@@ -221,7 +232,7 @@ const ProductBundles = () => {
         id: 'prod_ScXuloowrz4FVk',
         priceId: 'price_1RhsXRGDbOGEgNLwiiZNVuie',
         name: 'Activist Bundle',
-        price: 169.99
+        price: pricingLoading ? 0 : bundlePricing.activist?.price || 127.99
       },
       items: [
         {
@@ -264,25 +275,11 @@ const ProductBundles = () => {
           baseImage: 'MugMouse/ReformMug1.webp'
         },
         {
-          type: 'stickers',
-          name: 'Reform UK Stickers',
-          variant: 'Pack of 10',
-          customizable: false,
-          baseImage: 'StickerToteWater/ReformStickersMain2.webp'
-        },
-        {
           type: 'mousepad',
           name: 'Reform UK Mouse Pad',
           variant: 'White',
           customizable: false,
           baseImage: 'MugMouse/ReformMousePadWhite1.webp'
-        },
-        {
-          type: 'badges',
-          name: 'Reform UK Badge Set',
-          variant: 'Set of 5',
-          customizable: false,
-          baseImage: 'Badge/ReformBadgeSetMain3.webp'
         }
       ]
     }
@@ -420,6 +417,68 @@ const ProductBundles = () => {
     navigate('/checkout');
   };
 
+  // Render bundle card with updated pricing and free shipping badge
+  const renderBundleCard = (bundleKey: BundleKey) => {
+    const bundle = bundles[bundleKey];
+    const pricing = bundlePricing[bundleKey];
+    const isActive = activeBundle === bundleKey;
+
+    return (
+      <div
+        key={bundleKey}
+        onClick={() => setActiveBundle(bundleKey)}
+        className={`relative cursor-pointer rounded-lg border-2 p-4 transition-all duration-200 ${
+          isActive
+            ? 'border-[#009fe3] bg-blue-50 shadow-lg'
+            : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+        }`}
+      >
+        {/* Popular badge */}
+        {bundle.popular && (
+          <div className="absolute -top-2 -right-2 bg-[#009fe3] text-white text-xs font-bold px-2 py-1 rounded-full">
+            POPULAR
+          </div>
+        )}
+
+        {/* Bundle image */}
+        <div className="mb-4">
+          <img
+            src={bundle.image}
+            alt={bundle.name}
+            className="w-full h-32 object-cover rounded-lg"
+          />
+        </div>
+
+        {/* Bundle info */}
+        <div className="space-y-2">
+          <h3 className="font-bold text-lg text-gray-900">{bundle.name}</h3>
+          <p className="text-sm text-gray-600">{bundle.urgency}</p>
+          
+          {/* Pricing section */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500 line-through">
+                {bundle.originalPrice}
+              </span>
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl font-bold text-[#009fe3]">
+                  £{bundle.bundlePrice.toFixed(2)}
+                </span>
+
+              </div>
+            </div>
+            
+            {/* Savings */}
+            <div className="text-sm text-green-600 font-medium">
+              {bundle.savings}
+              {pricing && ` (${pricing.savings.percentage.toFixed(0)}%)`}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
     <section className="py-16 bg-gray-900 text-white">
@@ -439,9 +498,9 @@ const ProductBundles = () => {
             {Object.entries(bundles).map(([key, bundle]) => (
               <button
                 key={key}
-                onClick={() => setActiveBundle(key)}
+                onClick={() => setActiveBundle(key as BundleKey)}
                 className={`px-6 py-3 rounded-md font-semibold transition-all duration-200 relative ${
-                  activeBundle === key
+                  activeBundle === key as BundleKey
                     ? 'bg-[#009fe3] text-white'
                     : 'text-gray-300 hover:text-white'
                 }`}
@@ -457,6 +516,13 @@ const ProductBundles = () => {
           </div>
         </div>
 
+        {/* Bundle Comparison Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {renderBundleCard('starter')}
+          {renderBundleCard('champion')}
+          {renderBundleCard('activist')}
+        </div>
+
         {/* Featured Bundle Display */}
         <div className="max-w-6xl mx-auto">
           <div className="bg-white text-gray-900 rounded-lg overflow-hidden shadow-lg relative">
@@ -469,8 +535,6 @@ const ProductBundles = () => {
               </div>
             )}
             
-
-            
             {/* Bundle Information Section */}
             <div className="p-6">
               <h3 className="text-2xl font-bold mb-4">{currentBundle.name}</h3>
@@ -480,7 +544,16 @@ const ProductBundles = () => {
                   <span className="text-lg text-gray-500 line-through">{currentBundle.originalPrice}</span>
                   <span className="text-green-600 font-semibold">{currentBundle.savings}</span>
                 </div>
-                <div className="text-3xl font-bold text-[#009fe3]">£{currentBundle.bundlePrice.toFixed(2)}</div>
+                <div className="flex items-center space-x-3">
+                  <span className="text-3xl font-bold text-[#009fe3]">£{currentBundle.bundlePrice.toFixed(2)}</span>
+
+                </div>
+                {/* Show savings percentage if available */}
+                {bundlePricing[activeBundle] && (
+                  <div className="text-sm text-green-600 mt-1">
+                    You save {bundlePricing[activeBundle].savings.percentage.toFixed(0)}% on this bundle!
+                  </div>
+                )}
               </div>
               
               {/* Bundle Items with Variant Selection */}

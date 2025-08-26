@@ -24,162 +24,93 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
 
   useEffect(() => {
     const handleEmailSending = async () => {
-      // Enhanced logging for debugging
-      console.log('SuccessPage: Component mounted');
-      console.log('SuccessPage: Current URL:', window.location.href);
-      console.log('SuccessPage: Pathname:', window.location.pathname);
-      console.log('SuccessPage: Search params:', window.location.search);
-      
-      // Log the sessionId and email to console
-      if (sessionId) {
-        console.log('SuccessPage: sessionId received via props:', sessionId);
-      } else {
-        console.log('SuccessPage: No sessionId received via props');
-      }
-      if (email) {
-        console.log('SuccessPage: email received via props:', email);
-      } else {
-        console.log('SuccessPage: No email received via props');
-      }
-
       // Enhanced retry function to fetch order with readable_order_id
       const fetchLatestOrder = async (session_id: string) => {
+        const maxRetries = 5;
+        const retryDelay = 1000;
         let retries = 0;
-        const maxRetries = 3;
-        const retryDelay = 500; // 500ms delay between retries
-        
-        console.log(`[SuccessPage] Starting order fetch for session_id: ${session_id}`);
-        
+
         while (retries < maxRetries) {
-          console.log(`[SuccessPage] Attempt ${retries + 1}/${maxRetries} to fetch order for session_id: ${session_id}`);
-          
-                      try {
-              const { data: orders, error } = await supabase
-                .from('orders')
-                .select('readable_order_id, customer_email, created_at, customer_details, stripe_session_id')
-                .eq('stripe_session_id', session_id)
-                .limit(1);
+          try {
+            const { data: orders, error } = await supabase
+              .from('orders')
+              .select('readable_order_id, customer_email, created_at, customer_details, stripe_session_id')
+              .eq('stripe_session_id', session_id)
+              .limit(1);
 
             if (!error && orders && orders.length > 0) {
-              const data = orders[0];
-              console.log(`[SuccessPage] Order found:`, {
-                readable_order_id: data.readable_order_id,
-                customer_email: data.customer_email,
-                created_at: data.created_at
-              });
-              
-              if (data.readable_order_id) {
-                console.log(`[SuccessPage] ✅ Order has readable_order_id: ${data.readable_order_id}`);
-                return data;
-              } else {
-                console.log(`[SuccessPage] ⚠️ Order found but readable_order_id is null/undefined, retrying...`);
+              const order = orders[0];
+              if (order.readable_order_id) {
+                return order;
               }
-            } else if (error) {
-              console.log(`[SuccessPage] ❌ Error fetching order:`, error);
-            } else {
-              console.log(`[SuccessPage] ❌ Order not found for session_id: ${session_id}`);
             }
-          } catch (fetchError) {
-            console.log(`[SuccessPage] ❌ Exception during order fetch:`, fetchError);
+          } catch (error) {
+            // Silent error handling for production
           }
 
           retries++;
+          
           if (retries < maxRetries) {
-            console.log(`[SuccessPage] ⏳ Waiting ${retryDelay}ms before retry ${retries + 1}...`);
-            await new Promise((resolve) => setTimeout(resolve, retryDelay));
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
           }
         }
 
-        console.log(`[SuccessPage] ❌ Failed to fetch order after ${maxRetries} retries for session_id: ${session_id}`);
-        throw new Error(`Order not found or readable_order_id missing after ${maxRetries} retries for session_id: ${session_id}`);
+        return null;
       };
 
-      // Fetch order details with readable order ID
-      const fetchOrderDetails = async () => {
+      // Try to get order details from sessionId
+      let orderDetails = null;
+      if (sessionId) {
         try {
-          // Use sessionId to fetch the specific order with readable_order_id
-          if (sessionId) {
-            try {
-              const data = await fetchLatestOrder(sessionId);
-              setOrderDetails(data);
-              console.log(`[SuccessPage] ✅ Successfully fetched order with readable_order_id: ${data.readable_order_id}`);
-            } catch (error: any) {
-              console.error(`[SuccessPage] ❌ Failed to fetch order after retries for session_id: ${sessionId}:`, error);
-              
-              // Log additional context for debugging
-              console.log(`[SuccessPage] 📊 Debug info:`, {
-                session_id: sessionId,
-                customer_email: email,
-                timestamp: new Date().toISOString(),
-                error_message: error?.message || 'Unknown error'
-              });
-              
-              // Set a fallback order details object
-              setOrderDetails({
-                readable_order_id: null,
-                customer_email: email,
-                created_at: new Date().toISOString()
-              });
-            }
-          } else {
-            // Fallback: Get the most recent order for the user
-            const { data, error } = await supabase
-              .from('stripe_user_orders')
-              .select('*')
-              .order('order_date', { ascending: false })
-              .limit(1)
-              .maybeSingle();
+          orderDetails = await fetchLatestOrder(sessionId);
+        } catch (error) {
+          // Silent error handling for production
+        }
+      }
 
-            if (error) {
-              console.error('Error fetching order details:', error);
-            } else if (data) {
-              setOrderDetails(data);
-            }
+      // If we still don't have order details, try to get them from the URL
+      if (!orderDetails) {
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          const urlSessionId = urlParams.get('session_id');
+          
+          if (urlSessionId) {
+            orderDetails = await fetchLatestOrder(urlSessionId);
           }
         } catch (error) {
-          console.error('Error fetching order details:', error);
-        } finally {
-          setIsLoading(false);
+          // Silent error handling for production
         }
-      };
+      }
 
-      fetchOrderDetails();
-
-      // Check if this is a test payment flow by looking for URL parameters
+      // Check if this is a test payment
       const urlParams = new URLSearchParams(window.location.search);
-      const isTestPayment = urlParams.get('test') === 'payment';
+      const isTestPayment = urlParams.get('test') === 'true';
       const urlSessionId = urlParams.get('session_id');
       const urlEmail = urlParams.get('email');
 
-      console.log('SuccessPage: URL params - test:', isTestPayment);
-      console.log('SuccessPage: URL params - session_id:', urlSessionId);
-      console.log('SuccessPage: URL params - email:', urlEmail);
-
-      // Use props if available, otherwise fall back to URL parameters
+      // Determine final sessionId and email
       const finalSessionId = sessionId || urlSessionId;
       const finalEmail = email || urlEmail;
 
-      console.log('SuccessPage: Final sessionId:', finalSessionId);
-      console.log('SuccessPage: Final email:', finalEmail);
-
       if (isTestPayment && finalSessionId && finalEmail) {
-        console.log('SuccessPage: Calling send-order-email function for test payment');
-        console.log("Attempting to send email", { sessionId: finalSessionId, email: finalEmail });
-        
-        // Call the send-order-email function for test payments
         try {
           await callSendOrderEmail(finalSessionId, finalEmail);
-          console.log("✅ Email function called successfully");
         } catch (error) {
-          console.error("❌ Email function failed to send:", error);
+          // Silent error handling for production
         }
       }
 
       // Clean up URL parameters
       if (isTestPayment) {
-        console.log('SuccessPage: Cleaning up URL parameters');
         window.history.replaceState({}, document.title, '/success');
       }
+
+      // Set order details in state
+      if (orderDetails) {
+        setOrderDetails(orderDetails);
+      }
+
+      setIsLoading(false);
     };
 
     handleEmailSending();
@@ -202,57 +133,38 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
   // Function to call the send-order-email Supabase Edge Function
   const callSendOrderEmail = async (sessionId: string, customerEmail: string) => {
     try {
-      console.log('SuccessPage: callSendOrderEmail - Starting email send process');
-      console.log('SuccessPage: callSendOrderEmail - sessionId:', sessionId);
-      console.log('SuccessPage: callSendOrderEmail - customerEmail:', customerEmail);
-      
-      // Get Supabase environment variables (same as supabase.ts)
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
-      // Validate environment variables
+
       if (!supabaseUrl || !supabaseAnonKey) {
-        throw new Error('Missing Supabase environment variables: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are required');
+        throw new Error('Missing Supabase configuration');
       }
-      
-      console.log('SuccessPage: callSendOrderEmail - supabaseUrl:', supabaseUrl);
-      console.log('SuccessPage: callSendOrderEmail - supabaseAnonKey exists:', !!supabaseAnonKey);
-      
+
       const requestBody = {
-        orderId: sessionId,
-        customerEmail: customerEmail,
+        sessionId,
+        customerEmail
       };
-      
-      console.log('SuccessPage: callSendOrderEmail - Request body:', requestBody);
-      
+
       const response = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${supabaseAnonKey}`,
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify(requestBody)
       });
 
-      console.log('SuccessPage: callSendOrderEmail - Response status:', response.status);
-      console.log('SuccessPage: callSendOrderEmail - Response ok:', response.ok);
-
-      if (response.ok) {
-        const responseData = await response.text();
-        console.log('SuccessPage: callSendOrderEmail - Response data:', responseData);
-        console.log('SuccessPage: callSendOrderEmail - Email sent successfully!');
-      } else {
-        const errorData = await response.text();
-        console.error('SuccessPage: callSendOrderEmail - Failed to send order notification email');
-        console.error('SuccessPage: callSendOrderEmail - Error status:', response.status);
-        console.error('SuccessPage: callSendOrderEmail - Error data:', errorData);
-        throw new Error(`HTTP ${response.status}: ${errorData}`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Email function failed: ${response.status} - ${errorData.error || response.statusText}`);
       }
-    } catch (error: any) {
-      console.error('SuccessPage: callSendOrderEmail - Error calling send-order-email function');
-      console.error('SuccessPage: callSendOrderEmail - Error message:', error.message);
-      console.error('SuccessPage: callSendOrderEmail - Error stack:', error.stack);
-      throw error; // Re-throw to be caught by the calling function
+
+      const responseData = await response.json();
+      return responseData;
+      
+    } catch (error) {
+      // Silent error handling for production
+      throw error;
     }
   };
 
@@ -300,7 +212,6 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
         .eq('stripe_session_id', orderDetails.stripe_session_id);
 
       if (error) {
-        console.error('Error updating address:', error);
         alert('Failed to update address. Please contact support.');
       } else {
         // Refresh order details
@@ -317,7 +228,6 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
         }
       }
     } catch (error) {
-      console.error('Error updating address:', error);
       alert('Failed to update address. Please contact support.');
     } finally {
       setIsUpdatingAddress(false);

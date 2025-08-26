@@ -7,33 +7,81 @@ const EmailSignup = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [lastSubmissionTime, setLastSubmissionTime] = useState(0);
+
+  // Email validation function
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
-
-    setIsLoading(true);
+    
+    // Clear previous errors
     setError('');
+    
+    // Basic validation
+    if (!email.trim()) {
+      setError('Please enter an email address');
+      return;
+    }
+    
+    if (!validateEmail(email.trim())) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    
+    // Rate limiting - prevent multiple submissions within 5 seconds
+    const now = Date.now();
+    if (now - lastSubmissionTime < 5000) {
+      setError('Please wait a moment before trying again');
+      return;
+    }
+    
+    setIsLoading(true);
+    setLastSubmissionTime(now);
 
     try {
       // Call the newsletter signup function
       const { data, error } = await supabase.functions.invoke('newsletter-signup', {
-        body: { email }
+        body: { email: email.trim() }
       });
 
       if (error) {
-        throw error;
+        console.error('Newsletter signup error:', error);
+        
+        // Handle specific error types
+        if (error.message?.includes('already subscribed')) {
+          setError('This email is already subscribed to our newsletter');
+        } else if (error.message?.includes('rate limit')) {
+          setError('Too many signup attempts. Please wait a moment before trying again.');
+        } else if (error.message?.includes('invalid email')) {
+          setError('Please enter a valid email address');
+        } else {
+          setError('Failed to subscribe. Please try again later.');
+        }
+        return;
       }
 
-      if (data.success) {
+      if (data?.success) {
         setIsSubscribed(true);
         setEmail('');
+        setError('');
       } else {
-        setError(data.error || 'Failed to subscribe');
+        setError(data?.error || 'Failed to subscribe. Please try again.');
       }
-    } catch (err) {
-      console.error('Newsletter signup error:', err);
-      setError('Failed to subscribe. Please try again.');
+    } catch (err: any) {
+      console.error('Newsletter signup exception:', err);
+      
+      // Handle network or other errors
+      if (err.message?.includes('fetch')) {
+        setError('Network error. Please check your connection and try again.');
+      } else if (err.message?.includes('timeout')) {
+        setError('Request timed out. Please try again.');
+      } else {
+        setError('Failed to subscribe. Please try again later.');
+      }
     } finally {
       setIsLoading(false);
     }

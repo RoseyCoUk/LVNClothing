@@ -1,0 +1,451 @@
+[
+  {
+    "id": "TC001",
+    "title": "User Registration Success",
+    "description": "Verify that a new user can successfully register with valid credentials and receives confirmation.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the registration page."
+      },
+      {
+        "type": "action",
+        "description": "Input a unique valid email address, username, and strong password."
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm registration success message is displayed and user is redirected to login or dashboard."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "User Registration Validation - Missing Fields",
+    "description": "Verify that registration form validates required fields and prevents submission with missing data.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the registration page."
+      },
+      {
+        "type": "action",
+        "description": "Leave required fields (email/password) empty or incomplete."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to submit the registration form."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm appropriate validation errors are shown and form is not submitted."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "User Login Success",
+    "description": "Check that existing users can log in successfully with valid email and password.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to login page."
+      },
+      {
+        "type": "action",
+        "description": "Input valid registered email and corresponding password."
+      },
+      {
+        "type": "action",
+        "description": "Click on the login button."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm user is logged in and redirected to the account dashboard."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "User Login Failure - Incorrect Credentials",
+    "description": "Verify the system rejects login attempts with incorrect email or password.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to login page."
+      },
+      {
+        "type": "action",
+        "description": "Input an invalid email or incorrect password."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to log in."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm an error message is shown and login is not successful."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Password Reset Workflow",
+    "description": "Ensure users can request a password reset and change their password securely.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page."
+      },
+      {
+        "type": "action",
+        "description": "Click the 'Forgot Password' link."
+      },
+      {
+        "type": "action",
+        "description": "Enter registered email and submit the reset request."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm email with reset instructions is sent."
+      },
+      {
+        "type": "action",
+        "description": "Follow the reset link and enter a new password."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm password change is accepted and user can log in with new password."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Product Catalog Display and Variant Selection",
+    "description": "Verify that product catalog displays correct categories, product variants, pricing, and availability updated from Printful.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to product catalog page."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm all product categories (apparel, gear, bundles) are visible."
+      },
+      {
+        "type": "action",
+        "description": "Select products and view variants (size, color)."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm correct variant prices and availability are shown real-time aligned with Printful API."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Add to Cart and Persistent Cart Functionality",
+    "description": "Validate users can add products and variants to the cart and cart contents persist across sessions with real-time quantity updates.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Browse products and add multiple items with different variants to the cart."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm cart drawer popup updates item count and details in real-time."
+      },
+      {
+        "type": "action",
+        "description": "Modify item quantities within the cart and verify updates."
+      },
+      {
+        "type": "action",
+        "description": "Close the browser or logout and revisit the site."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm cart contents persist and quantities remain intact across sessions."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Multi-step Checkout - Valid Input Flow",
+    "description": "Verify the multi-step checkout which includes shipping address, shipping method selection, payment via Stripe, and order confirmation.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Proceed to checkout with items in the cart."
+      },
+      {
+        "type": "action",
+        "description": "Enter valid shipping address and contact information."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm dynamic shipping quotes are retrieved and displayed."
+      },
+      {
+        "type": "action",
+        "description": "Select a shipping method."
+      },
+      {
+        "type": "action",
+        "description": "Complete payment using valid Stripe card details."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm order placement success message and receipt email notification."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Multi-step Checkout - Input Validation Errors",
+    "description": "Ensure the checkout process handles invalid or missing input data gracefully with appropriate error messages.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "At each checkout step, input incomplete or invalid data (e.g., empty address, invalid card details)."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to proceed to the next step or complete checkout."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify relevant inline validation errors appear and progression is blocked until corrected."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Printful Inventory Synchronization",
+    "description": "Verify that product inventory and pricing update in real-time reflecting Printful API changes including bundle discounts.",
+    "category": "integration",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger an inventory change in Printful (simulate stock reduction or pricing update)."
+      },
+      {
+        "type": "action",
+        "description": "Refresh product catalog on the platform."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm updated stock levels and prices are accurately reflected in product listings and bundles."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Order Management - Status Tracking and Cancellation",
+    "description": "Verify order status updates throughout fulfillment, user can view order history and cancel orders where permitted.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Place an order as a registered user."
+      },
+      {
+        "type": "action",
+        "description": "Access the account dashboard order history."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm order appears with initial status (e.g., 'Processing')."
+      },
+      {
+        "type": "action",
+        "description": "Simulate status updates from fulfillment and confirm updates appear in user view."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to cancel an order eligible for cancellation."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm cancellation succeeds and user receives notification email."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Guest Checkout Flow",
+    "description": "Validate guests can complete purchases without registration, with option to create an account post-purchase.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Browse products and add items to the cart as a guest user."
+      },
+      {
+        "type": "action",
+        "description": "Proceed through checkout entering guest shipping and payment info."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm order confirmation and tracking info are provided post-purchase."
+      },
+      {
+        "type": "action",
+        "description": "Choose to create an account after order completion and complete registration."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm new account is linked to the recent purchase."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Security - GDPR Compliance and Data Encryption",
+    "description": "Validate that user data is handled and stored in compliance with GDPR and all sensitive data is encrypted.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Review user registration and checkout data submissions."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm all personal data fields include consent checkboxes as required by GDPR."
+      },
+      {
+        "type": "action",
+        "description": "Inspect database records and network traffic during authentication and checkout."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify data is encrypted at rest and in transit, particularly passwords and payment info."
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Performance - Page Load Speed and Mobile Responsiveness",
+    "description": "Ensure that pages load within 3 seconds for core user flows and the UI adapts correctly on mobile devices.",
+    "category": "performance",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Using performance testing tools, measure page load times for homepage, catalog, cart, and checkout."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm page loads complete within 3 seconds under normal network conditions."
+      },
+      {
+        "type": "action",
+        "description": "Access the platform on multiple mobile devices and screen sizes."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI responsiveness, legibility, and functional elements render correctly without layout breaks."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "API Integration - Backend Endpoint Stability and Data Accuracy",
+    "description": "Verify RESTful API endpoints respond correctly to valid and invalid requests and enforce security policies.",
+    "category": "integration",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send valid and invalid queries to key APIs like product catalog, user auth, and order management."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm expected data responses on valid requests and error handling on invalid inputs."
+      },
+      {
+        "type": "action",
+        "description": "Test role-based access controls on API endpoints using various authentication states."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that unauthorized access is denied and audit trails/logging is generated."
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Accessibility Compliance Testing",
+    "description": "Validate that the platform meets WCAG 2.1 AA standards ensuring accessibility for users with disabilities.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Perform keyboard navigation tests on key pages including homepage, product catalog, and checkout."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm all interactive elements are reachable and operable via keyboard only."
+      },
+      {
+        "type": "action",
+        "description": "Use screen reader software to navigate site pages."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all images, buttons, and forms have meaningful alt text and ARIA labels as appropriate."
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Admin Backend - Role Level Security Policy Enforcement",
+    "description": "Verify that the database RLS policies restrict data access appropriately based on user roles.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Access the database via the platform API with different user roles (admin, user, guest)."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm that users can only access or modify data permitted by their roles per RLS policies."
+      },
+      {
+        "type": "action",
+        "description": "Attempt unauthorized data access or modification."
+      },
+      {
+        "type": "assertion",
+        "description": "Validate that such attempts are blocked and logged."
+      }
+    ]
+  }
+]

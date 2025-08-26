@@ -20,6 +20,7 @@ import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
+import { mugVariants, getMugVariant } from '../../hooks/mug-variants';
 
 // Fix 2: Add proper TypeScript interfaces
 interface Color {
@@ -30,11 +31,13 @@ interface Color {
 
 interface Variant {
   id: number;
+  color: string;
   price: number;
   inStock: boolean;
   stockCount: number;
   rating: number;
   reviews: number;
+  printful_variant_id: number;
   images: string[];
 }
 
@@ -76,11 +79,13 @@ const productData = {
     // Only one variant for the mug
     601: {
       id: 601,
+      color: 'White',
       price: 19.99,
       inStock: true,
       stockCount: 8,
       rating: 4,
       reviews: 156,
+      printful_variant_id: 10000,
       images: [
         "/MugMouse/ReformMug1.webp",
         "/MugMouse/ReformMug2.webp",
@@ -132,7 +137,8 @@ const MugPage = ({ onBack }: MugPageProps) => {
       name: productData.name, // Name is simple as there are no variants
       price: currentVariant.price,
       image: currentVariant.images[0],
-      quantity: quantity
+      quantity: quantity,
+      printful_variant_id: currentVariant.printful_variant_id
     };
     addToCart(itemToAdd);
   };
@@ -144,7 +150,8 @@ const MugPage = ({ onBack }: MugPageProps) => {
       name: productData.name,
       price: currentVariant.price,
       image: currentVariant.images[0],
-      quantity: quantity
+      quantity: quantity,
+      printful_variant_id: currentVariant.printful_variant_id
     };
     
     const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
@@ -159,7 +166,6 @@ const MugPage = ({ onBack }: MugPageProps) => {
   const handleConfirmCheckout = async () => {
     // Fix 9: Add null check
     if (!orderToConfirm) {
-      console.error('No order to confirm');
       return;
     }
     
@@ -177,8 +183,6 @@ const MugPage = ({ onBack }: MugPageProps) => {
       
       window.location.href = url;
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      
       // Show a more user-friendly error message
       if (error instanceof Error && error.message.includes('Stripe API key is not configured')) {
         alert('Stripe payment is not configured. This is expected in development environment.');

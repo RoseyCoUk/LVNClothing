@@ -44,7 +44,6 @@ import ToteBagPage from './components/products/ToteBagPage';
 import WaterBottlePage from './components/products/WaterBottlePage';
 import MugPage from './components/products/MugPage';
 import MousePadPage from './components/products/MousePadPage';
-import StickersPage from './components/products/StickersPage';
 
 import StarterBundlePage from './components/products/StarterBundlePage';
 import ChampionBundlePage from './components/products/ChampionBundlePage';
@@ -52,7 +51,9 @@ import ActivistBundlePage from './components/products/ActivistBundlePage';
 
 import { CartProvider } from './contexts/CartContext';
 import { ShippingProvider } from './contexts/ShippingContext';
+import { AuthProvider } from './contexts/AuthContext';
 import PrintfulStatus from './components/PrintfulStatus';
+import { performanceMonitor } from './lib/performance';
 
 const App = () => {
   const navigate = useNavigate();
@@ -68,7 +69,6 @@ const App = () => {
   // Update currentPage based on location
   useEffect(() => {
     const path = location.pathname;
-    console.log('Current path:', path);
     if (path === '/') setCurrentPage('home');
     else if (path === '/shop') setCurrentPage('shop');
     else if (path === '/about') setCurrentPage('about');
@@ -80,8 +80,51 @@ const App = () => {
     else if (path === '/orders') setCurrentPage('orders');
     else if (path.startsWith('/product/')) setCurrentPage('product');
     else setCurrentPage('home');
-    console.log('Current page set to:', currentPage);
   }, [location.pathname]);
+
+  // Performance monitoring for page loads
+  useEffect(() => {
+    // Start page load timer
+    performanceMonitor.startPageLoadTimer();
+    
+    // End timer when component mounts
+    performanceMonitor.endPageLoadTimer();
+    
+    // Monitor for performance issues
+    const handleError = (event: ErrorEvent) => {
+      if (event.error && event.error.message) {
+        performanceMonitor.recordError(event.error.message);
+      }
+    };
+    
+    // Add responsive performance monitoring
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      
+      // Log device characteristics for performance optimization
+      console.log('Device dimensions:', { width, height });
+      
+      // Adjust performance monitoring based on device capabilities
+      if (width < 768) {
+        // Mobile device - optimize for slower connections
+        performanceMonitor.setMobileMode(true);
+      } else {
+        performanceMonitor.setMobileMode(false);
+      }
+    };
+    
+    // Initial call
+    handleResize();
+    
+    window.addEventListener('error', handleError);
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleProductClick = (productId: string) => {
     setSelectedProductId(productId);
@@ -140,11 +183,12 @@ const App = () => {
   };
 
   return (
-    <CartProvider>
-      <ShippingProvider>
-        <div className="min-h-screen bg-white">
-        <Header currentPage={currentPage} setCurrentPage={handleNavigation} onLoginClick={handleLoginClick} onSignupClick={handleSignupClick} />
-        <main>
+    <AuthProvider>
+      <CartProvider>
+        <ShippingProvider>
+          <div className="min-h-screen bg-white" role="application" aria-label="Reform UK E-commerce Platform">
+          <Header currentPage={currentPage} setCurrentPage={handleNavigation} onLoginClick={handleLoginClick} onSignupClick={handleSignupClick} />
+          <main role="main" id="main-content">
           <Routes>
             <Route path="/" element={
               <>
@@ -196,7 +240,6 @@ const App = () => {
             <Route path="/product/reform-uk-water-bottle" element={<WaterBottlePage onBack={handleBackToShop} />} />
             <Route path="/product/reform-uk-mug" element={<MugPage onBack={handleBackToShop} />} />
             <Route path="/product/reform-uk-mouse-pad" element={<MousePadPage onBack={handleBackToShop} />} />
-            <Route path="/product/reform-uk-stickers" element={<StickersPage onBack={handleBackToShop} />} />
 
             <Route path="/product/starter-bundle" element={<StarterBundlePage onBack={handleBackToShop} />} />
             <Route path="/product/champion-bundle" element={<ChampionBundlePage onBack={handleBackToShop} />} />
@@ -211,8 +254,9 @@ const App = () => {
         <CartPopup />
         <PrintfulStatus />
         </div>
-      </ShippingProvider>
-    </CartProvider>
+        </ShippingProvider>
+      </CartProvider>
+    </AuthProvider>
   );
 };
 

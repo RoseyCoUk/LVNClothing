@@ -1,3 +1,150 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Responsive Design Utilities */
+@layer base {
+  /* Ensure proper viewport handling */
+  html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+  
+  /* Responsive typography */
+  @media (max-width: 640px) {
+    html {
+      font-size: 14px;
+    }
+  }
+  
+  @media (min-width: 641px) and (max-width: 1024px) {
+    html {
+      font-size: 15px;
+    }
+  }
+  
+  @media (min-width: 1025px) {
+    html {
+      font-size: 16px;
+    }
+  }
+}
+
+@layer components {
+  /* Responsive container utilities */
+  .container-responsive {
+    @apply w-full px-4 mx-auto;
+    max-width: 100%;
+  }
+  
+  @media (min-width: 640px) {
+    .container-responsive {
+      @apply px-6;
+      max-width: 640px;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .container-responsive {
+      max-width: 768px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .container-responsive {
+      @apply px-8;
+      max-width: 1024px;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .container-responsive {
+      max-width: 1280px;
+    }
+  }
+  
+  /* Responsive spacing utilities */
+  .responsive-padding {
+    @apply p-4;
+  }
+  
+  @media (min-width: 640px) {
+    .responsive-padding {
+      @apply p-6;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .responsive-padding {
+      @apply p-8;
+    }
+  }
+  
+  /* Responsive grid utilities */
+  .responsive-grid {
+    @apply grid gap-4;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  @media (min-width: 640px) {
+    .responsive-grid {
+      @apply gap-6;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .responsive-grid {
+      @apply gap-8;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .responsive-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+}
+
+@layer utilities {
+  /* Responsive visibility utilities */
+  .responsive-hidden {
+    @apply hidden;
+  }
+  
+  @media (min-width: 640px) {
+    .sm\:responsive-hidden {
+      @apply block;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .md\:responsive-hidden {
+      @apply block;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .lg\:responsive-hidden {
+      @apply block;
+    }
+  }
+  
+  /* Responsive text utilities */
+  .responsive-text {
+    @apply text-sm;
+  }
+  
+  @media (min-width: 640px) {
+    .responsive-text {
+      @apply text-base;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .responsive-text {
+      @apply text-lg;
+    }
+  }
+}

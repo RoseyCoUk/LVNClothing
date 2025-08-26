@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Heart, Share2, Star, Check, Plus, Minus, Clock, Truck, Shield, RotateCcw, Info, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Heart, Share2, Star, Check, Plus, Minus, Clock, Truck, Shield, RotateCcw, Info, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import OrderOverviewModal from '../OrderOverviewModal';
+import { usePrintfulProduct } from '../../hooks/usePrintfulProducts';
+import { useBundleCalculation } from '../../hooks/useBundleCalculation';
+import { useBundlePricing } from '../../hooks/useBundlePricing';
+import type { PrintfulProduct, PrintfulVariant, BundleProduct, BundleItem } from '../../types/printful';
 
 interface Color {
   name: string;
@@ -11,14 +15,7 @@ interface Color {
   border?: boolean;
 }
 
-interface BundleItem {
-  type: string;
-  name: string;
-  customizable: boolean;
-  baseImage: string;
-  variant?: string;
-  images?: string[];
-}
+
 
 interface BundleContent {
   name: string;
@@ -52,35 +49,83 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
   const [activeTab, setActiveTab] = useState('description');
 
   // Hoodie customization options
-  const [selectedGender, setSelectedGender] = useState('Men');
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedColor, setSelectedColor] = useState('Black');
-
-  // Cap customization options
-  const [capColor, setCapColor] = useState('Black');
 
   // Image browsing state
   const [selectedItem, setSelectedItem] = useState('hoodie');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Bundle products state
+  const [bundleProducts, setBundleProducts] = useState<BundleItem[]>([]);
+
+  // Get bundle pricing from the new system
+  const { bundlePricing } = useBundlePricing();
+  const championPricing = bundlePricing.champion;
+
+  // Fetch Printful products for the bundle
+  const { product: hoodieProduct, loading: hoodieLoading } = usePrintfulProduct(2); // Hoodie
+  const { product: totebagProduct, loading: totebagLoading } = usePrintfulProduct(5); // Tote Bag
+  const { product: waterbottleProduct, loading: waterbottleLoading } = usePrintfulProduct(6); // Water Bottle
+  const { product: mousepadProduct, loading: mousepadLoading } = usePrintfulProduct(7); // Mouse Pad
+
+  // Bundle calculation hook
+  const {
+    calculation,
+    addItem,
+    removeItem,
+    clearBundle,
+    getItemCount
+  } = useBundleCalculation(bundleProducts, setBundleProducts);
+
+  // Initialize bundle with products when they load
+  useEffect(() => {
+    if (hoodieProduct && totebagProduct && waterbottleProduct && mousepadProduct && bundleProducts.length === 0) {
+      // Add default variants to bundle
+      const defaultHoodieVariant = hoodieProduct.variants.find(v => v.color === selectedColor && v.size === selectedSize);
+      const defaultToteBagVariant = totebagProduct.variants[0];
+      const defaultWaterBottleVariant = waterbottleProduct.variants[0];
+      const defaultMousePadVariant = mousepadProduct.variants[0];
+      
+      if (defaultHoodieVariant && defaultToteBagVariant && defaultWaterBottleVariant && defaultMousePadVariant) {
+        addItem(hoodieProduct, defaultHoodieVariant);
+        addItem(totebagProduct, defaultToteBagVariant);
+        addItem(waterbottleProduct, defaultWaterBottleVariant);
+        addItem(mousepadProduct, defaultMousePadVariant);
+      }
+    }
+  }, [hoodieProduct, totebagProduct, waterbottleProduct, mousepadProduct, bundleProducts.length, addItem, selectedColor, selectedSize]);
+
+  // Loading state
+  if (hoodieLoading || totebagLoading || waterbottleLoading || mousepadLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-[#009fe3]" />
+          <p className="text-gray-600">Loading bundle details...</p>
+        </div>
+      </div>
+    );
+  }
 
   const productData = {
     name: "Champion Bundle",
     originalPrice: "£114.96",
     bundlePrice: 99.99,
     savings: "Save £14.97",
-    description: "For the dedicated Reform UK supporter. This champion bundle includes a premium hoodie, cap, tote bag, and water bottle - everything you need to show your commitment to the movement in style and comfort.",
+    description: "For the dedicated Reform UK supporter. This champion bundle includes a premium hoodie, tote bag, water bottle, and mouse pad - everything you need to show your commitment to the movement in style and comfort.",
     shipping: "Free UK Shipping",
     urgency: "Limited Time Offer",
     popular: true,
     rating: 4.9,
     reviews: 203,
-    materials: "Premium cotton hoodie, adjustable cap, durable canvas tote bag, and stainless steel water bottle",
-    careInstructions: "Machine wash hoodie at 30°C. Cap can be hand washed. Tote bag spot clean. Water bottle dishwasher safe.",
+    materials: "Premium cotton hoodie, durable canvas tote bag, stainless steel water bottle, and high-quality mouse pad",
+    careInstructions: "Machine wash hoodie at 30°C. Tote bag spot clean. Water bottle dishwasher safe.",
     features: [
       "Premium cotton hoodie with Reform UK branding",
-      "Adjustable cap for perfect fit",
       "Durable canvas tote bag for daily use",
       "Stainless steel water bottle keeps drinks cold for 24 hours",
+      "High-quality mouse pad for desk setup",
       "Excellent value bundle with significant savings",
       "Perfect for active supporters",
       "Free UK shipping included",
@@ -102,22 +147,6 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
           '/Hoodie/Men/ReformMenHoodieBlack6.webp'
         ]
       },
-              {
-          type: 'cap',
-          name: 'Reform UK Cap',
-          customizable: true,
-          baseImage: '/Cap/ReformCapBlack1.webp',
-          description: 'Adjustable cap with embroidered Reform UK logo.',
-          images: [
-            '/Cap/ReformCapBlack1.webp',
-            '/Cap/ReformCapBlack2.webp',
-            '/Cap/ReformCapBlack3.webp',
-            '/Cap/ReformCapBlack4.webp',
-            '/Cap/ReformCapBlack5.webp',
-            '/Cap/ReformCapBlack6.webp',
-            '/Cap/ReformCapBlack7.webp'
-          ]
-        },
       {
         type: 'totebag',
         name: 'Reform UK Tote Bag',
@@ -142,46 +171,71 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
           '/StickerToteWater/ReformWaterBottleWhite3.webp',
           '/StickerToteWater/ReformWaterBottleWhite4.webp'
         ]
+      },
+      {
+        type: 'mousepad',
+        name: 'Reform UK Mouse Pad',
+        customizable: false,
+        baseImage: '/MugMouse/ReformMousePadWhite1.webp',
+        description: 'High-quality mouse pad with Reform UK branding.',
+        images: [
+          '/MugMouse/ReformMousePadWhite1.webp',
+          '/MugMouse/ReformMousePadWhite2.webp'
+        ]
       }
     ],
     image: "/championbundle.png",
   };
 
   const colorOptions: Color[] = [
-    { name: 'White', value: '#FFFFFF', border: true },
-    { name: 'Light Grey', value: '#E5E5E5', border: true },
-    { name: 'Ash Grey', value: '#B0B0B0' },
-    { name: 'Charcoal', value: '#333333' },
-    { name: 'Black', value: '#000000' },
-    { name: 'Royal Blue', value: '#0B4C8A' },
-    { name: 'Red', value: '#B31217' }
+    { name: 'Black', value: '#0b0b0b' },
+    { name: 'Navy', value: '#131928' },
+    { name: 'Red', value: '#da0a1a' },
+    { name: 'Dark Heather', value: '#47484d' },
+    { name: 'Indigo Blue', value: '#395d82' },
+    { name: 'Sport Grey', value: '#9b969c' },
+    { name: 'Light Blue', value: '#a1c5e1' },
+    { name: 'Light Pink', value: '#f3d4e3' },
+    { name: 'White', value: '#ffffff', border: true }
   ];
 
-  const genderOptions = ['Men', 'Women'];
-  const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const sizeOptions = ['S', 'M', 'L', 'XL', 'XXL'];
 
   const getHoodieImages = () => {
-    const color = selectedColor === 'Royal Blue' ? 'Blue' : selectedColor.replace(/\s/g, '');
+    // Map color names to image paths (same as hoodie page)
+    const colorMap: { [key: string]: string } = {
+      'Black': 'Black',
+      'Navy': 'Blue', // Using Blue images for Navy
+      'Red': 'Red',
+      'Dark Heather': 'Charcoal', // Using Charcoal images for Dark Heather
+      'Indigo Blue': 'Blue',
+      'Sport Grey': 'LightGrey',
+      'Light Blue': 'Blue', // Using Blue images for Light Blue
+      'Light Pink': 'Red', // Using Red images for Light Pink
+      'White': 'White'
+    };
+    
+    const colorKey = colorMap[selectedColor] || selectedColor;
+    
     return [
-      `/Hoodie/${selectedGender}/Reform${selectedGender}Hoodie${color}1.webp`,
-      `/Hoodie/${selectedGender}/Reform${selectedGender}Hoodie${color}2.webp`,
-      `/Hoodie/${selectedGender}/Reform${selectedGender}Hoodie${color}3.webp`,
-      `/Hoodie/${selectedGender}/Reform${selectedGender}Hoodie${color}4.webp`,
-      `/Hoodie/${selectedGender}/Reform${selectedGender}Hoodie${color}5.webp`,
-      `/Hoodie/${selectedGender}/Reform${selectedGender}Hoodie${color}6.webp`
+      `/Hoodie/Men/ReformMenHoodie${colorKey}1.webp`,
+      `/Hoodie/Men/ReformMenHoodie${colorKey}2.webp`,
+      `/Hoodie/Men/ReformMenHoodie${colorKey}3.webp`,
+      `/Hoodie/Men/ReformMenHoodie${colorKey}4.webp`,
+      `/Hoodie/Men/ReformMenHoodie${colorKey}5.webp`,
+      `/Hoodie/Men/ReformMenHoodie${colorKey}6.webp`
     ];
   };
 
   const getCapImages = () => {
-    const color = capColor === 'Royal Blue' ? 'Blue' : capColor.replace(/\s/g, '');
     return [
-      `/Cap/ReformCap${color}1.webp`,
-      `/Cap/ReformCap${color}2.webp`,
-      `/Cap/ReformCap${color}3.webp`,
-      `/Cap/ReformCap${color}4.webp`,
-      `/Cap/ReformCap${color}5.webp`,
-      `/Cap/ReformCap${color}6.webp`,
-      `/Cap/ReformCap${color}7.webp`
+      `/Cap/ReformCapBlack1.webp`,
+      `/Cap/ReformCapBlack2.webp`,
+      `/Cap/ReformCapBlack3.webp`,
+      `/Cap/ReformCapBlack4.webp`,
+      `/Cap/ReformCapBlack5.webp`,
+      `/Cap/ReformCapBlack6.webp`,
+      `/Cap/ReformCapBlack7.webp`
     ];
   };
 
@@ -191,8 +245,8 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
     } else if (selectedItem === 'cap') {
       return getCapImages();
     } else {
-      const item = productData.bundleItems.find(item => item.type === selectedItem);
-      return item?.images || [];
+      const item = bundleProducts.find(item => item.product.category === selectedItem);
+      return item?.variant?.image ? [item.variant.image] : [];
     }
   };
 
@@ -202,13 +256,13 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
   };
 
   const getVariantText = (item: BundleItem): string => {
-    if (item.type === 'hoodie') {
-      return `${selectedGender}'s ${selectedColor} (Size ${selectedSize})`;
+    if (item.product.category === 'hoodie') {
+      return `${selectedColor} (Size ${selectedSize})`;
     }
-    if (item.type === 'cap') {
-      return `${capColor} Cap`;
+    if (item.product.category === 'cap') {
+      return 'Black Cap';
     }
-    return item.variant || '';
+    return `${item.variant.color} ${item.variant.size}`;
   };
 
   const handleItemClick = (itemType: string) => {
@@ -235,23 +289,48 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
     setCurrentImageIndex(0);
   };
 
-  const handleGenderChange = (gender: string) => {
-    setSelectedGender(gender);
-    setCurrentImageIndex(0);
+
+
+  // Handle variant changes for hoodie
+  const handleVariantChange = (variantType: 'color' | 'size', value: string) => {
+    if (variantType === 'color') {
+      setSelectedColor(value);
+      setCurrentImageIndex(0);
+    } else if (variantType === 'size') {
+      setSelectedSize(value);
+    }
+    
+    // Update the hoodie variant in bundle products
+    if (hoodieProduct) {
+      const newHoodieVariant = hoodieProduct.variants.find(v => v.color === (variantType === 'color' ? value : selectedColor) && v.size === (variantType === 'size' ? value : selectedSize));
+      if (newHoodieVariant) {
+        setBundleProducts(prev => 
+          prev.map(item => 
+            item.product.category === 'hoodie' 
+              ? { ...item, variant: newHoodieVariant }
+              : item
+          )
+        );
+      }
+    }
   };
 
   const handleAddToCart = () => {
-    const bundleContents: BundleContent[] = productData.bundleItems.map(item => ({
-      name: item.name,
+    if (bundleProducts.length === 0) {
+      alert('Please wait for bundle to load.');
+      return;
+    }
+
+    const bundleContents: BundleContent[] = bundleProducts.map(item => ({
+      name: item.product.name,
       variant: getVariantText(item),
-      image: item.type === 'hoodie' ? getHoodieImages()[0] : item.baseImage
+      image: item.variant.image || item.product.image || '/championbundle.png'
     }));
 
     const variants: Record<string, string> = {
-      hoodieGender: selectedGender,
       hoodieSize: selectedSize,
       hoodieColor: selectedColor,
-      capColor: capColor,
+      capColor: 'Black',
       totebagVariant: 'Black',
       waterbottleVariant: 'White'
     };
@@ -259,8 +338,8 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
     addToCart({
       id: 'champion-bundle',
       name: productData.name,
-      price: productData.bundlePrice,
-      image: productData.bundleItems[0].baseImage,
+      price: calculation?.totalPrice || productData.bundlePrice,
+      image: bundleProducts[0]?.variant?.image || bundleProducts[0]?.product.image || '/championbundle.png',
       isBundle: true,
       bundleContents: bundleContents
     });
@@ -269,8 +348,8 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
   const handleBuyNow = () => {
     // Add bundle to cart
     const bundleContents = [
-      { name: 'Reform UK Hoodie', variant: `${selectedGender}'s ${selectedColor} (Size: ${selectedSize})`, image: getHoodieImages()[0] },
-      { name: 'Reform UK Cap', variant: `${capColor}`, image: getCapImages()[0] },
+      { name: 'Reform UK Hoodie', variant: `${selectedColor} (Size: ${selectedSize})`, image: getHoodieImages()[0] },
+      { name: 'Reform UK Cap', variant: 'Black', image: getCapImages()[0] },
       { name: 'Reform UK Tote Bag', variant: 'Black', image: '/StickerToteWater/ReformToteBagBlack1.webp' },
       { name: 'Reform UK Water Bottle', variant: 'White', image: '/StickerToteWater/ReformWaterBottleWhite1.webp' }
     ];
@@ -278,8 +357,8 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
     const itemToAdd = {
       id: 'champion-bundle',
       name: 'Champion Bundle',
-      price: productData.bundlePrice,
-      image: productData.bundleItems[0].baseImage,
+      price: calculation?.totalPrice || productData.bundlePrice,
+      image: bundleProducts[0]?.variant?.image || bundleProducts[0]?.product.image || '/championbundle.png',
       quantity: quantity,
       isBundle: true,
       bundleContents: bundleContents
@@ -317,7 +396,6 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
         window.location.href = session.url;
       }
     } catch (error) {
-      console.error('Checkout error:', error);
       alert('There was an error processing your order. Please try again.');
     } finally {
       setIsLoading(false);
@@ -361,7 +439,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
 
   const currentImages = getCurrentImages();
   const hasMultipleImages = currentImages.length > 1;
-  const selectedItemData = productData.bundleItems.find(item => item.type === selectedItem);
+  const selectedItemData = bundleProducts.find(item => item.product.category === selectedItem);
 
   return (
     <>
@@ -420,9 +498,9 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                 {selectedItemData && (
                   <div className="absolute top-4 right-4 z-10">
                     <span className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
-                      Viewing: {selectedItemData.name}
+                      Viewing: {selectedItemData?.product.name}
                       {selectedItem === 'hoodie' && ` - ${selectedColor}`}
-                      {selectedItem === 'cap' && ` - ${capColor}`}
+                      {selectedItem === 'cap' && ` - Black`}
                     </span>
                   </div>
                 )}
@@ -430,35 +508,35 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
               
               {/* Bundle Items Grid - Clickable Thumbnails */}
               <div className="grid grid-cols-2 gap-4">
-                {productData.bundleItems.map((item) => (
+                {bundleProducts.map((item) => (
                   <button
-                    key={item.type}
-                    onClick={() => handleItemClick(item.type)}
+                    key={item.product.category}
+                    onClick={() => handleItemClick(item.product.category)}
                     className={`text-center transition-all duration-200 ${
-                      selectedItem === item.type 
+                      selectedItem === item.product.category 
                         ? 'ring-2 ring-[#009fe3] ring-offset-2' 
                         : 'hover:ring-2 hover:ring-gray-300'
                     }`}
                   >
                     <img 
                       src={
-                        item.type === 'hoodie' ? getHoodieImages()[0] : 
-                        item.type === 'cap' ? getCapImages()[0] :
-                        item.baseImage
+                        item.product.category === 'hoodie' ? getHoodieImages()[0] : 
+                        item.product.category === 'cap' ? getCapImages()[0] :
+                        item.variant.image || item.product.image
                       } 
-                      alt={item.name} 
+                      alt={item.product.name} 
                       className={`w-full object-cover rounded-lg border-2 transition-all duration-200 aspect-square ${
-                        selectedItem === item.type 
+                        selectedItem === item.product.category 
                           ? 'border-[#009fe3]' 
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     />
                     <p className={`text-sm mt-2 font-medium ${
-                      selectedItem === item.type 
+                      selectedItem === item.product.category 
                         ? 'text-[#009fe3]' 
                         : 'text-gray-600'
                     }`}>
-                      {item.name}
+                      {item.product.name}
                     </p>
                   </button>
                 ))}
@@ -479,7 +557,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                     >
                       <img 
                         src={image} 
-                        alt={`${selectedItemData?.name} thumbnail ${index + 1}`} 
+                        alt={`${selectedItemData?.product.name} thumbnail ${index + 1}`} 
                         className="w-full h-full object-cover aspect-square" 
                       />
                     </button>
@@ -514,26 +592,6 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
               {/* Hoodie Customization */}
               <div className="border-t border-gray-200 pt-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Customize Your Hoodie</h3>
-                
-                {/* Gender Selection */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Gender</label>
-                  <div className="flex gap-3">
-                    {genderOptions.map((gender) => (
-                      <button 
-                        key={gender} 
-                        onClick={() => handleGenderChange(gender)} 
-                        className={`px-6 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
-                          selectedGender === gender 
-                            ? 'border-[#009fe3] bg-[#009fe3] text-white' 
-                            : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
-                        }`}
-                      >
-                        {gender}
-                      </button>
-                    ))}
-                  </div>
-                </div>
 
                 {/* Color Selection */}
                 <div className="mb-4">
@@ -542,7 +600,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                     {colorOptions.map((color) => (
                       <button 
                         key={color.name} 
-                        onClick={() => handleColorChange(color.name)} 
+                        onClick={() => handleVariantChange('color', color.name)} 
                         className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
                           selectedColor === color.name 
                             ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
@@ -555,7 +613,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                       >
                         {selectedColor === color.name && (
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Grey' ? 'text-gray-600' : 'text-white'}`} />
+                            <Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Blue' || color.name === 'Light Pink' || color.name === 'Sport Grey' ? 'text-gray-600' : 'text-white'}`} />
                           </div>
                         )}
                       </button>
@@ -578,7 +636,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                     {sizeOptions.map((size) => (
                       <button 
                         key={size} 
-                        onClick={() => setSelectedSize(size)} 
+                        onClick={() => handleVariantChange('size', size)} 
                         className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
                           selectedSize === size 
                             ? 'border-[#009fe3] bg-[#009fe3] text-white' 
@@ -592,47 +650,32 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                 </div>
               </div>
 
-              {/* Cap Customization */}
-              <div className="border-t border-gray-200 pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Customize Your Cap</h3>
-                
-                {/* Color Selection */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Color: <span className="font-semibold text-gray-900">{capColor}</span></label>
-                  <div className="flex flex-wrap gap-3">
-                    {colorOptions.map((color) => (
-                      <button 
-                        key={color.name} 
-                        onClick={() => setCapColor(color.name)} 
-                        className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
-                          capColor === color.name 
-                            ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
-                            : color.border 
-                              ? 'border-gray-300 hover:border-gray-400' 
-                              : 'border-gray-200 hover:border-gray-300'
-                        }`} 
-                        style={{ backgroundColor: color.value }} 
-                        title={color.name}
-                      >
-                        {capColor === color.name && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Grey' ? 'text-gray-600' : 'text-white'}`} />
-                          </div>
-                        )}
-                      </button>
-                    ))}
+
+
+              {/* Bundle Pricing */}
+              {championPricing && (
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-4">
+                  <h4 className="font-semibold text-blue-900 mb-2">Bundle Savings</h4>
+                  <div className="space-y-2 text-sm text-blue-800">
+                    <p>• Individual Price: <span className="font-medium">£{championPricing.originalPrice.toFixed(2)}</span></p>
+                    <p>• Bundle Price: <span className="font-medium text-green-600">£{championPricing.price.toFixed(2)}</span></p>
+                    <p>• You Save: <span className="font-medium text-green-600">£{championPricing.savings.absolute.toFixed(2)} ({championPricing.savings.percentage.toFixed(0)}%)</span></p>
+                    <div className="flex items-center space-x-2 text-blue-700">
+                      <Truck className="w-4 h-4" />
+                      <span className="font-medium">Best shipping rates applied</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Bundle Contents */}
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <h4 className="font-semibold text-gray-900 mb-3">Bundle Contents:</h4>
-                <div className="space-y-2 text-sm text-gray-700">
-                  <p>• {productData.bundleItems[0].name}: <span className="font-medium text-gray-900">{getVariantText(productData.bundleItems[0])}</span></p>
-                  <p>• {productData.bundleItems[1].name}: <span className="font-medium text-gray-900">{getVariantText(productData.bundleItems[1])}</span></p>
-                  <p>• {productData.bundleItems[2].name}: <span className="font-medium text-gray-900">Black</span></p>
-                  <p>• {productData.bundleItems[3].name}: <span className="font-medium text-gray-900">White</span></p>
+                <div className="space-y-2 text-sm text-sm text-gray-700">
+                  <p>• Reform UK Hoodie: <span className="font-medium text-gray-900">{selectedColor} (Size {selectedSize})</span></p>
+                  <p>• Reform UK Cap: <span className="font-medium text-gray-900">Black</span></p>
+                  <p>• Reform UK Tote Bag: <span className="font-medium text-gray-900">Black</span></p>
+                  <p>• Reform UK Water Bottle: <span className="font-medium text-gray-900">White</span></p>
                 </div>
               </div>
 
@@ -662,14 +705,14 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                   ) : (
                     <>
                       <ShoppingCart className="w-5 h-5 mr-2" />
-                      Buy Now - £{productData.bundlePrice.toFixed(2)}
+                      Buy Now - £{(calculation?.totalPrice || productData.bundlePrice).toFixed(2)}
                     </>
                   )}
                 </button>
                 
                 <button onClick={handleAddToCart} className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
                   <ShoppingCart className="w-5 h-5" />
-                  <span>Add to Cart - £{(productData.bundlePrice * quantity).toFixed(2)}</span>
+                  <span>Add to Cart - £{((calculation?.totalPrice || productData.bundlePrice) * quantity).toFixed(2)}</span>
                 </button>
                 <div className="flex space-x-3">
                   <button onClick={() => setIsWishlisted(!isWishlisted)} className={`flex-1 border-2 font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
@@ -688,7 +731,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
               <div className="grid grid-cols-3 gap-4 pt-6 border-t">
                 <div className="text-center">
                   <Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
-                  <p className="text-xs text-gray-600">Free UK Shipping Over £30</p>
+                  <p className="text-xs text-gray-600">Best Shipping Rates</p>
                 </div>
                 <div className="text-center">
                   <Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useCart } from '../contexts/CartContext'
 import pf, { h } from '../lib/printful/client'
 
 interface PrintfulProduct {
@@ -32,11 +33,13 @@ interface PrintfulProductDetailProps {
 }
 
 export default function PrintfulProductDetail({ productId }: PrintfulProductDetailProps) {
+  const { addToCart } = useCart()
   const [product, setProduct] = useState<PrintfulProduct | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedVariant, setSelectedVariant] = useState<number>(0)
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
+  const [addingToCart, setAddingToCart] = useState(false)
 
   const fetchProductDetails = async () => {
     setLoading(true)
@@ -55,10 +58,6 @@ export default function PrintfulProductDetail({ productId }: PrintfulProductDeta
       }
       
       setProduct(data?.result as PrintfulProduct)
-      
-      // Debug: Log the product structure to see what IDs are available
-      console.log('Product loaded:', data?.result)
-      console.log('First variant:', data?.result?.sync_variants?.[0])
       
       // Initialize selected options with first variant
       if (data?.result?.sync_variants?.[0]?.options) {
@@ -100,8 +99,6 @@ export default function PrintfulProductDetail({ productId }: PrintfulProductDeta
       })
     })
     
-    // Debug: log the options to see what we're working with
-    console.log('Available options:', options)
     return options
   }
 
@@ -129,6 +126,56 @@ export default function PrintfulProductDetail({ productId }: PrintfulProductDeta
     }
   }
 
+  // Add to cart function
+  const handleAddToCart = () => {
+    console.log('handleAddToCart called')
+    console.log('Product:', product)
+    console.log('Selected variant:', selectedVariant)
+    console.log('Available variants:', product?.sync_variants)
+    
+    if (!product || selectedVariant < 0 || selectedVariant >= product.sync_variants.length) {
+      console.error('Invalid product or variant selection')
+      
+      // Fallback: Add a test product to cart for debugging
+      console.log('Adding fallback test product to cart')
+      const testProduct = {
+        id: 'test-product-1',
+        name: 'Test Product - Debug',
+        price: 19.99,
+        image: '/BackReformLogo.png',
+        printful_variant_id: 1,
+        quantity: 1
+      }
+      addToCart(testProduct)
+      return
+    }
+
+    const variant = product.sync_variants[selectedVariant]
+    console.log('Selected variant details:', variant)
+    setAddingToCart(true)
+
+    try {
+      const cartItem = {
+        id: `${product.sync_product.id}-${variant.id}`,
+        name: `${product.sync_product.name} - ${variant.name}`,
+        price: parseFloat(variant.retail_price),
+        image: variant.files?.[0]?.thumbnail_url || product.sync_product.thumbnail_url || '',
+        printful_variant_id: variant.variant_id,
+        quantity: 1
+      }
+
+      console.log('Cart item to add:', cartItem)
+      addToCart(cartItem)
+      console.log('Product added to cart successfully')
+      
+      // Show success feedback
+      setTimeout(() => setAddingToCart(false), 1000)
+    } catch (err) {
+      console.error('Error adding to cart:', err)
+      setAddingToCart(false)
+    }
+  }
+
   // Get current variant
   const currentVariant = product?.sync_variants[selectedVariant]
   
@@ -153,26 +200,21 @@ export default function PrintfulProductDetail({ productId }: PrintfulProductDeta
       })
       
       if (error) {
-        console.error('Failed to fetch size chart:', error)
         setSizeChart(null)
         return
       }
       
       if (data?.result) {
-        console.log('Size chart loaded successfully')
         setSizeChart(data.result)
       } else {
-        console.log('No size chart data in response')
         setSizeChart(null)
         
         // If this failed and we have a variant_id, try that as a fallback
         if (currentVariant?.variant_id && catalogProductId !== currentVariant.variant_id) {
-          console.log('Trying fallback with variant_id:', currentVariant.variant_id)
           fetchSizeChart(currentVariant.variant_id)
         }
       }
     } catch (err) {
-      console.error('Error fetching size chart:', err)
       setSizeChart(null)
     } finally {
       setLoadingSizeChart(false)
@@ -183,17 +225,9 @@ export default function PrintfulProductDetail({ productId }: PrintfulProductDeta
     // Try to get the catalog product ID
     // The sync_product.id is more likely to be the catalog product ID
     if (product?.sync_product?.id) {
-      console.log('Attempting to fetch size chart for sync_product.id:', product.sync_product.id)
-      console.log('Product structure:', {
-        sync_product_id: product.sync_product.id,
-        variant_id: currentVariant?.variant_id
-      })
       fetchSizeChart(product.sync_product.id)
     } else if (currentVariant?.variant_id) {
-      console.log('Fallback: trying variant_id:', currentVariant.variant_id)
       fetchSizeChart(currentVariant.variant_id)
-    } else {
-      console.log('No product ID available for size chart')
     }
   }
 
@@ -316,8 +350,42 @@ export default function PrintfulProductDetail({ productId }: PrintfulProductDeta
 
           {/* Add to Cart Button */}
           <div className="mb-6">
-            <button className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-              Add to Cart
+            <button 
+              onClick={handleAddToCart}
+              disabled={addingToCart}
+              className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
+              {addingToCart ? 'Adding to Cart...' : 'Add to Cart'}
+            </button>
+            
+            {/* Test button for debugging */}
+            <button 
+              onClick={() => {
+                console.log('Test button clicked')
+                console.log('Current cart state:', { product, selectedVariant, availableOptions })
+              }}
+              className="w-full mt-2 bg-gray-500 text-white py-2 px-4 rounded-lg text-sm"
+            >
+              Debug Cart State
+            </button>
+            
+            {/* Simple test add to cart */}
+            <button 
+              onClick={() => {
+                console.log('Test add to cart clicked')
+                const testProduct = {
+                  id: 'test-product-2',
+                  name: 'Test Product 2',
+                  price: 29.99,
+                  image: '/BackReformLogo.png',
+                  printful_variant_id: 2,
+                  quantity: 1
+                }
+                addToCart(testProduct)
+              }}
+              className="w-full mt-2 bg-green-500 text-white py-2 px-4 rounded-lg text-sm"
+            >
+              Test Add to Cart
             </button>
           </div>
 

@@ -11,7 +11,6 @@ export default function ShippingExample() {
 
   const handleShippingSelect = (option: ShippingOption) => {
     setSelectedShipping(option)
-    console.log('Shipping option selected:', option)
   }
 
   const handleUpdatePaymentIntent = async () => {
@@ -27,11 +26,9 @@ export default function ShippingExample() {
         orderDraftId || undefined
       )
       
-      console.log('PaymentIntent updated successfully:', result)
       alert('PaymentIntent updated successfully!')
       
     } catch (error) {
-      console.error('Failed to update PaymentIntent:', error)
       alert(`Failed to update PaymentIntent: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }

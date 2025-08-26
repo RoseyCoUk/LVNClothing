@@ -45,7 +45,7 @@ const getCategoryForProduct = (product: Product) => {
   if (cat.includes('apparel') || tags.includes('apparel') || ['t-shirt','tshirt','hoodie','cap','hat'].some(type => cat.includes(type) || tags.includes(type))) return 'apparel';
   if (cat.includes('gear') || tags.includes('gear')) return 'gear';
   // Fallbacks for known gear types
-  if (['mug','keychain','tote','bottle','pad','mouse','sticker'].some(type => cat.includes(type) || tags.includes(type))) return 'gear';
+  if (['mug','keychain','tote','bottle','pad','mouse'].some(type => cat.includes(type) || tags.includes(type))) return 'gear';
   return 'gear'; // Default to gear if not matched
 };
 
@@ -103,23 +103,7 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
         const fetchedProducts = await getProducts();
         setProducts(fetchedProducts);
         
-        // Test: Check if product variants exist for the T-Shirt product
-        const tshirtProduct = fetchedProducts.find(p => p.name.includes('T-Shirt'));
-        if (tshirtProduct) {
-          console.log('Testing T-Shirt product variants for product ID:', tshirtProduct.id);
-          try {
-            const variants = await getProductVariants(tshirtProduct.id);
-            console.log('T-Shirt product variants:', variants);
-          } catch (variantError) {
-            console.error('Error fetching T-Shirt variants:', variantError);
-          }
-        }
-        
-        // Debug: Log all product image URLs
-        console.log('All product image URLs:');
-        fetchedProducts.forEach(product => {
-          console.log(`${product.name}: ${product.image_url}`);
-        });
+        // Product variants and image URLs are available for debugging if needed
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch products');
       } finally {
@@ -143,23 +127,8 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
 
   // Filter products
   const filteredProducts = products.filter(product => {
-    // Debug logging for Activist Bundle
-    if (product.name === 'Activist Bundle') {
-      console.log('Filtering Activist Bundle:', {
-        product,
-        selectedCategories,
-        priceRange,
-        searchQuery,
-        selectedTags,
-        categoryMatch: getCategoryForProduct(product)
-      });
-    }
-    
     // Category filter
     if (!selectedCategories.includes('all') && !selectedCategories.includes(getCategoryForProduct(product))) {
-      if (product.name === 'Activist Bundle') {
-        console.log('Activist Bundle filtered out by category');
-      }
       return false;
     }
     
@@ -168,33 +137,21 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()))
     )) {
-      if (product.name === 'Activist Bundle') {
-        console.log('Activist Bundle filtered out by search');
-      }
       return false;
     }
     
     // Price filter
     if (product.price_pence < priceRange[0] || product.price_pence > priceRange[1]) {
-      if (product.name === 'Activist Bundle') {
-        console.log('Activist Bundle filtered out by price:', {
-          price: product.price_pence,
-          range: priceRange
-        });
-      }
       return false;
     }
     
-    // Tag filter
-    if (selectedTags.length > 0) {
-      const productTags = (product.tags || []).map((t: string) => t.toLowerCase());
-      if (!selectedTags.some(tag => productTags.includes(tag))) {
-        if (product.name === 'Activist Bundle') {
-          console.log('Activist Bundle filtered out by tags');
+          // Tag filter
+      if (selectedTags.length > 0) {
+        const productTags = (product.tags || []).map((t: string) => t.toLowerCase());
+        if (!selectedTags.some(tag => productTags.includes(tag))) {
+          return false;
         }
-        return false;
       }
-    }
     
     return true;
   });

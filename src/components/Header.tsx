@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Menu, X, User, LogOut, Package } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
-import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderProps {
   currentPage: string;
@@ -13,9 +13,9 @@ interface HeaderProps {
 const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [user, setUser] = useState<any>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { getTotalItems, setIsCartOpen } = useCart();
+  const { user, signOut } = useAuth();
 
   const totalItems = getTotalItems();
 
@@ -26,22 +26,6 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
-
-    return () => authSubscription.unsubscribe();
   }, []);
 
   const handleNavigation = (page: string) => {
@@ -56,31 +40,42 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await signOut();
     setIsUserMenuOpen(false);
   };
 
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${
       isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-white shadow-md'
-    }`}>
+    }`} role="banner">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <button
             onClick={() => handleNavigation('home')}
             className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+            aria-label="Go to homepage"
           >
             <img
               src="/BackReformLogo.png"
-              alt="Reform UK"
-              className="h-8 w-auto"
+              alt="Reform UK Logo"
+              className="h-6 w-auto sm:h-8 md:h-10 lg:h-12"
+              loading="eager"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                // Fallback to text logo if image fails
+                const fallback = document.createElement('span');
+                fallback.className = 'font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#009fe3]';
+                fallback.textContent = 'Reform UK';
+                target.parentNode?.insertBefore(fallback, target);
+              }}
             />
-            <span className="font-bold text-xl text-gray-900">Back Reform</span>
+            <span className="font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-900">Back Reform</span>
           </button>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-8" role="navigation" aria-label="Main navigation">
             <button
               onClick={() => handleNavigation('shop')}
               className={`font-medium transition-colors ${
@@ -88,6 +83,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                   ? 'text-[#009fe3]'
                   : 'text-gray-700 hover:text-[#009fe3]'
               }`}
+              aria-current={currentPage === 'shop' ? 'page' : undefined}
             >
               Shop
             </button>
@@ -98,6 +94,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                   ? 'text-[#009fe3]'
                   : 'text-gray-700 hover:text-[#009fe3]'
               }`}
+              aria-current={currentPage === 'about' ? 'page' : undefined}
             >
               About
             </button>
@@ -108,6 +105,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                   ? 'text-[#009fe3]'
                   : 'text-gray-700 hover:text-[#009fe3]'
               }`}
+              aria-current={currentPage === 'contact' ? 'page' : undefined}
             >
               Contact
             </button>
@@ -121,6 +119,9 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center space-x-2 p-2 text-gray-700 hover:text-[#009fe3] transition-colors"
+                  aria-label="User menu"
+                  aria-expanded={isUserMenuOpen}
+                  aria-haspopup="true"
                 >
                   <User className="w-5 h-5" />
                   <span className="hidden sm:block text-sm font-medium">
@@ -129,7 +130,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                 </button>
 
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50" role="menu" aria-label="User account options">
                     <div className="px-4 py-2 border-b border-gray-100">
                       <p className="text-sm font-medium text-gray-900">
                         {user.user_metadata?.full_name || user.email}
@@ -143,6 +144,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                         setIsUserMenuOpen(false);
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2"
+                      role="menuitem"
                     >
                       <User className="w-4 h-4" />
                       <span>My Account</span>
@@ -154,6 +156,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                         setIsUserMenuOpen(false);
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2"
+                      role="menuitem"
                     >
                       <Package className="w-4 h-4" />
                       <span>My Orders</span>
@@ -162,6 +165,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                     <button
                       onClick={handleSignOut}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2"
+                      role="menuitem"
                     >
                       <LogOut className="w-4 h-4" />
                       <span>Sign Out</span>
@@ -191,10 +195,11 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
             <button
               onClick={handleCartClick}
               className="relative p-2 text-gray-700 hover:text-[#009fe3] transition-colors group"
+              aria-label={`Shopping cart with ${totalItems} items`}
             >
               <ShoppingCart className="w-6 h-6" />
               {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#009fe3] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span className="absolute -top-1 -right-1 bg-[#009fe3] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform" aria-label={`${totalItems} items in cart`}>
                   {totalItems}
                 </span>
               )}
@@ -204,6 +209,9 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
             <button
               className="md:hidden p-2 text-gray-700"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? "Close mobile menu" : "Open mobile menu"}
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-menu"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -212,7 +220,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t bg-white/95 backdrop-blur-md">
+          <div id="mobile-menu" className="md:hidden py-4 border-t bg-white/95 backdrop-blur-md" role="navigation" aria-label="Mobile navigation">
             <nav className="flex flex-col space-y-4">
               <button
                 onClick={() => handleNavigation('shop')}
@@ -221,6 +229,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                     ? 'text-[#009fe3]'
                     : 'text-gray-700 hover:text-[#009fe3]'
                 }`}
+                aria-current={currentPage === 'shop' ? 'page' : undefined}
               >
                 Shop
               </button>
@@ -231,6 +240,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                     ? 'text-[#009fe3]'
                     : 'text-gray-700 hover:text-[#009fe3]'
                 }`}
+                aria-current={currentPage === 'about' ? 'page' : undefined}
               >
                 About
               </button>
@@ -241,6 +251,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                     ? 'text-[#009fe3]'
                     : 'text-gray-700 hover:text-[#009fe3]'
                 }`}
+                aria-current={currentPage === 'contact' ? 'page' : undefined}
               >
                 Contact
               </button>

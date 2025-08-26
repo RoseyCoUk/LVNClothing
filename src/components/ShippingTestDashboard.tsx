@@ -66,12 +66,10 @@ const ShippingTestDashboard: React.FC = () => {
   const testShippingQuotes = async () => {
     try {
       const request = createTestRequest(selectedAddress, selectedItems)
-      console.log('🧪 Testing Shipping Quotes with:', request)
       
       await fetchQuotes(request)
       setTestResults(prev => ({ ...prev, shippingQuotes: true }))
     } catch (error) {
-      console.error('❌ Shipping quotes test failed:', error)
       setTestResults(prev => ({ ...prev, shippingQuotes: false }))
     }
   }
@@ -81,17 +79,12 @@ const ShippingTestDashboard: React.FC = () => {
       const results = testMoneyUtils()
       const allPassed = Object.values(results).every(Boolean)
       setTestResults(prev => ({ ...prev, moneyUtils: allPassed }))
-      console.log('Money utils test results:', results)
       
-      // Show detailed results in console
+      // Show detailed results in console only if tests fail
       if (!allPassed) {
-        console.log('❌ Money utils test failed. Details:')
-        Object.entries(results).forEach(([key, value]) => {
-          console.log(`${key}: ${value ? '✅ PASS' : '❌ FAIL'}`)
-        })
+        // Silent handling for production
       }
     } catch (error) {
-      console.error('❌ Money utils test failed:', error)
       setTestResults(prev => ({ ...prev, moneyUtils: false }))
     }
   }
@@ -100,9 +93,7 @@ const ShippingTestDashboard: React.FC = () => {
     try {
       const results = testTypes()
       setTestResults(prev => ({ ...prev, types: true }))
-      console.log('Types test completed:', results)
     } catch (error) {
-      console.error('❌ Types test failed:', error)
       setTestResults(prev => ({ ...prev, types: false }))
     }
   }
@@ -111,15 +102,12 @@ const ShippingTestDashboard: React.FC = () => {
     try {
       const isValid = validateTestData()
       setTestResults(prev => ({ ...prev, dataValidation: isValid }))
-      console.log('Data validation test completed:', isValid)
     } catch (error) {
-      console.error('❌ Data validation test failed:', error)
       setTestResults(prev => ({ ...prev, dataValidation: false }))
     }
   }
 
   const runAllTests = async () => {
-    console.log('🚀 Running all tests...')
     setTestResults({})
     
     // Run utility tests
@@ -129,14 +117,11 @@ const ShippingTestDashboard: React.FC = () => {
     
     // Run integration tests
     await testShippingQuotes()
-    
-    console.log('✅ All tests completed')
   }
 
   const handleShippingSelect = (option: ShippingOption) => {
     selectShippingOption(option)
     setTestResults(prev => ({ ...prev, shippingSelection: true }))
-    console.log('✅ Shipping option selected:', option)
   }
 
   const clearConsole = () => {

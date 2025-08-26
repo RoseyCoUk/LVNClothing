@@ -20,21 +20,21 @@ export interface UseBundleCalculationReturn {
 
 export const useBundleCalculation = (
   bundleProducts: BundleItem[],
-  setBundleProducts: (items: BundleItem[]) => void
+  setBundleProducts: (items: BundleItem[] | ((prev: BundleItem[]) => BundleItem[])) => void
 ): UseBundleCalculationReturn => {
   
   const calculation = useMemo((): BundleCalculation | null => {
     if (bundleProducts.length === 0) return null;
 
     const totalPrice = bundleProducts.reduce((sum, item) => {
-      return sum + (parseFloat(item.variant.price) * item.quantity);
+      return sum + (parseFloat(item.variant.price) * (item.quantity || 1));
     }, 0);
 
     // Calculate individual pricing (what customers would pay if they bought each item separately)
     const individualPrice = bundleProducts.reduce((sum, item) => {
       // Apply individual item markup (e.g., 20% markup for individual items)
       const markup = 1.2;
-      return sum + (parseFloat(item.variant.price) * markup * item.quantity);
+      return sum + (parseFloat(item.variant.price) * markup * (item.quantity || 1));
     }, 0);
 
     const savings = individualPrice - totalPrice;
@@ -50,14 +50,14 @@ export const useBundleCalculation = (
   }, [bundleProducts]);
 
   const addItem = (product: PrintfulProduct, variant: PrintfulVariant, quantity: number = 1) => {
-    setBundleProducts(prev => {
+    setBundleProducts((prev: BundleItem[]) => {
       const existingItem = prev.find(item => item.product.id === product.id);
       
       if (existingItem) {
-        // Update existing item quantity
+        // Update existing item with new variant and quantity
         return prev.map(item =>
           item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, variant, quantity: (item.quantity || 1) + quantity }
             : item
         );
       } else {
@@ -68,22 +68,15 @@ export const useBundleCalculation = (
   };
 
   const removeItem = (productId: number) => {
-    setBundleProducts(prev => prev.filter(item => item.product.id !== productId));
+    setBundleProducts((prev: BundleItem[]) => prev.filter(item => item.product.id !== productId));
   };
 
   const updateItemQuantity = (productId: number, quantity: number) => {
-    if (quantity <= 0) {
-      removeItem(productId);
-      return;
-    }
-
-    setBundleProducts(prev =>
-      prev.map(item =>
-        item.product.id === productId
-          ? { ...item, quantity }
-          : item
-      )
-    );
+    setBundleProducts((prev: BundleItem[]) => prev.map(item =>
+      item.product.id === productId
+        ? { ...item, quantity: Math.max(1, quantity) }
+        : item
+    ));
   };
 
   const clearBundle = () => {
@@ -91,7 +84,7 @@ export const useBundleCalculation = (
   };
 
   const getItemCount = () => {
-    return bundleProducts.reduce((sum, item) => sum + item.quantity, 0);
+    return bundleProducts.reduce((total, item) => total + (item.quantity || 1), 0);
   };
 
   return {
@@ -109,15 +102,15 @@ export const createBundleFromConfig = (
   bundleId: string,
   bundleName: string,
   bundleDescription: string,
-  items: Array<{ product: PrintfulProduct; variant: PrintfulVariant; quantity: number }>
+  items: Array<{ product: PrintfulProduct; variant: PrintfulVariant }>
 ): BundleProduct => {
   const totalPrice = items.reduce((sum, item) => {
-    return sum + (parseFloat(item.variant.price) * item.quantity);
+    return sum + parseFloat(item.variant.price);
   }, 0);
 
   const individualPrice = items.reduce((sum, item) => {
     const markup = 1.2; // 20% markup for individual items
-    return sum + (parseFloat(item.variant.price) * markup * item.quantity);
+    return sum + (parseFloat(item.variant.price) * markup);
   }, 0);
 
   const savings = individualPrice - totalPrice;
@@ -140,8 +133,9 @@ export const BUNDLE_CONFIGS = {
     name: 'Starter Bundle',
     description: 'Perfect for newcomers to the Reform movement. Includes essential items to show your support.',
     items: [
-      { productId: 1, variantId: 1, quantity: 1 }, // T-shirt
-      { productId: 2, variantId: 1, quantity: 1 }, // Stickers
+      { productId: 1, variantId: 1 }, // T-shirt
+      { productId: 3, variantId: 1 }, // Cap
+      { productId: 4, variantId: 1 }, // Mug
     ],
   },
   champion: {
@@ -149,10 +143,10 @@ export const BUNDLE_CONFIGS = {
     name: 'Champion Bundle',
     description: 'For dedicated supporters who want to make a statement. Premium quality items with maximum impact.',
     items: [
-      { productId: 1, variantId: 1, quantity: 1 }, // T-shirt
-      { productId: 3, variantId: 1, quantity: 1 }, // Hoodie
-      { productId: 2, variantId: 1, quantity: 2 }, // Stickers (2 sets)
-      { productId: 4, variantId: 1, quantity: 1 }, // Cap
+      { productId: 2, variantId: 1 }, // Hoodie
+      { productId: 5, variantId: 1 }, // Tote bag
+      { productId: 6, variantId: 1 }, // Water bottle
+      { productId: 7, variantId: 1 }, // Mouse pad
     ],
   },
   activist: {
@@ -160,12 +154,13 @@ export const BUNDLE_CONFIGS = {
     name: 'Activist Bundle',
     description: 'Complete activist kit for those ready to lead the movement. Everything you need to spread the word.',
     items: [
-      { productId: 1, variantId: 1, quantity: 2 }, // T-shirts (2)
-      { productId: 3, variantId: 1, quantity: 1 }, // Hoodie
-      { productId: 2, variantId: 1, quantity: 3 }, // Stickers (3 sets)
-      { productId: 4, variantId: 1, quantity: 1 }, // Cap
-      { productId: 5, variantId: 1, quantity: 1 }, // Tote bag
-      { productId: 6, variantId: 1, quantity: 1 }, // Water bottle
+      { productId: 2, variantId: 1 }, // Hoodie
+      { productId: 1, variantId: 1 }, // T-shirt
+      { productId: 3, variantId: 1 }, // Cap
+      { productId: 5, variantId: 1 }, // Tote bag
+      { productId: 6, variantId: 1 }, // Water bottle
+      { productId: 4, variantId: 1 }, // Mug
+      { productId: 7, variantId: 1 }, // Mouse pad
     ],
   },
 };

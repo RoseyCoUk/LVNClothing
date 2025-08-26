@@ -28,12 +28,58 @@ serve(async (req) => {
       )
     }
 
-    // Create Supabase client
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      console.log('Invalid email format:', email)
+      return new Response(
+        JSON.stringify({ error: 'Invalid email format' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    // Check if email is already subscribed
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     console.log('Supabase URL:', supabaseUrl ? 'Set' : 'Not set')
     console.log('Supabase Service Key:', supabaseServiceKey ? 'Set' : 'Not set')
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+    // Check for existing subscription
+    const { data: existingSubscriber, error: checkError } = await supabase
+      .from('newsletter_subscribers')
+      .select('email, subscribed_at')
+      .eq('email', email.toLowerCase().trim())
+      .eq('is_active', true)
+      .single()
+
+    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error('Error checking existing subscriber:', checkError)
+      return new Response(
+        JSON.stringify({ error: 'Failed to check subscription status' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    if (existingSubscriber) {
+      console.log('Email already subscribed:', email)
+      return new Response(
+        JSON.stringify({ 
+          error: 'already subscribed',
+          message: 'This email is already subscribed to our newsletter' 
+        }),
+        { 
+          status: 409, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
 
     // Generate a unique discount code
     const discountCode = `NEWSLETTER10-${Date.now().toString(36).toUpperCase()}`
@@ -45,7 +91,7 @@ serve(async (req) => {
       .from('newsletter_subscribers')
       .insert([
         {
-          email: email,
+          email: email.toLowerCase().trim(),
           discount_code: discountCode,
           subscribed_at: new Date().toISOString(),
           is_active: true
@@ -54,8 +100,26 @@ serve(async (req) => {
 
     if (insertError) {
       console.error('Error inserting subscriber:', insertError)
+      
+      // Handle specific database errors
+      if (insertError.code === '23505') { // Unique constraint violation
+        return new Response(
+          JSON.stringify({ 
+            error: 'already subscribed',
+            message: 'This email is already subscribed to our newsletter' 
+          }),
+          { 
+            status: 409, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        )
+      }
+      
       return new Response(
-        JSON.stringify({ error: 'Failed to subscribe: ' + insertError.message }),
+        JSON.stringify({ 
+          error: 'Failed to subscribe: ' + insertError.message,
+          details: 'Database error occurred while processing subscription'
+        }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -187,29 +251,35 @@ serve(async (req) => {
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     console.log('Resend API Key:', resendApiKey ? 'Set' : 'Not set')
     
+    let emailSent = false;
     if (!resendApiKey) {
       console.error('RESEND_API_KEY environment variable is not set')
     } else {
-      const resendResponse = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${resendApiKey}`,
-        },
-        body: JSON.stringify({
-          to: email,
-          from: 'support@backreform.co.uk',
-          subject: 'Welcome to Reform UK - Your 10% Discount Code Inside! 🎉',
-          html: emailContent,
-        }),
-      });
+      try {
+        const resendResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${resendApiKey}`,
+          },
+          body: JSON.stringify({
+            to: email,
+            from: 'support@backreform.co.uk',
+            subject: 'Welcome to Reform UK - Your 10% Discount Code Inside! 🎉',
+            html: emailContent,
+          }),
+        });
 
-      if (!resendResponse.ok) {
-        const errorText = await resendResponse.text();
-        console.error('Error sending email with Resend:', errorText);
-        console.error('Resend response status:', resendResponse.status);
-      } else {
-        console.log('Email sent successfully with Resend');
+        if (!resendResponse.ok) {
+          const errorText = await resendResponse.text();
+          console.error('Error sending email with Resend:', errorText);
+          console.error('Resend response status:', resendResponse.status);
+        } else {
+          console.log('Email sent successfully with Resend');
+          emailSent = true;
+        }
+      } catch (emailError) {
+        console.error('Exception while sending email:', emailError);
       }
     }
 
@@ -217,8 +287,9 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Successfully subscribed to newsletter',
-        discountCode: discountCode 
+        message: emailSent ? 'Successfully subscribed to newsletter and welcome email sent' : 'Successfully subscribed to newsletter (welcome email will be sent shortly)',
+        discountCode: discountCode,
+        emailSent: emailSent
       }),
       { 
         status: 200, 

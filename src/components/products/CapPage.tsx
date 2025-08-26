@@ -20,6 +20,7 @@ import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
+import { capVariants, getCapVariant } from '../../hooks/cap-variants';
 
 // --- FIX: Cap data is moved OUTSIDE the component to ensure it's a stable constant ---
 const productData = {
@@ -35,17 +36,22 @@ const productData = {
   variantDetails: {
     // No genders or sizes for this product, only colors.
     colors: [
-        { name: 'White', value: '#FFFFFF', border: true }, { name: 'Light Blue', value: '#a6b9c6' }, { name: 'Charcoal', value: '#393639' }, { name: 'Navy', value: '#1c2330' }, { name: 'Black', value: '#000000' }, { name: 'Red', value: '#8e0a1f' }
+        { name: 'White', value: '#FFFFFF', border: true }, 
+        { name: 'Light Blue', value: '#a6b9c6' }, 
+        { name: 'Charcoal', value: '#393639' }, 
+        { name: 'Navy', value: '#1c2330' }, 
+        { name: 'Black', value: '#000000' }, 
+        { name: 'Red', value: '#8e0a1f' }
     ]
   },
   variants: {
-    // Each color is a variant. Assuming 3 images per cap color.
-    301: { id: 301, color: 'White', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapWhite${i + 1}.webp`) },
-    302: { id: 302, color: 'Light Blue', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapBlue${i + 1}.webp`) },
-    303: { id: 303, color: 'Charcoal', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapCharcoal${i + 1}.webp`) },
-    304: { id: 304, color: 'Navy', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapNavy${i + 1}.webp`) },
-    305: { id: 305, color: 'Black', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapBlack${i + 1}.webp`) },
-    306: { id: 306, color: 'Red', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapRed${i + 1}.webp`) },
+    // Each color is a variant with Printful integration
+    301: { id: 301, color: 'White', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, printful_variant_id: 6000, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapWhite${i + 1}.webp`) },
+    302: { id: 302, color: 'Light Blue', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, printful_variant_id: 6001, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapBlue${i + 1}.webp`) },
+    303: { id: 303, color: 'Charcoal', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, printful_variant_id: 6002, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapCharcoal${i + 1}.webp`) },
+    304: { id: 304, color: 'Navy', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, printful_variant_id: 6003, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapNavy${i + 1}.webp`) },
+    305: { id: 305, color: 'Black', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, printful_variant_id: 6004, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapBlack${i + 1}.webp`) },
+    306: { id: 306, color: 'Red', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, printful_variant_id: 6005, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapRed${i + 1}.webp`) },
   }
 };
 
@@ -104,7 +110,8 @@ const CapPage = ({ onBack }: CapPageProps) => {
       name: `${productData.name} (${currentVariant.color})`,
       price: currentVariant.price,
       image: currentVariant.images[0],
-      quantity: quantity
+      quantity: quantity,
+      printful_variant_id: currentVariant.printful_variant_id
     };
     addToCart(itemToAdd);
   };
@@ -120,8 +127,9 @@ const CapPage = ({ onBack }: CapPageProps) => {
       name: `${productData.name} - ${currentVariant.color}`,
       price: currentVariant.price,
       image: currentVariant.images[0],
-        color: selectedColor,
-      quantity: quantity
+      color: selectedColor,
+      quantity: quantity,
+      printful_variant_id: currentVariant.printful_variant_id
     };
     
     const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
@@ -135,7 +143,6 @@ const CapPage = ({ onBack }: CapPageProps) => {
 
   const handleConfirmCheckout = async () => {
     if (!orderToConfirm) {
-      console.error('No order to confirm');
       return;
     }
     
@@ -153,8 +160,6 @@ const CapPage = ({ onBack }: CapPageProps) => {
       
       window.location.href = url;
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      
       // Show a more user-friendly error message
       if (error instanceof Error && error.message.includes('Stripe API key is not configured')) {
         alert('Stripe payment is not configured. This is expected in development environment.');

@@ -33,7 +33,7 @@ const ShippingTest: React.FC = () => {
         zip: testAddress.postcode
       })
     } catch (error) {
-      console.error('Test failed:', error)
+      // Test failed silently
     }
   }
 

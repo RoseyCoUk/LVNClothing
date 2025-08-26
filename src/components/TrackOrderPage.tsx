@@ -39,7 +39,6 @@ const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
       }
     } catch (err) {
       setError('An error occurred while tracking your order. Please try again.');
-      console.error('Error tracking order:', err);
     } finally {
       setIsLoading(false);
     }

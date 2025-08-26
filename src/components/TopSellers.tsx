@@ -35,7 +35,7 @@ const TopSellers = ({ onViewAllClick }: TopSellersProps) => {
     if (cat.includes('apparel') || tags.includes('apparel') || ['t-shirt','tshirt','hoodie','cap','hat'].some(type => cat.includes(type) || tags.includes(type))) return 'apparel';
     if (cat.includes('gear') || tags.includes('gear')) return 'gear';
     // Fallbacks for known gear types
-    if (['mug','keychain','tote','bottle','pad','mouse','sticker'].some(type => cat.includes(type) || tags.includes(type))) return 'gear';
+    if (['mug','keychain','tote','bottle','pad','mouse'].some(type => cat.includes(type) || tags.includes(type))) return 'gear';
     return 'gear'; // Default to gear if not matched
   };
 

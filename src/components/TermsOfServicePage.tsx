@@ -150,7 +150,7 @@ const TermsOfServicePage = ({ onBack }: TermsOfServicePageProps) => {
                 We currently ship only within the United Kingdom. Shipping costs and delivery times vary depending on your location and the shipping method selected.
               </p>
               <p className="mb-4">
-                Free shipping is available on orders over £50. Standard delivery costs £3.99 and typically takes 3-5 business days, while express delivery costs £5.99 and takes 2-3 business days.
+                Shipping costs are calculated based on your location and the items in your order. We work with our fulfillment partners to provide the best possible shipping rates. Standard delivery typically takes 3-5 business days, while express delivery takes 2-3 business days.
               </p>
               <p className="text-yellow-800 text-sm">
                 Risk of loss and title for items purchased from our website pass to you upon delivery of the items to the carrier. You are responsible for filing any claims with carriers for damaged and/or lost shipments.

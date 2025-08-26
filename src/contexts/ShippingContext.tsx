@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, ReactNode, useCallback } fr
 import { useCart } from './CartContext'
 import { getShippingRates, validateShippingAddress, getCountryCode } from '../lib/shipping/printful'
 import { updatePaymentIntentWithShipping, createShippingSelectionRequest, validateShippingSelection } from '../lib/shipping/checkout'
-import { toMinor } from '../lib/money'
 import type { 
   ShippingOption, 
   Recipient, 
@@ -78,16 +77,73 @@ export const ShippingProvider: React.FC<ShippingProviderProps> = ({ children }) 
 
       const response: ShippingQuoteResponse = await getShippingRates(request)
       
-      setShippingOptions(response.options)
-      
-      // Auto-select the first option if none selected
-      if (!selectedShippingOption && response.options.length > 0) {
-        setSelectedShippingOption(response.options[0])
+      if (response.options && response.options.length > 0) {
+        setShippingOptions(response.options)
+        
+        // Auto-select the first option if none selected
+        if (!selectedShippingOption && response.options.length > 0) {
+          setSelectedShippingOption(response.options[0])
+        }
+      } else {
+        // Use fallback shipping options if no options returned
+        const fallbackOptions: ShippingOption[] = [
+          {
+            id: 'standard-uk',
+            name: 'Standard UK Delivery',
+            rate: '4.99',
+            currency: 'GBP',
+            minDeliveryDays: 3,
+            maxDeliveryDays: 5,
+            carrier: 'Royal Mail'
+          },
+          {
+            id: 'express-uk',
+            name: 'Express UK Delivery',
+            rate: '8.99',
+            currency: 'GBP',
+            minDeliveryDays: 1,
+            maxDeliveryDays: 2,
+            carrier: 'DHL Express'
+          }
+        ];
+        
+        setShippingOptions(fallbackOptions)
+        if (!selectedShippingOption) {
+          setSelectedShippingOption(fallbackOptions[0])
+        }
       }
       
     } catch (error) {
-      console.error('Failed to fetch shipping rates:', error)
-      setShippingError('Failed to fetch shipping rates. Please try again.')
+      console.warn('Failed to fetch shipping rates, using fallback options:', error);
+      
+      // Use fallback shipping options on error
+      const fallbackOptions: ShippingOption[] = [
+        {
+          id: 'standard-uk',
+          name: 'Standard UK Delivery',
+          rate: '4.99',
+          currency: 'GBP',
+          minDeliveryDays: 3,
+          maxDeliveryDays: 5,
+          carrier: 'Royal Mail'
+        },
+        {
+          id: 'express-uk',
+          name: 'Express UK Delivery',
+          rate: '8.99',
+          currency: 'GBP',
+          minDeliveryDays: 1,
+          maxDeliveryDays: 2,
+          carrier: 'DHL Express'
+        }
+      ];
+      
+      setShippingOptions(fallbackOptions)
+      if (!selectedShippingOption) {
+        setSelectedShippingOption(fallbackOptions[0])
+      }
+      
+      setShippingError('Using standard shipping rates (live quotes unavailable)')
     } finally {
       setIsLoadingRates(false)
     }
@@ -132,11 +188,9 @@ export const ShippingProvider: React.FC<ShippingProviderProps> = ({ children }) 
 
       const response = await updatePaymentIntentWithShipping(request)
       
-      console.log('PaymentIntent updated successfully:', response)
       return response
       
     } catch (error) {
-      console.error('Failed to update PaymentIntent:', error)
       throw error
     }
   }, [selectedShippingOption, getTotalPrice])
@@ -150,14 +204,17 @@ export const ShippingProvider: React.FC<ShippingProviderProps> = ({ children }) 
 
   // Get shipping cost in pence
   const getShippingCost = useCallback((): number => {
-    if (!selectedShippingOption) return 0
-    return toMinor(selectedShippingOption.rate, selectedShippingOption.currency)
-  }, [selectedShippingOption])
+    if (!selectedShippingOption) return 0;
+    const rate = parseFloat(selectedShippingOption.rate);
+    return Math.round(rate * 100); // Convert to pence
+  }, [selectedShippingOption]);
 
   // Get total with shipping in pence
   const getTotalWithShipping = useCallback((): number => {
-    return getTotalPrice() + getShippingCost()
-  }, [getTotalPrice, getShippingCost])
+    const subtotal = getTotalPrice();
+    const shippingCost = getShippingCost();
+    return subtotal + shippingCost;
+  }, [getTotalPrice, getShippingCost]);
 
   // Check if address is complete for shipping calculation
   const isAddressComplete = useCallback((recipient: Partial<Recipient>): boolean => {

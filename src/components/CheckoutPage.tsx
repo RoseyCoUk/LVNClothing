@@ -29,11 +29,12 @@ interface CheckoutPageProps {
 }
 
 const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
-  const { cartItems, getTotalPrice, addToCart } = useCart();
+  const { cartItems, getTotalPrice, addToCart, refreshPricing, setIsCartOpen } = useCart();
   
   const [currentStep, setCurrentStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete] = useState(false);
+  const [isGuestCheckout, setIsGuestCheckout] = useState(false);
   
   // Check for temporary cart items from "Buy Now" flow
   useEffect(() => {
@@ -48,11 +49,60 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
         // Clear the temporary storage
         sessionStorage.removeItem('tempCartItems');
       } catch (error) {
-        console.error('Error parsing temp cart items:', error);
+        // Silent error handling for production
         sessionStorage.removeItem('tempCartItems');
       }
     }
   }, [cartItems.length, addToCart]);
+
+  // Add this new effect to handle direct navigation to checkout
+  useEffect(() => {
+    // If user navigates directly to checkout with empty cart, try to restore from localStorage
+    if (cartItems.length === 0) {
+      const savedCart = localStorage.getItem('reformuk-cart');
+      if (savedCart) {
+        try {
+          const items = JSON.parse(savedCart);
+          items.forEach((item: any) => {
+            addToCart(item);
+          });
+        } catch (error) {
+          console.error('Failed to restore cart from localStorage:', error);
+        }
+      }
+    }
+  }, []); // Only run once on mount
+
+  // Auto-detect guest checkout if no user is logged in
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        // Check if user is authenticated (this will fail silently for guest users)
+        const { data: { session } } = await import('../lib/supabase').then(m => m.supabase.auth.getSession());
+        setIsGuestCheckout(!session);
+      } catch (error) {
+        // If auth check fails, assume guest checkout
+        setIsGuestCheckout(true);
+      }
+    };
+    
+    checkAuthStatus();
+  }, []);
+
+  // Refresh pricing when cart items change - make it non-blocking
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      // Use a timeout to prevent blocking cart operations
+      const timeoutId = setTimeout(() => {
+        refreshPricing().catch(error => {
+          console.warn('Pricing refresh failed, continuing with existing prices:', error);
+          // Don't let pricing failures affect cart functionality
+        });
+      }, 100); // Small delay to ensure cart operations complete first
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [cartItems.length, refreshPricing]);
   
   // Form states
   const [shippingInfo, setShippingInfo] = useState({
@@ -94,6 +144,9 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
   const promoDiscount = appliedPromo === 'REFORM10' ? subtotal * 0.1 : 0;
   const total = getTotalWithShipping() / 100; // Use shipping context total
 
+  // Calculate final total with promo discount
+  const finalTotal = total - promoDiscount;
+  
   // Fetch shipping rates when address changes
   useEffect(() => {
     const recipient = convertToRecipient(shippingInfo);
@@ -108,7 +161,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
       };
       
       fetchQuotes(request).catch(error => {
-        console.error('Failed to fetch shipping quotes:', error);
+        // Silent error handling for production
       });
     }
   }, [shippingInfo.address, shippingInfo.city, shippingInfo.postcode, shippingInfo.country, cartItems.length, convertToRecipient, isAddressComplete, fetchQuotes]);
@@ -256,30 +309,8 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
   const handleShippingSelect = async (option: ShippingOption) => {
     setSelectedShipping(option);
     
-    // Update the shipping context using the proper setter
-    // The shipping context will handle this automatically when we call selectShippingOption
-    
-    // If we have a PaymentIntent ID, update it with the new shipping cost
-    // Note: In a real implementation, you'd get this from your payment flow
-    // For now, we'll just log the selection
-    console.log('Shipping option selected:', option);
-    console.log('Would update PaymentIntent with shipping cost:', option.rate);
-    
-    // TODO: When you have a PaymentIntent ID, uncomment this:
-    // try {
-    //   await updatePaymentIntentWithShipping(paymentIntentId, option);
-    //   console.log('PaymentIntent updated with shipping cost');
-    // } catch (error) {
-    //   console.error('Failed to update PaymentIntent:', error);
-    //   // Handle error appropriately (show user message, etc.)
-    // }
-    
-    // Example of how to integrate with your payment flow:
-    // 1. Create PaymentIntent first (before shipping selection)
-    // 2. Store PaymentIntent ID in state: const [paymentIntentId, setPaymentIntentId] = useState<string>('')
-    // 3. When shipping is selected, call updatePaymentIntentWithShipping(paymentIntentId, option)
-    // 4. The PaymentIntent amount will be updated with the new shipping cost
-    // 5. Proceed with payment using the updated PaymentIntent
+    // Note: PaymentIntent update would happen here in a real implementation
+    // For now, we just store the selected shipping option
   };
 
   // Function to update PaymentIntent with shipping cost
@@ -317,11 +348,9 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
       }
 
       const result = await response.json();
-      console.log('PaymentIntent updated successfully:', result);
       return result;
       
     } catch (error) {
-      console.error('Failed to update PaymentIntent:', error);
       throw error;
     }
   };
@@ -340,143 +369,154 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
   const validateStep = (step: number) => {
     if (step === 1) {
       const isEmailValid = shippingInfo.email && validateEmail(shippingInfo.email);
-      return isEmailValid && shippingInfo.firstName && shippingInfo.lastName && 
-             shippingInfo.address && shippingInfo.city && shippingInfo.postcode;
+      const hasRequiredFields = shippingInfo.firstName && shippingInfo.lastName && 
+                               shippingInfo.address && shippingInfo.city && shippingInfo.postcode;
+      
+      // For guest checkout, only require email and shipping info
+      if (isGuestCheckout) {
+        return isEmailValid && hasRequiredFields;
+      }
+      
+      // For authenticated users, require email and shipping info
+      return isEmailValid && hasRequiredFields;
     }
     return true;
   };
   
   const handleNext = async () => {
-    if (currentStep === 1) {
-      setEmailTouched(true);
-      handleEmailBlur();
-      
-      setTimeout(async () => {
-        if (validateStep(currentStep) && !emailError) {
-          // Fetch shipping rates when moving to step 2
-          try {
-            const recipient = convertToRecipient(shippingInfo);
-            if (isAddressComplete(recipient)) {
-              await fetchShippingRates(recipient);
+    try {
+      if (currentStep === 1) {
+        setEmailTouched(true);
+        handleEmailBlur();
+        
+        setTimeout(async () => {
+          if (validateStep(currentStep) && !emailError) {
+            // Fetch shipping rates when moving to step 2
+            try {
+              const recipient = convertToRecipient(shippingInfo);
+              if (isAddressComplete(recipient)) {
+                await fetchShippingRates(recipient);
+              }
+            } catch (error) {
+              console.warn('Failed to fetch shipping rates, continuing to next step:', error);
+              // Don't block step progression if shipping rates fail
             }
-          } catch (error) {
-            console.error('Failed to fetch shipping rates:', error);
+            setCurrentStep(prev => prev + 1);
           }
-          setCurrentStep(prev => prev + 1);
-        }
-      }, 100);
-    } else if (validateStep(currentStep)) {
-      setCurrentStep(prev => prev + 1);
+        }, 100);
+      } else if (validateStep(currentStep)) {
+        setCurrentStep(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error('Error in step navigation:', error);
+      // Provide user feedback for step navigation errors
+      alert('Unable to proceed to next step. Please try again.');
     }
   };
   
-  const handlePlaceOrder = async () => {
+  // Handle checkout submission
+  const handleCheckout = async () => {
+    // Enhanced validation before checkout
+    const validationErrors = [];
+    
+    if (!shippingInfo.email || !shippingInfo.firstName || !shippingInfo.lastName || 
+        !shippingInfo.address || !shippingInfo.city || !shippingInfo.postcode) {
+      validationErrors.push('Please fill in all required shipping information.');
+    }
+
+    if (!selectedShippingOption && !selectedShipping) {
+      validationErrors.push('Please select a shipping option before proceeding.');
+    }
+
+    if (cartItems.length === 0) {
+      validationErrors.push('Your cart is empty. Please add items before checkout.');
+    }
+
+    if (validationErrors.length > 0) {
+      alert(validationErrors.join('\n'));
+      return;
+    }
+
     setIsProcessing(true);
     
     try {
-      console.log('Starting checkout process...');
-      console.log('Cart items:', cartItems);
-      console.log('Shipping info:', shippingInfo);
+      // Get shipping rate ID from selected shipping option with fallback
+      const shipping_rate_id = selectedShippingOption?.id || selectedShipping?.id;
       
-      // Get the shipping rate ID from the shipping context
-      const shipping_rate_id = selectedShippingOption?.id;
-      
-      console.log('Selected shipping option:', selectedShippingOption);
-      console.log('Shipping rate ID:', shipping_rate_id);
-      
-      // Prepare cart items for Stripe checkout
+      if (!shipping_rate_id) {
+        // Fallback: create checkout without shipping rate if none selected
+        console.warn('No shipping rate selected, proceeding without shipping rate ID');
+      }
+
+      // Get the actual shipping cost from the selected option with fallback
+      const shippingCost = selectedShippingOption?.rate || selectedShipping?.rate || '0';
+      const shippingCostNumeric = parseFloat(shippingCost);
+
+      // Process cart items for Stripe with dynamic pricing
       const lineItems = cartItems.map(item => {
-        // Ensure image URL is absolute for Stripe
-        const absoluteImageUrl = item.image.startsWith('http') 
-          ? item.image 
-          : `${window.location.origin}${item.image}`;
+        // Use the actual price from the cart item (which should come from Printful)
+        const basePrice = item.price;
+        const quantity = item.quantity;
         
-        console.log('Processing item for Stripe:', {
-          name: item.name,
-          originalImage: item.image,
-          absoluteImageUrl: absoluteImageUrl,
-          printful_variant_id: item.printful_variant_id
-        });
-        
-        // Create line item with metadata for Printful integration
-        const lineItem: any = {
+        return {
           price_data: {
             currency: 'gbp',
             product_data: {
               name: item.name,
-              images: [absoluteImageUrl], // Use absolute URL
-            },
-            unit_amount: Math.round(item.price * 100), // Convert to cents
-          },
-          quantity: item.quantity,
-        };
-        
-        // Add printful_variant_id to metadata if available
-        if (item.printful_variant_id) {
-          lineItem.metadata = {
-            printful_variant_id: item.printful_variant_id.toString()
-          };
-        }
-        
-        return lineItem;
-      });
-      
-      console.log('Prepared line items:', lineItems);
-      
-      // Prepare metadata for order tracking (keep within Stripe's 500 character limit)
-      const itemsSummary = cartItems.map(item => ({
-        name: item.name.length > 30 ? item.name.substring(0, 27) + '...' : item.name,
-        qty: item.quantity,
-        price: item.price
-      }));
-      
-      const metadata: Record<string, string> = {
-        item_count: cartItems.length.toString(),
-        total_amount: getTotalPrice().toString(),
-        customer_email: shippingInfo.email,
-        shipping_address: `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.postcode}`,
-      };
-      
-      // Add product names and variants to metadata for webhook processing
-      cartItems.forEach((item, index) => {
-        metadata[`product_${index + 1}_name`] = item.name;
-        
-        // Initialize variants object
-        const variants: Record<string, any> = {};
-        
-        // Check if this is a bundle item and retrieve variant selections from sessionStorage
-        if (item.isBundle) {
-          try {
-            const storedSelections = sessionStorage.getItem('bundleVariantSelections');
-            if (storedSelections) {
-              const variantSelections = JSON.parse(storedSelections);
-              // Check if the stored selections are recent (within last 30 minutes)
-              if (Date.now() - variantSelections.timestamp < 30 * 60 * 1000) {
-                // Use stored selections as variants
-                Object.assign(variants, variantSelections.selections);
+              images: [item.image],
+              metadata: {
+                printful_variant_id: item.printful_variant_id?.toString() || item.id.toString(),
+                product_type: item.isBundle ? 'bundle' : 'single'
               }
-            }
-          } catch (e) {
-            console.warn('Failed to parse stored variant selections:', e);
-          }
-        }
-        
-        if (Object.keys(variants).length > 0) {
-          metadata[`product_${index + 1}_variants`] = JSON.stringify(variants);
-        }
+            },
+            unit_amount: Math.round(basePrice * 100), // Convert to pence
+          },
+          quantity: quantity,
+        };
       });
-      
-      // Add items summary if there's space (keep total under 500 chars)
-      const itemsJson = JSON.stringify(itemsSummary);
-      if (itemsJson.length <= 200) { // Leave room for other metadata
-        metadata.items = itemsJson;
-      } else {
-        // If too long, just store item count and total
-        metadata.items_summary = `${cartItems.length} items`;
+
+      // Calculate totals
+      const subtotal = getTotalPrice();
+      const shippingCostPence = Math.round(shippingCostNumeric * 100); // Convert to pence
+      const total = subtotal + shippingCostPence;
+
+      console.log('Checkout totals:', {
+        subtotal,
+        shippingCost: shippingCostNumeric,
+        shippingCostPence,
+        total,
+        currency: 'GBP'
+      });
+
+      // Prepare metadata for the order
+      const metadata: Record<string, string> = {
+        cart_items: JSON.stringify(cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          printful_variant_id: item.printful_variant_id?.toString() || item.id.toString(),
+          price: item.price
+        }))),
+        shipping_rate_id: shipping_rate_id || 'none',
+        shipping_cost: shippingCost,
+        shipping_currency: 'GBP',
+        subtotal: subtotal.toString(),
+        total: total.toString(),
+        customer_email: shippingInfo.email,
+        customer_name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+        customer_address: `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.postcode}, ${shippingInfo.country}`
+      };
+
+      // Add variant selections to metadata if available
+      try {
+        const storedSelections = sessionStorage.getItem('variantSelections');
+        if (storedSelections) {
+          metadata.variant_selections = storedSelections;
+        }
+      } catch (e) {
+        // Silent error handling for production
       }
-      
-      console.log('Prepared metadata:', metadata);
-      
+
       const checkoutRequest = {
         line_items: lineItems,
         metadata: metadata,
@@ -484,31 +524,33 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
         cancel_url: window.location.href,
         mode: 'payment' as const,
         customer_email: shippingInfo.email,
-        shipping_rate_id: shipping_rate_id
+        shipping_rate_id: shipping_rate_id,
+        // Add guest checkout flag
+        guest_checkout: isGuestCheckout
       };
       
-      console.log('Sending checkout request:', checkoutRequest);
+      console.log('Creating checkout session with:', {
+        ...checkoutRequest,
+        isGuestCheckout
+      });
       
       const { url } = await createCheckoutSession(checkoutRequest);
-      
-      console.log('Received checkout URL:', url);
       
       // Redirect to Stripe checkout
       window.location.href = url;
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      console.error('Error details:', {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined,
-        name: error instanceof Error ? error.name : 'Unknown'
-      });
+      console.error('Checkout error:', error);
       
-      // Show a more user-friendly error message
+      // Show a more user-friendly error message with recovery options
       if (error instanceof Error) {
-        if (error.message.includes('Stripe API key is not configured')) {
+        if (error.message.includes('Stripe API key is not configured') || error.message.includes('Stripe is not configured')) {
           alert('Stripe payment is not configured. This is expected in development environment. Please configure your Stripe API keys to test payments.');
         } else if (error.message.includes('Failed to create checkout session')) {
           alert('Unable to create checkout session. Please check your internet connection and try again.');
+        } else if (error.message.includes('Missing required parameters')) {
+          alert('Checkout information is incomplete. Please fill in all required fields and try again.');
+        } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+          alert('Authentication error. Please refresh the page and try again, or contact support if the problem persists.');
         } else {
           alert(`Checkout error: ${error.message}`);
         }
@@ -545,7 +587,58 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
       </div>
     );
   }
+
+  // Check if cart is empty and redirect to shop
+  if (cartItems.length === 0) {
+    // Add loading state while cart is being restored
+    const [isLoadingCart, setIsLoadingCart] = useState(true);
+    
+    useEffect(() => {
+      // Give cart context time to initialize
+      const timer = setTimeout(() => {
+        setIsLoadingCart(false);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }, []);
+    
+    if (isLoadingCart) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#009fe3] mx-auto mb-4"></div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading Checkout...</h2>
+            <p className="text-gray-600">Please wait while we prepare your checkout.</p>
+          </div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Package className="w-8 h-8 text-gray-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Cart is Empty</h2>
+          <p className="text-gray-600 mb-6">
+            You need to add items to your cart before proceeding to checkout.
+          </p>
+          <button
+            onClick={onBack}
+            className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+          >
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+    );
+  }
   
+  const handleBackToCart = () => {
+    setIsCartOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -553,7 +646,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <button
-              onClick={onBack}
+              onClick={handleBackToCart}
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -793,6 +886,23 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                   </div>
                 )}
                 
+                {/* Guest Checkout Notice */}
+                {isGuestCheckout && (
+                  <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0">
+                        <Shield className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-blue-800 mb-1">Guest Checkout</h4>
+                        <p className="text-sm text-blue-700">
+                          You're checking out as a guest. After your order is complete, you can optionally create an account to track your order and save your information for future purchases.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 <div className="mt-6">
                   {emailError && (
                     <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -878,7 +988,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                     Back
                   </button>
                   <button
-                    onClick={handlePlaceOrder}
+                    onClick={handleCheckout}
                     disabled={isProcessing}
                     className="flex-1 bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                   >
@@ -916,7 +1026,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                       <div className="bg-gray-100 rounded-lg p-6">
                         <div className="flex justify-between items-center mb-4">
                           <h4 className="font-semibold text-gray-900">Order Summary</h4>
-                          <span className="font-bold text-gray-900">£{total.toFixed(2)}</span>
+                          <span className="font-bold text-gray-900">£{finalTotal.toFixed(2)}</span>
                         </div>
                         <div className="space-y-4">
                           {cartItems.map((item) => (
@@ -933,7 +1043,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                           )}
                           <div className="flex justify-between items-center text-lg font-bold text-gray-900">
                             <span>Total</span>
-                            <span>£{total.toFixed(2)}</span>
+                            <span>£{finalTotal.toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
@@ -947,7 +1057,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                             Back
                           </button>
                           <button
-                            onClick={handlePlaceOrder}
+                            onClick={handleCheckout}
                             disabled={isProcessing}
                             className="flex-1 bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                           >
@@ -1043,7 +1153,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
               
               <div className="flex justify-between text-lg font-bold text-gray-900 mb-6">
                 <span>Total</span>
-                <span>£{total.toFixed(2)}</span>
+                <span>£{finalTotal.toFixed(2)}</span>
               </div>
               
               {/* Trust Badges */}
@@ -1054,7 +1164,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Truck className="w-4 h-4 text-blue-500" />
-                  <span>Free UK Shipping Over £50</span>
+                  <span>Best Shipping Rates</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Package className="w-4 h-4 text-purple-500" />

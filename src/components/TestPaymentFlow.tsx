@@ -45,10 +45,7 @@ const TestPaymentFlow = () => {
     }
   }, [testEmail, manualAddress.email]);
   
-  // Debug: Log manual address changes
-  useEffect(() => {
-    console.log('🔍 Debug: manualAddress changed:', manualAddress);
-  }, [manualAddress]);
+
   
   // Real products from database
   const [liveProducts, setLiveProducts] = useState<Product[]>([]);
@@ -103,20 +100,11 @@ const TestPaymentFlow = () => {
             variants = {
               color: 'Black'
             };
-          } else if (product.name.includes('Badge')) {
-            // Badges: set size variants
-            variants = {
-              setSize: 'Set of 5'
-            };
-          } else if (product.name.includes('Stickers')) {
-            // Stickers: pack size variants
-            variants = {
-              packSize: 'Pack of 10'
-            };
+
           } else if (product.name.includes('Bundle')) {
             // Bundles: variants based on contained products
             if (product.name.includes('Starter')) {
-              // Starter Bundle: T-shirt (size, color, gender) + Tote Bag (no variants)
+              // Starter Bundle: T-shirt (size, color, gender) + Cap (color) + Mug (no variants)
               variants = {
                 tshirt_size: 'M',
                 tshirt_color: 'Black',
@@ -228,9 +216,9 @@ const TestPaymentFlow = () => {
     return getSelectedProducts().reduce((total, product) => total + (product.price * product.quantity), 0);
   };
 
-  // Calculate shipping based on live rules (Free over £50)
+  // Calculate shipping based on actual rates
   const calculateShipping = (subtotal: number) => {
-    return subtotal >= 50 ? 0 : 3.99;
+    return 3.99; // Standard shipping rate
   };
 
   // Get total with shipping
@@ -537,8 +525,7 @@ const TestPaymentFlow = () => {
     try {
       addTestResult('Step 3', 'info', `Calling send-order-email function for order ${orderId} to ${email}`);
       
-      // Debug: Log email function call
-      console.log('🔍 Debug: sendTestEmail called with:', { orderId, email });
+
       
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       
@@ -553,7 +540,6 @@ const TestPaymentFlow = () => {
       };
       
       addTestResult('Step 3', 'info', 'Request body:', requestBody);
-      console.log('🔍 Debug: Email request body:', requestBody);
       
       const response = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
         method: 'POST',
@@ -564,19 +550,16 @@ const TestPaymentFlow = () => {
         body: JSON.stringify(requestBody),
       });
 
-      console.log('🔍 Debug: Email response status:', response.status);
-      console.log('🔍 Debug: Email response ok:', response.ok);
+
 
       addTestResult('Step 3', 'info', `Response status: ${response.status}`);
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log('🔍 Debug: Email response data:', responseData);
         addTestResult('Step 3', 'success', 'Test email sent successfully!', responseData);
         return true;
       } else {
         const errorData = await response.text();
-        console.log('🔍 Debug: Email error data:', errorData);
         addTestResult('Step 3', 'error', 'Failed to send test email', {
           status: response.status,
           error: errorData
@@ -584,7 +567,6 @@ const TestPaymentFlow = () => {
         return false;
       }
     } catch (error: any) {
-      console.log('🔍 Debug: Exception in sendTestEmail:', error);
       addTestResult('Step 3', 'error', 'Error sending test email', error.message);
       return false;
     }
@@ -595,13 +577,7 @@ const TestPaymentFlow = () => {
     try {
       addTestResult('Email Test', 'info', 'Testing email function directly...');
       
-      // Debug: Log current state
-      console.log('🔍 Debug: Current manual address:', manualAddress);
-      console.log('🔍 Debug: Selected products:', getSelectedProducts());
-      console.log('🔍 Debug: Environment variables:', {
-        supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
-        hasAnonKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY
-      });
+
       
       // First create a test order
       const testOrderId = `test_order_${Date.now()}`;
@@ -632,7 +608,7 @@ const TestPaymentFlow = () => {
         }))
       };
       
-      console.log('🔍 Debug: Request body for manual-test-insert:', requestBody);
+
       
       const createResponse = await fetch(`${supabaseUrl}/functions/v1/manual-test-insert`, {
         method: 'POST',
@@ -643,12 +619,8 @@ const TestPaymentFlow = () => {
         body: JSON.stringify(requestBody),
       });
 
-      console.log('🔍 Debug: Create response status:', createResponse.status);
-      console.log('🔍 Debug: Create response ok:', createResponse.ok);
-
       if (createResponse.ok) {
         const createData = await createResponse.json();
-        console.log('🔍 Debug: Create response data:', createData);
         addTestResult('Email Test', 'success', 'Test order created successfully!', createData);
         
         // Now test the email function
@@ -663,14 +635,12 @@ const TestPaymentFlow = () => {
         }
       } else {
         const errorData = await createResponse.text();
-        console.log('🔍 Debug: Create error data:', errorData);
         addTestResult('Email Test', 'error', 'Failed to create test order for email test', {
           status: createResponse.status,
           error: errorData
         });
       }
     } catch (error: any) {
-      console.log('🔍 Debug: Exception in testEmailFunction:', error);
       addTestResult('Email Test', 'error', 'Error testing email function', error.message);
     }
   };
@@ -964,10 +934,7 @@ const TestPaymentFlow = () => {
         }),
       });
       
-      console.log('🔍 Debug: manual-test-insert test response:', {
-        status: testResponse.status,
-        ok: testResponse.ok
-      });
+
       
       if (testResponse.ok) {
         addTestResult('Edge Function Test', 'success', 'manual-test-insert function is accessible');
@@ -993,10 +960,7 @@ const TestPaymentFlow = () => {
         }),
       });
       
-      console.log('🔍 Debug: send-order-email test response:', {
-        status: emailTestResponse.status,
-        ok: emailTestResponse.ok
-      });
+
       
       if (emailTestResponse.ok) {
         addTestResult('Edge Function Test', 'success', 'send-order-email function is accessible');
@@ -1009,7 +973,6 @@ const TestPaymentFlow = () => {
       }
       
     } catch (error: any) {
-      console.log('🔍 Debug: Exception in testEdgeFunctions:', error);
       addTestResult('Edge Function Test', 'error', 'Error testing Edge Functions', error.message);
     }
   };
@@ -2008,11 +1971,7 @@ const TestPaymentFlow = () => {
                     </p>
                     <p className="text-green-800 text-sm">
                       <strong>Shipping:</strong> {calculateShipping(getSelectedProductsTotal()) === 0 ? 'FREE' : `£${calculateShipping(getSelectedProductsTotal()).toFixed(2)}`}
-                      {getSelectedProductsTotal() >= 50 && (
-                        <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                          Free over £50!
-                        </span>
-                      )}
+
                     </p>
                     <p className="text-green-900 font-semibold text-lg">
                       <strong>Total:</strong> £{getTotalWithShipping().toFixed(2)}

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Database State Check</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        .info { background: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .table-info { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #17a2b8; }
+        .next-steps { background: #e7f3ff; padding: 20px; border-radius: 5px; border: 1px solid #b3d9ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Current Database State Check</h1>
+        <p>This test checks the current state of your database before applying the Printful integration migration.</p>
+
+        <div class="section info">
+            <h2>📋 What This Test Checks</h2>
+            <p>This simplified test will:</p>
+            <ul>
+                <li>Verify database connectivity</li>
+                <li>Check which tables currently exist</li>
+                <li>Identify what needs to be created</li>
+                <li>Provide guidance on next steps</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Configuration</h2>
+            
+            <div class="form-group">
+                <label for="supabaseUrl">Supabase URL:</label>
+                <input type="url" id="supabaseUrl" placeholder="https://your-project.supabase.co" value="https://nsmrxwnrtsllxvplazmm.supabase.co">
+            </div>
+            
+            <div class="form-group">
+                <label for="supabaseAnonKey">Supabase Anon Key:</label>
+                <input type="text" id="supabaseAnonKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+            </div>
+            
+            <button onclick="saveToLocalStorage()">Save Configuration</button>
+        </div>
+
+        <div class="section">
+            <h2>🧪 Database State Tests</h2>
+            <button onclick="checkDatabaseState()">Check Current Database State</button>
+            <div id="testResults"></div>
+        </div>
+
+        <div class="section next-steps">
+            <h2>📋 Next Steps After Migration</h2>
+            <p>Once you've applied the database migration, you can run the full integration tests:</p>
+            <ol>
+                <li><strong>Apply Migration:</strong> Run <code>supabase db push</code> or use the deployment script</li>
+                <li><strong>Run Full Tests:</strong> Use <code>test-starter-bundle-printful.html</code> for comprehensive testing</li>
+                <li><strong>Verify Integration:</strong> Check that all Printful IDs are properly mapped</li>
+                <li><strong>Test Bundle Creation:</strong> Verify the starter bundle works end-to-end</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function saveToLocalStorage() {
+            const config = {
+                supabaseUrl: document.getElementById('supabaseUrl').value,
+                supabaseAnonKey: document.getElementById('supabaseAnonKey').value
+            };
+            localStorage.setItem('currentDbTestConfig', JSON.stringify(config));
+            alert('Configuration saved to localStorage');
+        }
+
+        async function checkDatabaseState() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<div class="test-result info">Checking database state...</div>';
+
+            const supabaseUrl = document.getElementById('supabaseUrl').value;
+            const supabaseKey = document.getElementById('supabaseAnonKey').value;
+
+            if (!supabaseUrl || !supabaseKey) {
+                resultsDiv.innerHTML = '<div class="test-result error">❌ Please provide both Supabase URL and Anon Key</div>';
+                return;
+            }
+
+            try {
+                // Test 1: Basic connectivity
+                resultsDiv.innerHTML += '<div class="test-result info">Testing basic connectivity...</div>';
+                const basicResponse = await fetch(`${supabaseUrl}/rest/v1/products?select=*&limit=1`, {
+                    headers: {
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (basicResponse.ok) {
+                    resultsDiv.innerHTML += '<div class="test-result success">✅ Basic connectivity successful</div>';
+                } else {
+                    resultsDiv.innerHTML += `<div class="test-result error">❌ Basic connectivity failed: HTTP ${basicResponse.status}</div>`;
+                    return;
+                }
+
+                // Test 2: Check products table
+                resultsDiv.innerHTML += '<div class="test-result info">Checking products table...</div>';
+                const productsResponse = await fetch(`${supabaseUrl}/rest/v1/products?select=*&limit=5`, {
+                    headers: {
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (productsResponse.ok) {
+                    const products = await productsResponse.json();
+                    resultsDiv.innerHTML += `<div class="test-result success">✅ Products table accessible (${products.length} products found)</div>`;
+                    
+                    // Check for Printful fields
+                    const hasPrintfulFields = products.length > 0 && products[0].hasOwnProperty('printful_product_id');
+                    if (hasPrintfulFields) {
+                        resultsDiv.innerHTML += '<div class="test-result success">✅ Printful integration fields exist</div>';
+                    } else {
+                        resultsDiv.innerHTML += '<div class="test-result warning">⚠️ Printful integration fields not found - migration needed</div>';
+                    }
+
+                    // Show sample products
+                    let html = '<div class="table-info"><strong>Sample Products:</strong><br>';
+                    products.slice(0, 3).forEach(product => {
+                        html += `• ${product.name} (ID: ${product.id})<br>`;
+                    });
+                    html += '</div>';
+                    resultsDiv.innerHTML += html;
+                } else {
+                    resultsDiv.innerHTML += `<div class="test-result error">❌ Products table not accessible: HTTP ${productsResponse.status}</div>`;
+                }
+
+                // Test 3: Check product_variants table
+                resultsDiv.innerHTML += '<div class="test-result info">Checking product_variants table...</div>';
+                try {
+                    const variantsResponse = await fetch(`${supabaseUrl}/rest/v1/product_variants?select=*&limit=5`, {
+                        headers: {
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (variantsResponse.ok) {
+                        const variants = await variantsResponse.json();
+                        resultsDiv.innerHTML += `<div class="test-result success">✅ Product variants table accessible (${variants.length} variants found)</div>`;
+                        
+                        // Check for Printful fields
+                        const hasPrintfulVariantFields = variants.length > 0 && variants[0].hasOwnProperty('printful_variant_id');
+                        if (hasPrintfulVariantFields) {
+                            resultsDiv.innerHTML += '<div class="test-result success">✅ Printful variant fields exist</div>';
+                        } else {
+                            resultsDiv.innerHTML += '<div class="test-result warning">⚠️ Printful variant fields not found - migration needed</div>';
+                        }
+                    } else {
+                        resultsDiv.innerHTML += `<div class="test-result warning">⚠️ Product variants table not accessible: HTTP ${variantsResponse.status}</div>`;
+                    }
+                } catch (error) {
+                    resultsDiv.innerHTML += `<div class="test-result warning">⚠️ Product variants table check failed: ${error.message}</div>`;
+                }
+
+                // Test 4: Check bundle_variants table
+                resultsDiv.innerHTML += '<div class="test-result info">Checking bundle_variants table...</div>';
+                try {
+                    const bundleVariantsResponse = await fetch(`${supabaseUrl}/rest/v1/bundle_variants?select=*&limit=5`, {
+                        headers: {
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (bundleVariantsResponse.ok) {
+                        const bundleVariants = await bundleVariantsResponse.json();
+                        resultsDiv.innerHTML += `<div class="test-result success">✅ Bundle variants table accessible (${bundleVariants.length} relationships found)</div>`;
+                    } else {
+                        resultsDiv.innerHTML += `<div class="test-result warning">⚠️ Bundle variants table not accessible: HTTP ${bundleVariantsResponse.status} - table may not exist yet</div>`;
+                    }
+                } catch (error) {
+                    resultsDiv.innerHTML += `<div class="test-result warning">⚠️ Bundle variants table check failed: ${error.message} - table may not exist yet</div>`;
+                }
+
+                // Test 5: Check Edge Functions
+                resultsDiv.innerHTML += '<div class="test-result info">Checking Edge Functions...</div>';
+                try {
+                    const functionsResponse = await fetch(`${supabaseUrl}/functions/v1/printful-proxy/products`, {
+                        headers: {
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (functionsResponse.ok) {
+                        resultsDiv.innerHTML += '<div class="test-result success">✅ Printful proxy function accessible</div>';
+                    } else {
+                        resultsDiv.innerHTML += `<div class="test-result warning">⚠️ Printful proxy function not accessible: HTTP ${functionsResponse.status}</div>`;
+                    }
+                } catch (error) {
+                    resultsDiv.innerHTML += `<div class="test-result warning">⚠️ Edge Functions check failed: ${error.message}</div>`;
+                }
+
+                // Summary
+                resultsDiv.innerHTML += '<div class="test-result info"><strong>📊 Database State Summary:</strong></div>';
+                resultsDiv.innerHTML += '<div class="table-info">';
+                resultsDiv.innerHTML += 'Based on the tests above, here\'s what you need to do:<br><br>';
+                resultsDiv.innerHTML += '1. <strong>Apply Database Migration:</strong> Run the migration to add Printful fields<br>';
+                resultsDiv.innerHTML += '2. <strong>Deploy Edge Functions:</strong> Ensure printful-proxy function is accessible<br>';
+                resultsDiv.innerHTML += '3. <strong>Run Full Tests:</strong> Use the comprehensive test suite after migration<br>';
+                resultsDiv.innerHTML += '4. <strong>Verify Integration:</strong> Check that all Printful IDs are properly mapped';
+                resultsDiv.innerHTML += '</div>';
+
+            } catch (error) {
+                resultsDiv.innerHTML += `<div class="test-result error">❌ Test failed with error: ${error.message}</div>`;
+            }
+        }
+
+        // Load saved configuration
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('currentDbTestConfig');
+            if (saved) {
+                const config = JSON.parse(saved);
+                document.getElementById('supabaseUrl').value = config.supabaseUrl || '';
+                document.getElementById('supabaseAnonKey').value = config.supabaseAnonKey || '';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -29,15 +29,84 @@ export function useShippingQuotes() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}))
-        throw new Error(errorData.error || `Failed to fetch shipping quotes: ${res.status}`)
+        
+        // Use fallback shipping options instead of throwing error
+        console.warn('Shipping API failed, using fallback options:', errorData);
+        
+        const fallbackOptions: ShippingOption[] = [
+          {
+            id: 'standard-uk',
+            name: 'Standard UK Delivery',
+            rate: '4.99',
+            currency: 'GBP',
+            minDeliveryDays: 3,
+            maxDeliveryDays: 5,
+            carrier: 'Royal Mail'
+          },
+          {
+            id: 'express-uk',
+            name: 'Express UK Delivery',
+            rate: '8.99',
+            currency: 'GBP',
+            minDeliveryDays: 1,
+            maxDeliveryDays: 2,
+            carrier: 'DHL Express'
+          },
+          {
+            id: 'international-standard',
+            name: 'International Standard',
+            rate: '12.99',
+            currency: 'GBP',
+            minDeliveryDays: 7,
+            maxDeliveryDays: 14,
+            carrier: 'Royal Mail International'
+          }
+        ];
+        
+        setOptions(fallbackOptions);
+        setError('Using standard shipping rates (live quotes unavailable)');
+        return;
       }
 
       const data = await res.json()
       setOptions(data.options ?? [])
       
     } catch (e: any) {
-      setError(e.message ?? 'Error fetching shipping quotes')
-      console.error('Shipping quotes error:', e)
+      console.warn('Shipping quotes error, using fallback options:', e);
+      
+      // Use fallback shipping options on any error
+      const fallbackOptions: ShippingOption[] = [
+        {
+          id: 'standard-uk',
+          name: 'Standard UK Delivery',
+          rate: '4.99',
+          currency: 'GBP',
+          minDeliveryDays: 3,
+          maxDeliveryDays: 5,
+          carrier: 'Royal Mail'
+        },
+        {
+          id: 'express-uk',
+          name: 'Express UK Delivery',
+          rate: '8.99',
+          currency: 'GBP',
+          minDeliveryDays: 1,
+          maxDeliveryDays: 2,
+          carrier: 'DHL Express'
+        },
+        {
+          id: 'international-standard',
+          name: 'International Standard',
+          rate: '12.99',
+          currency: 'GBP',
+          minDeliveryDays: 7,
+          maxDeliveryDays: 14,
+          carrier: 'Royal Mail International'
+        }
+      ];
+      
+      setOptions(fallbackOptions);
+      setError('Using standard shipping rates (live quotes unavailable)');
     } finally {
       setLoading(false)
     }

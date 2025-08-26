@@ -44,72 +44,24 @@ export const products: Product[] = [
     id: 'prod_Sd8pcDfjJwPCo1',
     priceId: 'price_1RhsXRGDbOGEgNLwiiZNVuie',
     name: 'Activist Bundle',
-    description: 'The ultimate Reform UK supporter pack: hoodie, T-shirt, cap, tote bag, water bottle, mug, mouse pad, stickers, and badge set.',
-    price: 199.99,
+    description: 'The ultimate Reform UK supporter pack: hoodie, T-shirt, cap, tote bag, water bottle, mug, and mouse pad.',
+    price: 127.99,
     mode: 'payment'
   },
   {
     id: 'prod_Sd8nP9NMpObNeO',
     priceId: 'price_1RhsW8GDbOGEgNLwahSqdPDz',
     name: 'Champion Bundle',
-    description: 'Step up your support with a hoodie, cap, tote bag, and water bottle. The perfect set for active campaigners.',
-    price: 99.99,
+    description: 'Step up your support with a hoodie, tote bag, water bottle, and mouse pad. The perfect set for active campaigners.',
+    price: 89.99,
     mode: 'payment'
   },
   {
     id: 'prod_Sd8mNV0mlpBltk',
     priceId: 'price_1RhsUsGDbOGEgNLw2LAVZoGb',
     name: 'Starter Bundle',
-    description: 'Kickstart your Reform UK collection with a T-shirt and tote bag—ideal for new supporters.',
-    price: 34.99,
-    mode: 'payment'
-  },
-  {
-    id: 'prod_Sd9IYb41z4zmJw',
-    priceId: 'price_1Rht03GDbOGEgNLwJ1ubNAti',
-    name: 'Reform UK Stickers (10 Pack)',
-    description: 'Set of weatherproof Reform UK stickers. Perfect for laptops, water bottles, cars, and more.',
-    price: 9.99,
-    mode: 'payment'
-  },
-  {
-    id: 'prod_Sd9IYb41z4zmJw',
-    priceId: 'price_1Rht18GDbOGEgNLwcGW40rtg',
-    name: 'Reform UK Stickers (25 Pack)',
-    description: 'Set of 25 weatherproof Reform UK stickers. Perfect for laptops, water bottles, cars, and more.',
-    price: 19.99,
-    mode: 'payment'
-  },
-  {
-    id: 'prod_Sd9IYb41z4zmJw',
-    priceId: 'price_1Rht1hGDbOGEgNLwfhp9VAdB',
-    name: 'Reform UK Stickers (50 Pack)',
-    description: 'Set of 50 weatherproof Reform UK stickers. Perfect for laptops, water bottles, cars, and more.',
-    price: 34.99,
-    mode: 'payment'
-  },
-  {
-    id: 'prod_Sd9IYb41z4zmJw',
-    priceId: 'price_1Rht23GDbOGEgNLw5XD5xTaX',
-    name: 'Reform UK Stickers (100 Pack)',
-    description: 'Set of 100 weatherproof Reform UK stickers. Perfect for laptops, water bottles, cars, and more.',
-    price: 59.99,
-    mode: 'payment'
-  },
-  {
-    id: 'prod_Sd9GL7Wa6YBMJU',
-    priceId: 'price_1RhsxfGDbOGEgNLwpTGkkVou',
-    name: 'Reform UK Mouse Pad',
-    description: 'Upgrade your workspace with a smooth, durable Reform UK mouse pad. Non-slip base and high-quality print for everyday use.',
-    price: 14.99,
-    mode: 'payment'
-  },
-  {
-    id: 'prod_Sd9EhUHhgszITY',
-    priceId: 'price_1Rhsw7GDbOGEgNLwYH6kMu8R',
-    name: 'Reform UK Mug',
-    description: 'Enjoy your favorite hot drink in this ceramic Reform UK mug. Dishwasher and microwave safe with a vibrant logo print.',
-    price: 19.99,
+    description: 'Perfect for newcomers to the Reform movement. Includes essential items to show your support.',
+    price: 49.99,
     mode: 'payment'
   },
   {
@@ -125,7 +77,7 @@ export const products: Product[] = [
     priceId: 'price_1RhsrKGDbOGEgNLwdgEGRO0q',
     name: 'Reform UK Tote Bag',
     description: 'Eco-friendly and spacious, this Reform UK tote bag is perfect for shopping, events, or daily use. Features sturdy handles and a bold printed design.',
-    price: 19.99,
+    price: 24.99,
     mode: 'payment'
   },
   {
@@ -149,7 +101,7 @@ export const products: Product[] = [
     priceId: 'price_1Rhsh5GDbOGEgNLwpqIVX80W',
     name: 'Reform UK Hoodie',
     description: 'Show your support in style and comfort with this premium Reform UK hoodie. Features a soft fleece lining, adjustable drawstring hood, and bold Reform UK branding.',
-    price: 49.99,
+    price: 39.99,
     mode: 'payment'
   },
   {
@@ -164,24 +116,40 @@ export const products: Product[] = [
     id: 'prod_Sd9NmoMTiInOFT',
     priceId: 'price_1Rht63GDbOGEgNLwUssokbE7',
     name: 'Reform UK Badges (10 Pack)',
-    description: 'A collection of 10 Reform UK badges, perfect for jackets, bags, or lanyards.',
+    description: 'A collection of 10 Reform UK badges, perfect for jackets, bags, or lanyards. Show your support wherever you go.',
     price: 15.99,
     mode: 'payment'
   },
   {
     id: 'prod_Sd9NmoMTiInOFT',
-    priceId: 'price_1Rht6PGDbOGEgNLwE2FyT2Kz',
+    priceId: 'price_1Rht63GDbOGEgNLwUssokbE7',
     name: 'Reform UK Badges (25 Pack)',
-    description: 'A collection of 25 Reform UK badges, perfect for jackets, bags, or lanyards.',
+    description: 'A collection of 25 Reform UK badges, perfect for jackets, bags, or lanyards. Show your support wherever you go.',
     price: 35.99,
     mode: 'payment'
   },
   {
     id: 'prod_Sd9NmoMTiInOFT',
-    priceId: 'price_1Rht6eGDbOGEgNLws1wlMSGh',
+    priceId: 'price_1Rht63GDbOGEgNLwUssokbE7',
     name: 'Reform UK Badges (50 Pack)',
-    description: 'A collection of 50 Reform UK badges, perfect for jackets, bags, or lanyards.',
+    description: 'A collection of 50 Reform UK badges, perfect for jackets, bags, or lanyards. Show your support wherever you go.',
     price: 64.99,
+    mode: 'payment'
+  },
+  {
+    id: 'prod_Sd9NmoMTiInOFT',
+    priceId: 'price_1Rht63GDbOGEgNLwUssokbE7',
+    name: 'Reform UK Mug',
+    description: 'Start your day with Reform UK! This ceramic mug features the official logo and is perfect for coffee, tea, or any hot beverage.',
+    price: 9.99,
+    mode: 'payment'
+  },
+  {
+    id: 'prod_Sd9NmoMTiInOFT',
+    priceId: 'price_1Rht63GDbOGEgNLwUssokbE7',
+    name: 'Reform UK Mouse Pad',
+    description: 'Show your support even while working! This high-quality mouse pad features the Reform UK logo and provides smooth mouse movement.',
+    price: 14.99,
     mode: 'payment'
   }
 ];
@@ -193,3 +161,22 @@ export function getProductByPriceId(priceId: string): Product | undefined {
 export function getProductById(id: string): Product | undefined {
   return products.find(product => product.id === id);
 }
+
+// Stripe configuration for Reform UK
+export const STRIPE_CONFIG = {
+  // Your Stripe publishable key (public key)
+  publishableKey: 'pk_test_51RgXVNGDbOGEgNLwnC3APRDyN0bPWtx7CzyCTo22KGECzovkaY1baKJiNlCLdjjqsZUbarFVMEii5aAhyjSorcIV00vV0IB8hG',
+  
+  // Stripe configuration options
+  options: {
+    mode: 'test', // Use 'live' for production
+    currency: 'gbp',
+    country: 'GB',
+    // Add any additional Stripe configuration options here
+  }
+};
+
+// Export individual values for convenience
+export const STRIPE_PUBLISHABLE_KEY = STRIPE_CONFIG.publishableKey;
+export const STRIPE_CURRENCY = STRIPE_CONFIG.options.currency;
+export const STRIPE_COUNTRY = STRIPE_CONFIG.options.country;

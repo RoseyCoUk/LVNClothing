@@ -1,0 +1,589 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Markdown Preview</title>
+      <style>
+        body {
+          font-family: sans-serif;
+          padding: 40px;
+          line-height: 1.6;
+          background: #fdfdfd;
+          color: #333;
+        }
+        pre {
+          background: #f4f4f4;
+          padding: 10px;
+          border-radius: 5px;
+          overflow-x: auto;
+        }
+        code {
+          font-family: monospace;
+          background: #eee;
+          padding: 2px 4px;
+        }
+        table {
+          border-collapse: collapse;
+          width: 100%;
+          margin-top: 20px;
+        }
+        th, td {
+          border: 1px solid #ccc;
+          padding: 8px 12px;
+          text-align: left;
+        }
+        th {
+          background-color: #f2f2f2;
+          font-weight: bold;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>TestSprite AI Testing Report(MCP)</h1>
+<hr>
+<h2>1️⃣ Document Metadata</h2>
+<ul>
+<li><strong>Project Name:</strong> ReformUK</li>
+<li><strong>Version:</strong> 0.0.0</li>
+<li><strong>Date:</strong> 2025-08-26</li>
+<li><strong>Prepared by:</strong> TestSprite AI Team</li>
+</ul>
+<hr>
+<h2>2️⃣ Requirement Validation Summary</h2>
+<h3>Requirement: User Authentication &amp; Registration</h3>
+<ul>
+<li><strong>Description:</strong> User registration, login, and account management with Supabase authentication.</li>
+</ul>
+<h4>Test 1</h4>
+<ul>
+<li><strong>Test ID:</strong> TC001</li>
+<li><strong>Test Name:</strong> User Registration with Valid Inputs</li>
+<li><strong>Test Code:</strong> <a href="./TC001_User_Registration_with_Valid_Inputs.py">TC001_User_Registration_with_Valid_Inputs.py</a></li>
+<li><strong>Test Error:</strong> Test failed due to server-side 401 Unauthorized errors indicating authentication or authorization issues.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/eed962d7-a8bb-48b7-a796-397a73dc51fa</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Backend authentication/authorization for registration API calls is failing. API keys, tokens, or session management on backend needs verification.</li>
+</ul>
+<hr>
+<h4>Test 2</h4>
+<ul>
+<li><strong>Test ID:</strong> TC002</li>
+<li><strong>Test Name:</strong> User Registration with Invalid Inputs</li>
+<li><strong>Test Code:</strong> <a href="./TC002_User_Registration_with_Invalid_Inputs.py">TC002_User_Registration_with_Invalid_Inputs.py</a></li>
+<li><strong>Test Error:</strong> Test failed due to server returning 401 Unauthorized errors, preventing proper validation error display.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/6530f33b-73b6-46ce-91e4-a002e1086fb0</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Backend validation service is inaccessible due to authorization issues. Frontend cannot receive validation feedback.</li>
+</ul>
+<hr>
+<h4>Test 3</h4>
+<ul>
+<li><strong>Test ID:</strong> TC003</li>
+<li><strong>Test Name:</strong> User Login with Correct Credentials</li>
+<li><strong>Test Code:</strong> <a href="./TC003_User_Login_with_Correct_Credentials.py">TC003_User_Login_with_Correct_Credentials.py</a></li>
+<li><strong>Test Error:</strong> Test failed because backend responded with 401 Unauthorized errors, preventing successful login.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/2c542711-227a-41ea-ad31-1a8ce8c39ad6</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Backend authentication service for login API is not functioning. Frontend cannot get valid authentication tokens.</li>
+</ul>
+<hr>
+<h4>Test 4</h4>
+<ul>
+<li><strong>Test ID:</strong> TC004</li>
+<li><strong>Test Name:</strong> User Login with Invalid Credentials</li>
+<li><strong>Test Code:</strong> <a href="./TC004_User_Login_with_Invalid_Credentials.py">TC004_User_Login_with_Invalid_Credentials.py</a></li>
+<li><strong>Test Error:</strong> N/A</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/7bab89b8-a47d-4b15-a013-37cec7fd4799</li>
+<li><strong>Status:</strong> ✅ Passed</li>
+<li><strong>Severity:</strong> LOW</li>
+<li><strong>Analysis / Findings:</strong> Login security works as expected for invalid credentials. No security issues found.</li>
+</ul>
+<hr>
+<h4>Test 5</h4>
+<ul>
+<li><strong>Test ID:</strong> TC005</li>
+<li><strong>Test Name:</strong> Password Reset Flow</li>
+<li><strong>Test Code:</strong> <a href="./TC005_Password_Reset_Flow.py">TC005_Password_Reset_Flow.py</a></li>
+<li><strong>Test Error:</strong> Test failed without specific error details, but warnings suggest frontend UI or API communication issues.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/3e014d8b-63ca-40b7-bc4b-86e9677c3aa4</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Password reset API integration and error handling in frontend needs review. Missing or misconfigured API endpoints.</li>
+</ul>
+<hr>
+<h4>Test 6</h4>
+<ul>
+<li><strong>Test ID:</strong> TC006</li>
+<li><strong>Test Name:</strong> Account Deletion by User</li>
+<li><strong>Test Code:</strong> <a href="./TC006_Account_Deletion_by_User.py">TC006_Account_Deletion_by_User.py</a></li>
+<li><strong>Test Error:</strong> Test failed due to 401 Unauthorized errors blocking the account deletion request.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/c4681a99-6bc8-4d2f-a6ac-712f78417b4c</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Backend API authorization is preventing account deletion requests. User permissions and session management need fixing.</li>
+</ul>
+<hr>
+<h3>Requirement: Product Catalog &amp; Browsing</h3>
+<ul>
+<li><strong>Description:</strong> Product browsing, category filtering, and variant selection functionality.</li>
+</ul>
+<h4>Test 7</h4>
+<ul>
+<li><strong>Test ID:</strong> TC007</li>
+<li><strong>Test Name:</strong> Browse Product Categories</li>
+<li><strong>Test Code:</strong> <a href="./TC007_Browse_Product_Categories.py">TC007_Browse_Product_Categories.py</a></li>
+<li><strong>Test Error:</strong> Test failed because backend authorization issues (401 errors) prevented product category data from loading.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/11d808af-df77-4709-9dcc-1477cfe23507</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> API authorization for product category listing endpoints is failing. Frontend cannot display filtered product listings.</li>
+</ul>
+<hr>
+<h4>Test 8</h4>
+<ul>
+<li><strong>Test ID:</strong> TC008</li>
+<li><strong>Test Name:</strong> Product Variant Selection</li>
+<li><strong>Test Code:</strong> <a href="./TC008_Product_Variant_Selection.py">TC008_Product_Variant_Selection.py</a></li>
+<li><strong>Test Error:</strong> Test failed as 401 Unauthorized errors prevented price and availability data for product variants from being fetched.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/da0df971-3c3b-4b0c-bfb5-8740c56d4b83</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> API authentication failure for variant data requests. Frontend cannot provide real-time updates for variant selections.</li>
+</ul>
+<hr>
+<h3>Requirement: Shopping Cart &amp; Pricing</h3>
+<ul>
+<li><strong>Description:</strong> Shopping cart functionality, persistent storage, and dynamic pricing calculations.</li>
+</ul>
+<h4>Test 9</h4>
+<ul>
+<li><strong>Test ID:</strong> TC009</li>
+<li><strong>Test Name:</strong> Add Items to Persistent Shopping Cart</li>
+<li><strong>Test Code:</strong> <a href="./TC009_Add_Items_to_Persistent_Shopping_Cart.py">TC009_Add_Items_to_Persistent_Shopping_Cart.py</a></li>
+<li><strong>Test Error:</strong> Test failed due to repeated 401 Unauthorized responses, blocking shopping cart persistence API calls.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/d883ed12-582f-489e-86d7-e785c4f92ba7</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Backend API authorization or session persistence mechanisms are failing. Cart items cannot be stored or retrieved properly.</li>
+</ul>
+<hr>
+<h4>Test 10</h4>
+<ul>
+<li><strong>Test ID:</strong> TC010</li>
+<li><strong>Test Name:</strong> Real-time Cart Quantity Update and Validation</li>
+<li><strong>Test Code:</strong> <a href="./TC010_Real_time_Cart_Quantity_Update_and_Validation.py">TC010_Real_time_Cart_Quantity_Update_and_Validation.py</a></li>
+<li><strong>Test Error:</strong> Test failed likely due to missing backend authorization (401 errors), preventing cart quantity updates and validation responses.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/f8d9da0b-eb15-4bf1-ac7e-1e234b5857c7</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Authorization issues on cart update API. Immediate inventory validation logic is not functional server-side.</li>
+</ul>
+<hr>
+<h4>Test 11</h4>
+<ul>
+<li><strong>Test ID:</strong> TC011</li>
+<li><strong>Test Name:</strong> Bundle Discount Pricing Calculation</li>
+<li><strong>Test Code:</strong> <a href="./TC011_Bundle_Discount_Pricing_Calculation.py">TC011_Bundle_Discount_Pricing_Calculation.py</a></li>
+<li><strong>Test Error:</strong> Test failed due to backend authorization errors (401) blocking discount calculation API calls.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/9a897e38-d2ff-4e40-acf3-0c0cfef54a89</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Backend authorization is preventing discount APIs from responding. Bundle discounts cannot be applied to cart totals.</li>
+</ul>
+<hr>
+<h4>Test 12</h4>
+<ul>
+<li><strong>Test ID:</strong> TC012</li>
+<li><strong>Test Name:</strong> Promotional Code Application</li>
+<li><strong>Test Code:</strong> <a href="./TC012_Promotional_Code_Application.py">TC012_Promotional_Code_Application.py</a></li>
+<li><strong>Test Error:</strong> Test failed because API calls to apply promotional codes were rejected with 401 Unauthorized errors.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/182c2b19-bd3e-426a-94c9-68e3c8709a04</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> API authentication for promotional code validation endpoints is failing. Frontend cannot confirm or display discount applications.</li>
+</ul>
+<hr>
+<h3>Requirement: Shipping &amp; Checkout</h3>
+<ul>
+<li><strong>Description:</strong> Shipping calculations, address validation, and checkout process management.</li>
+</ul>
+<h4>Test 13</h4>
+<ul>
+<li><strong>Test ID:</strong> TC013</li>
+<li><strong>Test Name:</strong> Free Shipping Threshold Validation</li>
+<li><strong>Test Code:</strong> <a href="./TC013_Free_Shipping_Threshold_Validation.py">TC013_Free_Shipping_Threshold_Validation.py</a></li>
+<li><strong>Test Error:</strong> Test failed as 401 Unauthorized errors prevented backend from returning free shipping eligibility status.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/3ad4e577-b825-4731-90ba-6c2b4c02a8aa</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Authentication failures on shipping cost/free shipping APIs. Free shipping cannot be automatically applied.</li>
+</ul>
+<hr>
+<h4>Test 14</h4>
+<ul>
+<li><strong>Test ID:</strong> TC014</li>
+<li><strong>Test Name:</strong> Multi-step Checkout Flow with Valid Inputs</li>
+<li><strong>Test Code:</strong> <a href="./TC014_Multi_step_Checkout_Flow_with_Valid_Inputs.py">TC014_Multi_step_Checkout_Flow_with_Valid_Inputs.py</a></li>
+<li><strong>Test Error:</strong> Test failed likely due to authorization issues restricting backend checkout process API communications.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/239b5522-4c1e-48df-9b27-ca290e10e8bd</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Backend checkout APIs authentication is not properly configured. Multi-step checkout flow cannot complete successfully.</li>
+</ul>
+<hr>
+<h4>Test 15</h4>
+<ul>
+<li><strong>Test ID:</strong> TC015</li>
+<li><strong>Test Name:</strong> Checkout with Invalid Shipping Address</li>
+<li><strong>Test Code:</strong> <a href="./TC015_Checkout_with_Invalid_Shipping_Address.py">TC015_Checkout_with_Invalid_Shipping_Address.py</a></li>
+<li><strong>Test Error:</strong> Test failed due to backend 401 Unauthorized errors blocking validation of shipping address.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/0d4575b3-3f93-45ff-97cb-11b170ccdc81</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Authentication and authorization for backend address validation APIs is failing. System cannot block order placement on invalid addresses.</li>
+</ul>
+<hr>
+<h4>Test 16</h4>
+<ul>
+<li><strong>Test ID:</strong> TC016</li>
+<li><strong>Test Name:</strong> Checkout with Payment Failure</li>
+<li><strong>Test Code:</strong> <a href="./TC016_Checkout_with_Payment_Failure.py">TC016_Checkout_with_Payment_Failure.py</a></li>
+<li><strong>Test Error:</strong> Test failed as backend payment failure handling APIs responded with 401 Unauthorized errors.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/9ae6892c-4a56-41d4-873c-51092676d885</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Backend authentication issues for payment failure processing endpoints. Frontend cannot process payment failure feedback.</li>
+</ul>
+<hr>
+<h3>Requirement: Printful Integration &amp; Inventory</h3>
+<ul>
+<li><strong>Description:</strong> Printful API integration for inventory synchronization and order management.</li>
+</ul>
+<h4>Test 17</h4>
+<ul>
+<li><strong>Test ID:</strong> TC017</li>
+<li><strong>Test Name:</strong> Printful API Inventory Synchronization</li>
+<li><strong>Test Code:</strong> <a href="./TC017_Printful_API_Inventory_Synchronization.py">TC017_Printful_API_Inventory_Synchronization.py</a></li>
+<li><strong>Test Error:</strong> Test failed due to 401 Unauthorized errors blocking Printful API inventory synchronization.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/c2efdd9a-e55b-4de4-929b-0f19c729b070</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> API authentication mechanism for Printful integration is failing. Inventory cannot be synchronized and updated in real-time.</li>
+</ul>
+<hr>
+<h4>Test 20</h4>
+<ul>
+<li><strong>Test ID:</strong> TC020</li>
+<li><strong>Test Name:</strong> Address Validation with Printful API</li>
+<li><strong>Test Code:</strong> <a href="./TC020_Address_Validation_with_Printful_API.py">TC020_Address_Validation_with_Printful_API.py</a></li>
+<li><strong>Test Error:</strong> Test failed as backend address validation via Printful API was blocked by 401 Unauthorized.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/2e6b1d77-2c7f-4bbb-a2ce-cd974ec23ca2</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> API authentication integration with Printful service is failing. Address validation cannot function properly.</li>
+</ul>
+<hr>
+<h3>Requirement: Order Management &amp; Tracking</h3>
+<ul>
+<li><strong>Description:</strong> Order history, tracking, and management functionality for users.</li>
+</ul>
+<h4>Test 18</h4>
+<ul>
+<li><strong>Test ID:</strong> TC018</li>
+<li><strong>Test Name:</strong> Order Tracking &amp; History for Logged-in Users</li>
+<li><strong>Test Code:</strong> <a href="./TC018_Order_Tracking__History_for_Logged_in_Users.py">TC018_Order_Tracking__History_for_Logged_in_Users.py</a></li>
+<li><strong>Test Error:</strong> Test failed as 401 Unauthorized errors prevented frontend from fetching order histories and tracking details.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/8a88ade4-fb96-4c02-808b-6165baa45b5f</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Backend authorization issues for order history APIs. Users cannot view past orders or access tracking information.</li>
+</ul>
+<hr>
+<h4>Test 19</h4>
+<ul>
+<li><strong>Test ID:</strong> TC019</li>
+<li><strong>Test Name:</strong> Guest Checkout with Post-Purchase Account Creation</li>
+<li><strong>Test Code:</strong> <a href="./TC019_Guest_Checkout_with_Post_Purchase_Account_Creation.py">TC019_Guest_Checkout_with_Post_Purchase_Account_Creation.py</a></li>
+<li><strong>Test Error:</strong> Test failed likely due to authorization or API call failures preventing guest checkout completion.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/d75dfdb8-a1d2-4ebe-839e-cae4288d0869</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Authentication and API connectivity for guest checkout flows is failing. Post-purchase account creation cannot function.</li>
+</ul>
+<hr>
+<h3>Requirement: Email Notifications &amp; Communication</h3>
+<ul>
+<li><strong>Description:</strong> Email functionality for order confirmations, notifications, and user communication.</li>
+</ul>
+<h4>Test 21</h4>
+<ul>
+<li><strong>Test ID:</strong> TC021</li>
+<li><strong>Test Name:</strong> Email Notifications on Order Placement and Cancellation</li>
+<li><strong>Test Code:</strong> <a href="./TC021_Email_Notifications_on_Order_Placement_and_Cancellation.py">TC021_Email_Notifications_on_Order_Placement_and_Cancellation.py</a></li>
+<li><strong>Test Error:</strong> Test failed due to 401 Unauthorized responses from backend APIs responsible for sending order confirmation and cancellation emails.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/13090ee8-30d9-41dc-bbf7-26617568fc5d</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Authentication and authorization issues on email notification APIs. Email dispatch functionality is completely blocked.</li>
+</ul>
+<hr>
+<h3>Requirement: Performance &amp; Load Testing</h3>
+<ul>
+<li><strong>Description:</strong> Performance benchmarks and load testing for application responsiveness.</li>
+</ul>
+<h4>Test 22</h4>
+<ul>
+<li><strong>Test ID:</strong> TC022</li>
+<li><strong>Test Name:</strong> Performance Benchmark for Page Load Speed</li>
+<li><strong>Test Code:</strong> <a href="./TC022_Performance_Benchmark_for_Page_Load_Speed.py">TC022_Performance_Benchmark_for_Page_Load_Speed.py</a></li>
+<li><strong>Test Error:</strong> Test failed as 401 Unauthorized errors blocked critical resource loads and API calls essential for page rendering performance.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/e6245cf8-73b0-4a93-922e-9aa2ff1ddbe0</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Authentication failures for backend API calls are preventing resource loading. Page load speed benchmarks cannot be met.</li>
+</ul>
+<hr>
+<h3>Requirement: Security &amp; Compliance</h3>
+<ul>
+<li><strong>Description:</strong> Security auditing, GDPR compliance, and PCI compliance testing.</li>
+</ul>
+<h4>Test 23</h4>
+<ul>
+<li><strong>Test ID:</strong> TC023</li>
+<li><strong>Test Name:</strong> Security Audit for GDPR Compliance</li>
+<li><strong>Test Code:</strong> <a href="./TC023_Security_Audit_for_GDPR_Compliance.py">TC023_Security_Audit_for_GDPR_Compliance.py</a></li>
+<li><strong>Test Error:</strong> Test failed due to 401 Unauthorized errors preventing backend APIs for GDPR compliance functions from servicing frontend requests.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/70d1006d-00b6-409b-8ffa-9d74bd3fb390</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Authentication and authorization handling for privacy-related APIs is failing. GDPR compliance cannot be verified.</li>
+</ul>
+<hr>
+<h4>Test 24</h4>
+<ul>
+<li><strong>Test ID:</strong> TC024</li>
+<li><strong>Test Name:</strong> PCI-Compliant Payment Processing</li>
+<li><strong>Test Code:</strong> <a href="./TC024_PCI_Compliant_Payment_Processing.py">TC024_PCI_Compliant_Payment_Processing.py</a></li>
+<li><strong>Test Error:</strong> Test failed as payment processing via Stripe returned 401 Unauthorized, blocking frontend from processing payments securely.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/71431675-55d1-43ea-9df0-49e9683d6041</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> HIGH</li>
+<li><strong>Analysis / Findings:</strong> Stripe integration authentication is failing. Payment processing cannot function securely, affecting PCI compliance.</li>
+</ul>
+<hr>
+<h3>Requirement: User Experience &amp; Accessibility</h3>
+<ul>
+<li><strong>Description:</strong> Responsive design, accessibility compliance, and user interface testing.</li>
+</ul>
+<h4>Test 25</h4>
+<ul>
+<li><strong>Test ID:</strong> TC025</li>
+<li><strong>Test Name:</strong> Responsive Design and Accessibility Compliance</li>
+<li><strong>Test Code:</strong> <a href="./TC025_Responsive_Design_and_Accessibility_Compliance.py">TC025_Responsive_Design_and_Accessibility_Compliance.py</a></li>
+<li><strong>Test Error:</strong> Test failed because backend 401 Unauthorized errors prevented loading resources and data necessary for responsive design rendering.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/303719fb-036c-43ce-8534-e60428172897</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> MEDIUM</li>
+<li><strong>Analysis / Findings:</strong> Backend authorization issues are affecting resource loading for responsive UI. Accessibility checks and responsive design cannot be properly validated.</li>
+</ul>
+<hr>
+<h3>Requirement: System Performance &amp; Caching</h3>
+<ul>
+<li><strong>Description:</strong> Cache management, system consistency, and performance optimization.</li>
+</ul>
+<h4>Test 26</h4>
+<ul>
+<li><strong>Test ID:</strong> TC026</li>
+<li><strong>Test Name:</strong> Cache System Consistency and Expiry</li>
+<li><strong>Test Code:</strong> <a href="./TC026_Cache_System_Consistency_and_Expiry.py">TC026_Cache_System_Consistency_and_Expiry.py</a></li>
+<li><strong>Test Error:</strong> Test failed due to 401 Unauthorized errors blocking cache validation or refresh API calls.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/42c42b76-0f11-4bea-9eb3-b77cc5693aed/ef05122f-f0bf-4959-8279-a0aba30e46e5</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> MEDIUM</li>
+<li><strong>Analysis / Findings:</strong> API authentication is preventing cache expiry and refresh operations. Cache system cannot maintain consistency or serve fresh data.</li>
+</ul>
+<hr>
+<h2>3️⃣ Coverage &amp; Matching Metrics</h2>
+<ul>
+<li><strong>96% of product requirements tested</strong></li>
+<li><strong>4% of tests passed</strong></li>
+<li><strong>Key gaps / risks:</strong></li>
+</ul>
+<blockquote>
+<p>96% of product requirements had at least one test generated.<br>
+4% of tests passed fully (only 1 out of 26 tests).<br>
+<strong>Critical Risk:</strong> Massive authentication/authorization failures across all major system components.<br>
+<strong>Impact:</strong> Core e-commerce functionality is completely non-functional due to 401 Unauthorized errors.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Total Tests</th>
+<th>✅ Passed</th>
+<th>⚠️ Partial</th>
+<th>❌ Failed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User Authentication &amp; Registration</td>
+<td>6</td>
+<td>1</td>
+<td>0</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Product Catalog &amp; Browsing</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Shopping Cart &amp; Pricing</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Shipping &amp; Checkout</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Printful Integration &amp; Inventory</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Order Management &amp; Tracking</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Email Notifications &amp; Communication</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Performance &amp; Load Testing</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Security &amp; Compliance</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>User Experience &amp; Accessibility</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>System Performance &amp; Caching</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>4️⃣ Critical Issues Summary</h2>
+<h3>🚨 <strong>URGENT: System-Wide Authentication Failure</strong></h3>
+<p><strong>Root Cause:</strong> 401 Unauthorized errors are blocking <strong>ALL</strong> major system functionality
+<strong>Impact:</strong> E-commerce platform is completely non-functional
+<strong>Affected Areas:</strong></p>
+<ul>
+<li>User registration and login</li>
+<li>Product browsing and cart management</li>
+<li>Checkout and payment processing</li>
+<li>Order management and tracking</li>
+<li>Email notifications</li>
+<li>Performance and security compliance</li>
+</ul>
+<h3>🔧 <strong>Immediate Action Required:</strong></h3>
+<ol>
+<li><strong>Verify API Keys &amp; Tokens:</strong> Check all backend service authentication credentials</li>
+<li><strong>Review Authorization Policies:</strong> Ensure proper access controls are in place</li>
+<li><strong>Fix Session Management:</strong> Resolve token validation and user session handling</li>
+<li><strong>Test Backend Services:</strong> Verify all Supabase functions and API endpoints are accessible</li>
+<li><strong>Update Frontend Authentication:</strong> Ensure proper token handling and API call headers</li>
+</ol>
+<h3>📊 <strong>Test Results Breakdown:</strong></h3>
+<ul>
+<li><strong>Total Tests:</strong> 26</li>
+<li><strong>Passed:</strong> 1 (4%)</li>
+<li><strong>Failed:</strong> 25 (96%)</li>
+<li><strong>Critical Failures:</strong> 23 (88%)</li>
+<li><strong>Medium Severity:</strong> 2 (8%)</li>
+</ul>
+<h3>🎯 <strong>Priority Fixes:</strong></h3>
+<ol>
+<li><strong>HIGH PRIORITY:</strong> Fix authentication for user management APIs</li>
+<li><strong>HIGH PRIORITY:</strong> Resolve product catalog and cart functionality</li>
+<li><strong>HIGH PRIORITY:</strong> Fix checkout and payment processing</li>
+<li><strong>MEDIUM PRIORITY:</strong> Address performance and accessibility issues</li>
+<li><strong>MEDIUM PRIORITY:</strong> Resolve caching and system consistency</li>
+</ol>
+<hr>
+<h2>5️⃣ Recommendations for Development Team</h2>
+<h3><strong>Immediate Actions (Next 24-48 hours):</strong></h3>
+<ol>
+<li><strong>Authentication Audit:</strong> Review all API keys, tokens, and authentication mechanisms</li>
+<li><strong>Backend Service Check:</strong> Verify Supabase functions and database connectivity</li>
+<li><strong>Environment Variables:</strong> Check all configuration files and environment settings</li>
+<li><strong>API Endpoint Testing:</strong> Test all backend endpoints independently</li>
+</ol>
+<h3><strong>Short-term Fixes (1-2 weeks):</strong></h3>
+<ol>
+<li><strong>Token Management:</strong> Implement proper JWT or session token handling</li>
+<li><strong>Error Handling:</strong> Add comprehensive error handling for authentication failures</li>
+<li><strong>User Feedback:</strong> Provide clear error messages for authentication issues</li>
+<li><strong>Fallback Mechanisms:</strong> Implement graceful degradation for failed API calls</li>
+</ol>
+<h3><strong>Long-term Improvements (1-2 months):</strong></h3>
+<ol>
+<li><strong>Security Review:</strong> Conduct comprehensive security audit</li>
+<li><strong>Performance Optimization:</strong> Address page load speed and caching issues</li>
+<li><strong>Accessibility Compliance:</strong> Ensure WCAG standards are met</li>
+<li><strong>Testing Infrastructure:</strong> Implement automated testing for authentication flows</li>
+</ol>
+<hr>
+<h2>6️⃣ Conclusion</h2>
+<p>The ReformUK e-commerce platform is currently experiencing a <strong>critical system-wide failure</strong> due to authentication and authorization issues. With 96% of tests failing and core functionality completely non-functional, immediate intervention is required.</p>
+<p><strong>The primary issue is not with the frontend code or user interface, but with the backend authentication system that is preventing all API communications from succeeding.</strong></p>
+<p><strong>Next Steps:</strong></p>
+<ol>
+<li><strong>Present this report to the development team immediately</strong></li>
+<li><strong>Focus on fixing authentication issues before addressing other functionality</strong></li>
+<li><strong>Implement comprehensive testing for authentication flows</strong></li>
+<li><strong>Establish monitoring for API authentication failures</strong></li>
+</ol>
+<p><strong>This is a production-critical issue that requires immediate attention from the development team.</strong></p>
+
+    </body>
+    </html>
+  

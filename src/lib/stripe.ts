@@ -34,7 +34,6 @@ export async function createCheckoutSession(request: CheckoutSessionRequest): Pr
     });
 
     if (error) {
-      console.error('Supabase function error:', error);
       throw new Error(error.message || 'Failed to create checkout session');
     }
 
@@ -44,7 +43,6 @@ export async function createCheckoutSession(request: CheckoutSessionRequest): Pr
 
     return data;
   } catch (error) {
-    console.error('Error in createCheckoutSession:', error);
     throw error instanceof Error 
       ? error 
       : new Error('Failed to create checkout session');
@@ -57,25 +55,26 @@ export async function getUserOrders() {
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     
     if (userError || !user) {
-      console.error('User not authenticated:', userError);
+      console.warn('getUserOrders: No authenticated user found');
       return [];
     }
 
-    // Query orders for the authenticated user
+    // Query orders for the authenticated user by both user_id and customer_email
+    // This handles cases where orders might not have user_id populated yet
     const { data, error } = await supabase
       .from('orders')
       .select('*')
-      .eq('user_id', user.id)
+      .or(`user_id.eq.${user.id},customer_email.eq.${user.email}`)
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching orders:', error);
+      console.error('getUserOrders: Error fetching orders:', error);
       return [];
     }
 
     return data || [];
   } catch (error) {
-    console.error('Error in getUserOrders:', error);
+    console.error('getUserOrders: Unexpected error:', error);
     return [];
   }
 }
@@ -88,13 +87,11 @@ export async function getUserSubscription() {
       .maybeSingle();
 
     if (error) {
-      console.error('Error fetching subscription:', error);
       return null;
     }
 
     return data;
   } catch (error) {
-    console.error('Error in getUserSubscription:', error);
     return null;
   }
 }
@@ -110,13 +107,67 @@ export async function trackOrderByNumber(orderNumber: string, email: string) {
       .single();
 
     if (error) {
-      console.error('Error tracking order:', error);
       return null;
     }
 
     return data;
   } catch (error) {
-    console.error('Error in trackOrderByNumber:', error);
     return null;
+  }
+}
+
+export async function reorderFromOrder(orderId: string) {
+  try {
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      throw new Error('User not authenticated');
+    }
+
+    // Get the order details
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (orderError || !order) {
+      throw new Error('Order not found or access denied');
+    }
+
+    // Parse order items
+    let orderItems = [];
+    try {
+      orderItems = Array.isArray(order.items) ? order.items : JSON.parse(order.items);
+    } catch (parseError) {
+      throw new Error('Invalid order items format');
+    }
+
+    if (!Array.isArray(orderItems) || orderItems.length === 0) {
+      throw new Error('No items found in order');
+    }
+
+    // Convert to cart format
+    const cartItems = orderItems.map((item: any) => ({
+      id: item.printful_variant_id || item.id || `item_${Date.now()}_${Math.random()}`,
+      name: item.name || item.product_name || 'Unknown Product',
+      price: item.price || (item.price_pence ? item.price_pence / 100 : 0),
+      quantity: item.quantity || 1,
+      image: item.image || '/placeholder-product.png',
+      printful_variant_id: item.printful_variant_id,
+      variant: item.variant
+    }));
+
+    return {
+      success: true,
+      items: cartItems,
+      orderId: order.id,
+      orderNumber: order.readable_order_id
+    };
+  } catch (error) {
+    console.error('Reorder error:', error);
+    throw error;
   }
 }

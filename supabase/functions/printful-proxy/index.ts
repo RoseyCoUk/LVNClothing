@@ -23,9 +23,28 @@ Deno.serve(async (req) => {
     const token = Deno.env.get('PRINTFUL_TOKEN')
     
     if (!token) {
+      console.error('PRINTFUL_TOKEN environment variable is not set');
       return new Response(JSON.stringify({ 
         error: 'PRINTFUL_TOKEN not configured',
-        message: 'Please check if PRINTFUL_TOKEN is set in Supabase secrets'
+        message: 'Please check if PRINTFUL_TOKEN is set in Supabase secrets',
+        details: 'This is required for Printful API integration to work properly',
+        status: 500
+      }), {
+        status: 500,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        }
+      })
+    }
+    
+    // Validate token format (should be a non-empty string)
+    if (typeof token !== 'string' || token.trim().length === 0) {
+      console.error('PRINTFUL_TOKEN is empty or invalid format');
+      return new Response(JSON.stringify({ 
+        error: 'Invalid PRINTFUL_TOKEN format',
+        message: 'PRINTFUL_TOKEN must be a valid non-empty string',
+        status: 500
       }), {
         status: 500,
         headers: { 
@@ -38,8 +57,31 @@ Deno.serve(async (req) => {
     // Extract the actual API path (remove /printful-proxy prefix)
     const apiPath = pathname.replace('/printful-proxy', '') || '/'
     
+    // Validate API path
+    if (!apiPath || apiPath === '/') {
+      return new Response(JSON.stringify({ 
+        error: 'Invalid API path',
+        message: 'Please specify a valid Printful API endpoint',
+        details: 'Example: /products, /variants, etc.',
+        status: 400
+      }), {
+        status: 400,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        }
+      })
+    }
+    
     // Forward the request to Printful API
     const printfulUrl = `https://api.printful.com${apiPath}${search}`
+    
+    console.log('Proxying request to Printful:', {
+      method: req.method,
+      path: apiPath,
+      fullUrl: printfulUrl,
+      hasToken: !!token
+    });
     
     // Prepare headers for the Printful API request
     const headers: Record<string, string> = {
@@ -60,6 +102,69 @@ Deno.serve(async (req) => {
       headers,
       body: req.method !== 'GET' && req.method !== 'HEAD' ? await req.text() : undefined,
     })
+    
+    console.log('Printful API response:', {
+      status: response.status,
+      statusText: response.statusText,
+      url: printfulUrl,
+      headers: Object.fromEntries(response.headers.entries())
+    });
+    
+    // Check for authentication errors
+    if (response.status === 401 || response.status === 403) {
+      console.error('Printful API authentication failed:', {
+        status: response.status,
+        url: printfulUrl,
+        hasToken: !!token,
+        headers: Object.keys(headers)
+      });
+      
+      return new Response(JSON.stringify({ 
+        error: 'Authentication failed',
+        message: 'Unable to authenticate with Printful API. Please check configuration.',
+        details: 'Verify PRINTFUL_TOKEN is valid and has proper permissions',
+        status: response.status
+      }), {
+        status: response.status,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        }
+      })
+    }
+    
+    // Check for other error statuses
+    if (response.status >= 400) {
+      console.error('Printful API request failed:', {
+        status: response.status,
+        url: printfulUrl,
+        method: req.method
+      });
+      
+      // Try to get error details from response
+      let errorDetails = 'Unknown error';
+      try {
+        const errorData = await response.text();
+        if (errorData) {
+          errorDetails = errorData;
+        }
+      } catch (e) {
+        // Ignore error parsing errors
+      }
+      
+      return new Response(JSON.stringify({ 
+        error: 'Printful API request failed',
+        message: `Request failed with status ${response.status}`,
+        details: errorDetails,
+        status: response.status
+      }), {
+        status: response.status,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        }
+      })
+    }
     
     // Get the response data
     let data

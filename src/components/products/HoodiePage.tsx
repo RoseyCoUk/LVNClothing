@@ -1,429 +1,379 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Star,
-  ShoppingCart,
-  Heart,
-  Share2,
-  Truck,
-  Shield,
-  RotateCcw,
-  Plus,
-  Minus,
-  ChevronLeft,
-  ChevronRight,
-  Check,
-  Info,
-  Clock,
-  Loader2
+import { 
+  ArrowLeft, 
+  ShoppingCart, 
+  Heart, 
+  Star, 
+  Check, 
+  Truck, 
+  Shield, 
+  RefreshCw, 
+  Plus, 
+  Minus, 
+  ChevronLeft, 
+  ChevronRight, 
+  Share2, 
+  Clock, 
+  Info 
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
-import { createCheckoutSession } from '../../lib/stripe';
-import { supabase } from '../../lib/supabase';
-import OrderOverviewModal from '../OrderOverviewModal';
 import { usePrintfulProduct } from '../../hooks/usePrintfulProducts';
-import { useVariantSelection } from '../../hooks/useVariantSelection';
-import type { PrintfulProduct, PrintfulVariant } from '../../types/printful';
-
-// Enhanced TypeScript interfaces for Printful integration
-interface Color {
-  name: string;
-  value: string;
-  border?: boolean;
-}
-
-interface OrderToConfirm {
-  productName: string;
-  productImage: string;
-  price: number;
-  quantity: number;
-  priceId: string;
-  variants: {
-    color: string;
-    size: string;
-  };
-}
-
-// Default product data for fallback (when Printful data is loading)
-const defaultProductData = {
-  id: 1,
-  name: "Reform UK Hoodie",
-  description: "Premium quality hoodie made from 100% organic cotton. Features the Reform UK logo prominently displayed on the front with a comfortable kangaroo pocket and adjustable drawstring hood. Perfect for showing your support while staying warm and comfortable.",
-  features: ["100% organic cotton fleece", "Kangaroo pocket", "Adjustable drawstring hood", "Ribbed cuffs and hem", "Machine washable", "Ethically sourced materials"],
-  careInstructions: "Machine wash cold with like colors. Tumble dry low. Do not bleach. Iron on low heat if needed.",
-  materials: "80% organic cotton, 20% recycled polyester",
-  category: 'apparel',
-  shipping: "Ships in 48H",
-  variantDetails: {
-    sizes: ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'],
-    colors: [
-        { name: 'White', value: '#FFFFFF', border: true }, 
-        { name: 'Light Grey', value: '#E5E5E5', border: true }, 
-        { name: 'Ash Grey', value: '#B0B0B0' }, 
-        { name: 'Charcoal', value: '#333333' }, 
-        { name: 'Black', value: '#000000' }, 
-        { name: 'Royal Blue', value: '#0B4C8A' }, 
-        { name: 'Red', value: '#B31217' }
-    ] as Color[]
-  }
-};
+import { hoodieVariants, getHoodieVariant } from '../../hooks/hoodie-variants';
 
 interface HoodiePageProps {
   onBack: () => void;
 }
 
-const HoodiePage = ({ onBack }: HoodiePageProps) => {
-  const { addToCart, addToCartAndGetUpdated } = useCart();
-  const [isLoading, setIsLoading] = useState(false);
-  const [showOrderOverview, setShowOrderOverview] = useState(false);
-  const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
+interface ColorOption {
+  name: string;
+  value: string;
+  border?: boolean;
+  availableSizes: string[];
+}
+
+interface SizeOption {
+  name: string;
+  available: boolean;
+}
+
+const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const { product, loading, error } = usePrintfulProduct(2); // Hoodie product ID
   
-  // Printful integration - using a sample hoodie product ID
-  // In production, you'd get this from your product catalog
-  const { product: printfulProduct, loading: printfulLoading, error: printfulError } = usePrintfulProduct(2);
-  
-  // Use Printful data if available, otherwise fall back to default data
-  const productData = printfulProduct || defaultProductData;
-  
-  // Variant selection hook
-  const {
-    selection,
-    availableColors,
-    availableSizes,
-    selectedVariant,
-    setColor,
-    setSize,
-    isVariantAvailable,
-    getVariantPrice,
-    resetSelection
-  } = useVariantSelection(printfulProduct?.variants || []);
-  
-  // Get fallback colors and sizes when Printful fails
-  const fallbackColors = defaultProductData.variantDetails.colors.map(c => c.name);
-  const fallbackSizes = defaultProductData.variantDetails.sizes;
-  
-  // Use Printful data if available, otherwise fall back to default data
-  const effectiveColors = availableColors.length > 0 ? availableColors : fallbackColors;
-  const effectiveSizes = availableSizes.length > 0 ? availableSizes : fallbackSizes;
-  
-  // Fallback function for checking variant availability when Printful fails
-  const isVariantAvailableFallback = (color: string, size: string) => {
-    if (printfulProduct?.variants && printfulProduct.variants.length > 0) {
-      return isVariantAvailable(color, size);
-    }
-    // When using fallback data, all combinations are available
-    return fallbackColors.includes(color) && fallbackSizes.includes(size);
-  };
-
-  // Initialize selection with first available color and size if not set
-  useEffect(() => {
-    if (!selection.color && effectiveColors.length > 0) {
-      setColor(effectiveColors[0]);
-    }
-    if (!selection.size && effectiveSizes.length > 0) {
-      setSize(effectiveSizes[0]);
-    }
-  }, [effectiveColors, effectiveSizes, selection.color, selection.size, setColor, setSize]);
-
-  // State
-  const [selectedImage, setSelectedImage] = useState(0);
+  // State for variant selection
+  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [selectedSize, setSelectedSize] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('description');
   const [isWishlisted, setIsWishlisted] = useState(false);
 
-  // Get current product images (use Printful variant image or fallback)
-  const currentImages = selectedVariant?.image 
-    ? [selectedVariant.image]
-    : (() => {
-        // Fallback to default images based on selected color
-        const colorImageMap: Record<string, string> = {
-          'Black': '/Hoodie/Men/ReformMenHoodieBlack1.webp',
-          'White': '/Hoodie/Men/ReformMenHoodieWhite1.webp',
-          'Red': '/Hoodie/Men/ReformMenHoodieRed1.webp',
-          'Royal Blue': '/Hoodie/Men/ReformMenHoodieBlue1.webp',
-          'Charcoal': '/Hoodie/Men/ReformMenHoodieCharcoal1.webp',
-          'Light Grey': '/Hoodie/Men/ReformMenHoodieLightGrey1.webp',
-          'Ash Grey': '/Hoodie/Men/ReformMenHoodieAshGrey1.webp'
-        };
-        return [colorImageMap[selection.color] || '/Hoodie/Men/ReformMenHoodieBlack1.webp'];
-      })();
+  // Color options with proper size availability (all unisex, no XS)
+  const colorOptions: ColorOption[] = [
+    { name: 'Black', value: '#0b0b0b', availableSizes: ['S', 'M', 'L', 'XL', '2XL'] },
+    { name: 'Navy', value: '#131928', availableSizes: ['S', 'M', 'L', 'XL', '2XL'] },
+    { name: 'Red', value: '#da0a1a', availableSizes: ['S', 'M', 'L', 'XL', '2XL'] },
+    { name: 'Dark Heather', value: '#47484d', availableSizes: ['S', 'M', 'L', 'XL', '2XL'] },
+    { name: 'Indigo Blue', value: '#395d82', availableSizes: ['S', 'M', 'L', 'XL', '2XL'] },
+    { name: 'Sport Grey', value: '#9b969c', availableSizes: ['S', 'M', 'L', 'XL', '2XL'] },
+    { name: 'Light Blue', value: '#a1c5e1', availableSizes: ['S', 'M', 'L', 'XL', '2XL'] },
+    { name: 'Light Pink', value: '#f3d4e3', availableSizes: ['S', 'M', 'L', 'XL', '2XL'] },
+    { name: 'White', value: '#ffffff', border: true, availableSizes: ['S', 'M', 'L', 'XL', '2XL'] }
+  ];
 
-  // Helper function to get default color codes for colors
-  const getDefaultColorCode = (color: string): string => {
-    const colorMap: Record<string, string> = {
-      'Black': '#000000',
-      'White': '#FFFFFF',
-      'Navy': '#0B4C8A',
-      'Charcoal': '#333333',
-      'Light Grey': '#E5E5E5',
-      'Ash Grey': '#B0B0B0',
-      'Royal Blue': '#0B4C8A',
-      'Red': '#B31217'
+  const sizeOptions: SizeOption[] = [
+    { name: 'S', available: true },
+    { name: 'M', available: true },
+    { name: 'L', available: true },
+    { name: 'XL', available: true },
+    { name: '2XL', available: true }
+  ];
+
+  // Set initial selections
+  useEffect(() => {
+    if (colorOptions.length > 0 && !selectedColor) {
+      setSelectedColor(colorOptions[0].name);
+    }
+    if (sizeOptions.length > 0 && !selectedSize) {
+      setSelectedSize(sizeOptions[0].name);
+    }
+  }, [colorOptions, sizeOptions]);
+
+  // Find the selected variant
+  useEffect(() => {
+    if (selectedColor && selectedSize) {
+      const variant = getHoodieVariant(selectedColor, selectedSize);
+      setSelectedVariant(variant);
+    }
+  }, [selectedColor, selectedSize]);
+
+  // Get available sizes for selected color
+  const getAvailableSizesForColor = (colorName: string) => {
+    const color = colorOptions.find(c => c.name === colorName);
+    return color ? color.availableSizes : [];
+  };
+
+  // Check if size is available for selected color
+  const isSizeAvailableForColor = (sizeName: string) => {
+    const availableSizes = getAvailableSizesForColor(selectedColor);
+    return availableSizes.includes(sizeName);
+  };
+
+  // Get product images based on selection (all unisex)
+  const getProductImages = () => {
+    if (!selectedColor) return [];
+    
+    // Map color names to image paths
+    const colorMap: { [key: string]: string } = {
+      'Black': 'Black',
+      'Navy': 'Blue', // Using Blue images for Navy
+      'Red': 'Red',
+      'Dark Heather': 'Charcoal', // Using Charcoal images for Dark Heather
+      'Indigo Blue': 'Blue',
+      'Sport Grey': 'LightGrey',
+      'Light Blue': 'Blue', // Using Blue images for Light Blue
+      'Light Pink': 'Red', // Using Red images for Light Pink
+      'White': 'White'
     };
-    return colorMap[color] || '#CCCCCC';
-  };
-
-  // Get current price
-  const currentPrice = selectedVariant ? parseFloat(selectedVariant.price) : 49.99;
-
-  // Handle color selection
-  const handleColorSelect = (color: string) => {
-    setColor(color);
-    setSelectedImage(0);
-  };
-
-  // Handle size selection
-  const handleSizeSelect = (size: string) => {
-    setSize(size);
+    
+    const colorKey = colorMap[selectedColor] || selectedColor;
+    
+    return [
+      `/Hoodie/Men/ReformMenHoodie${colorKey}1.webp`,
+      `/Hoodie/Men/ReformMenHoodie${colorKey}2.webp`,
+      `/Hoodie/Men/ReformMenHoodie${colorKey}3.webp`,
+      `/Hoodie/Men/ReformMenHoodie${colorKey}4.webp`,
+      `/Hoodie/Men/ReformMenHoodie${colorKey}5.webp`,
+      `/Hoodie/Men/ReformMenHoodie${colorKey}6.webp`
+    ].filter(img => img.includes('undefined') === false);
   };
 
   const handleAddToCart = () => {
-    if (!selectedVariant) {
-      alert('Please select a variant.');
-      return;
-    }
-    
-    const itemToAdd = {
-      id: `${selectedVariant.id}-${selection.size}`,
-      name: `${productData.name} - ${selection.color} (Size: ${selection.size})`,
-      price: currentPrice,
-      image: currentImages[0],
+    if (!selectedVariant) return;
+
+    const productData = {
+      id: selectedVariant.id,
+      name: `Reform UK Hoodie - ${selectedColor} (${selectedSize})`,
+      price: parseFloat(selectedVariant.price),
+      price_pence: Math.round(parseFloat(selectedVariant.price) * 100),
       quantity: quantity,
-      printful_variant_id: selectedVariant.printful_variant_id
-    };
-    
-    addToCart(itemToAdd);
-    
-    // Show success message
-    alert('Added to cart!');
-  };
-
-  const handleBuyNow = async () => {
-    if (!selectedVariant) {
-      alert('Please select a variant.');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const cartItems = addToCartAndGetUpdated({
-        id: `${selectedVariant.id}-${selection.size}`,
-        name: `${productData.name} - ${selection.color} (Size: ${selection.size})`,
-        price: currentPrice,
-        image: currentImages[0],
+      image: getProductImages()[0] || '/Hoodie/Men/ReformMenHoodieBlack1.webp',
+      variants: {
+        size: selectedSize,
+        color: selectedColor,
         printful_variant_id: selectedVariant.printful_variant_id
-      });
-
-      const checkoutRequest = {
-        line_items: cartItems.map(item => ({
-          price_data: {
-            currency: 'gbp',
-            product_data: {
-              name: item.name,
-              images: [item.image],
-            },
-            unit_amount: Math.round(item.price * 100), // Convert to cents
-          },
-          quantity: item.quantity,
-        })),
-        success_url: `${window.location.origin}/success`,
-        cancel_url: `${window.location.origin}/shop`,
-        mode: 'payment' as const,
-      };
-
-      const session = await createCheckoutSession(checkoutRequest);
-      if (session?.url) {
-        window.location.href = session.url;
       }
-    } catch (error) {
-      console.error('Error creating checkout session:', error);
-      alert('Error creating checkout session. Please try again.');
-    } finally {
-      setIsLoading(false);
+    };
+
+    addToCart(productData);
+  };
+
+  const handleBuyNow = () => {
+    if (!selectedVariant) return;
+    
+    // Add to cart first
+    handleAddToCart();
+    
+    // Navigate to checkout
+    navigate('/checkout');
+  };
+
+  const nextImage = () => {
+    const images = getProductImages();
+    if (images.length > 1) {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
     }
   };
 
-  const handleImageChange = (direction: 'next' | 'prev') => {
-    if (direction === 'next') {
-      setSelectedImage((prev) => (prev + 1) % currentImages.length);
-    } else {
-      setSelectedImage((prev) => (prev - 1 + currentImages.length) % currentImages.length);
+  const prevImage = () => {
+    const images = getProductImages();
+    if (images.length > 1) {
+      setCurrentImageIndex((prev) => (prev + 1 + images.length) % images.length);
     }
   };
 
-  // Loading state
-  if (printfulLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Loading product details...</p>
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Loading Hoodie details...</p>
         </div>
       </div>
     );
   }
 
-  // Error state
-  if (printfulError) {
+  if (error || !product) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            <p className="font-bold">Error loading product</p>
-            <p>{printfulError}</p>
-          </div>
+          <p className="text-red-600 mb-4">Error loading product: {error}</p>
           <button
-            onClick={() => window.location.reload()}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={onBack}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            Retry
+            Go Back
           </button>
         </div>
       </div>
     );
   }
 
+  const images = getProductImages();
+  const currentImage = images[currentImageIndex] || images[0] || '/Hoodie/Men/ReformMenHoodieBlack1.webp';
+
+  // Mock reviews data
+  const reviews = [
+    { id: 1, name: "David P.", rating: 5, date: "1 week ago", comment: "Great quality hoodie, fits perfectly and looks fantastic!", verified: true },
+    { id: 2, name: "Sarah L.", rating: 5, date: "2 weeks ago", comment: "Love the design, very well made and comfortable.", verified: true },
+    { id: 3, name: "Mark T.", rating: 4, date: "3 weeks ago", comment: "Good hoodie, material is soft and durable.", verified: true }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <button
-              onClick={onBack}
-              className="flex items-center text-gray-600 hover:text-gray-900"
-            >
-              <ChevronLeft className="h-5 w-5 mr-1" />
-              Back to Shop
-            </button>
-            <h1 className="text-xl font-semibold text-gray-900">Product Details</h1>
-            <div className="w-20"></div> {/* Spacer for centering */}
+    <>
+      <div className="min-h-screen bg-gray-50">
+        {/* Breadcrumb */}
+        <div className="bg-white border-b">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <nav className="text-sm text-gray-600">
+              <div className="flex items-center space-x-2">
+                <button onClick={onBack} className="hover:text-[#009fe3] transition-colors">Home</button>
+                <span className="text-gray-400">/</span>
+                <button onClick={onBack} className="hover:text-[#009fe3] transition-colors">Shop</button>
+                <span className="text-gray-400">/</span>
+                <span className="text-[#009fe3] font-semibold">Reform UK Hoodie</span>
+              </div>
+            </nav>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Product Images */}
-          <div className="space-y-4">
-            <div className="relative aspect-square bg-white rounded-lg overflow-hidden">
-              <img
-                src={currentImages[selectedImage]}
-                alt={`${productData.name} - ${selection.color}`}
-                className="w-full h-full object-cover"
-              />
-              
-              {/* Image Navigation */}
-              {currentImages.length > 1 && (
-                <>
-                  <button
-                    onClick={() => handleImageChange('prev')}
-                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-md"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => handleImageChange('next')}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-md"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                </>
-              )}
-            </div>
-
-            {/* Thumbnail Images */}
-            {currentImages.length > 1 && (
-              <div className="flex space-x-2 overflow-x-auto">
-                {currentImages.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                      selectedImage === index ? 'border-blue-600' : 'border-gray-200'
-                    }`}
-                  >
-                    <img
-                      src={image}
-                      alt={`${productData.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Product Details */}
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">{productData.name}</h1>
-              <p className="text-xl text-gray-600 mt-2">{productData.description}</p>
-            </div>
-
-            {/* Price */}
-            <div className="flex items-center space-x-4">
-              <span className="text-3xl font-bold text-gray-900">£{currentPrice.toFixed(2)}</span>
-              {selectedVariant && (
-                <span className="text-sm text-gray-500">
-                  {selectedVariant.in_stock ? 'In Stock' : 'Out of Stock'}
-                </span>
-              )}
-            </div>
-
-            {/* Variant Selection */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Product Images */}
             <div className="space-y-4">
+              <div className="relative aspect-square bg-white rounded-lg overflow-hidden shadow-lg">
+                <img
+                  src={currentImage}
+                  alt={`Reform UK Hoodie - ${selectedColor}`}
+                  className="w-full h-full object-cover aspect-square"
+                />
+                
+                {images.length > 1 && (
+                  <>
+                    <button onClick={prevImage} className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-colors z-10" aria-label="Previous image">
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button onClick={nextImage} className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-colors z-10" aria-label="Next image">
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </>
+                )}
+
+                <div className="absolute top-4 left-4 z-10">
+                  <span className="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
+                    In Stock
+                  </span>
+                </div>
+                
+                {images.length > 1 && (
+                  <div className="absolute bottom-4 right-4 bg-black/50 text-white px-2 py-1 rounded-full text-xs z-10">
+                    {currentImageIndex + 1} / {images.length}
+                  </div>
+                )}
+              </div>
+
+              {/* Thumbnail Gallery */}
+              {images.length > 1 && (
+                <div className="flex space-x-2 overflow-x-auto pb-2">
+                  {images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
+                        index === currentImageIndex ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <img
+                        src={image}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover aspect-square"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Product Details */}
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Reform UK Hoodie</h1>
+                <div className="flex items-center space-x-2 mb-4">
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`w-5 h-5 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                    ))}
+                  </div>
+                  <span className="text-gray-600">(89 reviews)</span>
+                </div>
+                <div className="flex items-center space-x-3 mb-6">
+                  <span className="text-3xl font-bold text-[#009fe3]">£{selectedVariant?.price || '39.99'}</span>
+                  <span className="text-lg text-gray-500 line-through">£49.99</span>
+                  <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm font-medium">
+                    Save £10.00
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2 text-green-600 mb-6">
+                  <Clock className="w-4 h-4" />
+                  <span className="font-semibold">Ships in 48H</span>
+                </div>
+              </div>
+
               {/* Color Selection */}
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-2">Color</h3>
-                <div className="flex flex-wrap gap-3">
-                  {effectiveColors.map((color) => {
-                    const colorCode = getDefaultColorCode(color);
-                    const isSelected = selection.color === color;
-                    
-                    return (
-                      <button
-                        key={color}
-                        onClick={() => handleColorSelect(color)}
-                        className={`relative w-8 h-8 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
-                          isSelected
-                            ? 'border-blue-600 ring-2 ring-blue-600 ring-offset-2'
-                            : 'border-gray-300 hover:border-gray-400'
-                        }`}
-                        style={{ backgroundColor: colorCode }}
-                        title={color}
-                      >
-                        {isSelected && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-3 h-3 bg-white rounded-full shadow-sm"></div>
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Color: <span className="font-semibold text-gray-900">{selectedColor}</span>
+                </label>
+                <div className="grid grid-cols-9 gap-2">
+                  {colorOptions.map((color) => (
+                    <button
+                      key={color.name}
+                      onClick={() => {
+                        setSelectedColor(color.name);
+                        // Reset size if not available for new color
+                        if (!color.availableSizes.includes(selectedSize)) {
+                          setSelectedSize(color.availableSizes[0] || 'M');
+                        }
+                      }}
+                      className={`relative w-10 h-10 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
+                        selectedColor === color.name
+                          ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2'
+                          : color.border
+                            ? 'border-gray-300 hover:border-gray-400'
+                            : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      style={{ backgroundColor: color.value }}
+                      title={color.name}
+                    >
+                      {selectedColor === color.name && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Check className={`w-4 h-4 ${color.name === 'White' ? 'text-gray-600' : 'text-white'}`} />
+                        </div>
+                      )}
+                    </button>
+                  ))}
                 </div>
-                <p className="text-sm text-gray-600 mt-2">Selected: <span className="font-medium">{selection.color}</span></p>
               </div>
 
               {/* Size Selection */}
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-2">Size</h3>
-                <div className="flex flex-wrap gap-2">
-                  {effectiveSizes.map((size) => (
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-gray-700">Size</label>
+                  <button
+                    onClick={() => navigate('/size-guide')}
+                    className="text-sm text-blue-600 hover:text-blue-700 underline"
+                  >
+                    Size Guide
+                  </button>
+                </div>
+                <div className="grid grid-cols-5 gap-2">
+                  {sizeOptions.map((size) => (
                     <button
-                      key={size}
-                      onClick={() => handleSizeSelect(size)}
-                      disabled={!isVariantAvailableFallback(selection.color, size)}
-                      className={`px-4 py-2 rounded-lg border-2 transition-colors ${
-                        selection.size === size
-                          ? 'border-blue-600 bg-blue-50 text-blue-900'
-                          : isVariantAvailableFallback(selection.color, size)
-                          ? 'border-gray-200 hover:border-gray-300'
-                          : 'border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed'
+                      key={size.name}
+                      onClick={() => setSelectedSize(size.name)}
+                      disabled={!isSizeAvailableForColor(size.name)}
+                      className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
+                        selectedSize === size.name
+                          ? 'border-[#009fe3] bg-[#009fe3] text-white'
+                          : !isSizeAvailableForColor(size.name)
+                          ? 'border-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
                       }`}
                     >
-                      {size}
+                      {size.name}
                     </button>
                   ))}
                 </div>
@@ -431,128 +381,204 @@ const HoodiePage = ({ onBack }: HoodiePageProps) => {
 
               {/* Quantity */}
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-2">Quantity</h3>
+                <label className="block text-sm font-medium text-gray-700 mb-3">Quantity</label>
                 <div className="flex items-center space-x-3">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+                    className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="w-4 h-4" />
                   </button>
-                  <span className="w-16 text-center text-lg font-medium">{quantity}</span>
+                  <span className="w-12 text-center font-semibold text-lg">{quantity}</span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+                    className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex space-x-4">
-              <button
-                onClick={handleAddToCart}
-                disabled={!selectedVariant || !selectedVariant.in_stock}
-                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
-              >
-                <ShoppingCart className="h-5 w-5 inline mr-2" />
-                Add to Cart
-              </button>
-              <button
-                onClick={handleBuyNow}
-                disabled={!selectedVariant || !selectedVariant.in_stock || isLoading}
-                className="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin mx-auto" />
-                ) : (
-                  'Buy Now'
-                )}
-              </button>
-            </div>
-
-            {/* Additional Actions */}
-            <div className="flex items-center space-x-4 pt-4 border-t">
-              <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                  isWishlisted
-                    ? 'text-red-600 bg-red-50 border border-red-200'
-                    : 'text-gray-600 hover:text-gray-900 border border-gray-200 hover:bg-gray-50'
-                }`}
-              >
-                <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-current' : ''}`} />
-                <span>{isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}</span>
-              </button>
-              <button className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 border border-gray-200 hover:bg-gray-50">
-                <Share2 className="h-5 w-5" />
-                <span>Share</span>
-              </button>
-            </div>
-
-            {/* Product Features */}
-            <div className="pt-6 border-t">
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Features</h3>
-              <ul className="space-y-2">
-                {('features' in productData && productData.features) ? 
-                  productData.features.map((feature: string, index: number) => (
-                    <li key={index} className="flex items-center text-gray-600">
-                      <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                      {feature}
-                    </li>
-                  ))
-                  : (
-                    <li className="flex items-center text-gray-600">
-                      <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                      100% organic cotton fleece
-                    </li>
-                  )
-                }
-              </ul>
-            </div>
-
-            {/* Care Instructions */}
-            {('careInstructions' in productData && productData.careInstructions) && (
-              <div className="pt-6 border-t">
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Care Instructions</h3>
-                <p className="text-gray-600">{productData.careInstructions}</p>
+              {/* Selection Summary */}
+              <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
+                <h4 className="font-semibold text-gray-900 mb-3">Your Selection:</h4>
+                <div className="space-y-2 text-sm text-gray-700">
+                  <p>Color: <span className="font-medium text-gray-900">{selectedColor}</span></p>
+                  <p>Size: <span className="font-medium text-gray-900">{selectedSize}</span></p>
+                  <p>Quantity: <span className="font-medium text-gray-900">{quantity}</span></p>
+                </div>
               </div>
-            )}
 
-            {/* Materials */}
-            {('materials' in productData && productData.materials) && (
-              <div className="pt-6 border-t">
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Materials</h3>
-                <p className="text-gray-600">{productData.materials}</p>
+              {/* Add to Cart & Actions */}
+              <div className="space-y-3">
+                <button 
+                  onClick={handleBuyNow}
+                  disabled={!selectedVariant}
+                  className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                >
+                  <ShoppingCart className="w-5 h-5 mr-2" />
+                  <span>Buy Now - £{((selectedVariant?.price || 39.99) * quantity).toFixed(2)}</span>
+                </button>
+                
+                <button 
+                  onClick={handleAddToCart}
+                  disabled={!selectedVariant}
+                  className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  <span>Add to Cart - £{((selectedVariant?.price || 39.99) * quantity).toFixed(2)}</span>
+                </button>
+                
+                <div className="flex space-x-3">
+                  <button 
+                    onClick={() => setIsWishlisted(!isWishlisted)} 
+                    className={`flex-1 border-2 font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
+                      isWishlisted ? 'border-red-500 text-red-500 bg-red-50' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
+                    }`}
+                  >
+                    <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
+                    <span>{isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}</span>
+                  </button>
+                  <button className="border-2 border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3] font-semibold p-3 rounded-lg transition-colors flex items-center justify-center">
+                    <Share2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            )}
+
+              {/* Trust Badges */}
+              <div className="grid grid-cols-3 gap-4 pt-6 border-t">
+                <div className="text-center">
+                  <Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <p className="text-xs text-gray-600">Free UK Shipping Over £30</p>
+                </div>
+                <div className="text-center">
+                  <Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <p className="text-xs text-gray-600">Secure Checkout</p>
+                </div>
+                <div className="text-center">
+                  <RefreshCw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <p className="text-xs text-gray-600">Easy Returns</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Product Information Tabs */}
+          <div className="mt-16">
+            <div className="border-b border-gray-200">
+              <nav className="flex space-x-8">
+                {['description', 'features', 'reviews', 'care'].map((tab) => (
+                  <button 
+                    key={tab} 
+                    onClick={() => setActiveTab(tab)} 
+                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                      activeTab === tab ? 'border-[#009fe3] text-[#009fe3]' : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </button>
+                ))}
+              </nav>
+            </div>
+            
+            <div className="py-8">
+              {activeTab === 'description' && (
+                <div className="prose max-w-none">
+                  <p className="text-gray-700 leading-relaxed">
+                    Premium cotton hoodie featuring the Reform UK logo and branding. Made from high-quality materials for comfort and durability. Perfect for everyday wear and casual occasions.
+                  </p>
+                  <div className="mt-6">
+                    <h4 className="font-semibold text-gray-900 mb-2">Materials:</h4>
+                    <p className="text-gray-700">100% cotton with reinforced stitching</p>
+                  </div>
+                </div>
+              )}
+              
+              {activeTab === 'features' && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Features</h3>
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <li className="flex items-center space-x-2">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <span className="text-gray-700">Premium 100% cotton material</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <span className="text-gray-700">High-quality screen printing</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <span className="text-gray-700">Comfortable fit with drawstring hood</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <span className="text-gray-700">Machine washable at 30°C</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <span className="text-gray-700">Available in 9 colors and 5 sizes</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <span className="text-gray-700">Reinforced stitching for durability</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
+              
+              {activeTab === 'reviews' && (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900">Customer Reviews</h3>
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`w-4 h-4 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                        ))}
+                      </div>
+                      <span className="text-sm text-gray-600">(89 reviews)</span>
+                    </div>
+                  </div>
+                  <div className="space-y-6">
+                    {reviews.map((review) => (
+                      <div key={review.id} className="border-b border-gray-200 pb-6">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-semibold text-gray-900">{review.name}</span>
+                            {review.verified && (
+                              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Verified Purchase</span>
+                            )}
+                          </div>
+                          <span className="text-sm text-gray-500">{review.date}</span>
+                        </div>
+                        <div className="flex items-center mb-2">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                          ))}
+                        </div>
+                        <p className="text-gray-700">{review.comment}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {activeTab === 'care' && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Care Instructions</h3>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-2">
+                      <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <p className="text-blue-800">Machine wash at 30°C. Do not bleach. Tumble dry low. Iron on low heat if needed.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Order Overview Modal */}
-      {showOrderOverview && orderToConfirm && (
-        <OrderOverviewModal
-          productDetails={{
-            productName: orderToConfirm.productName,
-            productImage: orderToConfirm.productImage,
-            price: orderToConfirm.price,
-            quantity: orderToConfirm.quantity,
-            priceId: orderToConfirm.priceId,
-            variants: orderToConfirm.variants,
-            isBundle: false,
-            bundleContents: []
-          }}
-          onClose={() => setShowOrderOverview(false)}
-          onConfirm={() => {
-            setShowOrderOverview(false);
-            navigate('/checkout');
-          }}
-        />
-      )}
-    </div>
+    </>
   );
 };
 

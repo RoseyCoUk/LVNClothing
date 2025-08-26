@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { handleError, logError, APIError } from './error-handler'
 
 export interface Product {
   id: string
@@ -23,63 +24,56 @@ export interface Product {
  * @throws Error if the database query fails
  */
 export async function getProducts(): Promise<Product[]> {
-  console.log('Fetching products from Supabase...');
-  
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .order('name', { ascending: true })
-
-  console.log('Supabase response:', { data, error });
-
-  if (error) {
-    console.error('Error fetching products:', error);
-    throw new Error(`Failed to fetch products: ${error.message}`)
-  }
-
-  console.log('Raw products data:', data);
-  
-  // Debug: Log price conversion for first few products
-  if (data && data.length > 0) {
-    console.log('Price conversion debug:');
-    data.slice(0, 3).forEach(product => {
-      console.log(`${product.name}: £${product.price} -> ${Math.round(Number(product.price) * 100)} pence`);
-    });
-  }
-
-  // Map database fields to Product interface
-  const mappedProducts = (data || []).map(product => {
-    const mappedProduct = {
-      id: product.id,
-      name: product.name,
-      variant: product.variant,
-      description: product.description,
-      price_pence: Math.round(Number(product.price) * 100) || 0, // Convert pounds to pence
-      category: product.category || 'gear', // Default to 'gear' if no category
-      tags: product.tags || [], // Use database tags or empty array
-      reviews: product.reviews || 0, // Use database reviews or default
-      rating: product.rating || 4.5, // Use database rating or default
-      dateAdded: product.created_at, // Use created_at as dateAdded
-      created_at: product.created_at,
-      updated_at: product.updated_at,
-      image_url: product.image_url, // Map image_url
-      slug: product.slug // Map slug
-    };
+  try {
+    console.log('🛍️ Fetching products...');
     
-    // Debug logging for Activist Bundle
-    if (product.name === 'Activist Bundle') {
-      console.log('Activist Bundle found:', {
-        original: product.price,
-        converted: mappedProduct.price_pence,
-        type: typeof mappedProduct.price_pence
-      });
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('name', { ascending: true })
+
+    if (error) {
+      console.error('❌ Failed to fetch products:', error);
+      throw handleError(error, 'product-fetch');
     }
-    
-    return mappedProduct;
-  });
 
-  console.log('Mapped products:', mappedProducts);
-  return mappedProducts;
+    console.log(`✅ Successfully fetched ${data?.length || 0} products`);
+
+    // Map database fields to Product interface and filter out stickers and badges
+    const mappedProducts = (data || [])
+      .filter(product => {
+        // Filter out stickers and badges from the shop page
+        const excludedProducts = ['Reform UK Stickers', 'Reform UK Badge Set'];
+        return !excludedProducts.includes(product.name);
+      })
+      .map(product => {
+        const mappedProduct = {
+          id: product.id,
+          name: product.name,
+          variant: product.variant,
+          description: product.description,
+          price_pence: Math.round(Number(product.price) * 100) || 0, // Convert pounds to pence
+          category: product.category || 'gear', // Default to 'gear' if no category
+          tags: product.tags || [], // Use database tags or empty array
+          reviews: product.reviews || 0, // Use database reviews or default
+          rating: product.rating || 4.5, // Use database rating or default
+          dateAdded: product.created_at, // Use created_at as dateAdded
+          created_at: product.created_at,
+          updated_at: product.updated_at,
+          image_url: product.image_url, // Map image_url
+          slug: product.slug // Map slug
+        };
+        
+        // Activist Bundle price conversion handled automatically
+        
+        return mappedProduct;
+      });
+
+    return mappedProducts;
+  } catch (error) {
+    logError(error, 'getProducts');
+    throw error;
+  }
 } 
 
 /**
@@ -89,21 +83,93 @@ export async function getProducts(): Promise<Product[]> {
  * @throws Error if the database query fails
  */
 export async function getProductVariants(productId: string): Promise<any[]> {
-  console.log('Fetching product variants for:', productId);
-  
-  const { data, error } = await supabase
-    .from('product_variants')
-    .select('*')
-    .eq('product_id', productId)
-    .order('description', { ascending: true })
+  try {
+    console.log(`🔍 Fetching variants for product: ${productId}`);
+    
+    const { data, error } = await supabase
+      .from('product_variants')
+      .select('*')
+      .eq('product_id', productId)
+      .order('description', { ascending: true })
 
-  console.log('Product variants response:', { data, error });
+    if (error) {
+      console.error('❌ Failed to fetch product variants:', error);
+      throw handleError(error, 'product-variants-fetch');
+    }
 
-  if (error) {
-    console.error('Error fetching product variants:', error);
-    throw new Error(`Failed to fetch product variants: ${error.message}`)
+    console.log(`✅ Successfully fetched ${data?.length || 0} variants for product ${productId}`);
+    return data || [];
+  } catch (error) {
+    logError(error, 'getProductVariants', { productId });
+    throw error;
   }
+} 
 
-  console.log('Product variants data:', data);
-  return data || [];
+export async function cancelOrder(orderId: string, reason?: string) {
+  try {
+    console.log(`🚫 Attempting to cancel order: ${orderId}`);
+    
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.error('❌ User authentication failed:', userError);
+      throw new APIError('User not authenticated. Please log in again.', {
+        context: 'order-cancellation',
+        status: 401
+      });
+    }
+
+    console.log(`✅ User authenticated: ${user.email}`);
+
+    // First, update the order status in our database
+    const { data: orderData, error: orderError } = await supabase
+      .from('orders')
+      .update({ 
+        status: 'canceled',
+        canceled_at: new Date().toISOString(),
+        cancel_reason: reason || 'Cancelled by customer'
+      })
+      .eq('id', orderId)
+      .eq('user_id', user.id) // Ensure user can only cancel their own orders
+      .select()
+      .single();
+
+    if (orderError) {
+      console.error('❌ Failed to cancel order in database:', orderError);
+      throw handleError(orderError, 'order-cancellation');
+    }
+
+    console.log('✅ Order cancelled successfully in database');
+
+    // If the order has a Stripe payment intent, attempt to refund it
+    if (orderData.stripe_session_id) {
+      try {
+        console.log('💳 Processing Stripe refund...');
+        const refundResponse = await fetch('/api/refund-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+          },
+          body: JSON.stringify({
+            orderId,
+            reason: reason || 'Order cancelled by customer'
+          })
+        });
+
+        if (!refundResponse.ok) {
+          console.warn('⚠️ Failed to process refund, but order was cancelled:', await refundResponse.text());
+        } else {
+          console.log('✅ Stripe refund processed successfully');
+        }
+      } catch (refundError) {
+        console.warn('⚠️ Refund processing failed, but order was cancelled:', refundError);
+      }
+    }
+
+    return orderData;
+  } catch (error) {
+    logError(error, 'cancelOrder', { orderId, reason });
+    throw error;
+  }
 } 

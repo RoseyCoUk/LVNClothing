@@ -23,7 +23,6 @@ export async function getShippingRates(
   }
 
   try {
-    console.log('Fetching shipping rates from backend:', request)
 
     // Call our Supabase Edge Function for shipping quotes
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -58,8 +57,6 @@ export async function getShippingRates(
     return result
 
   } catch (error) {
-    console.error('Error fetching shipping rates:', error)
-    
     // Return fallback options if API fails
     return {
       options: [

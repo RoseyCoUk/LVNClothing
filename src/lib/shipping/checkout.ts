@@ -43,7 +43,7 @@ export async function updatePaymentIntentWithShipping(
     throw new Error('Missing Supabase configuration')
   }
 
-  console.log('Updating PaymentIntent with shipping:', request)
+  // Updating PaymentIntent with shipping information
 
   const response = await fetch(`${supabaseUrl}/functions/v1/checkout-shipping-select`, {
     method: 'POST',

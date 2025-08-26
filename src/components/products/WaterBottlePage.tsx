@@ -20,6 +20,7 @@ import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
+import { waterbottleVariants, getWaterBottleVariant } from '../../hooks/waterbottle-variants';
 
 // Fix 2: Add proper TypeScript interfaces
 interface Color {
@@ -36,6 +37,7 @@ interface Variant {
   stockCount: number;
   rating: number;
   reviews: number;
+  printful_variant_id: number;
   images: string[];
 }
 
@@ -83,6 +85,7 @@ const productData = {
       stockCount: 30,
       rating: 5,
       reviews: 203,
+      printful_variant_id: 8000,
       images: Array.from({ length: 4 }, (_, i) => `/StickerToteWater/ReformWaterBottleWhite${i + 1}.webp`)
     }
   } as Variants
@@ -126,7 +129,8 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
       name: `${productData.name} (${currentVariant.color})`,
       price: currentVariant.price,
       image: currentVariant.images[0],
-      quantity: quantity
+      quantity: quantity,
+      printful_variant_id: currentVariant.printful_variant_id
     };
     addToCart(itemToAdd);
     // Don't redirect - just add to cart
@@ -139,7 +143,8 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
       name: productData.name,
       price: currentVariant.price,
       image: currentVariant.images[0],
-      quantity: quantity
+      quantity: quantity,
+      printful_variant_id: currentVariant.printful_variant_id
     };
     
     const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
@@ -154,7 +159,6 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
   const handleConfirmCheckout = async () => {
     // Fix 7: Add null check
     if (!orderToConfirm) {
-      console.error('No order to confirm');
       return;
     }
     
@@ -172,8 +176,6 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
       
       window.location.href = url;
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      
       // Show a more user-friendly error message
       if (error instanceof Error && error.message.includes('Stripe API key is not configured')) {
         alert('Stripe payment is not configured. This is expected in development environment.');

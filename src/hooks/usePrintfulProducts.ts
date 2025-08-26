@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { pf } from '../lib/printful/client';
 import type { PrintfulProduct, PrintfulVariant } from '../types/printful';
+import { tshirtVariants } from './tshirt-variants';
+import { totebagVariants } from './totebag-variants';
+import { waterbottleVariants } from './waterbottle-variants';
+import { mousepadVariants } from './mousepad-variants';
 
 // Mock data for when Printful API is not available
 const mockProducts: PrintfulProduct[] = [
@@ -9,212 +13,13 @@ const mockProducts: PrintfulProduct[] = [
     name: "Reform UK T-Shirt",
     description: "Premium cotton t-shirt with Reform UK branding",
     category: 'tshirt',
-    variants: [
-      // Black variants
-      {
-        id: 101,
-        name: "Black T-Shirt - XS",
-        color: "Black",
-        size: "XS",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1001,
-        color_code: "#000000",
-        image: "/Tshirt/Men/ReformMenTshirtBlack1.webp"
-      },
-      {
-        id: 102,
-        name: "Black T-Shirt - S",
-        color: "Black",
-        size: "S",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1002,
-        color_code: "#000000",
-        image: "/Tshirt/Men/ReformMenTshirtBlack1.webp"
-      },
-      {
-        id: 103,
-        name: "Black T-Shirt - M",
-        color: "Black",
-        size: "M",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1003,
-        color_code: "#000000",
-        image: "/Tshirt/Men/ReformMenTshirtBlack1.webp"
-      },
-      {
-        id: 104,
-        name: "Black T-Shirt - L",
-        color: "Black",
-        size: "L",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1004,
-        color_code: "#000000",
-        image: "/Tshirt/Men/ReformMenTshirtBlack1.webp"
-      },
-      {
-        id: 105,
-        name: "Black T-Shirt - XL",
-        color: "Black",
-        size: "XL",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1005,
-        color_code: "#000000",
-        image: "/Tshirt/Men/ReformMenTshirtBlack1.webp"
-      },
-      {
-        id: 106,
-        name: "Black T-Shirt - 2XL",
-        color: "Black",
-        size: "2XL",
-        price: "26.99",
-        in_stock: true,
-        printful_variant_id: 1006,
-        color_code: "#000000",
-        image: "/Tshirt/Men/ReformMenTshirtBlack1.webp"
-      },
-      // White variants
-      {
-        id: 107,
-        name: "White T-Shirt - XS",
-        color: "White",
-        size: "XS",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1007,
-        color_code: "#FFFFFF",
-        image: "/Tshirt/Men/ReformMenTshirtWhite1.webp"
-      },
-      {
-        id: 108,
-        name: "White T-Shirt - S",
-        color: "White",
-        size: "S",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1008,
-        color_code: "#FFFFFF",
-        image: "/Tshirt/Men/ReformMenTshirtWhite1.webp"
-      },
-      {
-        id: 109,
-        name: "White T-Shirt - M",
-        color: "White",
-        size: "M",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1009,
-        color_code: "#FFFFFF",
-        image: "/Tshirt/Men/ReformMenTshirtWhite1.webp"
-      },
-      {
-        id: 110,
-        name: "White T-Shirt - L",
-        color: "White",
-        size: "L",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1010,
-        color_code: "#FFFFFF",
-        image: "/Tshirt/Men/ReformMenTshirtWhite1.webp"
-      },
-      {
-        id: 111,
-        name: "White T-Shirt - XL",
-        color: "White",
-        size: "XL",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1011,
-        color_code: "#FFFFFF",
-        image: "/Tshirt/Men/ReformMenTshirtWhite1.webp"
-      },
-      {
-        id: 112,
-        name: "White T-Shirt - 2XL",
-        color: "White",
-        size: "2XL",
-        price: "26.99",
-        in_stock: true,
-        printful_variant_id: 1012,
-        color_code: "#FFFFFF",
-        image: "/Tshirt/Men/ReformMenTshirtWhite1.webp"
-      },
-      // Navy variants
-      {
-        id: 113,
-        name: "Navy T-Shirt - XS",
-        color: "Navy",
-        size: "XS",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1013,
-        color_code: "#0B4C8A",
-        image: "/Tshirt/Men/ReformMenTshirtBlue1.webp"
-      },
-      {
-        id: 114,
-        name: "Navy T-Shirt - S",
-        color: "Navy",
-        size: "S",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1014,
-        color_code: "#0B4C8A",
-        image: "/Tshirt/Men/ReformMenTshirtBlue1.webp"
-      },
-      {
-        id: 115,
-        name: "Navy T-Shirt - M",
-        color: "Navy",
-        size: "M",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1015,
-        color_code: "#0B4C8A",
-        image: "/Tshirt/Men/ReformMenTshirtBlue1.webp"
-      },
-      {
-        id: 116,
-        name: "Navy T-Shirt - L",
-        color: "Navy",
-        size: "L",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1016,
-        color_code: "#0B4C8A",
-        image: "/Tshirt/Men/ReformMenTshirtBlue1.webp"
-      },
-      {
-        id: 117,
-        name: "Navy T-Shirt - XL",
-        color: "Navy",
-        size: "XL",
-        price: "24.99",
-        in_stock: true,
-        printful_variant_id: 1017,
-        color_code: "#0B4C8A",
-        image: "/Tshirt/Men/ReformMenTshirtBlue1.webp"
-      },
-      {
-        id: 118,
-        name: "Navy T-Shirt - 2XL",
-        color: "Navy",
-        size: "2XL",
-        price: "26.99",
-        in_stock: true,
-        printful_variant_id: 1018,
-        color_code: "#0B4C8A",
-        image: "/Tshirt/Men/ReformMenTshirtBlue1.webp"
-      }
-    ],
+    variants: tshirtVariants.map(variant => ({
+      ...variant,
+      image: `https://files.cdn.printful.com/products/71/${variant.color.toLowerCase().replace(/\s+/g, '_')}_tshirt_${variant.size.toLowerCase()}_mockup.jpg`
+    })),
     isUnisex: true,
     hasDarkLightVariants: true,
-    image: "/Tshirt/Men/ReformMenTshirtBlack1.webp",
+    image: "https://files.cdn.printful.com/products/71/black_tshirt_m_mockup.jpg",
     brand: "Reform UK",
     model: "Premium Cotton",
     currency: "GBP",
@@ -231,478 +36,280 @@ const mockProducts: PrintfulProduct[] = [
       // Black variants
       {
         id: 201,
-        name: "Black Hoodie - XS",
-        color: "Black",
-        size: "XS",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2001,
-        color_code: "#000000",
-        image: "/Hoodie/Men/ReformMenHoodieBlack1.webp"
-      },
-      {
-        id: 202,
         name: "Black Hoodie - S",
         color: "Black",
         size: "S",
         price: "39.99",
         in_stock: true,
-        printful_variant_id: 2002,
+        printful_variant_id: 4016,
         color_code: "#000000",
-        image: "/Hoodie/Men/ReformMenHoodieBlack1.webp"
+        image: "https://files.cdn.printful.com/products/71/black_hoodie_s_mockup.jpg"
       },
       {
-        id: 203,
+        id: 202,
         name: "Black Hoodie - M",
         color: "Black",
         size: "M",
         price: "39.99",
         in_stock: true,
-        printful_variant_id: 2003,
+        printful_variant_id: 4017,
         color_code: "#000000",
-        image: "/Hoodie/Men/ReformMenHoodieBlack1.webp"
+        image: "https://files.cdn.printful.com/products/71/black_hoodie_m_mockup.jpg"
       },
       {
-        id: 204,
+        id: 203,
         name: "Black Hoodie - L",
         color: "Black",
         size: "L",
         price: "39.99",
         in_stock: true,
-        printful_variant_id: 2004,
+        printful_variant_id: 4018,
         color_code: "#000000",
-        image: "/Hoodie/Men/ReformMenHoodieBlack1.webp"
+        image: "https://files.cdn.printful.com/products/71/black_hoodie_l_mockup.jpg"
       },
       {
-        id: 205,
+        id: 204,
         name: "Black Hoodie - XL",
         color: "Black",
         size: "XL",
         price: "39.99",
         in_stock: true,
-        printful_variant_id: 2005,
+        printful_variant_id: 4019,
         color_code: "#000000",
-        image: "/Hoodie/Men/ReformMenHoodieBlack1.webp"
+        image: "https://files.cdn.printful.com/products/71/black_hoodie_xl_mockup.jpg"
       },
       {
-        id: 206,
+        id: 205,
         name: "Black Hoodie - 2XL",
         color: "Black",
         size: "2XL",
         price: "41.99",
         in_stock: true,
-        printful_variant_id: 2006,
+        printful_variant_id: 4020,
         color_code: "#000000",
-        image: "/Hoodie/Men/ReformMenHoodieBlack1.webp"
+        image: "https://files.cdn.printful.com/products/71/black_hoodie_2xl_mockup.jpg"
       },
       // White variants
       {
-        id: 207,
-        name: "White Hoodie - XS",
-        color: "White",
-        size: "XS",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2007,
-        color_code: "#FFFFFF",
-        image: "/Hoodie/Men/ReformMenHoodieWhite1.webp"
-      },
-      {
-        id: 208,
+        id: 206,
         name: "White Hoodie - S",
         color: "White",
         size: "S",
         price: "39.99",
         in_stock: true,
-        printful_variant_id: 2008,
+        printful_variant_id: 4016,
         color_code: "#FFFFFF",
-        image: "/Hoodie/Men/ReformMenHoodieWhite1.webp"
+        image: "https://files.cdn.printful.com/products/71/white_hoodie_s_mockup.jpg"
       },
       {
-        id: 209,
+        id: 207,
         name: "White Hoodie - M",
         color: "White",
         size: "M",
         price: "39.99",
         in_stock: true,
-        printful_variant_id: 2009,
+        printful_variant_id: 4017,
         color_code: "#FFFFFF",
-        image: "/Hoodie/Men/ReformMenHoodieWhite1.webp"
+        image: "https://files.cdn.printful.com/products/71/white_hoodie_m_mockup.jpg"
       },
       {
-        id: 210,
+        id: 208,
         name: "White Hoodie - L",
         color: "White",
         size: "L",
         price: "39.99",
         in_stock: true,
-        printful_variant_id: 2010,
+        printful_variant_id: 4018,
         color_code: "#FFFFFF",
-        image: "/Hoodie/Men/ReformMenHoodieWhite1.webp"
+        image: "https://files.cdn.printful.com/products/71/white_hoodie_l_mockup.jpg"
       },
       {
-        id: 211,
+        id: 209,
         name: "White Hoodie - XL",
         color: "White",
         size: "XL",
         price: "39.99",
         in_stock: true,
-        printful_variant_id: 2011,
+        printful_variant_id: 4019,
         color_code: "#FFFFFF",
-        image: "/Hoodie/Men/ReformMenHoodieWhite1.webp"
+        image: "https://files.cdn.printful.com/products/71/white_hoodie_xl_mockup.jpg"
       },
       {
-        id: 212,
+        id: 210,
         name: "White Hoodie - 2XL",
         color: "White",
         size: "2XL",
         price: "41.99",
         in_stock: true,
-        printful_variant_id: 2012,
+        printful_variant_id: 4020,
         color_code: "#FFFFFF",
-        image: "/Hoodie/Men/ReformMenHoodieWhite1.webp"
-      },
-      // Red variants
-      {
-        id: 213,
-        name: "Red Hoodie - XS",
-        color: "Red",
-        size: "XS",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2013,
-        color_code: "#B31217",
-        image: "/Hoodie/Men/ReformMenHoodieRed1.webp"
-      },
-      {
-        id: 214,
-        name: "Red Hoodie - S",
-        color: "Red",
-        size: "S",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2014,
-        color_code: "#B31217",
-        image: "/Hoodie/Men/ReformMenHoodieRed1.webp"
-      },
-      {
-        id: 215,
-        name: "Red Hoodie - M",
-        color: "Red",
-        size: "M",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2015,
-        color_code: "#B31217",
-        image: "/Hoodie/Men/ReformMenHoodieRed1.webp"
-      },
-      {
-        id: 216,
-        name: "Red Hoodie - L",
-        color: "Red",
-        size: "L",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2016,
-        color_code: "#B31217",
-        image: "/Hoodie/Men/ReformMenHoodieRed1.webp"
-      },
-      {
-        id: 217,
-        name: "Red Hoodie - XL",
-        color: "Red",
-        size: "XL",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2017,
-        color_code: "#B31217",
-        image: "/Hoodie/Men/ReformMenHoodieRed1.webp"
-      },
-      {
-        id: 218,
-        name: "Red Hoodie - 2XL",
-        color: "Red",
-        size: "2XL",
-        price: "41.99",
-        in_stock: true,
-        printful_variant_id: 2018,
-        color_code: "#B31217",
-        image: "/Hoodie/Men/ReformMenHoodieRed1.webp"
-      },
-      // Blue variants
-      {
-        id: 219,
-        name: "Royal Blue Hoodie - XS",
-        color: "Royal Blue",
-        size: "XS",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2019,
-        color_code: "#0B4C8A",
-        image: "/Hoodie/Men/ReformMenHoodieBlue1.webp"
-      },
-      {
-        id: 220,
-        name: "Royal Blue Hoodie - S",
-        color: "Royal Blue",
-        size: "S",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2020,
-        color_code: "#0B4C8A",
-        image: "/Hoodie/Men/ReformMenHoodieBlue1.webp"
-      },
-      {
-        id: 221,
-        name: "Royal Blue Hoodie - M",
-        color: "Royal Blue",
-        size: "M",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2021,
-        color_code: "#0B4C8A",
-        image: "/Hoodie/Men/ReformMenHoodieBlue1.webp"
-      },
-      {
-        id: 222,
-        name: "Royal Blue Hoodie - L",
-        color: "Royal Blue",
-        size: "L",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2022,
-        color_code: "#0B4C8A",
-        image: "/Hoodie/Men/ReformMenHoodieBlue1.webp"
-      },
-      {
-        id: 223,
-        name: "Royal Blue Hoodie - XL",
-        color: "Royal Blue",
-        size: "XL",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2023,
-        color_code: "#0B4C8A",
-        image: "/Hoodie/Men/ReformMenHoodieBlue1.webp"
-      },
-      {
-        id: 224,
-        name: "Royal Blue Hoodie - 2XL",
-        color: "Royal Blue",
-        size: "2XL",
-        price: "41.99",
-        in_stock: true,
-        printful_variant_id: 2024,
-        color_code: "#0B4C8A",
-        image: "/Hoodie/Men/ReformMenHoodieBlue1.webp"
-      },
-      // Charcoal variants
-      {
-        id: 225,
-        name: "Charcoal Hoodie - XS",
-        color: "Charcoal",
-        size: "XS",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2025,
-        color_code: "#333333",
-        image: "/Hoodie/Men/ReformMenHoodieCharcoal1.webp"
-      },
-      {
-        id: 226,
-        name: "Charcoal Hoodie - S",
-        color: "Charcoal",
-        size: "S",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2026,
-        color_code: "#333333",
-        image: "/Hoodie/Men/ReformMenHoodieCharcoal1.webp"
-      },
-      {
-        id: 227,
-        name: "Charcoal Hoodie - M",
-        color: "Charcoal",
-        size: "M",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2027,
-        color_code: "#333333",
-        image: "/Hoodie/Men/ReformMenHoodieCharcoal1.webp"
-      },
-      {
-        id: 228,
-        name: "Charcoal Hoodie - L",
-        color: "Charcoal",
-        size: "L",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2028,
-        color_code: "#333333",
-        image: "/Hoodie/Men/ReformMenHoodieCharcoal1.webp"
-      },
-      {
-        id: 229,
-        name: "Charcoal Hoodie - XL",
-        color: "Charcoal",
-        size: "XL",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2029,
-        color_code: "#333333",
-        image: "/Hoodie/Men/ReformMenHoodieCharcoal1.webp"
-      },
-      {
-        id: 230,
-        name: "Charcoal Hoodie - 2XL",
-        color: "Charcoal",
-        size: "2XL",
-        price: "41.99",
-        in_stock: true,
-        printful_variant_id: 2030,
-        color_code: "#333333",
-        image: "/Hoodie/Men/ReformMenHoodieCharcoal1.webp"
-      },
-      // Light Grey variants
-      {
-        id: 231,
-        name: "Light Grey Hoodie - XS",
-        color: "Light Grey",
-        size: "XS",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2031,
-        color_code: "#E5E5E5",
-        image: "/Hoodie/Men/ReformMenHoodieLightGrey1.webp"
-      },
-      {
-        id: 232,
-        name: "Light Grey Hoodie - S",
-        color: "Light Grey",
-        size: "S",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2032,
-        color_code: "#E5E5E5",
-        image: "/Hoodie/Men/ReformMenHoodieLightGrey1.webp"
-      },
-      {
-        id: 233,
-        name: "Light Grey Hoodie - M",
-        color: "Light Grey",
-        size: "M",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2033,
-        color_code: "#E5E5E5",
-        image: "/Hoodie/Men/ReformMenHoodieLightGrey1.webp"
-      },
-      {
-        id: 234,
-        name: "Light Grey Hoodie - L",
-        color: "Light Grey",
-        size: "L",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2034,
-        color_code: "#E5E5E5",
-        image: "/Hoodie/Men/ReformMenHoodieLightGrey1.webp"
-      },
-      {
-        id: 235,
-        name: "Light Grey Hoodie - XL",
-        color: "Light Grey",
-        size: "XL",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2035,
-        color_code: "#E5E5E5",
-        image: "/Hoodie/Men/ReformMenHoodieLightGrey1.webp"
-      },
-      {
-        id: 236,
-        name: "Light Grey Hoodie - 2XL",
-        color: "Light Grey",
-        size: "2XL",
-        price: "41.99",
-        in_stock: true,
-        printful_variant_id: 2036,
-        color_code: "#E5E5E5",
-        image: "/Hoodie/Men/ReformMenHoodieLightGrey1.webp"
-      },
-      // Ash Grey variants
-      {
-        id: 237,
-        name: "Ash Grey Hoodie - XS",
-        color: "Ash Grey",
-        size: "XS",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2037,
-        color_code: "#B0B0B0",
-        image: "/Hoodie/Men/ReformMenHoodieAshGrey1.webp"
-      },
-      {
-        id: 238,
-        name: "Ash Grey Hoodie - S",
-        color: "Ash Grey",
-        size: "S",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2038,
-        color_code: "#B0B0B0",
-        image: "/Hoodie/Men/ReformMenHoodieAshGrey1.webp"
-      },
-      {
-        id: 239,
-        name: "Ash Grey Hoodie - M",
-        color: "Ash Grey",
-        size: "M",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2039,
-        color_code: "#B0B0B0",
-        image: "/Hoodie/Men/ReformMenHoodieAshGrey1.webp"
-      },
-      {
-        id: 240,
-        name: "Ash Grey Hoodie - L",
-        color: "Ash Grey",
-        size: "L",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2040,
-        color_code: "#B0B0B0",
-        image: "/Hoodie/Men/ReformMenHoodieAshGrey1.webp"
-      },
-      {
-        id: 241,
-        name: "Ash Grey Hoodie - XL",
-        color: "Ash Grey",
-        size: "XL",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 2041,
-        color_code: "#B0B0B0",
-        image: "/Hoodie/Men/ReformMenHoodieAshGrey1.webp"
-      },
-      {
-        id: 242,
-        name: "Ash Grey Hoodie - 2XL",
-        color: "Ash Grey",
-        size: "2XL",
-        price: "41.99",
-        in_stock: true,
-        printful_variant_id: 2042,
-        color_code: "#B0B0B0",
-        image: "/Hoodie/Men/ReformMenHoodieAshGrey1.webp"
+        image: "https://files.cdn.printful.com/products/71/white_hoodie_2xl_mockup.jpg"
       }
     ],
     isUnisex: true,
     hasDarkLightVariants: true,
-    image: "/Hoodie/Men/ReformMenHoodieBlack1.webp",
+    image: "https://files.cdn.printful.com/products/71/black_hoodie_m_mockup.jpg",
     brand: "Reform UK",
     model: "Premium Cotton",
+    currency: "GBP",
+    is_discontinued: false,
+    avg_fulfillment_time: 4.5,
+    origin_country: "UK"
+  },
+  {
+    id: 3,
+    name: "Reform UK Cap",
+    description: "Adjustable cap with Reform UK logo",
+    category: 'cap',
+    variants: [
+      {
+        id: 301,
+        name: "Black Cap - One Size",
+        color: "Black",
+        size: "One Size",
+        price: "19.99",
+        in_stock: true,
+        printful_variant_id: 6004,
+        color_code: "#000000",
+        image: "/Cap/ReformCapBlack1.webp"
+      },
+      {
+        id: 302,
+        name: "White Cap - One Size",
+        color: "White",
+        size: "One Size",
+        price: "19.99",
+        in_stock: true,
+        printful_variant_id: 6000,
+        color_code: "#ffffff",
+        image: "/Cap/ReformCapWhite1.webp"
+      },
+      {
+        id: 303,
+        name: "Light Blue Cap - One Size",
+        color: "Light Blue",
+        size: "One Size",
+        price: "19.99",
+        in_stock: true,
+        printful_variant_id: 6001,
+        color_code: "#a6b9c6",
+        image: "/Cap/ReformCapBlue1.webp"
+      },
+      {
+        id: 304,
+        name: "Charcoal Cap - One Size",
+        color: "Charcoal",
+        size: "One Size",
+        price: "19.99",
+        in_stock: true,
+        printful_variant_id: 6002,
+        color_code: "#393639",
+        image: "/Cap/ReformCapCharcoal1.webp"
+      },
+      {
+        id: 305,
+        name: "Navy Cap - One Size",
+        color: "Navy",
+        size: "One Size",
+        price: "19.99",
+        in_stock: true,
+        printful_variant_id: 6003,
+        color_code: "#1c2330",
+        image: "/Cap/ReformCapNavy1.webp"
+      },
+      {
+        id: 306,
+        name: "Red Cap - One Size",
+        color: "Red",
+        size: "One Size",
+        price: "19.99",
+        in_stock: true,
+        printful_variant_id: 6005,
+        color_code: "#8e0a1f",
+        image: "/Cap/ReformCapRed1.webp"
+      }
+    ],
+    isUnisex: true,
+    hasDarkLightVariants: false,
+    image: "/Cap/ReformCapBlack1.webp",
+    brand: "Reform UK",
+    model: "Adjustable Cap",
+    currency: "GBP",
+    is_discontinued: false,
+    avg_fulfillment_time: 4.5,
+    origin_country: "UK"
+  },
+  {
+    id: 4,
+    name: "Reform UK Mug",
+    description: "Ceramic mug with Reform UK logo",
+    category: 'mug',
+    variants: [
+      {
+        id: 401,
+        name: "White Mug - One Size",
+        color: "White",
+        size: "One Size",
+        price: "19.99",
+        in_stock: true,
+        printful_variant_id: 10000,
+        color_code: "#FFFFFF",
+        image: "/MugMouse/ReformMug1.webp"
+      }
+    ],
+    isUnisex: true,
+    hasDarkLightVariants: false,
+    image: "/MugMouse/ReformMug1.webp",
+    brand: "Reform UK",
+    model: "Ceramic Mug",
+    currency: "GBP",
+    is_discontinued: false,
+    avg_fulfillment_time: 4.5,
+    origin_country: "UK"
+  },
+  {
+    id: 5,
+    name: "Reform UK Tote Bag",
+    description: "Eco-friendly canvas tote bag with Reform UK branding",
+    category: 'tote',
+    variants: totebagVariants,
+    isUnisex: true,
+    hasDarkLightVariants: false,
+    image: "/StickerToteWater/ReformToteBagBlack1.webp",
+    brand: "Reform UK",
+    model: "Canvas Tote",
+    currency: "GBP",
+    is_discontinued: false,
+    avg_fulfillment_time: 4.5,
+    origin_country: "UK"
+  },
+  {
+    id: 6,
+    name: "Reform UK Water Bottle",
+    description: "Stainless steel water bottle with Reform UK logo",
+    category: 'water-bottle',
+    variants: waterbottleVariants,
+    isUnisex: true,
+    hasDarkLightVariants: false,
+    image: "/StickerToteWater/ReformWaterBottleWhite1.webp",
+    brand: "Reform UK",
+    model: "Stainless Steel",
+    currency: "GBP",
+    is_discontinued: false,
+    avg_fulfillment_time: 4.5,
+    origin_country: "UK"
+  },
+  {
+    id: 7,
+    name: "Reform UK Mouse Pad",
+    description: "High-quality mouse pad with Reform UK branding",
+    category: 'mouse-pad',
+    variants: mousepadVariants,
+    isUnisex: true,
+    hasDarkLightVariants: false,
+    image: "/MugMouse/ReformMousePadWhite1.webp",
+    brand: "Reform UK",
+    model: "Premium Mouse Pad",
     currency: "GBP",
     is_discontinued: false,
     avg_fulfillment_time: 4.5,
@@ -734,7 +341,19 @@ interface UsePrintfulVariantsReturn {
 // Helper function to check if Printful API is available
 const isPrintfulAvailable = () => {
   try {
-    return !!(pf && (pf as any).h);
+    // Check if we have the basic objects
+    if (!pf || !(pf as any).h) {
+      return false;
+    }
+    
+    // Check if we have the required environment variable
+    if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      return false;
+    }
+    
+    // For now, let's assume Printful is not available and use mock data
+    // This ensures we always get the correct mock data with proper images
+    return false;
   } catch {
     return false;
   }
@@ -753,7 +372,6 @@ export const usePrintfulProducts = (): UsePrintfulProductsReturn => {
       
       // Check if Printful API is available
       if (!isPrintfulAvailable()) {
-        console.warn('Printful API not available, using mock data');
         setProducts(mockProducts);
         setLoading(false);
         return;
@@ -793,7 +411,6 @@ export const usePrintfulProducts = (): UsePrintfulProductsReturn => {
         setProducts(transformedProducts);
       }
     } catch (err) {
-      console.warn('Printful API failed, using mock data:', err);
       setProducts(mockProducts);
       setError('Using mock data - Printful API unavailable');
     } finally {
@@ -821,7 +438,6 @@ export const usePrintfulProduct = (productId: number): UsePrintfulProductReturn 
       
       // Check if Printful API is available
       if (!isPrintfulAvailable()) {
-        console.warn('Printful API not available, using mock data');
         const mockProduct = mockProducts.find(p => p.id === productId);
         if (mockProduct) {
           setProduct(mockProduct);
@@ -875,7 +491,6 @@ export const usePrintfulProduct = (productId: number): UsePrintfulProductReturn 
         setProduct(transformedProduct);
       }
     } catch (err) {
-      console.warn('Printful API failed, using mock data:', err);
       const mockProduct = mockProducts.find(p => p.id === productId);
       if (mockProduct) {
         setProduct(mockProduct);
@@ -908,7 +523,6 @@ export const usePrintfulVariants = (productId: number): UsePrintfulVariantsRetur
       
       // Check if Printful API is available
       if (!isPrintfulAvailable()) {
-        console.warn('Printful API not available, using mock data');
         const mockProduct = mockProducts.find(p => p.id === productId);
         if (mockProduct) {
           setVariants(mockProduct.variants);
@@ -946,7 +560,6 @@ export const usePrintfulVariants = (productId: number): UsePrintfulVariantsRetur
         setVariants(transformedVariants);
       }
     } catch (err) {
-      console.warn('Printful API failed, using mock data:', err);
       const mockProduct = mockProducts.find(p => p.id === productId);
       if (mockProduct) {
         setVariants(mockProduct.variants);

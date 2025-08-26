@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Shipping Quotes Function</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        button { padding: 10px 20px; margin: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        input, select { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; width: 200px; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Test Shipping Quotes Function</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Direct Function Call</h2>
+        <p>Testing the shipping quotes function directly with hardcoded values:</p>
+        <button onclick="testDirectFunction()">Test Direct Function Call</button>
+        <div id="direct-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Address Input Test</h2>
+        <p>Test with user-provided address:</p>
+        <input type="text" id="address1" placeholder="Address Line 1" value="123 Test Street">
+        <input type="text" id="city" placeholder="City" value="London">
+        <input type="text" id="postcode" placeholder="Postcode" value="SW1A 1AA">
+        <select id="country">
+            <option value="GB">United Kingdom</option>
+            <option value="US">United States</option>
+        </select>
+        <br>
+        <button onclick="testWithAddress()">Test with Address</button>
+        <div id="address-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Error Handling Test</h2>
+        <p>Test with invalid data to check error handling:</p>
+        <button onclick="testErrorHandling()">Test Error Handling</button>
+        <div id="error-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 4: Authentication Test</h2>
+        <p>Test if authentication is required:</p>
+        <button onclick="testWithoutAuth()">Test Without Auth</button>
+        <div id="auth-result" class="result"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'http://127.0.0.1:54321';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
+        
+        function logResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'warning';
+            element.innerHTML = `<span class="${className}">${message}</span>`;
+        }
+        
+        async function testDirectFunction() {
+            const resultDiv = document.getElementById('direct-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const testData = {
+                    recipient: {
+                        address1: "123 Test Street",
+                        city: "London",
+                        country_code: "GB",
+                        zip: "SW1A 1AA"
+                    },
+                    items: [
+                        {
+                            printful_variant_id: 1,
+                            quantity: 1
+                        }
+                    ]
+                };
+                
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/shipping-quotes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    logResult('direct-result', `✅ Success! Status: ${response.status}<br>Response: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    logResult('direct-result', `❌ Failed! Status: ${response.status}<br>Error: ${JSON.stringify(errorData, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                logResult('direct-result', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testWithAddress() {
+            const resultDiv = document.getElementById('address-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const address1 = document.getElementById('address1').value;
+                const city = document.getElementById('city').value;
+                const postcode = document.getElementById('postcode').value;
+                const country = document.getElementById('country').value;
+                
+                const testData = {
+                    recipient: {
+                        address1: address1,
+                        city: city,
+                        country_code: country,
+                        zip: postcode
+                    },
+                    items: [
+                        {
+                            printful_variant_id: 1,
+                            quantity: 1
+                        }
+                    ]
+                };
+                
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/shipping-quotes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    logResult('address-result', `✅ Success! Status: ${response.status}<br>Response: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    logResult('address-result', `❌ Failed! Status: ${response.status}<br>Error: ${JSON.stringify(errorData, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                logResult('address-result', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testErrorHandling() {
+            const resultDiv = document.getElementById('error-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                // Test with invalid data
+                const invalidData = {
+                    recipient: {
+                        // Missing required fields
+                    },
+                    items: []
+                };
+                
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/shipping-quotes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                    body: JSON.stringify(invalidData)
+                });
+                
+                if (response.status === 400) {
+                    const errorData = await response.json().catch(() => ({}));
+                    logResult('error-result', `✅ Error handling working! Status: ${response.status}<br>Error: ${JSON.stringify(errorData, null, 2)}`, 'success');
+                } else {
+                    logResult('error-result', `⚠️ Unexpected status: ${response.status}`, 'warning');
+                }
+            } catch (error) {
+                logResult('error-result', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testWithoutAuth() {
+            const resultDiv = document.getElementById('auth-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const testData = {
+                    recipient: {
+                        address1: "123 Test Street",
+                        city: "London",
+                        country_code: "GB",
+                        zip: "SW1A 1AA"
+                    },
+                    items: [
+                        {
+                            printful_variant_id: 1,
+                            quantity: 1
+                        }
+                    ]
+                };
+                
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/shipping-quotes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // No Authorization header
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                if (response.status === 401) {
+                    logResult('auth-result', `✅ Authentication required! Status: ${response.status}`, 'success');
+                } else {
+                    logResult('auth-result', `⚠️ Unexpected response without auth: ${response.status}`, 'warning');
+                }
+            } catch (error) {
+                logResult('auth-result', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

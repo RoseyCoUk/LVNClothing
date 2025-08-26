@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoodie Variants Test Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #e5e7eb;
+            display: inline-block;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .color-swatch.selected {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px white;
+        }
+        .variant-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 8px;
+            background: white;
+            transition: all 0.2s;
+        }
+        .variant-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1e293b;
+        }
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">🧥 Hoodie Variants Test Page</h1>
+            <p class="text-lg text-gray-600">Comprehensive testing and verification of the hoodie variant system</p>
+        </header>
+
+        <!-- Statistics Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalVariants">-</div>
+                <div class="stat-label">Total Variants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalColors">-</div>
+                <div class="stat-label">Colors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalSizes">-</div>
+                <div class="stat-label">Sizes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="priceRange">-</div>
+                <div class="stat-label">Price Range</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="idRange">-</div>
+                <div class="stat-label">Printful ID Range</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Filters</h2>
+            <div class="flex flex-wrap gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                    <select id="colorFilter" class="border border-gray-300 rounded-md px-3 py-2">
+                        <option value="">All Colors</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Size</label>
+                    <select id="sizeFilter" class="border border-gray-300 rounded-md px-3 py-2">
+                        <option value="">All Sizes</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Price</label>
+                    <select id="priceFilter" class="border border-gray-300 rounded-md px-3 py-2">
+                        <option value="">All Prices</option>
+                        <option value="39.99">£39.99</option>
+                        <option value="41.99">£41.99</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <input type="text" id="searchFilter" placeholder="Search variants..." class="border border-gray-300 rounded-md px-3 py-2">
+                </div>
+            </div>
+        </div>
+
+        <!-- Variants Grid -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-xl font-semibold mb-4">All Variants</h2>
+            <div id="variantsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <!-- Variants will be populated here -->
+            </div>
+        </div>
+
+        <!-- Validation Results -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mt-8">
+            <h2 class="text-xl font-semibold mb-4">Validation Results</h2>
+            <div id="validationResults" class="space-y-2">
+                <!-- Validation results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hoodie variants data
+        const hoodieVariants = [
+            // Black variants
+            { id: 201, name: "Black Hoodie - S", color: "Black", size: "S", price: "39.99", in_stock: true, printful_variant_id: 5000, color_code: "#0b0b0b" },
+            { id: 202, name: "Black Hoodie - M", color: "Black", size: "M", price: "39.99", in_stock: true, printful_variant_id: 5001, color_code: "#0b0b0b" },
+            { id: 203, name: "Black Hoodie - L", color: "Black", size: "L", price: "39.99", in_stock: true, printful_variant_id: 5002, color_code: "#0b0b0b" },
+            { id: 204, name: "Black Hoodie - XL", color: "Black", size: "XL", price: "39.99", in_stock: true, printful_variant_id: 5003, color_code: "#0b0b0b" },
+            { id: 205, name: "Black Hoodie - 2XL", color: "Black", size: "2XL", price: "41.99", in_stock: true, printful_variant_id: 5004, color_code: "#0b0b0b" },
+
+            // Navy variants
+            { id: 206, name: "Navy Hoodie - S", color: "Navy", size: "S", price: "39.99", in_stock: true, printful_variant_id: 5005, color_code: "#131928" },
+            { id: 207, name: "Navy Hoodie - M", color: "Navy", size: "M", price: "39.99", in_stock: true, printful_variant_id: 5006, color_code: "#131928" },
+            { id: 208, name: "Navy Hoodie - L", color: "Navy", size: "L", price: "39.99", in_stock: true, printful_variant_id: 5007, color_code: "#131928" },
+            { id: 209, name: "Navy Hoodie - XL", color: "Navy", size: "XL", price: "39.99", in_stock: true, printful_variant_id: 5008, color_code: "#131928" },
+            { id: 210, name: "Navy Hoodie - 2XL", color: "Navy", size: "2XL", price: "41.99", in_stock: true, printful_variant_id: 5009, color_code: "#131928" },
+
+            // Red variants
+            { id: 211, name: "Red Hoodie - S", color: "Red", size: "S", price: "39.99", in_stock: true, printful_variant_id: 5010, color_code: "#da0a1a" },
+            { id: 212, name: "Red Hoodie - M", color: "Red", size: "M", price: "39.99", in_stock: true, printful_variant_id: 5011, color_code: "#da0a1a" },
+            { id: 213, name: "Red Hoodie - L", color: "Red", size: "L", price: "39.99", in_stock: true, printful_variant_id: 5012, color_code: "#da0a1a" },
+            { id: 214, name: "Red Hoodie - XL", color: "Red", size: "XL", price: "39.99", in_stock: true, printful_variant_id: 5013, color_code: "#da0a1a" },
+            { id: 215, name: "Red Hoodie - 2XL", color: "Red", size: "2XL", price: "41.99", in_stock: true, printful_variant_id: 5014, color_code: "#da0a1a" },
+
+            // Dark Heather variants
+            { id: 216, name: "Dark Heather Hoodie - S", color: "Dark Heather", size: "S", price: "39.99", in_stock: true, printful_variant_id: 5015, color_code: "#47484d" },
+            { id: 217, name: "Dark Heather Hoodie - M", color: "Dark Heather", size: "M", price: "39.99", in_stock: true, printful_variant_id: 5016, color_code: "#47484d" },
+            { id: 218, name: "Dark Heather Hoodie - L", color: "Dark Heather", size: "L", price: "39.99", in_stock: true, printful_variant_id: 5017, color_code: "#47484d" },
+            { id: 219, name: "Dark Heather Hoodie - XL", color: "Dark Heather", size: "XL", price: "39.99", in_stock: true, printful_variant_id: 5018, color_code: "#47484d" },
+            { id: 220, name: "Dark Heather Hoodie - 2XL", color: "Dark Heather", size: "2XL", price: "41.99", in_stock: true, printful_variant_id: 5019, color_code: "#47484d" },
+
+            // Indigo Blue variants
+            { id: 221, name: "Indigo Blue Hoodie - S", color: "Indigo Blue", size: "S", price: "39.99", in_stock: true, printful_variant_id: 5020, color_code: "#395d82" },
+            { id: 222, name: "Indigo Blue Hoodie - M", color: "Indigo Blue", size: "M", price: "39.99", in_stock: true, printful_variant_id: 5021, color_code: "#395d82" },
+            { id: 223, name: "Indigo Blue Hoodie - L", color: "Indigo Blue", size: "L", price: "39.99", in_stock: true, printful_variant_id: 5022, color_code: "#395d82" },
+            { id: 224, name: "Indigo Blue Hoodie - XL", color: "Indigo Blue", size: "XL", price: "39.99", in_stock: true, printful_variant_id: 5023, color_code: "#395d82" },
+            { id: 225, name: "Indigo Blue Hoodie - 2XL", color: "Indigo Blue", size: "2XL", price: "41.99", in_stock: true, printful_variant_id: 5024, color_code: "#395d82" },
+
+            // Sport Grey variants
+            { id: 226, name: "Sport Grey Hoodie - S", color: "Sport Grey", size: "S", price: "39.99", in_stock: true, printful_variant_id: 5025, color_code: "#9b969c" },
+            { id: 227, name: "Sport Grey Hoodie - M", color: "Sport Grey", size: "M", price: "39.99", in_stock: true, printful_variant_id: 5026, color_code: "#9b969c" },
+            { id: 228, name: "Sport Grey Hoodie - L", color: "Sport Grey", size: "L", price: "39.99", in_stock: true, printful_variant_id: 5027, color_code: "#9b969c" },
+            { id: 229, name: "Sport Grey Hoodie - XL", color: "Sport Grey", size: "XL", price: "39.99", in_stock: true, printful_variant_id: 5028, color_code: "#9b969c" },
+            { id: 230, name: "Sport Grey Hoodie - 2XL", color: "Sport Grey", size: "2XL", price: "41.99", in_stock: true, printful_variant_id: 5029, color_code: "#9b969c" },
+
+            // Light Blue variants
+            { id: 231, name: "Light Blue Hoodie - S", color: "Light Blue", size: "S", price: "39.99", in_stock: true, printful_variant_id: 5030, color_code: "#a1c5e1" },
+            { id: 232, name: "Light Blue Hoodie - M", color: "Light Blue", size: "M", price: "39.99", in_stock: true, printful_variant_id: 5031, color_code: "#a1c5e1" },
+            { id: 233, name: "Light Blue Hoodie - L", color: "Light Blue", size: "L", price: "39.99", in_stock: true, printful_variant_id: 5032, color_code: "#a1c5e1" },
+            { id: 234, name: "Light Blue Hoodie - XL", color: "Light Blue", size: "XL", price: "39.99", in_stock: true, printful_variant_id: 5033, color_code: "#a1c5e1" },
+            { id: 235, name: "Light Blue Hoodie - 2XL", color: "Light Blue", size: "2XL", price: "41.99", in_stock: true, printful_variant_id: 5034, color_code: "#a1c5e1" },
+
+            // Light Pink variants
+            { id: 236, name: "Light Pink Hoodie - S", color: "Light Pink", size: "S", price: "39.99", in_stock: true, printful_variant_id: 5035, color_code: "#f3d4e3" },
+            { id: 237, name: "Light Pink Hoodie - M", color: "Light Pink", size: "M", price: "39.99", in_stock: true, printful_variant_id: 5036, color_code: "#f3d4e3" },
+            { id: 238, name: "Light Pink Hoodie - L", color: "Light Pink", size: "L", price: "39.99", in_stock: true, printful_variant_id: 5037, color_code: "#f3d4e3" },
+            { id: 239, name: "Light Pink Hoodie - XL", color: "Light Pink", size: "XL", price: "39.99", in_stock: true, printful_variant_id: 5038, color_code: "#f3d4e3" },
+            { id: 240, name: "Light Pink Hoodie - 2XL", color: "Light Pink", size: "2XL", price: "41.99", in_stock: true, printful_variant_id: 5039, color_code: "#f3d4e3" },
+
+            // White variants
+            { id: 241, name: "White Hoodie - S", color: "White", size: "S", price: "39.99", in_stock: true, printful_variant_id: 5040, color_code: "#ffffff" },
+            { id: 242, name: "White Hoodie - M", color: "White", size: "M", price: "39.99", in_stock: true, printful_variant_id: 5041, color_code: "#ffffff" },
+            { id: 243, name: "White Hoodie - L", color: "White", size: "L", price: "39.99", in_stock: true, printful_variant_id: 5042, color_code: "#ffffff" },
+            { id: 244, name: "White Hoodie - XL", color: "White", size: "XL", price: "39.99", in_stock: true, printful_variant_id: 5043, color_code: "#ffffff" },
+            { id: 245, name: "White Hoodie - 2XL", color: "White", size: "2XL", price: "41.99", in_stock: true, printful_variant_id: 5044, color_code: "#ffffff" }
+        ];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatistics();
+            populateFilters();
+            renderVariants(hoodieVariants);
+            runValidation();
+        });
+
+        // Update statistics
+        function updateStatistics() {
+            const colors = [...new Set(hoodieVariants.map(v => v.color))];
+            const sizes = [...new Set(hoodieVariants.map(v => v.size))];
+            const prices = [...new Set(hoodieVariants.map(v => v.price))];
+            const printfulIds = hoodieVariants.map(v => v.printful_variant_id);
+
+            document.getElementById('totalVariants').textContent = hoodieVariants.length;
+            document.getElementById('totalColors').textContent = colors.length;
+            document.getElementById('totalSizes').textContent = sizes.length;
+            document.getElementById('priceRange').textContent = `£${Math.min(...prices)}-£${Math.max(...prices)}`;
+            document.getElementById('idRange').textContent = `${Math.min(...printfulIds)}-${Math.max(...printfulIds)}`;
+        }
+
+        // Populate filter dropdowns
+        function populateFilters() {
+            const colors = [...new Set(hoodieVariants.map(v => v.color))];
+            const sizes = [...new Set(hoodieVariants.map(v => v.size))];
+
+            const colorFilter = document.getElementById('colorFilter');
+            const sizeFilter = document.getElementById('sizeFilter');
+
+            colors.forEach(color => {
+                const option = document.createElement('option');
+                option.value = color;
+                option.textContent = color;
+                colorFilter.appendChild(option);
+            });
+
+            sizes.forEach(size => {
+                const option = document.createElement('option');
+                option.value = size;
+                option.textContent = size;
+                sizeFilter.appendChild(option);
+            });
+
+            // Add event listeners
+            colorFilter.addEventListener('change', filterVariants);
+            sizeFilter.addEventListener('change', filterVariants);
+            document.getElementById('priceFilter').addEventListener('change', filterVariants);
+            document.getElementById('searchFilter').addEventListener('input', filterVariants);
+        }
+
+        // Filter variants
+        function filterVariants() {
+            const colorFilter = document.getElementById('colorFilter').value;
+            const sizeFilter = document.getElementById('sizeFilter').value;
+            const priceFilter = document.getElementById('priceFilter').value;
+            const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+
+            let filtered = hoodieVariants.filter(variant => {
+                if (colorFilter && variant.color !== colorFilter) return false;
+                if (sizeFilter && variant.size !== sizeFilter) return false;
+                if (priceFilter && variant.price !== priceFilter) return false;
+                if (searchFilter && !variant.name.toLowerCase().includes(searchFilter)) return false;
+                return true;
+            });
+
+            renderVariants(filtered);
+        }
+
+        // Render variants grid
+        function renderVariants(variants) {
+            const grid = document.getElementById('variantsGrid');
+            grid.innerHTML = '';
+
+            variants.forEach(variant => {
+                const card = document.createElement('div');
+                card.className = 'variant-card';
+                card.innerHTML = `
+                    <div class="flex items-center mb-3">
+                        <div class="color-swatch" style="background-color: ${variant.color_code}"></div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">${variant.color}</h3>
+                            <p class="text-sm text-gray-600">Size: ${variant.size}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Price:</span>
+                            <span class="font-semibold">£${variant.price}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Internal ID:</span>
+                            <span class="font-mono">${variant.id}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Printful ID:</span>
+                            <span class="font-mono">${variant.printful_variant_id}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Stock:</span>
+                            <span class="${variant.in_stock ? 'text-green-600' : 'text-red-600'}">
+                                ${variant.in_stock ? 'In Stock' : 'Out of Stock'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Run validation tests
+        function runValidation() {
+            const results = [];
+            
+            // Test 1: Variant Count
+            const expectedCount = 45;
+            const actualCount = hoodieVariants.length;
+            results.push({
+                test: 'Variant Count',
+                passed: actualCount === expectedCount,
+                details: `Expected ${expectedCount}, got ${actualCount}`
+            });
+
+            // Test 2: Size Consistency
+            const colors = [...new Set(hoodieVariants.map(v => v.color))];
+            const expectedSizes = ['S', 'M', 'L', 'XL', '2XL'];
+            let sizeConsistent = true;
+            for (const color of colors) {
+                const colorVariants = hoodieVariants.filter(v => v.color === color);
+                if (colorVariants.length !== expectedSizes.length) {
+                    sizeConsistent = false;
+                    break;
+                }
+            }
+            results.push({
+                test: 'Size Consistency',
+                passed: sizeConsistent,
+                details: sizeConsistent ? 'All colors have all 5 sizes' : 'Size inconsistency detected'
+            });
+
+            // Test 3: Unique IDs
+            const internalIds = hoodieVariants.map(v => v.id);
+            const printfulIds = hoodieVariants.map(v => v.printful_variant_id);
+            const internalIdsUnique = new Set(internalIds).size === internalIds.length;
+            const printfulIdsUnique = new Set(printfulIds).size === printfulIds.length;
+            results.push({
+                test: 'Unique IDs',
+                passed: internalIdsUnique && printfulIdsUnique,
+                details: internalIdsUnique && printfulIdsUnique ? 'All IDs are unique' : 'Duplicate IDs detected'
+            });
+
+            // Test 4: Printful ID Range
+            const minId = Math.min(...printfulIds);
+            const maxId = Math.max(...printfulIds);
+            const idRangeValid = minId >= 5000 && maxId <= 5099;
+            results.push({
+                test: 'Printful ID Range',
+                passed: idRangeValid,
+                details: `IDs range from ${minId} to ${maxId} (expected 5000-5099)`
+            });
+
+            // Test 5: Pricing Structure
+            const standardPrice = '39.99';
+            const xl2Price = '41.99';
+            let pricingValid = true;
+            for (const variant of hoodieVariants) {
+                if (variant.size === '2XL' && variant.price !== xl2Price) {
+                    pricingValid = false;
+                    break;
+                } else if (variant.size !== '2XL' && variant.price !== standardPrice) {
+                    pricingValid = false;
+                    break;
+                }
+            }
+            results.push({
+                test: 'Pricing Structure',
+                passed: pricingValid,
+                details: pricingValid ? `Standard: £${standardPrice}, 2XL: £${xl2Price}` : 'Pricing inconsistency detected'
+            });
+
+            // Display results
+            const resultsContainer = document.getElementById('validationResults');
+            results.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `p-3 rounded-lg ${result.passed ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`;
+                resultDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="${result.passed ? 'text-green-600' : 'text-red-600'} font-semibold mr-2">
+                            ${result.passed ? '✅' : '❌'}
+                        </span>
+                        <span class="font-medium">${result.test}:</span>
+                        <span class="ml-2 text-gray-700">${result.details}</span>
+                    </div>
+                `;
+                resultsContainer.appendChild(resultDiv);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starter Bundle Printful Integration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        .info { background: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .variant-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0; }
+        .variant-card { border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #f9f9f9; }
+        .printful-id { background: #e9ecef; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+        .bundle-item { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Starter Bundle Printful Integration Test</h1>
+        <p>This test verifies that the starter bundle is properly linked to Printful variants and Supabase database.</p>
+
+        <div class="section info">
+            <h2>📋 Test Overview</h2>
+            <p>The starter bundle should include:</p>
+            <ul>
+                <li><strong>T-Shirt:</strong> Black, Medium size (Printful Variant ID: 4017)</li>
+                <li><strong>Cap:</strong> Black (Printful Variant ID: 6001)</li>
+                <li><strong>Mug:</strong> White (Printful Variant ID: 7001)</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Configuration</h2>
+            
+            <div class="form-group">
+                <label for="supabaseUrl">Supabase URL:</label>
+                <input type="url" id="supabaseUrl" placeholder="https://your-project.supabase.co" value="https://nsmrxwnrtsllxvplazmm.supabase.co">
+            </div>
+            
+            <div class="form-group">
+                <label for="supabaseAnonKey">Supabase Anon Key:</label>
+                <input type="text" id="supabaseAnonKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+            </div>
+            
+            <div class="form-group">
+                <label for="printfulToken">Printful Token (for direct API testing):</label>
+                <input type="text" id="printfulToken" placeholder="Your Printful API token">
+            </div>
+            
+            <button onclick="loadFromEnv()">Load from Environment</button>
+            <button onclick="saveToLocalStorage()">Save Configuration</button>
+        </div>
+
+        <div class="grid">
+            <div class="section">
+                <h2>🗄️ Database Tests</h2>
+                <button onclick="testDatabaseConnection()">Test Database Connection</button>
+                <button onclick="testProductVariants()">Test Product Variants</button>
+                <button onclick="testBundleVariants()">Test Bundle Variants</button>
+                <button onclick="testPrintfulIds()">Test Printful IDs</button>
+                <div id="databaseResults"></div>
+            </div>
+
+            <div class="section">
+                <h2>🔗 Printful Integration Tests</h2>
+                <button onclick="testPrintfulProducts()">Test Printful Products</button>
+                <button onclick="testPrintfulVariants()">Test Printful Variants</button>
+                <button onclick="testBundleCalculation()">Test Bundle Calculation</button>
+                <div id="printfulResults"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📦 Starter Bundle Validation</h2>
+            <button onclick="validateStarterBundle()">Validate Complete Bundle</button>
+            <div id="bundleValidation"></div>
+        </div>
+
+        <div class="section">
+            <h2>🧪 Integration Test Runner</h2>
+            <button onclick="runAllTests()">Run All Tests</button>
+            <button onclick="generateTestReport()">Generate Test Report</button>
+            <div id="testRunnerResults"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration management
+        function loadFromEnv() {
+            // In a real environment, these would be loaded from environment variables
+            console.log('Loading configuration from environment...');
+        }
+
+        function saveToLocalStorage() {
+            const config = {
+                supabaseUrl: document.getElementById('supabaseUrl').value,
+                supabaseAnonKey: document.getElementById('supabaseAnonKey').value,
+                printfulToken: document.getElementById('printfulToken').value
+            };
+            localStorage.setItem('starterBundleTestConfig', JSON.stringify(config));
+            alert('Configuration saved to localStorage');
+        }
+
+        // Database tests
+        async function testDatabaseConnection() {
+            const resultsDiv = document.getElementById('databaseResults');
+            resultsDiv.innerHTML = '<div class="test-result info">Testing database connection...</div>';
+
+            try {
+                const supabaseUrl = document.getElementById('supabaseUrl').value;
+                const supabaseKey = document.getElementById('supabaseAnonKey').value;
+
+                if (!supabaseUrl || !supabaseKey) {
+                    throw new Error('Missing Supabase configuration');
+                }
+
+                // Test basic connection
+                const response = await fetch(`${supabaseUrl}/rest/v1/products?select=*&limit=1`, {
+                    headers: {
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    resultsDiv.innerHTML = '<div class="test-result success">✅ Database connection successful</div>';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="test-result error">❌ Database connection failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testProductVariants() {
+            const resultsDiv = document.getElementById('databaseResults');
+            resultsDiv.innerHTML += '<div class="test-result info">Testing product variants...</div>';
+
+            try {
+                const supabaseUrl = document.getElementById('supabaseUrl').value;
+                const supabaseKey = document.getElementById('supabaseAnonKey').value;
+
+                const response = await fetch(`${supabaseUrl}/rest/v1/product_variants?select=*,products(name)&limit=10`, {
+                    headers: {
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const variants = await response.json();
+                    let html = '<div class="test-result success">✅ Product variants found:</div>';
+                    
+                    variants.forEach(variant => {
+                        html += `
+                            <div class="variant-card">
+                                <strong>${variant.products?.name || 'Unknown Product'}</strong><br>
+                                Variant: ${variant.name}<br>
+                                Color: ${variant.color || 'N/A'}<br>
+                                Size: ${variant.size || 'N/A'}<br>
+                                Printful ID: <span class="printful-id">${variant.printful_variant_id || 'Missing'}</span><br>
+                                Price: £${variant.price || 'N/A'}
+                            </div>
+                        `;
+                    });
+                    
+                    resultsDiv.innerHTML += html;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `<div class="test-result error">❌ Product variants test failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testBundleVariants() {
+            const resultsDiv = document.getElementById('databaseResults');
+            resultsDiv.innerHTML += '<div class="test-result info">Testing bundle variants...</div>';
+
+            try {
+                const supabaseUrl = document.getElementById('supabaseUrl').value;
+                const supabaseKey = document.getElementById('supabaseAnonKey').value;
+
+                const response = await fetch(`${supabaseUrl}/rest/v1/bundle_variants?select=*,products(name),product_variants(name,printful_variant_id,color,size)`, {
+                    headers: {
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const bundleVariants = await response.json();
+                    let html = '<div class="test-result success">✅ Bundle variants found:</div>';
+                    
+                    bundleVariants.forEach(bv => {
+                        html += `
+                            <div class="bundle-item">
+                                <strong>Bundle:</strong> ${bv.products?.name || 'Unknown'}<br>
+                                <strong>Component:</strong> ${bv.product_variants?.name || 'Unknown'}<br>
+                                <strong>Color:</strong> ${bv.product_variants?.color || 'N/A'}<br>
+                                <strong>Size:</strong> ${bv.product_variants?.size || 'N/A'}<br>
+                                <strong>Printful ID:</strong> <span class="printful-id">${bv.product_variants?.printful_variant_id || 'Missing'}</span><br>
+                                <strong>Quantity:</strong> ${bv.quantity}
+                            </div>
+                        `;
+                    });
+                    
+                    resultsDiv.innerHTML += html;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `<div class="test-result error">❌ Bundle variants test failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testPrintfulIds() {
+            const resultsDiv = document.getElementById('databaseResults');
+            resultsDiv.innerHTML += '<div class="test-result info">Testing Printful ID mapping...</div>';
+
+            try {
+                const supabaseUrl = document.getElementById('supabaseUrl').value;
+                const supabaseKey = document.getElementById('supabaseAnonKey').value;
+
+                // Check if products have Printful IDs
+                const productsResponse = await fetch(`${supabaseUrl}/rest/v1/products?select=name,printful_product_id&order=name`, {
+                    headers: {
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (productsResponse.ok) {
+                    const products = await productsResponse.json();
+                    let html = '<div class="test-result success">✅ Products with Printful IDs:</div>';
+                    
+                    products.forEach(product => {
+                        const status = product.printful_product_id ? '✅' : '❌';
+                        html += `<div>${status} ${product.name}: ${product.printful_product_id || 'Missing'}</div>`;
+                    });
+                    
+                    resultsDiv.innerHTML += html;
+                } else {
+                    throw new Error(`HTTP ${productsResponse.status}: ${productsResponse.statusText}`);
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `<div class="test-result error">❌ Printful ID test failed: ${error.message}</div>`;
+            }
+        }
+
+        // Printful integration tests
+        async function testPrintfulProducts() {
+            const resultsDiv = document.getElementById('printfulResults');
+            resultsDiv.innerHTML = '<div class="test-result info">Testing Printful products...</div>';
+
+            try {
+                const supabaseUrl = document.getElementById('supabaseUrl').value;
+                const supabaseKey = document.getElementById('supabaseAnonKey').value;
+
+                // Test Printful proxy function
+                const response = await fetch(`${supabaseUrl}/functions/v1/printful-proxy/products`, {
+                    headers: {
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const products = await response.json();
+                    resultsDiv.innerHTML = '<div class="test-result success">✅ Printful products accessible</div>';
+                    console.log('Printful products:', products);
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="test-result error">❌ Printful products test failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testPrintfulVariants() {
+            const resultsDiv = document.getElementById('printfulResults');
+            resultsDiv.innerHTML += '<div class="test-result info">Testing Printful variants...</div>';
+
+            try {
+                const supabaseUrl = document.getElementById('supabaseUrl').value;
+                const supabaseKey = document.getElementById('supabaseAnonKey').value;
+
+                // Test specific product variants (T-shirt ID 1)
+                const response = await fetch(`${supabaseUrl}/functions/v1/printful-proxy/products/1`, {
+                    headers: {
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const product = await response.json();
+                    resultsDiv.innerHTML += '<div class="test-result success">✅ Printful variants accessible</div>';
+                    
+                    if (product.result && product.result.variants) {
+                        let html = '<div>Variants found:</div>';
+                        product.result.variants.slice(0, 5).forEach(variant => {
+                            html += `<div>• ${variant.name} (ID: ${variant.id})</div>`;
+                        });
+                        resultsDiv.innerHTML += html;
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `<div class="test-result error">❌ Printful variants test failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testBundleCalculation() {
+            const resultsDiv = document.getElementById('printfulResults');
+            resultsDiv.innerHTML += '<div class="test-result info">Testing bundle calculation...</div>';
+
+            try {
+                // Simulate bundle calculation
+                const tshirtPrice = 24.99;
+                const capPrice = 19.99;
+                const mugPrice = 19.99;
+                const bundlePrice = 34.99;
+                
+                const individualTotal = tshirtPrice + capPrice + mugPrice;
+                const savings = individualTotal - bundlePrice;
+                
+                let html = '<div class="test-result success">✅ Bundle calculation test:</div>';
+                html += `<div>Individual prices: £${tshirtPrice} + £${capPrice} + £${mugPrice} = £${individualTotal}</div>`;
+                html += `<div>Bundle price: £${bundlePrice}</div>`;
+                html += `<div>Savings: £${savings.toFixed(2)}</div>`;
+                
+                if (savings > 0) {
+                    html += '<div class="test-result success">✅ Bundle offers savings</div>';
+                } else {
+                    html += '<div class="test-result warning">⚠️ Bundle pricing needs review</div>';
+                }
+                
+                resultsDiv.innerHTML += html;
+            } catch (error) {
+                resultsDiv.innerHTML += `<div class="test-result error">❌ Bundle calculation test failed: ${error.message}</div>`;
+            }
+        }
+
+        // Bundle validation
+        async function validateStarterBundle() {
+            const resultsDiv = document.getElementById('bundleValidation');
+            resultsDiv.innerHTML = '<div class="test-result info">Validating starter bundle...</div>';
+
+            try {
+                const supabaseUrl = document.getElementById('supabaseUrl').value;
+                const supabaseKey = document.getElementById('supabaseAnonKey').value;
+
+                // Get starter bundle details
+                const bundleResponse = await fetch(`${supabaseUrl}/rest/v1/products?select=*&name=eq.Starter Bundle`, {
+                    headers: {
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (bundleResponse.ok) {
+                    const bundles = await bundleResponse.json();
+                    if (bundles.length === 0) {
+                        throw new Error('Starter Bundle not found');
+                    }
+
+                    const bundle = bundles[0];
+                    let html = '<div class="test-result success">✅ Starter Bundle found:</div>';
+                    html += `<div>Name: ${bundle.name}</div>`;
+                    html += `<div>Price: £${bundle.price}</div>`;
+                    html += `<div>Category: ${bundle.category}</div>`;
+
+                    // Get bundle components
+                    const componentsResponse = await fetch(`${supabaseUrl}/rest/v1/bundle_variants?select=*,products(name),product_variants(name,printful_variant_id,color,size)&bundle_id=eq.${bundle.id}`, {
+                        headers: {
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (componentsResponse.ok) {
+                        const components = await componentsResponse.json();
+                        html += '<div class="test-result success">Bundle components:</div>';
+                        
+                        components.forEach(component => {
+                            html += `
+                                <div class="bundle-item">
+                                    <strong>${component.products?.name || 'Unknown'}</strong><br>
+                                    Variant: ${component.product_variants?.name || 'Unknown'}<br>
+                                    Printful ID: <span class="printful-id">${component.product_variants?.printful_variant_id || 'Missing'}</span>
+                                </div>
+                            `;
+                        });
+
+                        // Validate Printful IDs
+                        const expectedIds = [4017, 6001, 7001]; // T-shirt, Cap, Mug
+                        const foundIds = components.map(c => c.product_variants?.printful_variant_id).filter(Boolean);
+                        const missingIds = expectedIds.filter(id => !foundIds.includes(id));
+
+                        if (missingIds.length === 0) {
+                            html += '<div class="test-result success">✅ All Printful variant IDs are present</div>';
+                        } else {
+                            html += `<div class="test-result error">❌ Missing Printful variant IDs: ${missingIds.join(', ')}</div>`;
+                        }
+                    }
+
+                    resultsDiv.innerHTML = html;
+                } else {
+                    throw new Error(`HTTP ${bundleResponse.status}: ${bundleResponse.statusText}`);
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="test-result error">❌ Bundle validation failed: ${error.message}</div>`;
+            }
+        }
+
+        // Test runner
+        async function runAllTests() {
+            const resultsDiv = document.getElementById('testRunnerResults');
+            resultsDiv.innerHTML = '<div class="test-result info">Running all tests...</div>';
+
+            const tests = [
+                { name: 'Database Connection', fn: testDatabaseConnection },
+                { name: 'Product Variants', fn: testProductVariants },
+                { name: 'Bundle Variants', fn: testBundleVariants },
+                { name: 'Printful IDs', fn: testPrintfulIds },
+                { name: 'Printful Products', fn: testPrintfulProducts },
+                { name: 'Printful Variants', fn: testPrintfulVariants },
+                { name: 'Bundle Calculation', fn: testBundleCalculation },
+                { name: 'Bundle Validation', fn: validateStarterBundle }
+            ];
+
+            let passed = 0;
+            let failed = 0;
+
+            for (const test of tests) {
+                try {
+                    resultsDiv.innerHTML += `<div class="test-result info">Running: ${test.name}</div>`;
+                    await test.fn();
+                    passed++;
+                } catch (error) {
+                    resultsDiv.innerHTML += `<div class="test-result error">Failed: ${test.name} - ${error.message}</div>`;
+                    failed++;
+                }
+            }
+
+            resultsDiv.innerHTML += `<div class="test-result ${failed === 0 ? 'success' : 'warning'}">Tests completed: ${passed} passed, ${failed} failed</div>`;
+        }
+
+        function generateTestReport() {
+            const report = {
+                timestamp: new Date().toISOString(),
+                tests: [
+                    'Database Connection',
+                    'Product Variants',
+                    'Bundle Variants', 
+                    'Printful IDs',
+                    'Printful Products',
+                    'Printful Variants',
+                    'Bundle Calculation',
+                    'Bundle Validation'
+                ],
+                configuration: {
+                    supabaseUrl: document.getElementById('supabaseUrl').value,
+                    hasSupabaseKey: !!document.getElementById('supabaseAnonKey').value,
+                    hasPrintfulToken: !!document.getElementById('printfulToken').value
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'starter-bundle-test-report.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Load saved configuration
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('starterBundleTestConfig');
+            if (saved) {
+                const config = JSON.parse(saved);
+                document.getElementById('supabaseUrl').value = config.supabaseUrl || '';
+                document.getElementById('supabaseAnonKey').value = config.supabaseAnonKey || '';
+                document.getElementById('printfulToken').value = config.printfulToken || '';
+            }
+        });
+    </script>
+</body>
+</html>

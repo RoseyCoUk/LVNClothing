@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Heart, Share2, Star, Check, Plus, Minus, Clock, Truck, Shield, RotateCcw, Info, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Heart, Share2, Star, Check, Plus, Minus, Clock, Truck, Shield, RotateCcw, Info, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import OrderOverviewModal from '../OrderOverviewModal';
+import { usePrintfulProduct } from '../../hooks/usePrintfulProducts';
+import { useBundleCalculation } from '../../hooks/useBundleCalculation';
+import { useBundlePricing } from '../../hooks/useBundlePricing';
+import type { PrintfulProduct, PrintfulVariant, BundleProduct, BundleItem } from '../../types/printful';
 
 interface Color {
   name: string;
@@ -11,7 +15,9 @@ interface Color {
   border?: boolean;
 }
 
-interface BundleItem {
+
+
+interface BundleItemLocal {
   type: string;
   name: string;
   customizable: boolean;
@@ -51,24 +57,41 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
 
+  // Bundle products state
+  const [bundleProducts, setBundleProducts] = useState<BundleItem[]>([]);
+
+  // Get bundle pricing from the new system
+  const { bundlePricing } = useBundlePricing();
+  const activistPricing = bundlePricing.activist;
+
+  // Fetch Printful products for the bundle
+  const { product: hoodieProduct, loading: hoodieLoading } = usePrintfulProduct(2); // Hoodie
+  const { product: tshirtProduct, loading: tshirtLoading } = usePrintfulProduct(1); // T-shirt
+  const { product: capProduct, loading: capLoading } = usePrintfulProduct(3); // Cap
+  const { product: totebagProduct, loading: totebagLoading } = usePrintfulProduct(5); // Tote Bag
+  const { product: waterbottleProduct, loading: waterbottleLoading } = usePrintfulProduct(6); // Water Bottle
+  const { product: mugProduct, loading: mugLoading } = usePrintfulProduct(4); // Mug
+  const { product: mousepadProduct, loading: mousepadLoading } = usePrintfulProduct(7); // Mouse Pad
+
+  // Bundle calculation hook
+  const {
+    calculation,
+    addItem,
+    removeItem,
+    clearBundle,
+    getItemCount
+  } = useBundleCalculation(bundleProducts, setBundleProducts);
+
   // Hoodie customization options
-  const [selectedGender, setSelectedGender] = useState('Men');
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedColor, setSelectedColor] = useState('Black');
 
   // T-shirt customization options
-  const [tshirtGender, setTshirtGender] = useState('Men');
   const [tshirtSize, setTshirtSize] = useState('M');
   const [tshirtColor, setTshirtColor] = useState('Black');
 
   // Cap customization options
   const [capColor, setCapColor] = useState('Black');
-
-  // Quantity options
-  const stickerSetSizes = [10, 25, 50, 100];
-  const badgeSetSizes = [5, 10, 25, 50];
-  const [stickerSetSize, setStickerSetSize] = useState(stickerSetSizes[0]);
-  const [badgeSetSize, setBadgeSetSize] = useState(badgeSetSizes[0]);
 
   // Image browsing state
   const [selectedItem, setSelectedItem] = useState('hoodie');
@@ -79,14 +102,14 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
     originalPrice: "£194.91",
     bundlePrice: 169.99,
     savings: "Save £24.92",
-    description: "The ultimate bundle for Reform UK activists. This comprehensive collection includes a premium hoodie, T-shirt, cap, tote bag, water bottle, mug, stickers, mouse pad, and badge set - everything you need to make a statement and show your commitment to the movement.",
+    description: "The ultimate bundle for Reform UK activists. This comprehensive collection includes a premium hoodie, T-shirt, cap, tote bag, water bottle, mug, and mouse pad - everything you need to make a statement and show your commitment to the movement.",
     shipping: "Free UK Shipping",
     urgency: "Limited Time Offer",
     popular: false,
     rating: 4.9,
     reviews: 156,
-    materials: "Premium cotton hoodie and T-shirt, adjustable cap, durable canvas tote bag, stainless steel water bottle, ceramic mug, vinyl stickers, neoprene mouse pad, and embroidered badge set",
-    careInstructions: "Machine wash hoodie and T-shirt at 30°C. Cap can be hand washed. Tote bag spot clean. Water bottle dishwasher safe. Mug dishwasher safe. Stickers are weather-resistant.",
+    materials: "Premium cotton hoodie and T-shirt, adjustable cap, durable canvas tote bag, stainless steel water bottle, ceramic mug, and high-quality mouse pad",
+    careInstructions: "Machine wash hoodie and T-shirt at 30°C. Cap can be hand washed. Tote bag spot clean. Water bottle dishwasher safe. Mug dishwasher safe.",
     features: [
       "Premium cotton hoodie with Reform UK branding",
       "Comfortable cotton T-shirt for everyday wear",
@@ -94,9 +117,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       "Durable canvas tote bag for daily use",
       "Stainless steel water bottle keeps drinks cold for 24 hours",
       "Ceramic mug perfect for home or office",
-      "High-quality vinyl stickers for any surface",
-      "Neoprene mouse pad for desk setup",
-      "Embroidered badge set for jackets and bags",
+      "High-quality mouse pad for desk setup",
       "Complete activist starter kit",
       "Excellent value bundle with significant savings",
       "Free UK shipping included",
@@ -188,43 +209,14 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
         ]
       },
       {
-        type: 'stickers',
-        name: 'Reform UK Stickers',
-        customizable: true,
-        baseImage: '/StickerToteWater/ReformStickersMain1.webp',
-        description: 'High-quality vinyl stickers with Reform UK branding.',
-        images: [
-          '/StickerToteWater/ReformStickersMain1.webp',
-          '/StickerToteWater/ReformStickersMain2.webp',
-          '/StickerToteWater/ReformStickersMain3.webp',
-          '/StickerToteWater/ReformStickersMain4.webp',
-          '/StickerToteWater/ReformStickersMain5.webp',
-          '/StickerToteWater/ReformStickersMain6.webp'
-        ]
-      },
-      {
         type: 'mousepad',
         name: 'Reform UK Mouse Pad',
         customizable: false,
         baseImage: '/MugMouse/ReformMousePadWhite1.webp',
-        description: 'Neoprene mouse pad with Reform UK branding.',
+        description: 'High-quality mouse pad with Reform UK branding.',
         images: [
           '/MugMouse/ReformMousePadWhite1.webp',
           '/MugMouse/ReformMousePadWhite2.webp'
-        ]
-      },
-      {
-        type: 'badgeset',
-        name: 'Reform UK Badge Set',
-        customizable: true,
-        baseImage: '/Badge/ReformBadgeSetMain1.webp',
-        description: 'Embroidered badge set with Reform UK branding.',
-        images: [
-          '/Badge/ReformBadgeSetMain1.webp',
-          '/Badge/ReformBadgeSetMain2.webp',
-          '/Badge/ReformBadgeSetMain3.webp',
-          '/Badge/ReformBadgeSetMain4.webp',
-          '/Badge/ReformBadgeSetMain5.webp'
         ]
       }
     ],
@@ -241,29 +233,64 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
     { name: 'Red', value: '#B31217' }
   ];
 
-  const genderOptions = ['Men', 'Women'];
-  const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const sizeOptions = ['S', 'M', 'L', 'XL', 'XXL'];
+
+  // Initialize bundle with products when they load
+  useEffect(() => {
+    if (hoodieProduct && tshirtProduct && capProduct && totebagProduct && waterbottleProduct && mugProduct && mousepadProduct && bundleProducts.length === 0) {
+      // Add default variants to bundle
+      const defaultHoodieVariant = hoodieProduct.variants.find(v => v.color === selectedColor && v.size === selectedSize);
+      const defaultTshirtVariant = tshirtProduct.variants.find(v => v.color === tshirtColor && v.size === tshirtSize);
+      const defaultCapVariant = capProduct.variants.find(v => v.color === capColor);
+      const defaultToteBagVariant = totebagProduct.variants[0];
+      const defaultWaterBottleVariant = waterbottleProduct.variants[0];
+      const defaultMugVariant = mugProduct.variants[0];
+      const defaultMousePadVariant = mousepadProduct.variants[0];
+      
+      if (defaultHoodieVariant && defaultTshirtVariant && defaultCapVariant && defaultToteBagVariant && defaultWaterBottleVariant && defaultMugVariant && defaultMousePadVariant) {
+        addItem(hoodieProduct, defaultHoodieVariant);
+        addItem(tshirtProduct, defaultTshirtVariant);
+        addItem(capProduct, defaultCapVariant);
+        addItem(totebagProduct, defaultToteBagVariant);
+        addItem(waterbottleProduct, defaultWaterBottleVariant);
+        addItem(mugProduct, defaultMugVariant);
+        addItem(mousepadProduct, defaultMousePadVariant);
+      }
+    }
+  }, [hoodieProduct, tshirtProduct, capProduct, totebagProduct, waterbottleProduct, mugProduct, mousepadProduct, bundleProducts.length, addItem, selectedColor, selectedSize, tshirtColor, tshirtSize, capColor]);
+
+  // Loading state
+  if (hoodieLoading || tshirtLoading || capLoading || totebagLoading || waterbottleLoading || mugLoading || mousepadLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-[#009fe3]" />
+          <p className="text-gray-600">Loading bundle details...</p>
+        </div>
+      </div>
+    );
+  }
 
   const getHoodieImages = () => {
     const color = selectedColor === 'Royal Blue' ? 'Blue' : selectedColor.replace(/\s/g, '');
     return [
-      `/Hoodie/${selectedGender}/Reform${selectedGender}Hoodie${color}1.webp`,
-      `/Hoodie/${selectedGender}/Reform${selectedGender}Hoodie${color}2.webp`,
-      `/Hoodie/${selectedGender}/Reform${selectedGender}Hoodie${color}3.webp`,
-      `/Hoodie/${selectedGender}/Reform${selectedGender}Hoodie${color}4.webp`,
-      `/Hoodie/${selectedGender}/Reform${selectedGender}Hoodie${color}5.webp`,
-      `/Hoodie/${selectedGender}/Reform${selectedGender}Hoodie${color}6.webp`
+      `/Hoodie/Men/ReformMenHoodie${color}1.webp`,
+      `/Hoodie/Men/ReformMenHoodie${color}2.webp`,
+      `/Hoodie/Men/ReformMenHoodie${color}3.webp`,
+      `/Hoodie/Men/ReformMenHoodie${color}4.webp`,
+      `/Hoodie/Men/ReformMenHoodie${color}5.webp`,
+      `/Hoodie/Men/ReformMenHoodie${color}6.webp`
     ];
   };
 
   const getTshirtImages = () => {
     const color = tshirtColor === 'Royal Blue' ? 'Blue' : tshirtColor.replace(/\s/g, '');
     return [
-      `/Tshirt/${tshirtGender}/Reform${tshirtGender}Tshirt${color}1.webp`,
-      `/Tshirt/${tshirtGender}/Reform${tshirtGender}Tshirt${color}2.webp`,
-      `/Tshirt/${tshirtGender}/Reform${tshirtGender}Tshirt${color}3.webp`,
-      `/Tshirt/${tshirtGender}/Reform${tshirtGender}Tshirt${color}4.webp`,
-      `/Tshirt/${tshirtGender}/Reform${tshirtGender}Tshirt${color}5.webp`
+      `/Tshirt/Men/ReformMenTshirt${color}1.webp`,
+      `/Tshirt/Men/ReformMenTshirt${color}2.webp`,
+      `/Tshirt/Men/ReformMenTshirt${color}3.webp`,
+      `/Tshirt/Men/ReformMenTshirt${color}4.webp`,
+      `/Tshirt/Men/ReformMenTshirt${color}5.webp`
     ];
   };
 
@@ -288,8 +315,8 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
     } else if (selectedItem === 'cap') {
       return getCapImages();
     } else {
-      const item = productData.bundleItems.find(item => item.type === selectedItem);
-      return item?.images || [];
+      const item = bundleProducts.find(item => item.product.category === selectedItem);
+      return item?.variant?.image ? [item.variant.image] : [];
     }
   };
 
@@ -299,22 +326,16 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   };
 
   const getVariantText = (item: BundleItem): string => {
-    if (item.type === 'hoodie') {
-      return `${selectedGender}'s ${selectedColor} (Size ${selectedSize})`;
+    if (item.product.category === 'hoodie') {
+      return `${selectedColor} (Size ${selectedSize})`;
     }
-    if (item.type === 'tshirt') {
-      return `${tshirtGender}'s ${tshirtColor} (Size ${tshirtSize})`;
+    if (item.product.category === 'tshirt') {
+      return `${tshirtColor} (Size ${tshirtSize})`;
     }
-    if (item.type === 'cap') {
+    if (item.product.category === 'cap') {
       return `${capColor} Cap`;
     }
-    if (item.type === 'stickers') {
-      return `${stickerSetSize} Pack`;
-    }
-    if (item.type === 'badgeset') {
-      return `${badgeSetSize} Set`;
-    }
-    return item.variant || '';
+    return `${item.variant.color} ${item.variant.size}`;
   };
 
   const handleItemClick = (itemType: string) => {
@@ -341,59 +362,47 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
     setCurrentImageIndex(0);
   };
 
-  const handleGenderChange = (gender: string) => {
-    setSelectedGender(gender);
-    setCurrentImageIndex(0);
-  };
+
 
   const handleAddToCart = () => {
-    const bundleContents: BundleContent[] = productData.bundleItems.map(item => ({
-      name: item.name,
-      variant: getVariantText(item),
-      image: item.type === 'hoodie' ? getHoodieImages()[0] : item.baseImage
-    }));
+    if (bundleProducts.length === 0) {
+      alert('Please wait for bundle to load.');
+      return;
+    }
 
-    const variants: Record<string, string> = {
-      hoodieGender: selectedGender,
-      hoodieSize: selectedSize,
-      hoodieColor: selectedColor,
-      tshirtGender: tshirtGender,
-      tshirtSize: tshirtSize,
-      tshirtColor: tshirtColor,
-      capColor: capColor,
-      stickerSetSize: stickerSetSize.toString(),
-      badgeSetSize: badgeSetSize.toString()
-    };
+    const bundleContents: BundleContent[] = bundleProducts.map(item => ({
+      name: item.product.name,
+      variant: getVariantText(item),
+      image: item.variant.image || item.product.image || '/activistbundle.png'
+    }));
 
     addToCart({
       id: 'activist-bundle',
       name: productData.name,
-      price: productData.bundlePrice,
-      image: productData.bundleItems[0].baseImage,
+      price: calculation?.totalPrice || productData.bundlePrice,
+      image: bundleProducts[0]?.variant?.image || bundleProducts[0]?.product.image || '/activistbundle.png',
       isBundle: true,
       bundleContents: bundleContents
     });
   };
 
   const handleBuyNow = () => {
-    // Add bundle to cart
-    const bundleContents = [
-      { name: 'Reform UK Hoodie', variant: `${selectedGender}'s ${selectedColor} (Size: ${selectedSize})`, image: getHoodieImages()[0] },
-      { name: 'Reform UK T-Shirt', variant: `${tshirtGender}'s ${tshirtColor} (Size: ${tshirtSize})`, image: getTshirtImages()[0] },
-      { name: 'Reform UK Cap', variant: `${capColor}`, image: getCapImages()[0] },
-      { name: 'Reform UK Tote Bag', variant: 'Black', image: '/StickerToteWater/ReformToteBagBlack1.webp' },
-      { name: 'Reform UK Water Bottle', variant: 'White', image: '/StickerToteWater/ReformWaterBottleWhite1.webp' },
-      { name: 'Reform UK Mug', variant: 'White', image: '/MugMouse/ReformMug1.webp' },
-      { name: 'Reform UK Stickers', variant: `${stickerSetSize} pack`, image: '/StickerToteWater/ReformStickersMain1.webp' },
-      { name: 'Reform UK Mouse Pad', variant: 'White', image: '/MugMouse/ReformMousePadWhite1.webp' },
-      { name: 'Reform UK Badge Set', variant: `${badgeSetSize} pack`, image: '/Badge/ReformBadgeSetMain1.webp' }
-    ];
+    if (bundleProducts.length === 0) {
+      alert('Please wait for bundle to load.');
+      return;
+    }
+
+    const bundleContents = bundleProducts.map(item => ({
+      name: item.product.name,
+      variant: getVariantText(item),
+      image: item.variant.image || item.product.image || '/activistbundle.png'
+    }));
 
     const itemToAdd = {
       id: 'activist-bundle',
       name: 'Activist Bundle',
-      price: productData.bundlePrice,
-      image: productData.bundleItems[0].baseImage,
+      price: calculation?.totalPrice || productData.bundlePrice,
+      image: bundleProducts[0]?.variant?.image || bundleProducts[0]?.product.image || '/activistbundle.png',
       quantity: quantity,
       isBundle: true,
       bundleContents: bundleContents
@@ -431,7 +440,6 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
         window.location.href = session.url;
       }
     } catch (error) {
-      console.error('Checkout error:', error);
       alert('There was an error processing your order. Please try again.');
     } finally {
       setIsLoading(false);
@@ -545,36 +553,40 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
               
               {/* Bundle Items Grid - Clickable Thumbnails */}
               <div className="grid grid-cols-3 gap-4">
-                {productData.bundleItems.map((item) => (
+                {bundleProducts.map((item) => (
                   <button
-                    key={item.type}
-                    onClick={() => handleItemClick(item.type)}
+                    key={item.product.category}
+                    onClick={() => handleItemClick(item.product.category)}
                     className={`text-center transition-all duration-200 ${
-                      selectedItem === item.type 
+                      selectedItem === item.product.category 
                         ? 'ring-2 ring-[#009fe3] ring-offset-2' 
                         : 'hover:ring-2 hover:ring-gray-300'
                     }`}
                   >
                     <img 
                       src={
-                        item.type === 'hoodie' ? getHoodieImages()[0] : 
-                        item.type === 'tshirt' ? getTshirtImages()[0] :
-                        item.type === 'cap' ? getCapImages()[0] :
-                        item.baseImage
+                        item.product.category === 'hoodie' ? getHoodieImages()[0] : 
+                        item.product.category === 'tshirt' ? getTshirtImages()[0] :
+                        item.product.category === 'cap' ? getCapImages()[0] :
+                        item.product.category === 'tote' ? '/StickerToteWater/ReformToteBagBlack1.webp' :
+                        item.product.category === 'water-bottle' ? '/StickerToteWater/ReformWaterBottleWhite1.webp' :
+                        item.product.category === 'mug' ? '/MugMouse/ReformMug1.webp' :
+                        item.product.category === 'mouse-pad' ? '/MugMouse/ReformMousePadWhite1.webp' :
+                        item.variant.image || item.product.image
                       } 
-                      alt={item.name} 
+                      alt={item.product.name} 
                       className={`w-full object-cover rounded-lg border-2 transition-all duration-200 aspect-square ${
-                        selectedItem === item.type 
+                        selectedItem === item.product.category 
                           ? 'border-[#009fe3]' 
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     />
                     <p className={`text-xs mt-2 font-medium ${
-                      selectedItem === item.type 
+                      selectedItem === item.product.category 
                         ? 'text-[#009fe3]' 
                         : 'text-gray-600'
                     }`}>
-                      {item.name}
+                      {item.product.name}
                     </p>
                   </button>
                 ))}
@@ -630,26 +642,6 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
               {/* Hoodie Customization */}
               <div className="border-t border-gray-200 pt-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Customize Your Hoodie</h3>
-                
-                {/* Gender Selection */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Gender</label>
-                  <div className="flex gap-3">
-                    {genderOptions.map((gender) => (
-                      <button 
-                        key={gender} 
-                        onClick={() => handleGenderChange(gender)} 
-                        className={`px-6 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
-                          selectedGender === gender 
-                            ? 'border-[#009fe3] bg-[#009fe3] text-white' 
-                            : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
-                        }`}
-                      >
-                        {gender}
-                      </button>
-                    ))}
-                  </div>
-                </div>
 
                 {/* Color Selection */}
                 <div className="mb-4">
@@ -711,26 +703,6 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
               {/* T-shirt Customization */}
               <div className="border-t border-gray-200 pt-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Customize Your T-shirt</h3>
-                
-                {/* Gender Selection */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Gender</label>
-                  <div className="flex gap-3">
-                    {genderOptions.map((gender) => (
-                      <button 
-                        key={gender} 
-                        onClick={() => setTshirtGender(gender)} 
-                        className={`px-6 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
-                          tshirtGender === gender 
-                            ? 'border-[#009fe3] bg-[#009fe3] text-white' 
-                            : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
-                        }`}
-                      >
-                        {gender}
-                      </button>
-                    ))}
-                  </div>
-                </div>
 
                 {/* Color Selection */}
                 <div className="mb-4">
@@ -822,55 +794,40 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                 </div>
               </div>
 
-              {/* Stickers Set Size */}
-              <div className="border-t border-gray-200 pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Stickers Pack Size</h3>
-                <div className="flex gap-3 flex-wrap">
-                  {stickerSetSizes.map(size => (
-                    <button
-                      key={size}
-                      onClick={() => setStickerSetSize(size)}
-                      className={`px-4 py-2 border-2 rounded-lg font-medium transition-all duration-200 ${
-                        stickerSetSize === size ? 'border-[#009fe3] bg-[#009fe3] text-white' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
-                      }`}
-                    >
-                      {size} Pack
-                  </button>
-                  ))}
-                </div>
-              </div>
 
-              {/* Badge Set Size */}
-              <div className="border-t border-gray-200 pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Badge Set Size</h3>
-                <div className="flex gap-3 flex-wrap">
-                  {badgeSetSizes.map(size => (
-                    <button
-                      key={size}
-                      onClick={() => setBadgeSetSize(size)}
-                      className={`px-4 py-2 border-2 rounded-lg font-medium transition-all duration-200 ${
-                        badgeSetSize === size ? 'border-[#009fe3] bg-[#009fe3] text-white' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
-                      }`}
-                    >
-                      {size} Set
-                  </button>
-                  ))}
+
+              {/* Bundle Pricing */}
+              {activistPricing && (
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-4">
+                  <h4 className="font-semibold text-blue-900 mb-2">Bundle Savings</h4>
+                  <div className="space-y-2 text-sm text-blue-800">
+                    <p>• Individual Price: <span className="font-medium">£{activistPricing.originalPrice.toFixed(2)}</span></p>
+                    <p>• Bundle Price: <span className="font-medium text-green-600">£{activistPricing.price.toFixed(2)}</span></p>
+                    <p>• You Save: <span className="font-medium text-green-600">£{activistPricing.savings.absolute.toFixed(2)} ({activistPricing.savings.percentage.toFixed(0)}%)</span></p>
+                    <div className="flex items-center space-x-2 text-blue-700">
+                      <Truck className="w-4 h-4" />
+                      <span className="font-medium">Best shipping rates applied</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Bundle Contents */}
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <h4 className="font-semibold text-gray-900 mb-3">Bundle Contents:</h4>
                 <div className="space-y-2 text-sm text-gray-700">
-                  <p>• {productData.bundleItems[0].name}: <span className="font-medium text-gray-900">{getVariantText(productData.bundleItems[0])}</span></p>
-                  <p>• {productData.bundleItems[1].name}: <span className="font-medium text-gray-900">{getVariantText(productData.bundleItems[1])}</span></p>
-                  <p>• {productData.bundleItems[2].name}: <span className="font-medium text-gray-900">{getVariantText(productData.bundleItems[2])}</span></p>
-                  <p>• {productData.bundleItems[3].name}: <span className="font-medium text-gray-900">Black</span></p>
-                  <p>• {productData.bundleItems[4].name}: <span className="font-medium text-gray-900">White</span></p>
-                  <p>• {productData.bundleItems[5].name}: <span className="font-medium text-gray-900">White</span></p>
-                  <p>• {productData.bundleItems[6].name}: <span className="font-medium text-gray-900">{getVariantText(productData.bundleItems[6])}</span></p>
-                  <p>• {productData.bundleItems[7].name}: <span className="font-medium text-gray-900">White</span></p>
-                  <p>• {productData.bundleItems[8].name}: <span className="font-medium text-gray-900">{getVariantText(productData.bundleItems[8])}</span></p>
+                  {bundleProducts.map((item, index) => (
+                    <p key={index}>• {item.product.name}: <span className="font-medium text-gray-900">
+                      {item.product.category === 'hoodie' ? `${selectedColor} (Size ${selectedSize})` :
+                       item.product.category === 'tshirt' ? `${tshirtColor} (Size ${tshirtSize})` :
+                       item.product.category === 'cap' ? `${capColor} Cap` :
+                                               item.product.category === 'tote' ? 'Black' :
+                        item.product.category === 'water-bottle' ? 'White' :
+                        item.product.category === 'mug' ? 'White' :
+                        item.product.category === 'mouse-pad' ? 'White' :
+                       `${item.variant.color} ${item.variant.size}`}
+                    </span></p>
+                  ))}
                 </div>
               </div>
 
@@ -900,14 +857,14 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                   ) : (
                     <>
                       <ShoppingCart className="w-5 h-5 mr-2" />
-                      Buy Now - £{productData.bundlePrice.toFixed(2)}
+                      Buy Now - £{(calculation?.totalPrice || productData.bundlePrice).toFixed(2)}
                     </>
                   )}
                 </button>
                 
                 <button onClick={handleAddToCart} className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
                   <ShoppingCart className="w-5 h-5" />
-                  <span>Add to Cart - £{(productData.bundlePrice * quantity).toFixed(2)}</span>
+                  <span>Add to Cart - £{((calculation?.totalPrice || productData.bundlePrice) * quantity).toFixed(2)}</span>
                 </button>
                 <div className="flex space-x-3">
                   <button onClick={() => setIsWishlisted(!isWishlisted)} className={`flex-1 border-2 font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
@@ -926,7 +883,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
               <div className="grid grid-cols-3 gap-4 pt-6 border-t">
                 <div className="text-center">
                   <Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
-                  <p className="text-xs text-gray-600">Free UK Shipping Over £30</p>
+                  <p className="text-xs text-gray-600">Best Shipping Rates</p>
                 </div>
                 <div className="text-center">
                   <Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />

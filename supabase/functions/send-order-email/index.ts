@@ -10,6 +10,8 @@ interface RequestBody {
   order_id?: string;  // Direct order ID lookup (preferred)
   orderId?: string;   // Legacy session_id lookup (fallback)
   customerEmail: string;
+  action?: 'created' | 'cancelled' | 'updated';
+  reason?: string;
 }
 
 interface OrderItem {
@@ -37,11 +39,13 @@ serve(async (req) => {
   try {
     console.log('send-order-email function triggered')
     
-    const { order_id, orderId, customerEmail, test }: RequestBody & { test?: boolean } = await req.json()
+    const { order_id, orderId, customerEmail, action, reason, test }: RequestBody & { test?: boolean } = await req.json()
     
     console.log('Received order_id:', order_id)
     console.log('Received orderId (legacy):', orderId)
     console.log('Received customerEmail:', customerEmail)
+    console.log('Received action:', action)
+    console.log('Received reason:', reason)
     console.log('Received test:', test)
     
     // Handle test request
@@ -336,8 +340,27 @@ serve(async (req) => {
       test_mode: orderData.stripe_session_id ? orderData.stripe_session_id.startsWith('cs_test_') : false
     });
 
-    // Format email body
-    const emailBody = formatOrderEmail(orderData.readable_order_id || 'Processing...', orderItems, orderTotal, orderData.customer_details)
+    // Determine email template based on action
+    let emailSubject: string;
+    let emailBody: string;
+    
+    if (action === 'cancelled') {
+      emailSubject = `Order Cancellation Confirmation - Reform UK`;
+      emailBody = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #009fe3;">Order Cancellation Confirmed</h2>
+          <p>Dear Customer,</p>
+          <p>Your order has been successfully cancelled.</p>
+          ${reason ? `<p><strong>Cancellation Reason:</strong> ${reason}</p>` : ''}
+          <p>If you have any questions about this cancellation, please contact our support team.</p>
+          <p>Best regards,<br>Reform UK Team</p>
+        </div>
+      `;
+    } else {
+      // Default order confirmation email - use the existing formatOrderEmail function
+      emailSubject = `Order Confirmation - ${orderData.readable_order_id || 'Processing...'}`;
+      emailBody = formatOrderEmail(orderData.readable_order_id || 'Processing...', orderItems, orderTotal, orderData.customer_details);
+    }
 
     // Load email configuration from environment variables
     const resendApiKey = Deno.env.get('RESEND_API_KEY')
@@ -376,7 +399,7 @@ serve(async (req) => {
         body: JSON.stringify({
           from: 'Reform UK Shop <support@backreform.co.uk>',
           to: customerEmail,
-          subject: `Order Confirmation - ${orderData.readable_order_id || 'Processing...'}`,
+          subject: emailSubject,
           html: emailBody,
         }),
       });

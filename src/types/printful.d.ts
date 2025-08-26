@@ -6030,7 +6030,7 @@ export interface PrintfulVariant {
   id: number;
   name: string;
   color: 'dark' | 'light' | string;
-  size?: 'XS' | 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL' | '4XL';
+  size?: 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL' | '4XL' | 'One Size';
   price: string;
   in_stock: boolean;
   printful_variant_id: number;
@@ -6057,7 +6057,7 @@ export interface BundleProduct {
 export interface BundleItem {
   product: PrintfulProduct;
   variant: PrintfulVariant;
-  quantity: number;
+  quantity?: number;
 }
 
 export interface StickerAddon {

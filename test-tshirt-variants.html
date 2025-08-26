@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T-Shirt Variants Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .variant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .variant-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+        }
+        .variant-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            transition: all 0.2s ease;
+        }
+        .color-preview {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            border: 2px solid #e0e0e0;
+        }
+        .variant-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .variant-details {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+        .price {
+            font-weight: 600;
+            color: #2563eb;
+        }
+        .printful-id {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2563eb;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        .success {
+            color: #059669;
+        }
+        .error {
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 T-Shirt Variants Test Suite</h1>
+        <p>This page tests and displays all T-shirt variants to ensure they are properly linked to Printful.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Variant Statistics</h2>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalVariants">-</div>
+                <div class="stat-label">Total Variants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalColors">-</div>
+                <div class="stat-label">Colors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalSizes">-</div>
+                <div class="stat-label">Sizes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="printfulRange">-</div>
+                <div class="stat-label">Printful ID Range</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 Variant Details</h2>
+        <div id="variantGrid" class="variant-grid">
+            <!-- Variants will be populated here -->
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>✅ Test Results</h2>
+        <div id="testResults">
+            <!-- Test results will be populated here -->
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the variants data
+        import { tshirtVariants } from './src/hooks/tshirt-variants.ts';
+
+        // Test functions
+        function runTests() {
+            const results = [];
+            
+            // Test 1: Variant count
+            const expectedCount = 20 * 5;
+            const actualCount = tshirtVariants.length;
+            const countPass = actualCount === expectedCount;
+            results.push({
+                test: 'Variant Count',
+                status: countPass ? '✅ PASS' : '❌ FAIL',
+                details: `Expected ${expectedCount}, got ${actualCount}`
+            });
+
+            // Test 2: Unique Printful IDs
+            const printfulIds = tshirtVariants.map(v => v.printful_variant_id);
+            const uniquePrintfulIds = new Set(printfulIds);
+            const uniquePass = uniquePrintfulIds.size === printfulIds.length;
+            results.push({
+                test: 'Unique Printful IDs',
+                status: uniquePass ? '✅ PASS' : '❌ FAIL',
+                details: `${uniquePrintfulIds.size} unique IDs out of ${printfulIds.length} total`
+            });
+
+            // Test 3: All colors have all sizes
+            const colors = [...new Set(tshirtVariants.map(v => v.color))];
+            const sizes = [...new Set(tshirtVariants.map(v => v.size))];
+            const expectedSizes = ['S', 'M', 'L', 'XL', '2XL'];
+            
+            let sizePass = true;
+            for (const color of colors) {
+                const colorVariants = tshirtVariants.filter(v => v.color === color);
+                if (colorVariants.length !== 5) {
+                    sizePass = false;
+                    break;
+                }
+            }
+            
+            results.push({
+                test: 'Size Consistency',
+                status: sizePass ? '✅ PASS' : '❌ FAIL',
+                details: `All ${colors.length} colors have all ${expectedSizes.length} sizes`
+            });
+
+            // Test 4: Pricing structure
+            let pricingPass = true;
+            for (const variant of tshirtVariants) {
+                if (variant.size === '2XL') {
+                    if (variant.price !== '26.99') pricingPass = false;
+                } else {
+                    if (variant.price !== '24.99') pricingPass = false;
+                }
+            }
+            
+            results.push({
+                test: 'Pricing Structure',
+                status: pricingPass ? '✅ PASS' : '❌ FAIL',
+                details: 'Standard: £24.99, 2XL: £26.99'
+            });
+
+            return results;
+        }
+
+        function displayStats() {
+            const colors = [...new Set(tshirtVariants.map(v => v.color))];
+            const sizes = [...new Set(tshirtVariants.map(v => v.size))];
+            const printfulIds = tshirtVariants.map(v => v.printful_variant_id);
+            
+            document.getElementById('totalVariants').textContent = tshirtVariants.length;
+            document.getElementById('totalColors').textContent = colors.length;
+            document.getElementById('totalSizes').textContent = sizes.length;
+            document.getElementById('printfulRange').textContent = `${Math.min(...printfulIds)}-${Math.max(...printfulIds)}`;
+        }
+
+        function displayVariants() {
+            const grid = document.getElementById('variantGrid');
+            
+            tshirtVariants.forEach(variant => {
+                const card = document.createElement('div');
+                card.className = 'variant-card';
+                
+                card.innerHTML = `
+                    <div class="variant-name">
+                        <span class="color-preview" style="background-color: ${variant.color_code}"></span>
+                        ${variant.name}
+                    </div>
+                    <div class="variant-details">
+                        <div><strong>Color:</strong> ${variant.color}</div>
+                        <div><strong>Size:</strong> ${variant.size}</div>
+                        <div><strong>Price:</strong> <span class="price">£${variant.price}</span></div>
+                        <div><strong>Internal ID:</strong> ${variant.id}</div>
+                        <div><strong>Printful ID:</strong> <span class="printful-id">${variant.printful_variant_id}</span></div>
+                        <div><strong>Color Code:</strong> <span class="printful-id">${variant.color_code}</span></div>
+                        <div><strong>In Stock:</strong> ${variant.in_stock ? '✅ Yes' : '❌ No'}</div>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function displayTestResults(results) {
+            const container = document.getElementById('testResults');
+            
+            const resultsHtml = results.map(result => `
+                <div style="margin-bottom: 10px; padding: 10px; background: ${result.status.includes('PASS') ? '#f0fdf4' : '#fef2f2'}; border-radius: 6px;">
+                    <strong>${result.test}:</strong> ${result.status}
+                    <br><small>${result.details}</small>
+                </div>
+            `).join('');
+            
+            container.innerHTML = resultsHtml;
+        }
+
+        // Initialize the page
+        function init() {
+            try {
+                displayStats();
+                displayVariants();
+                const testResults = runTests();
+                displayTestResults(testResults);
+            } catch (error) {
+                console.error('Error initializing test page:', error);
+                document.body.innerHTML = `
+                    <div class="header">
+                        <h1>❌ Error Loading Test Page</h1>
+                        <p>Error: ${error.message}</p>
+                        <p>Make sure the TypeScript files are compiled and accessible.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Start the test suite
+        init();
+    </script>
+</body>
+</html>

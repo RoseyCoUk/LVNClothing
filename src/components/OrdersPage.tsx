@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Package, Calendar, CreditCard, Eye, Download, X } from 'lucide-react';
+import { ArrowLeft, Package, Calendar, CreditCard, Eye, Download, X, AlertCircle, CheckCircle } from 'lucide-react';
 import { getUserOrders } from '../lib/stripe';
+import { cancelOrder } from '../lib/api';
 import { products } from '../stripe-config';
+import { useAuth } from '../contexts/AuthContext';
 
 interface OrdersPageProps {
   onBack: () => void;
@@ -65,24 +67,53 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, onClose })
 };
 
 const OrdersPage = ({ onBack }: OrdersPageProps) => {
+  const { user } = useAuth();
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [viewOrder, setViewOrder] = useState<any | null>(null);
+  const [cancellingOrder, setCancellingOrder] = useState<string | null>(null);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+  const [cancelSuccess, setCancelSuccess] = useState<string | null>(null);
+  const [reorderError, setReorderError] = useState<string | null>(null);
+  const [reorderSuccess, setReorderSuccess] = useState<string | null>(null);
+  const [reorderingOrder, setReorderingOrder] = useState<string | null>(null);
 
   useEffect(() => {
     const loadOrders = async () => {
       try {
+        // Check if user is authenticated
+        if (!user) {
+          window.location.href = '/login';
+          return;
+        }
+
         const orderData = await getUserOrders();
-        setOrders(orderData);
+        
+        // Validate order data before setting
+        if (Array.isArray(orderData)) {
+          const validatedOrders = orderData.filter(order => 
+            order && 
+            order.id && 
+            (order.readable_order_id || order.id) &&
+            order.created_at
+          );
+          setOrders(validatedOrders);
+        } else {
+          console.warn('getUserOrders returned non-array data:', orderData);
+          setOrders([]);
+        }
       } catch (error) {
-        console.error('Error loading orders:', error);
+        console.error('Failed to load orders:', error);
+        setOrders([]);
+        // Show error message to user
+        setReorderError('Failed to load order history. Please refresh the page and try again.');
       } finally {
         setIsLoading(false);
       }
     };
 
     loadOrders();
-  }, []);
+  }, [user]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
@@ -110,6 +141,121 @@ const OrdersPage = ({ onBack }: OrdersPageProps) => {
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const handleCancelOrder = async (orderId: string, reason?: string) => {
+    if (!confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
+      return;
+    }
+
+    setCancellingOrder(orderId);
+    setCancelError(null);
+    setCancelSuccess(null);
+
+    try {
+      await cancelOrder(orderId, reason);
+      
+      // Update the order in the local state
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId 
+            ? { ...order, status: 'canceled', canceled_at: new Date().toISOString() }
+            : order
+        )
+      );
+
+      setCancelSuccess('Order cancelled successfully');
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setCancelSuccess(null), 3000);
+    } catch (error: any) {
+      console.error('Error cancelling order:', error);
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to cancel order';
+      if (error.message) {
+        if (error.message.includes('log in again')) {
+          errorMessage = 'Please log in again to cancel your order';
+        } else if (error.message.includes('Order not found')) {
+          errorMessage = 'Order not found. Please refresh the page and try again.';
+        } else if (error.message.includes('already cancelled')) {
+          errorMessage = 'This order has already been cancelled.';
+        } else if (error.message.includes('cannot be cancelled')) {
+          errorMessage = 'This order cannot be cancelled.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setCancelError(errorMessage);
+      
+      // Clear error message after 8 seconds to give users time to read it
+      setTimeout(() => setCancelError(null), 8000);
+    } finally {
+      setCancellingOrder(null);
+    }
+  };
+
+  const handleReorder = async (order: any) => {
+    if (!order || !order.items) {
+      setReorderError('Cannot reorder: Order items not available');
+      return;
+    }
+
+    try {
+      setReorderingOrder(order.id);
+      setReorderError(null);
+      setReorderSuccess(null);
+
+      // Parse order items
+      let orderItems = [];
+      try {
+        orderItems = Array.isArray(order.items) ? order.items : JSON.parse(order.items);
+      } catch (parseError) {
+        console.error('Failed to parse order items:', parseError);
+        setReorderError('Cannot reorder: Order items format is invalid');
+        return;
+      }
+
+      if (!Array.isArray(orderItems) || orderItems.length === 0) {
+        setReorderError('Cannot reorder: No valid items found in this order');
+        return;
+      }
+
+      // Convert order items to cart format
+      const cartItems = orderItems.map((item: any) => ({
+        id: item.printful_variant_id || item.id || `item_${Date.now()}_${Math.random()}`,
+        name: item.name || item.product_name || 'Unknown Product',
+        price: item.price || item.price_pence / 100 || 0,
+        quantity: item.quantity || 1,
+        image: item.image || '/placeholder-product.png',
+        printful_variant_id: item.printful_variant_id,
+        variant: item.variant
+      }));
+
+      // Store items in session storage for cart restoration
+      sessionStorage.setItem('reorderItems', JSON.stringify(cartItems));
+      
+      // Navigate to shop page with reorder items
+      window.location.href = '/shop?reorder=true';
+      
+      setReorderSuccess('Items added to cart! Redirecting to shop...');
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setReorderSuccess(null), 3000);
+      
+    } catch (error: any) {
+      console.error('Reorder error:', error);
+      setReorderError(error.message || 'Failed to reorder items. Please try again.');
+    } finally {
+      setReorderingOrder(null);
+    }
+  };
+
+  const canCancelOrder = (order: any) => {
+    // Only allow cancellation of pending or confirmed orders
+    const cancellableStatuses = ['pending', 'confirmed', 'processing'];
+    return cancellableStatuses.includes(order.status?.toLowerCase());
   };
 
   if (isLoading) {
@@ -196,47 +342,71 @@ const OrdersPage = ({ onBack }: OrdersPageProps) => {
 
             {orders.map((order) => (
               <div key={order.id} className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                    <h3 className="text-lg font-semibold text-gray-900">
                       Order #{order.readable_order_id || 'Processing...'}
                     </h3>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>{formatDate(order.created_at)}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CreditCard className="w-4 h-4" />
-                        <span>{formatCurrency(order.amount_total || 0)}</span>
-                      </div>
-                    </div>
+                    <p className="text-sm text-gray-600">{formatDate(order.created_at)}</p>
                   </div>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Confirmed
-                  </span>
-                </div>
-
-                <div className="border-t border-gray-200 pt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-600">Customer Email:</span>
-                      <span className="ml-2 font-medium text-gray-900">{order.customer_email}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Total Amount:</span>
-                      <span className="ml-2 font-medium text-gray-900">
-                        {formatCurrency(order.amount_total || 0)}
-                      </span>
-                    </div>
+                  <div className="text-right">
+                    <p className="text-lg font-bold text-[#009fe3]">
+                      {formatCurrency(order.amount_total || 0)}
+                    </p>
+                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                      {order.status || 'Processing'}
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex space-x-3 mt-4 pt-4 border-t border-gray-200">
-                  <button className="flex items-center space-x-2 text-[#009fe3] hover:text-blue-600 font-medium text-sm" onClick={() => setViewOrder(order)}>
+                  <button 
+                    className="flex items-center space-x-2 text-[#009fe3] hover:text-blue-600 font-medium text-sm" 
+                    onClick={() => setViewOrder(order)}
+                  >
                     <Eye className="w-4 h-4" />
                     <span>View Details</span>
                   </button>
+                  
+                  {/* Reorder Button */}
+                  <button 
+                    className="flex items-center space-x-2 text-green-600 hover:text-green-700 font-medium text-sm"
+                    onClick={() => handleReorder(order)}
+                    disabled={reorderingOrder === order.id}
+                  >
+                    {reorderingOrder === order.id ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                        <span>Adding to Cart...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Package className="w-4 h-4" />
+                        <span>Reorder</span>
+                      </>
+                    )}
+                  </button>
+                  
+                  {canCancelOrder(order) && (
+                    <button 
+                      className="flex items-center space-x-2 text-red-600 hover:text-red-700 font-medium text-sm"
+                      onClick={() => handleCancelOrder(order.id)}
+                      disabled={cancellingOrder === order.id}
+                    >
+                      {cancellingOrder === order.id ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                          <span>Cancelling...</span>
+                        </>
+                      ) : (
+                        <>
+                          <X className="w-4 h-4" />
+                          <span>Cancel Order</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                  
                   <button className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 font-medium text-sm">
                     <Download className="w-4 h-4" />
                     <span>Download Receipt</span>
@@ -244,6 +414,45 @@ const OrdersPage = ({ onBack }: OrdersPageProps) => {
                 </div>
               </div>
             ))}
+
+          {/* Error and Success Messages */}
+          {cancelError && (
+            <div className="max-w-2xl mx-auto mb-8">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-3">
+                <AlertCircle className="w-5 h-5 text-red-500" />
+                <span className="text-red-800">{cancelError}</span>
+              </div>
+            </div>
+          )}
+
+          {cancelSuccess && (
+            <div className="max-w-2xl mx-auto mb-8">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3">
+                <CheckCircle className="w-5 h-5 text-green-500" />
+                <span className="text-green-800">{cancelSuccess}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Reorder Status Messages */}
+          {reorderError && (
+            <div className="max-w-2xl mx-auto mb-8">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-3">
+                <AlertCircle className="w-5 h-5 text-red-500" />
+                <span className="text-red-800">{reorderError}</span>
+              </div>
+            </div>
+          )}
+
+          {reorderSuccess && (
+            <div className="max-w-2xl mx-auto mb-8">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3">
+                <CheckCircle className="w-5 h-5 text-green-500" />
+                <span className="text-green-800">{reorderSuccess}</span>
+              </div>
+            </div>
+          )}
+
           </div>
         )}
       </div>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Authentication Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; border: none; border-radius: 3px; cursor: pointer; }
+        .result { margin-top: 10px; padding: 10px; border-radius: 3px; }
+        .success-result { background-color: #d4edda; color: #155724; }
+        .error-result { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Local Authentication Test</h1>
+    <p>This page tests the local Supabase authentication setup to verify Test 1 issues are resolved.</p>
+
+    <div class="test-section">
+        <h3>Test 1: Local Supabase Connection</h3>
+        <button onclick="testLocalConnection()">Test Local Connection</button>
+        <div id="connection-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 2: User Registration</h3>
+        <button onclick="testUserRegistration()">Test User Registration</button>
+        <div id="registration-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 3: User Login</h3>
+        <button onclick="testUserLogin()">Test User Login</button>
+        <div id="login-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 4: Database Tables</h3>
+        <button onclick="testDatabaseTables()">Test Database Tables</button>
+        <div id="database-result" class="result"></div>
+    </div>
+
+    <script>
+        // Local Supabase configuration
+        const SUPABASE_URL = 'http://127.0.0.1:54321';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
+
+        function addResult(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = `result ${isSuccess ? 'success-result' : 'error-result'}`;
+        }
+
+        async function testLocalConnection() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (response.ok) {
+                    addResult('connection-result', '✅ SUCCESS: Local Supabase connection working!', true);
+                } else {
+                    addResult('connection-result', `❌ FAILED: Connection failed with status ${response.status}`, false);
+                }
+            } catch (error) {
+                addResult('connection-result', `❌ ERROR: ${error.message}`, false);
+            }
+        }
+
+        async function testUserRegistration() {
+            try {
+                const testEmail = `test-${Date.now()}@example.com`;
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY
+                    },
+                    body: JSON.stringify({
+                        email: testEmail,
+                        password: 'testpassword123',
+                        data: {
+                            first_name: 'Test',
+                            last_name: 'User'
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.user) {
+                    addResult('registration-result', `✅ SUCCESS: User registration successful! Email: ${testEmail}`, true);
+                } else {
+                    addResult('registration-result', `❌ FAILED: Registration failed: ${data.error?.message || 'Unknown error'}`, false);
+                }
+            } catch (error) {
+                addResult('registration-result', `❌ ERROR: ${error.message}`, false);
+            }
+        }
+
+        async function testUserLogin() {
+            try {
+                // First create a test user
+                const testEmail = `login-test-${Date.now()}@example.com`;
+                const testPassword = 'testpassword123';
+                
+                // Create user
+                const signupResponse = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY
+                    },
+                    body: JSON.stringify({
+                        email: testEmail,
+                        password: testPassword,
+                        data: {
+                            first_name: 'Login',
+                            last_name: 'Test'
+                        }
+                    })
+                });
+                
+                if (!signupResponse.ok) {
+                    addResult('login-result', '❌ FAILED: Could not create test user for login test', false);
+                    return;
+                }
+                
+                // Now try to login
+                const loginResponse = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY
+                    },
+                    body: JSON.stringify({
+                        email: testEmail,
+                        password: testPassword
+                    })
+                });
+                
+                const loginData = await loginResponse.json();
+                
+                if (loginResponse.ok && loginData.access_token) {
+                    addResult('login-result', `✅ SUCCESS: User login successful! Access token received.`, true);
+                } else {
+                    addResult('login-result', `❌ FAILED: Login failed: ${loginData.error_description || 'Unknown error'}`, false);
+                }
+            } catch (error) {
+                addResult('login-result', `❌ ERROR: ${error.message}`, false);
+            }
+        }
+
+        async function testDatabaseTables() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/products?select=*&limit=1`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('database-result', `✅ SUCCESS: Database tables accessible! Found ${data.length} products.`, true);
+                } else {
+                    addResult('database-result', `❌ FAILED: Database access failed with status ${response.status}`, false);
+                }
+            } catch (error) {
+                addResult('database-result', `❌ ERROR: ${error.message}`, false);
+            }
+        }
+    </script>
+</body>
+</html>

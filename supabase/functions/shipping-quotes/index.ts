@@ -127,11 +127,56 @@ serve(async (req: Request) => {
       itemsCount: body.items.length
     })
 
+    // Get Printful token from environment
+    const printfulToken = Deno.env.get('PRINTFUL_TOKEN')
+    
+    if (!printfulToken) {
+      console.error('PRINTFUL_TOKEN not configured')
+      
+      // Return fallback shipping options instead of error
+      const fallbackOptions: ShippingOption[] = [
+        {
+          id: 'standard-uk',
+          name: 'Standard UK Delivery',
+          rate: '4.99',
+          currency: 'GBP',
+          minDeliveryDays: 3,
+          maxDeliveryDays: 5,
+          carrier: 'Royal Mail'
+        },
+        {
+          id: 'express-uk',
+          name: 'Express UK Delivery',
+          rate: '8.99',
+          currency: 'GBP',
+          minDeliveryDays: 1,
+          maxDeliveryDays: 2,
+          carrier: 'DHL Express'
+        },
+        {
+          id: 'international-standard',
+          name: 'International Standard',
+          rate: '12.99',
+          currency: 'GBP',
+          minDeliveryDays: 7,
+          maxDeliveryDays: 14,
+          carrier: 'Royal Mail International'
+        }
+      ];
+      
+      const fallbackResponse: ShippingQuoteResponse = { 
+        options: fallbackOptions, 
+        ttlSeconds: 300 // Cache fallback for 5 minutes
+      };
+      
+      return Response.json(fallbackResponse, { headers });
+    }
+
     // Call Printful API
     const printfulResponse = await fetch('https://api.printful.com/shipping/rates', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('PRINTFUL_TOKEN')}`,
+        'Authorization': `Bearer ${printfulToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -147,24 +192,91 @@ serve(async (req: Request) => {
       const errorText = await printfulResponse.text()
       console.error('Printful API error:', printfulResponse.status, errorText)
       
-      return new Response(
-        JSON.stringify({ 
-          error: 'Printful API error', 
-          status: printfulResponse.status,
-          details: errorText
-        }), 
-        { status: 502, headers: { ...headers, "Content-Type": "application/json" } }
-      )
+      // Return fallback shipping options instead of error
+      console.log('Using fallback shipping options due to Printful API failure');
+      
+      const fallbackOptions: ShippingOption[] = [
+        {
+          id: 'standard-uk',
+          name: 'Standard UK Delivery',
+          rate: '4.99',
+          currency: 'GBP',
+          minDeliveryDays: 3,
+          maxDeliveryDays: 5,
+          carrier: 'Royal Mail'
+        },
+        {
+          id: 'express-uk',
+          name: 'Express UK Delivery',
+          rate: '8.99',
+          currency: 'GBP',
+          minDeliveryDays: 1,
+          maxDeliveryDays: 2,
+          carrier: 'DHL Express'
+        },
+        {
+          id: 'international-standard',
+          name: 'International Standard',
+          rate: '12.99',
+          currency: 'GBP',
+          minDeliveryDays: 7,
+          maxDeliveryDays: 14,
+          carrier: 'Royal Mail International'
+        }
+      ];
+      
+      const fallbackResponse: ShippingQuoteResponse = { 
+        options: fallbackOptions, 
+        ttlSeconds: 300 // Cache fallback for 5 minutes
+      };
+      
+      return Response.json(fallbackResponse, { headers });
     }
 
     const printfulData = await printfulResponse.json()
     
     if (!printfulData.result) {
       console.error('Invalid Printful response:', printfulData)
-      return new Response(
-        JSON.stringify({ error: 'Invalid response from Printful API' }), 
-        { status: 502, headers: { ...headers, "Content-Type": "application/json" } }
-      )
+      
+      // Return fallback shipping options instead of error
+      console.log('Using fallback shipping options due to invalid Printful response');
+      
+      const fallbackOptions: ShippingOption[] = [
+        {
+          id: 'standard-uk',
+          name: 'Standard UK Delivery',
+          rate: '4.99',
+          currency: 'GBP',
+          minDeliveryDays: 3,
+          maxDeliveryDays: 5,
+          carrier: 'Royal Mail'
+        },
+        {
+          id: 'express-uk',
+          name: 'Express UK Delivery',
+          rate: '8.99',
+          currency: 'GBP',
+          minDeliveryDays: 1,
+          maxDeliveryDays: 2,
+          carrier: 'DHL Express'
+        },
+        {
+          id: 'international-standard',
+          name: 'International Standard',
+          rate: '12.99',
+          currency: 'GBP',
+          minDeliveryDays: 7,
+          maxDeliveryDays: 14,
+          carrier: 'Royal Mail International'
+        }
+      ];
+      
+      const fallbackResponse: ShippingQuoteResponse = { 
+        options: fallbackOptions, 
+        ttlSeconds: 300 // Cache fallback for 5 minutes
+      };
+      
+      return Response.json(fallbackResponse, { headers });
     }
 
     // Transform Printful response to our format

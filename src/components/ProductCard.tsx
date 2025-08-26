@@ -1,15 +1,33 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Truck, ChevronRight } from 'lucide-react';
+import { Star, Truck, ChevronRight, ShoppingCart } from 'lucide-react';
 import { Product } from '../lib/api';
+import { useCart } from '../contexts/CartContext';
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const { addToCart } = useCart();
+  
   // Use the product slug for the URL, with fallback to product ID
   const productUrl = product.slug ? `/product/${product.slug}` : `/product/${product.id}`;
+  
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      price: product.price_pence / 100,
+      image: product.image_url || '',
+      quantity: 1
+    };
+    
+    addToCart(cartItem);
+  };
   
   return (
     <Link
@@ -25,7 +43,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             alt={product.name} 
             className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200" 
             onError={(e) => {
-              console.error('Image failed to load:', product.image_url);
               e.currentTarget.style.display = 'none';
               e.currentTarget.nextElementSibling?.classList.remove('hidden');
             }}
@@ -63,10 +80,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
         </div>
         
-        <button className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold text-gray-800 text-base transition-colors mt-auto group-hover:bg-[#009fe3] group-hover:text-white">
-          <ChevronRight className="w-5 h-5" /> 
-          View Options
-        </button>
+        <div className="space-y-2">
+          <button 
+            onClick={handleAddToCart}
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-[#009fe3] hover:bg-blue-600 text-white font-bold rounded-xl text-base transition-colors"
+          >
+            <ShoppingCart className="w-5 h-5" /> 
+            Add to Cart
+          </button>
+          
+          <button className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold text-gray-800 text-base transition-colors group-hover:bg-gray-200">
+            <ChevronRight className="w-5 h-5" /> 
+            View Options
+          </button>
+        </div>
       </div>
     </Link>
   );

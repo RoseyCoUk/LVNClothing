@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cap Variants Sync Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #e5e7eb;
+            display: inline-block;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .color-swatch.selected {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px white;
+        }
+        .variant-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 8px;
+            background: white;
+            transition: all 0.2s;
+        }
+        .variant-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1e293b;
+        }
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">🧢 Cap Variants Sync Test Page</h1>
+            <p class="text-lg text-gray-600">Comprehensive testing and verification of the cap variant system</p>
+        </header>
+
+        <!-- Statistics Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalVariants">-</div>
+                <div class="stat-label">Total Variants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalColors">-</div>
+                <div class="stat-label">Colors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalSizes">-</div>
+                <div class="stat-label">Sizes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="priceRange">-</div>
+                <div class="stat-label">Price</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="idRange">-</div>
+                <div class="stat-label">Printful ID Range</div>
+            </div>
+        </div>
+
+        <!-- Variants Grid -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-xl font-semibold mb-4">All Cap Variants</h2>
+            <div id="variantsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Variants will be populated here -->
+            </div>
+        </div>
+
+        <!-- Validation Results -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mt-8">
+            <h2 class="text-xl font-semibold mb-4">Validation Results</h2>
+            <div id="validationResults" class="space-y-2">
+                <!-- Validation results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cap variants data
+        const capVariants = [
+            // White Cap - One Size
+            { id: 301, name: "White Cap - One Size", color: "White", size: "One Size", price: "19.99", in_stock: true, printful_variant_id: 6000, color_code: "#ffffff" },
+            
+            // Light Blue Cap - One Size
+            { id: 302, name: "Light Blue Cap - One Size", color: "Light Blue", size: "One Size", price: "19.99", in_stock: true, printful_variant_id: 6001, color_code: "#a6b9c6" },
+            
+            // Charcoal Cap - One Size
+            { id: 303, name: "Charcoal Cap - One Size", color: "Charcoal", size: "One Size", price: "19.99", in_stock: true, printful_variant_id: 6002, color_code: "#393639" },
+            
+            // Navy Cap - One Size
+            { id: 304, name: "Navy Cap - One Size", color: "Navy", size: "One Size", price: "19.99", in_stock: true, printful_variant_id: 6003, color_code: "#1c2330" },
+            
+            // Black Cap - One Size
+            { id: 305, name: "Black Cap - One Size", color: "Black", size: "One Size", price: "19.99", in_stock: true, printful_variant_id: 6004, color_code: "#000000" },
+            
+            // Red Cap - One Size
+            { id: 306, name: "Red Cap - One Size", color: "Red", size: "One Size", price: "19.99", in_stock: true, printful_variant_id: 6005, color_code: "#8e0a1f" }
+        ];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatistics();
+            renderVariants(capVariants);
+            runValidation();
+        });
+
+        // Update statistics
+        function updateStatistics() {
+            const colors = [...new Set(capVariants.map(v => v.color))];
+            const sizes = [...new Set(capVariants.map(v => v.size))];
+            const prices = [...new Set(capVariants.map(v => v.price))];
+            const printfulIds = capVariants.map(v => v.printful_variant_id);
+
+            document.getElementById('totalVariants').textContent = capVariants.length;
+            document.getElementById('totalColors').textContent = colors.length;
+            document.getElementById('totalSizes').textContent = sizes.length;
+            document.getElementById('priceRange').textContent = `£${Math.min(...prices)}`;
+            document.getElementById('idRange').textContent = `${Math.min(...printfulIds)}-${Math.max(...printfulIds)}`;
+        }
+
+        // Render variants grid
+        function renderVariants(variants) {
+            const grid = document.getElementById('variantsGrid');
+            grid.innerHTML = '';
+
+            variants.forEach(variant => {
+                const card = document.createElement('div');
+                card.className = 'variant-card';
+                card.innerHTML = `
+                    <div class="flex items-center mb-3">
+                        <div class="color-swatch" style="background-color: ${variant.color_code}"></div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">${variant.color}</h3>
+                            <p class="text-sm text-gray-600">Size: ${variant.size}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Price:</span>
+                            <span class="font-semibold">£${variant.price}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Internal ID:</span>
+                            <span class="font-mono">${variant.id}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Printful ID:</span>
+                            <span class="font-mono">${variant.printful_variant_id}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Stock:</span>
+                            <span class="${variant.in_stock ? 'text-green-600' : 'text-red-600'}">
+                                ${variant.in_stock ? 'In Stock' : 'Out of Stock'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Run validation tests
+        function runValidation() {
+            const results = [];
+            
+            // Test 1: Variant Count
+            const expectedCount = 6;
+            const actualCount = capVariants.length;
+            results.push({
+                test: 'Variant Count',
+                passed: actualCount === expectedCount,
+                details: `Expected ${expectedCount}, got ${actualCount}`
+            });
+
+            // Test 2: Color Consistency
+            const colors = [...new Set(capVariants.map(v => v.color))];
+            const expectedColors = ['White', 'Light Blue', 'Charcoal', 'Navy', 'Black', 'Red'];
+            let colorConsistent = true;
+            for (const expectedColor of expectedColors) {
+                if (!colors.includes(expectedColor)) {
+                    colorConsistent = false;
+                    break;
+                }
+            }
+            results.push({
+                test: 'Color Consistency',
+                passed: colorConsistent,
+                details: colorConsistent ? 'All 6 expected colors are present' : 'Missing expected colors'
+            });
+
+            // Test 3: Unique IDs
+            const internalIds = capVariants.map(v => v.id);
+            const printfulIds = capVariants.map(v => v.printful_variant_id);
+            const internalIdsUnique = new Set(internalIds).size === internalIds.length;
+            const printfulIdsUnique = new Set(printfulIds).size === printfulIds.length;
+            results.push({
+                test: 'Unique IDs',
+                passed: internalIdsUnique && printfulIdsUnique,
+                details: internalIdsUnique && printfulIdsUnique ? 'All IDs are unique' : 'Duplicate IDs detected'
+            });
+
+            // Test 4: Printful ID Range
+            const minId = Math.min(...printfulIds);
+            const maxId = Math.max(...printfulIds);
+            const idRangeValid = minId >= 6000 && maxId <= 6099;
+            results.push({
+                test: 'Printful ID Range',
+                passed: idRangeValid,
+                details: `IDs range from ${minId} to ${maxId} (expected 6000-6099)`
+            });
+
+            // Test 5: Pricing Structure
+            const expectedPrice = '19.99';
+            let pricingValid = true;
+            for (const variant of capVariants) {
+                if (variant.price !== expectedPrice) {
+                    pricingValid = false;
+                    break;
+                }
+            }
+            results.push({
+                test: 'Pricing Structure',
+                passed: pricingValid,
+                details: pricingValid ? `All variants priced at £${expectedPrice}` : 'Pricing inconsistency detected'
+            });
+
+            // Display results
+            const resultsContainer = document.getElementById('validationResults');
+            results.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `p-3 rounded-lg ${result.passed ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`;
+                resultDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="${result.passed ? 'text-green-600' : 'text-red-600'} font-semibold mr-2">
+                            ${result.passed ? '✅' : '❌'}
+                        </span>
+                        <span class="font-medium">${result.test}:</span>
+                        <span class="ml-2 text-gray-700">${result.details}</span>
+                    </div>
+                `;
+                resultsContainer.appendChild(resultDiv);
+            });
+        }
+    </script>
+</body>
+</html>

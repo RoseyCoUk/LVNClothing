@@ -19,7 +19,10 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
 
   const handleCheckout = () => {
     setIsCartOpen(false);
-    onCheckoutClick();
+    // Add small delay to ensure cart drawer closes before navigation
+    setTimeout(() => {
+      onCheckoutClick();
+    }, 100);
   };
 
   if (!isCartOpen) return null;
@@ -85,14 +88,27 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
                       </div>
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => {
+                            try {
+                              updateQuantity(item.id, item.quantity - 1);
+                            } catch (error) {
+                              console.error('Failed to update quantity:', error);
+                            }
+                          }}
                           className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                          disabled={item.quantity <= 1}
                         >
                           <Minus className="w-4 h-4" />
                         </button>
                         <span className="w-8 text-center font-semibold">{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() => {
+                            try {
+                              updateQuantity(item.id, item.quantity + 1);
+                            } catch (error) {
+                              console.error('Failed to update quantity:', error);
+                            }
+                          }}
                           className="p-1 hover:bg-gray-200 rounded-full transition-colors"
                         >
                           <Plus className="w-4 h-4" />
@@ -156,7 +172,7 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
               </div>
               
               <p className="text-xs text-gray-500 text-center">
-                🇬🇧 Free UK shipping over £50 • Secure checkout
+                🇬🇧 Secure checkout • Best shipping rates
               </p>
             </div>
           )}

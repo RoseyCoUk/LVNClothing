@@ -46,7 +46,7 @@ export const useVariantSelection = (
   const availableSizes = useMemo(() => {
     const sizes = [...new Set(variants.map(v => v.size).filter(Boolean))];
     return sizes.sort((a, b) => {
-      const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
+      const sizeOrder = ['S', 'M', 'L', 'XL', '2XL'];
       return sizeOrder.indexOf(a) - sizeOrder.indexOf(b);
     });
   }, [variants]);

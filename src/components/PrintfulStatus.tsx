@@ -25,7 +25,6 @@ const PrintfulStatus: React.FC<PrintfulStatusProps> = ({ className = '' }) => {
       } catch (error) {
         setStatus('error');
         setMessage('Error checking Printful status');
-        console.error('Printful status check failed:', error);
       }
     };
 

@@ -20,6 +20,7 @@ import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
+import { mousepadVariants, getMousePadVariant } from '../../hooks/mousepad-variants';
 
 interface Color {
   name: string;
@@ -35,6 +36,7 @@ interface Variant {
   stockCount: number;
   rating: number;
   reviews: number;
+  printful_variant_id: number;
   images: string[];
 }
 
@@ -82,6 +84,7 @@ const productData = {
       stockCount: 45, 
       rating: 4, 
       reviews: 78, 
+      printful_variant_id: 9000,
       images: Array.from({ length: 2 }, (_, i) => `/MugMouse/ReformMousePadWhite${i + 1}.webp`) 
     },
   } as Variants
@@ -126,7 +129,8 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
       name: `${productData.name} (${currentVariant.color})`,
       price: currentVariant.price,
       image: currentVariant.images[0],
-      quantity: quantity
+      quantity: quantity,
+      printful_variant_id: currentVariant.printful_variant_id
     };
     addToCart(itemToAdd);
   };
@@ -138,7 +142,8 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
       name: productData.name,
       price: currentVariant.price,
       image: currentVariant.images[0],
-      quantity: quantity
+      quantity: quantity,
+      printful_variant_id: currentVariant.printful_variant_id
     };
     
     const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
@@ -152,7 +157,6 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
 
   const handleConfirmCheckout = async () => {
     if (!orderToConfirm) {
-      console.error('No order to confirm');
       return;
     }
     
@@ -170,8 +174,6 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
       
       window.location.href = url;
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      
       // Show a more user-friendly error message
       if (error instanceof Error && error.message.includes('Stripe API key is not configured')) {
         alert('Stripe payment is not configured. This is expected in development environment.');
