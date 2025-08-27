@@ -12,6 +12,7 @@
 
 ## 2️⃣ Requirement Validation Summary
 
+npm run dev
 ### Requirement: User Authentication System
 - **Description:** Complete user authentication system with login, registration, password reset, and account management.
 

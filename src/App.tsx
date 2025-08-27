@@ -52,8 +52,19 @@ import ActivistBundlePage from './components/products/ActivistBundlePage';
 import { CartProvider } from './contexts/CartContext';
 import { ShippingProvider } from './contexts/ShippingContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { AdminProvider } from './contexts/AdminContext';
 import PrintfulStatus from './components/PrintfulStatus';
 import { performanceMonitor } from './lib/performance';
+
+// Admin Components
+import AdminLoginPage from './components/AdminLoginPage';
+import AdminDashboard from './components/AdminDashboard';
+import AdminOrdersPage from './components/AdminOrdersPage';
+import AdminAnalyticsPage from './components/AdminAnalyticsPage';
+import AdminCustomersPage from './components/AdminCustomersPage';
+import AdminSettingsPage from './components/AdminSettingsPage';
+import AdminLayout from './components/AdminLayout';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 
 const App = () => {
   const navigate = useNavigate();
@@ -184,10 +195,13 @@ const App = () => {
 
   return (
     <AuthProvider>
-      <CartProvider>
-        <ShippingProvider>
+      <AdminProvider>
+        <CartProvider>
+          <ShippingProvider>
           <div className="min-h-screen bg-white" role="application" aria-label="Reform UK E-commerce Platform">
-          <Header currentPage={currentPage} setCurrentPage={handleNavigation} onLoginClick={handleLoginClick} onSignupClick={handleSignupClick} />
+          {!location.pathname.startsWith('/admin') && (
+            <Header currentPage={currentPage} setCurrentPage={handleNavigation} onLoginClick={handleLoginClick} onSignupClick={handleSignupClick} />
+          )}
           <main role="main" id="main-content">
           <Routes>
             <Route path="/" element={
@@ -247,15 +261,58 @@ const App = () => {
             
             {/* Fallback route for any other product URLs */}
             <Route path="/product/:slug" element={<ShopPage onProductClick={handleProductClick} />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route path="/admin/dashboard" element={
+              <AdminProtectedRoute requiredPermission="analytics">
+                <AdminLayout>
+                  <AdminDashboard />
+                </AdminLayout>
+              </AdminProtectedRoute>
+            } />
+            <Route path="/admin/orders" element={
+              <AdminProtectedRoute requiredPermission="orders">
+                <AdminLayout>
+                  <AdminOrdersPage />
+                </AdminLayout>
+              </AdminProtectedRoute>
+            } />
+            <Route path="/admin/analytics" element={
+              <AdminProtectedRoute requiredPermission="analytics">
+                <AdminLayout>
+                  <AdminAnalyticsPage />
+                </AdminLayout>
+              </AdminProtectedRoute>
+            } />
+            <Route path="/admin/customers" element={
+              <AdminProtectedRoute requiredPermission="customers">
+                <AdminLayout>
+                  <AdminCustomersPage />
+                </AdminLayout>
+              </AdminProtectedRoute>
+            } />
+            <Route path="/admin/settings" element={
+              <AdminProtectedRoute requiredPermission="settings">
+                <AdminLayout>
+                  <AdminSettingsPage />
+                </AdminLayout>
+              </AdminProtectedRoute>
+            } />
           </Routes>
         </main>
-        <Footer onPageNavigation={(page) => navigate(`/${page}`)} />
-        <CartDrawer onCheckoutClick={handleCheckoutClick} />
-        <CartPopup />
-        <PrintfulStatus />
+        {!location.pathname.startsWith('/admin') && (
+          <>
+            <Footer onPageNavigation={(page) => navigate(`/${page}`)} />
+            <CartDrawer onCheckoutClick={handleCheckoutClick} />
+            <CartPopup />
+            <PrintfulStatus />
+          </>
+        )}
         </div>
         </ShippingProvider>
-      </CartProvider>
+        </CartProvider>
+      </AdminProvider>
     </AuthProvider>
   );
 };

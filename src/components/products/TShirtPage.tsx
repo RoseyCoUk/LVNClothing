@@ -17,30 +17,19 @@ import {
   Clock
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
-import { usePrintfulProduct, usePrintfulVariants } from '../../hooks/usePrintfulProducts';
+import { 
+  TshirtVariants, 
+  findTshirtVariant,
+  tshirtSizes,
+  tshirtColors
+} from '../../hooks/tshirt-variants-merged';
+import { Toast, useToast } from '../../components/ui/Toast';
 
 // Fix: Add proper TypeScript interfaces
 interface Color {
   name: string;
-  value: string;
+  hex: string;
   border?: boolean;
-}
-
-interface Variant {
-  id: number;
-  color: string;
-  price: number;
-  inStock: boolean;
-  stockCount: number;
-  rating: number;
-  reviews: number;
-  images: string[];
-  printful_variant_id: number;
-  size: string;
-}
-
-interface Variants {
-  [key: number]: Variant;
 }
 
 interface TshirtPageProps {
@@ -50,136 +39,82 @@ interface TshirtPageProps {
 const TshirtPage = ({ onBack }: TshirtPageProps) => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
-  
-  // Fetch Printful product data
-  const { product: printfulProduct, loading: productLoading, error: productError } = usePrintfulProduct(1);
-  const { variants: printfulVariants, loading: variantsLoading, error: variantsError } = usePrintfulVariants(1);
+  const { isVisible, message, showToast, hideToast } = useToast();
   
   // State
-  const [currentVariant, setCurrentVariant] = useState<Variant | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('M');
-  const [selectedColor, setSelectedColor] = useState('Black');
+  const [selectedColor, setSelectedColor] = useState('White');
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+
   const [activeTab, setActiveTab] = useState('description');
   const [isWishlisted, setIsWishlisted] = useState(false);
 
-  // Product data with Printful integration
+  // Product data with merged variant structure
   const productData = {
     id: 1,
-    name: printfulProduct?.name || "Reform UK T-Shirt",
-    description: printfulProduct?.description || "Comfortable cotton t-shirt featuring the Reform UK logo. Made from premium cotton for all-day comfort and durability. A classic fit that works for any occasion.",
-    features: ["100% premium cotton", "Classic fit", "Reinforced seams", "Pre-shrunk fabric", "Tagless for comfort", "Screen-printed logo"],
+    name: "Reform UK T-Shirt",
+    description: "Comfortable cotton t-shirt featuring the Reform UK logo. Available in 20 beautiful colors with 5 size options. Made from premium cotton for all-day comfort and durability. A classic fit that works for any occasion.",
+    features: ["100% premium cotton", "Classic fit", "Reinforced seams", "Pre-shrunk fabric", "Tagless for comfort", "Screen-printed logo", "20 color options"],
     careInstructions: "Machine wash cold. Tumble dry low. Do not bleach.",
     materials: "100% cotton",
     category: 'apparel',
     shipping: "Ships in 48H",
-    defaultVariant: 201, // Default to Black
+    defaultVariant: 201, // Default to M White
     variantDetails: {
-      sizes: ['S', 'M', 'L', 'XL', '2XL'],
-      colors: [
-        { name: 'White', value: '#FFFFFF', border: true },
-        { name: 'Light Grey', value: '#E5E5E5', border: true },
-        { name: 'Ash Grey', value: '#B0B0B0' },
-        { name: 'Charcoal', value: '#333333' },
-        { name: 'Black', value: '#000000' },
-        { name: 'Navy', value: '#1B365D' },
-        { name: 'Red', value: '#B31217' },
-        { name: 'Forest Green', value: '#2D5016' },
-        { name: 'Burgundy', value: '#800020' },
-        { name: 'Orange', value: '#FF8C00' },
-        { name: 'Yellow', value: '#FFD667' },
-        { name: 'Pink', value: '#FDbfC7' },
-        { name: 'Athletic Heather', value: '#CECECC' },
-        { name: 'Heather Dust', value: '#E5D9C9' },
-        { name: 'Ash', value: '#F0F1EA' },
-        { name: 'Mauve', value: '#BF6E6E' },
-        { name: 'Steel Blue', value: '#668EA7' },
-        { name: 'Mustard', value: '#EDA027' },
-        { name: 'Heather Deep Teal', value: '#447085' },
-        { name: 'Heather Prism Peach', value: '#F3C2B2' }
-      ] as Color[]
+      sizes: tshirtSizes,
+      colors: tshirtColors
     }
   };
 
-  // Create variants from Printful data or fallback to local data
-  const createVariants = (): Variants => {
-    if (printfulVariants && printfulVariants.length > 0) {
-      const variants: Variants = {};
-      printfulVariants.forEach((variant, index) => {
-        const variantId = 200 + index + 1;
-        const colorName = variant.color || 'Black';
-        const sizeName = variant.size || 'M';
-        variants[variantId] = {
-          id: variantId,
-          color: colorName,
-          price: parseFloat(variant.price),
-          inStock: variant.in_stock,
-          stockCount: variant.in_stock ? 25 : 0,
-          rating: 5,
-          reviews: 156,
-          images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirt${colorName.replace(/\s+/g, '')}${i + 1}.webp`),
-          printful_variant_id: variant.printful_variant_id,
-          size: sizeName
-        };
-      });
-      return variants;
+  // Set initial selections
+  useEffect(() => {
+    if (tshirtColors.length > 0 && !selectedColor) {
+      setSelectedColor(tshirtColors[0].name);
     }
+    if (tshirtSizes.length > 0 && !selectedSize) {
+      setSelectedSize(tshirtSizes[0]);
+    }
+  }, [tshirtColors, tshirtSizes]);
+
+  // Find the selected variant
+  useEffect(() => {
+    if (selectedColor && selectedSize) {
+      const variant = findTshirtVariant('DARK', selectedSize, selectedColor) || 
+                     findTshirtVariant('LIGHT', selectedSize, selectedColor);
+      setSelectedVariant(variant);
+    }
+  }, [selectedColor, selectedSize]);
+
+  // Generate variant data for display
+  const getVariantData = () => {
+    if (!selectedVariant) return null;
     
-    // Fallback to local variants if Printful is not available
+    const colorKey = selectedColor.replace(/\s+/g, '');
+    const design = selectedVariant.design;
+    const imagePrefix = design === 'DARK' ? 'ReformMenTshirt' : 'ReformMenTshirtLight';
+    
     return {
-      // Black variants - 5 images each
-      201: { id: 201, color: 'Black', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtBlack${i + 1}.webp`), printful_variant_id: 4016, size: 'M' },
-      202: { id: 202, color: 'White', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtWhite${i + 1}.webp`), printful_variant_id: 4021, size: 'M' },
-      203: { id: 203, color: 'Light Grey', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtLightGrey${i + 1}.webp`), printful_variant_id: 4041, size: 'M' },
-      204: { id: 204, color: 'Ash Grey', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtAshGrey${i + 1}.webp`), printful_variant_id: 4046, size: 'M' },
-      205: { id: 205, color: 'Charcoal', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtCharcoal${i + 1}.webp`), printful_variant_id: 4036, size: 'M' },
-      206: { id: 206, color: 'Navy', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtBlue${i + 1}.webp`), printful_variant_id: 4026, size: 'M' },
-      207: { id: 207, color: 'Red', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtRed${i + 1}.webp`), printful_variant_id: 4031, size: 'M' },
-      208: { id: 208, color: 'Forest Green', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtGreen${i + 1}.webp`), printful_variant_id: 4051, size: 'M' },
-      209: { id: 209, color: 'Burgundy', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtBurgundy${i + 1}.webp`), printful_variant_id: 4056, size: 'M' },
-      210: { id: 210, color: 'Orange', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtOrange${i + 1}.webp`), printful_variant_id: 4061, size: 'M' },
-      211: { id: 211, color: 'Yellow', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtYellow${i + 1}.webp`), printful_variant_id: 4066, size: 'M' },
-      212: { id: 212, color: 'Pink', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtPink${i + 1}.webp`), printful_variant_id: 4071, size: 'M' },
-      213: { id: 213, color: 'Athletic Heather', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtAthleticHeather${i + 1}.webp`), printful_variant_id: 4076, size: 'M' },
-      214: { id: 214, color: 'Heather Dust', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtHeatherDust${i + 1}.webp`), printful_variant_id: 4081, size: 'M' },
-      215: { id: 215, color: 'Ash', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtAsh${i + 1}.webp`), printful_variant_id: 4086, size: 'M' },
-      216: { id: 216, color: 'Mauve', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtMauve${i + 1}.webp`), printful_variant_id: 4091, size: 'M' },
-      217: { id: 217, color: 'Steel Blue', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtSteelBlue${i + 1}.webp`), printful_variant_id: 4096, size: 'M' },
-      218: { id: 218, color: 'Mustard', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtMustard${i + 1}.webp`), printful_variant_id: 4101, size: 'M' },
-      219: { id: 219, color: 'Heather Deep Teal', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtHeatherDeepTeal${i + 1}.webp`), printful_variant_id: 4106, size: 'M' },
-      220: { id: 220, color: 'Heather Prism Peach', price: 24.99, inStock: true, stockCount: 25, rating: 5, reviews: 156, images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/ReformMenTshirtHeatherPrismPeach${i + 1}.webp`), printful_variant_id: 4111, size: 'M' }
-    } as Variants;
+      id: selectedVariant.catalogVariantId,
+      color: selectedColor,
+      price: parseFloat(selectedVariant.price),
+      inStock: true,
+      stockCount: 25,
+      rating: 5,
+      reviews: 156,
+      images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/${imagePrefix}${colorKey}${i + 1}.webp`),
+      size: selectedSize,
+      design: design
+    };
   };
 
-  const variants = createVariants();
-  
-  // Set initial variant
-  useEffect(() => {
-    if (variants && Object.keys(variants).length > 0) {
-      const defaultVariant = variants[productData.defaultVariant];
-      if (defaultVariant) {
-        setCurrentVariant(defaultVariant);
-        setSelectedColor(defaultVariant.color);
-      }
-    }
-  }, [variants]);
+  const variantData = getVariantData();
 
-  // Effect to update the variant when color changes
-  useEffect(() => {
-    if (variants && selectedColor) {
-      const newVariant = Object.values(variants).find(
-        (variant: Variant) => variant.color === selectedColor
-      );
-      if (newVariant && newVariant.id !== currentVariant?.id) {
-        setCurrentVariant(newVariant);
-        setSelectedImage(0); // Reset to the first image when the variant changes
-      }
-    }
-  }, [selectedColor, currentVariant?.id, variants]);
+
 
   // Loading state
-  if (productLoading || variantsLoading || !currentVariant) {
+  if (!selectedVariant || !variantData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -190,44 +125,38 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
     );
   }
 
-  // Error state - fallback to local data instead of showing error
-  if (productError || variantsError) {
-    console.warn('Printful API error, falling back to local data:', { productError, variantsError });
-    // Continue with local data instead of showing error
-  }
-
   const handleAddToCart = () => {
-    if (!selectedColor) {
-      alert('Please select a color.');
+    if (!selectedColor || !selectedSize || !selectedVariant) {
+      alert('Please select a size and color');
       return;
     }
-    if (!selectedSize) {
-      alert('Please select a size.');
-      return;
-    }
+
+    console.log('🛒 Adding to cart:', { selectedColor, selectedSize });
     
-    const itemToAdd = {
-      id: `${currentVariant.id}-${selectedSize}`,
-      name: `${productData.name} - ${currentVariant.color} (Size: ${selectedSize})`,
-      price: currentVariant.price,
-      image: currentVariant.images[0],
-      size: selectedSize,
+    const cartItem = {
+      id: `tshirt-${selectedSize}-${selectedColor}`,
+      name: `${productData.name} - ${selectedColor}`,
+      price: variantData.price,
       quantity: quantity,
-      printful_variant_id: currentVariant.printful_variant_id
+      size: selectedSize,
+      color: selectedColor,
+      image: variantData.images[0],
+      printful_variant_id: selectedVariant.externalId,
+      external_id: selectedVariant.externalId
     };
-    addToCart(itemToAdd);
+
+    addToCart(cartItem);
+    
+    // Show success message
+    showToast(`Added to cart!`);
   };
 
   const handleBuyNow = () => {
-    if (!selectedColor) {
-      alert('Please select a color.');
+    if (!selectedColor || !selectedSize) {
+      alert('Please select a size and color');
       return;
     }
-    if (!selectedSize) {
-      alert('Please select a size.');
-      return;
-    }
-    
+
     // Add to cart first
     handleAddToCart();
     
@@ -236,16 +165,28 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
   };
 
   const nextImage = () => {
-    setSelectedImage((prev) => (prev + 1) % currentVariant.images.length);
+    setSelectedImage((prev) => (prev + 1) % variantData.images.length);
   };
 
   const prevImage = () => {
-    setSelectedImage((prev) => (prev - 1 + currentVariant.images.length) % currentVariant.images.length);
+    setSelectedImage((prev) => (prev - 1 + variantData.images.length) % variantData.images.length);
   };
 
-  const handleColorSelect = (color: string) => {
+  const handleSizeChange = (size: string) => {
+    console.log('📏 Size selected:', size);
+    setSelectedSize(size);
+  };
+
+  const handleColorChange = (color: string) => {
+    console.log('🎨 Color selected:', color);
     setSelectedColor(color);
   };
+
+
+
+
+
+
 
   const reviews = [
     { id: 1, name: "David P.", rating: 5, date: "1 week ago", comment: "Great quality t-shirt, fits perfectly and looks fantastic!", verified: true },
@@ -255,6 +196,12 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
 
   return (
     <>
+      <Toast 
+        message={message}
+        isVisible={isVisible}
+        onClose={hideToast}
+        duration={3000}
+      />
       <div className="min-h-screen bg-gray-50">
         {/* Breadcrumb */}
         <div className="bg-white border-b">
@@ -274,15 +221,15 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Product Images */}
-            <div key={currentVariant.id} className="space-y-4">
+            <div key={variantData.id} className="space-y-4">
               <div className="relative aspect-square bg-white rounded-lg overflow-hidden shadow-lg">
                 <img
-                  src={currentVariant.images[selectedImage]}
-                  alt={`${productData.name} - ${currentVariant.color} - Image ${selectedImage + 1}`}
+                  src={variantData.images[selectedImage]}
+                  alt={`${productData.name} - ${variantData.color} - Image ${selectedImage + 1}`}
                   className="w-full h-full object-cover aspect-square"
                 />
                 
-                {currentVariant.images.length > 1 && (
+                {variantData.images.length > 1 && (
                   <>
                     <button onClick={prevImage} className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-colors z-10" aria-label="Previous image">
                       <ChevronLeft className="w-5 h-5" />
@@ -294,22 +241,22 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                 )}
 
                 <div className="absolute top-4 left-4 z-10">
-                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${currentVariant.stockCount <= 10 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
-                    {currentVariant.stockCount <= 10 ? `Only ${currentVariant.stockCount} left` : 'In Stock'}
+                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${variantData.stockCount <= 10 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                    {variantData.stockCount <= 10 ? `Only ${variantData.stockCount} left` : 'In Stock'}
                   </span>
                 </div>
                 
-                {currentVariant.images.length > 1 && (
+                {variantData.images.length > 1 && (
                   <div className="absolute bottom-4 right-4 bg-black/50 text-white px-2 py-1 rounded-full text-xs z-10">
-                    {selectedImage + 1} / {currentVariant.images.length}
+                    {selectedImage + 1} / {variantData.images.length}
                   </div>
                 )}
               </div>
 
               {/* Thumbnail Gallery */}
-              {currentVariant.images.length > 1 && (
+              {variantData.images.length > 1 && (
                 <div className="flex space-x-2 overflow-x-auto pb-2">
-                  {currentVariant.images.map((image, index) => (
+                  {variantData.images.map((image, index) => (
                     <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
                       <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover aspect-square" />
                     </button>
@@ -325,13 +272,13 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                 <div className="flex items-center space-x-2 mb-4">
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-5 h-5 ${i < currentVariant.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                      <Star key={i} className={`w-5 h-5 ${i < variantData.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
                     ))}
                   </div>
-                  <span className="text-gray-600">({currentVariant.reviews} reviews)</span>
+                  <span className="text-gray-600">({variantData.reviews} reviews)</span>
                 </div>
                 <div className="flex items-center space-x-3 mb-6">
-                  <span className="text-3xl font-bold text-[#009fe3]">£{currentVariant.price.toFixed(2)}</span>
+                  <span className="text-3xl font-bold text-[#009fe3]">£{variantData.price.toFixed(2)}</span>
                   <span className="text-lg text-gray-500 line-through">£29.99</span>
                   <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm font-medium">
                     Save £5.00
@@ -343,29 +290,32 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                 </div>
               </div>
 
+
+
               {/* Color Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   Color: <span className="font-semibold text-gray-900">{selectedColor}</span>
                 </label>
-                <div className="grid grid-cols-10 gap-2">
-                  {productData.variantDetails.colors.map((color) => (
+                <div className="grid grid-cols-5 gap-2">
+                  {tshirtColors.map((color) => (
                     <button 
                       key={color.name} 
-                      onClick={() => handleColorSelect(color.name)} 
-                      className={`relative w-10 h-10 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
-                        selectedColor === color.name 
-                          ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
-                          : color.border 
-                            ? 'border-gray-300 hover:border-gray-400' 
-                            : 'border-gray-200 hover:border-gray-300'
-                      }`} 
-                      style={{ backgroundColor: color.value }} 
+                      onClick={() => handleColorChange(color.name)} 
+                      className={`relative w-14 h-14 border-2 rounded-full transition-all duration-200 hover:scale-105 ${
+                        selectedColor === color.name
+                          ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2'
+                          : 'border-gray-300 hover:border-[#009fe3]'
+                      }`}
                       title={color.name}
                     >
+                      <div 
+                        className="w-full h-full rounded-full"
+                        style={{ backgroundColor: color.hex }}
+                      />
                       {selectedColor === color.name && (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Grey' ? 'text-gray-600' : 'text-white'}`} />
+                          <Check className="w-6 h-6 text-white drop-shadow-lg" />
                         </div>
                       )}
                     </button>
@@ -385,10 +335,10 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                   </button>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
-                  {productData.variantDetails.sizes.map((size) => (
+                  {tshirtSizes.map((size) => (
                     <button 
                       key={size} 
-                      onClick={() => setSelectedSize(size)} 
+                      onClick={() => handleSizeChange(size)} 
                       className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
                         selectedSize === size 
                           ? 'border-[#009fe3] bg-[#009fe3] text-white' 
@@ -438,7 +388,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                   className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
-                  <span>Buy Now - £{(currentVariant.price * quantity).toFixed(2)}</span>
+                  <span>Buy Now - £{(variantData.price * quantity).toFixed(2)}</span>
                 </button>
                 
                 <button 
@@ -446,7 +396,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                   className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  <span>Add to Cart - £{(currentVariant.price * quantity).toFixed(2)}</span>
+                  <span>Add to Cart - £{(variantData.price * quantity).toFixed(2)}</span>
                 </button>
                 
                 <div className="flex space-x-3">
@@ -537,10 +487,10 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                     <div className="flex items-center space-x-2">
                       <div className="flex items-center">
                         {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-4 h-4 ${i < currentVariant.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                          <Star key={i} className={`w-4 h-4 ${i < variantData.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
                         ))}
                       </div>
-                      <span className="text-sm text-gray-600">({currentVariant.reviews} reviews)</span>
+                                              <span className="text-sm text-gray-600">({variantData.reviews} reviews)</span>
                     </div>
                   </div>
                   <div className="space-y-6">

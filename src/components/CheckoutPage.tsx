@@ -140,9 +140,9 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
   const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null);
   
   const subtotal = getTotalPrice();
-  const shipping = getShippingCost() / 100; // Convert from pence to pounds
+  const shipping = getShippingCost() / 100; // Convert from pence to pounds for display
   const promoDiscount = appliedPromo === 'REFORM10' ? subtotal * 0.1 : 0;
-  const total = getTotalWithShipping() / 100; // Use shipping context total
+  const total = getTotalWithShipping(); // getTotalWithShipping now returns value in pounds
 
   // Calculate final total with promo discount
   const finalTotal = total - promoDiscount;

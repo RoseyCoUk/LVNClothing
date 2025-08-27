@@ -20,7 +20,8 @@ import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
-import { capVariants, getCapVariant } from '../../hooks/cap-variants';
+import { CapVariants, findCapVariantByCatalogId, capColors, findCapVariantByColor } from '../../hooks/cap-variants';
+import { Toast, useToast } from '../../components/ui/Toast';
 
 // --- FIX: Cap data is moved OUTSIDE the component to ensure it's a stable constant ---
 const productData = {
@@ -32,28 +33,38 @@ const productData = {
   materials: "100% cotton twill",
   category: 'apparel',
   shipping: "Ships in 48H",
-  defaultVariant: 305, // Default to Black
+  defaultVariant: 301, // Default to first variant
   variantDetails: {
-    // No genders or sizes for this product, only colors.
-    colors: [
-        { name: 'White', value: '#FFFFFF', border: true }, 
-        { name: 'Light Blue', value: '#a6b9c6' }, 
-        { name: 'Charcoal', value: '#393639' }, 
-        { name: 'Navy', value: '#1c2330' }, 
-        { name: 'Black', value: '#000000' }, 
-        { name: 'Red', value: '#8e0a1f' }
-    ]
-  },
-  variants: {
-    // Each color is a variant with Printful integration
-    301: { id: 301, color: 'White', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, printful_variant_id: 6000, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapWhite${i + 1}.webp`) },
-    302: { id: 302, color: 'Light Blue', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, printful_variant_id: 6001, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapBlue${i + 1}.webp`) },
-    303: { id: 303, color: 'Charcoal', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, printful_variant_id: 6002, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapCharcoal${i + 1}.webp`) },
-    304: { id: 304, color: 'Navy', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, printful_variant_id: 6003, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapNavy${i + 1}.webp`) },
-    305: { id: 305, color: 'Black', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, printful_variant_id: 6004, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapBlack${i + 1}.webp`) },
-    306: { id: 306, color: 'Red', price: 19.99, inStock: true, stockCount: 18, rating: 5, reviews: 92, printful_variant_id: 6005, images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCapRed${i + 1}.webp`) },
+    colors: capColors
   }
 };
+
+// Create variants from Printful data
+const createCapVariants = () => {
+  const variants: { [key: number]: any } = {};
+  let variantId = 300;
+  
+  CapVariants.forEach((variant) => {
+    variantId++;
+    
+    variants[variantId] = {
+      id: variantId,
+      color: variant.color,
+      price: parseFloat(variant.price || '19.99'),
+      inStock: true,
+      stockCount: 18,
+      rating: 5,
+      reviews: 92,
+      printful_variant_id: variant.externalId, // Real Printful external ID for ordering
+      external_id: variant.externalId,
+      images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCap${variant.color.replace(/\s+/g, '')}${i + 1}.webp`)
+    };
+  });
+  
+  return variants;
+};
+
+const variants = createCapVariants();
 
 interface CapPageProps {
   onBack: () => void;
@@ -73,13 +84,14 @@ interface OrderToConfirm {
 
 const CapPage = ({ onBack }: CapPageProps) => {
   const { addToCart, addToCartAndGetUpdated } = useCart();
+  const { isVisible, message, showToast, hideToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
   const navigate = useNavigate();
   
   // Fix 4: Add proper type assertion
-  const [currentVariant] = useState(productData.variants[productData.defaultVariant as keyof typeof productData.variants]);
+  const [currentVariant] = useState(variants[productData.defaultVariant as keyof typeof variants]);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(currentVariant.color);
@@ -88,7 +100,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
 
   // Effect to update the variant when color changes
   useEffect(() => {
-    const newVariant = Object.values(productData.variants).find(
+    const newVariant = Object.values(variants).find(
       variant => variant.color === selectedColor
     );
     // Only update state if the variant has actually changed
@@ -104,16 +116,25 @@ const CapPage = ({ onBack }: CapPageProps) => {
       return;
     }
     
-    // Updated the name to include the selected color
+    // Find the correct variant for the selected color
+    const selectedVariant = findCapVariantByColor(selectedColor);
+    if (!selectedVariant) {
+      alert('Selected color variant not found.');
+      return;
+    }
+    
     const itemToAdd = {
       id: currentVariant.id,
-      name: `${productData.name} (${currentVariant.color})`,
+      name: `${productData.name} (${selectedColor})`,
       price: currentVariant.price,
       image: currentVariant.images[0],
       quantity: quantity,
-      printful_variant_id: currentVariant.printful_variant_id
+      printful_variant_id: selectedVariant.externalId
     };
     addToCart(itemToAdd);
+    
+    // Show success message
+    showToast(`Added to cart!`);
   };
 
   const handleBuyNow = () => {
@@ -121,15 +142,23 @@ const CapPage = ({ onBack }: CapPageProps) => {
       alert('Please select a color.');
       return;
     }
+    
+    // Find the correct variant for the selected color
+    const selectedVariant = findCapVariantByColor(selectedColor);
+    if (!selectedVariant) {
+      alert('Selected color variant not found.');
+      return;
+    }
+    
     // Add to cart and get updated cart items
     const itemToAdd = {
       id: `${currentVariant.id}-${selectedColor}`,
-      name: `${productData.name} - ${currentVariant.color}`,
+      name: `${productData.name} - ${selectedColor}`,
       price: currentVariant.price,
       image: currentVariant.images[0],
       color: selectedColor,
       quantity: quantity,
-      printful_variant_id: currentVariant.printful_variant_id
+      printful_variant_id: selectedVariant.externalId
     };
     
     const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
@@ -211,7 +240,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
     // Find the variant with the selected color
-    const variantWithColor = Object.values(productData.variants).find(variant => variant.color === color);
+    const variantWithColor = Object.values(variants).find(variant => variant.color === color);
     if (variantWithColor) {
       // Update currentVariant if needed, but since we're using useState with initial value, we don't need setCurrentVariant
     }
@@ -219,6 +248,12 @@ const CapPage = ({ onBack }: CapPageProps) => {
 
   return (
     <>
+      <Toast 
+        message={message}
+        isVisible={isVisible}
+        onClose={hideToast}
+        duration={3000}
+      />
       <div className="min-h-screen bg-gray-50">
       {/* Breadcrumb */}
       <div className="bg-white border-b">
@@ -301,7 +336,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
               <label className="block text-sm font-medium text-gray-700 mb-3">Color: <span className="font-semibold text-gray-900">{selectedColor}</span></label>
               <div className="flex flex-wrap gap-3">
                 {productData.variantDetails.colors.map((color) => (
-                  <button key={color.name} onClick={() => handleColorSelect(color.name)} className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${selectedColor === color.name ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' : color.border ? 'border-gray-300 hover:border-gray-400' : 'border-gray-200 hover:border-gray-300'}`} style={{ backgroundColor: color.value }} title={color.name}>
+                  <button key={color.name} onClick={() => handleColorSelect(color.name)} className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${selectedColor === color.name ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' : color.border ? 'border-gray-300 hover:border-gray-400' : 'border-gray-200 hover:border-gray-300'}`} style={{ backgroundColor: color.hex }} title={color.name}>
                     {selectedColor === color.name && (<div className="absolute inset-0 flex items-center justify-center"><Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Blue' ? 'text-gray-600' : 'text-white'}`} /></div>)}
                   </button>
                 ))}

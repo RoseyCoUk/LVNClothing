@@ -31,14 +31,13 @@ const PrintfulStatus: React.FC<PrintfulStatusProps> = ({ className = '' }) => {
     checkPrintfulStatus();
   }, []);
 
-  if (status === 'checking') {
-    return null; // Don't show anything while checking
+  // Don't show anything while checking or when API is available
+  if (status === 'checking' || status === 'available') {
+    return null;
   }
 
   const getStatusIcon = () => {
     switch (status) {
-      case 'available':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'unavailable':
         return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
       case 'error':
@@ -50,8 +49,6 @@ const PrintfulStatus: React.FC<PrintfulStatusProps> = ({ className = '' }) => {
 
   const getStatusColor = () => {
     switch (status) {
-      case 'available':
-        return 'bg-green-50 border-green-200 text-green-800';
       case 'unavailable':
         return 'bg-yellow-50 border-yellow-200 text-yellow-800';
       case 'error':

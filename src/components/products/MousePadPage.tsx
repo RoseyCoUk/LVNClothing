@@ -20,7 +20,8 @@ import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
-import { mousepadVariants, getMousePadVariant } from '../../hooks/mousepad-variants';
+import { MousepadVariants, findMousepadVariantByCatalogId } from '../../hooks/mousepad-variants';
+import { Toast, useToast } from '../../components/ui/Toast';
 
 interface Color {
   name: string;
@@ -37,6 +38,7 @@ interface Variant {
   rating: number;
   reviews: number;
   printful_variant_id: number;
+  external_id: string;
   images: string[];
 }
 
@@ -73,22 +75,35 @@ const productData = {
       { name: 'White', value: '#FFFFFF', border: true },
     ],
     sizes: ['Standard']
-  },
-  variants: {
-    // Each color is a variant. Assuming 2 images for the white mouse pad.
-    701: { 
-      id: 701, 
-      color: 'White', 
-      price: 14.99,
-      inStock: true, 
-      stockCount: 45, 
-      rating: 4, 
-      reviews: 78, 
-      printful_variant_id: 9000,
-      images: Array.from({ length: 2 }, (_, i) => `/MugMouse/ReformMousePadWhite${i + 1}.webp`) 
-    },
-  } as Variants
+  }
 };
+
+// Create variants from Printful data
+const createMousePadVariants = (): Variants => {
+  const variants: Variants = {};
+  let variantId = 700;
+  
+  MousepadVariants.forEach((variant) => {
+    variantId++;
+    
+    variants[variantId] = {
+      id: variantId,
+      color: 'White',
+      price: parseFloat(variant.price || '14.99'),
+      inStock: true,
+      stockCount: 45,
+      rating: 4,
+      reviews: 78,
+      printful_variant_id: variant.externalId, // Real Printful external ID for ordering
+      external_id: variant.externalId,
+      images: Array.from({ length: 2 }, (_, i) => `/MugMouse/ReformMousePadWhite${i + 1}.webp`)
+    };
+  });
+  
+  return variants;
+};
+
+const variants = createMousePadVariants();
 
 // A small component to display the color swatch consistently
 const ColorSwatch = ({ color }: { color: Color }) => (
@@ -109,13 +124,14 @@ interface MousePadPageProps {
 
 const MousePadPage = ({ onBack }: MousePadPageProps) => {
   const { addToCart, addToCartAndGetUpdated } = useCart();
+  const { isVisible, message, showToast, hideToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
   const navigate = useNavigate();
   
   // Fix 4: Add proper type assertion
-  const [currentVariant] = useState(productData.variants[productData.defaultVariant as keyof typeof productData.variants]);
+  const [currentVariant] = useState(variants[productData.defaultVariant as keyof typeof variants]);
   
   // State
   const [selectedImage, setSelectedImage] = useState(0);
@@ -133,6 +149,9 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
       printful_variant_id: currentVariant.printful_variant_id
     };
     addToCart(itemToAdd);
+    
+    // Show success message
+    showToast(`Added to cart!`);
   };
 
   const handleBuyNow = () => {
@@ -224,6 +243,12 @@ const MousePadPage = ({ onBack }: MousePadPageProps) => {
 
   return (
     <>
+      <Toast 
+        message={message}
+        isVisible={isVisible}
+        onClose={hideToast}
+        duration={3000}
+      />
       <div className="min-h-screen bg-gray-50">
       {/* Breadcrumb */}
       <div className="bg-white border-b">

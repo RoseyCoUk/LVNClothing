@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Admin Setup</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        input, textarea { width: 100%; padding: 8px; margin: 5px 0; }
+        .log { background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 3px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug Admin Setup</h1>
+    
+    <div class="section info">
+        <h3>📋 Configuration</h3>
+        <label>Supabase URL:</label>
+        <input type="text" id="supabaseUrl" placeholder="https://your-project.supabase.co" value="https://nsmrxwnrtsllxvplazmm.supabase.co">
+        <label>Anon Key:</label>
+        <input type="text" id="anonKey" placeholder="Your anon key">
+        <button onclick="loadConfig()">Load Config</button>
+    </div>
+
+    <div class="section">
+        <h3>🔐 Step 1: Check Authentication</h3>
+        <button onclick="checkAuth()">Check Current Auth Status</button>
+        <div id="authResult" class="log"></div>
+    </div>
+
+    <div class="section">
+        <h3>🔑 Step 2: Get Access Token</h3>
+        <button onclick="getAccessToken()">Get Access Token</button>
+        <div id="tokenResult" class="log"></div>
+    </div>
+
+    <div class="section">
+        <h3>🧪 Step 3: Test Admin Function</h3>
+        <label>Access Token:</label>
+        <textarea id="accessToken" rows="3" placeholder="Paste your access token here"></textarea>
+        <button onclick="testAdminFunction()">Test Admin Function</button>
+        <div id="adminResult" class="log"></div>
+    </div>
+
+    <div class="section">
+        <h3>📊 Step 4: Check Database Setup</h3>
+        <button onclick="checkDatabaseSetup()">Check Database Setup</button>
+        <div id="dbResult" class="log"></div>
+    </div>
+
+    <script>
+        let supabase = null;
+
+        function loadConfig() {
+            const url = document.getElementById('supabaseUrl').value;
+            const key = document.getElementById('anonKey').value;
+            
+            if (!url || !key) {
+                alert('Please enter both URL and Anon Key');
+                return;
+            }
+
+            // Load Supabase client
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/@supabase/supabase-js@2';
+            script.onload = () => {
+                supabase = window.supabase.createClient(url, key);
+                log('authResult', '✅ Supabase client loaded');
+            };
+            document.head.appendChild(script);
+        }
+
+        async function checkAuth() {
+            if (!supabase) {
+                log('authResult', '❌ Please load config first');
+                return;
+            }
+
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) {
+                    log('authResult', `❌ Auth error: ${error.message}`);
+                } else if (session) {
+                    log('authResult', `✅ Authenticated as: ${session.user.email}`);
+                    log('authResult', `User ID: ${session.user.id}`);
+                    log('authResult', `Access Token: ${session.access_token ? 'Present' : 'Missing'}`);
+                } else {
+                    log('authResult', '❌ No active session');
+                }
+            } catch (error) {
+                log('authResult', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function getAccessToken() {
+            if (!supabase) {
+                log('tokenResult', '❌ Please load config first');
+                return;
+            }
+
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) {
+                    log('tokenResult', `❌ Error: ${error.message}`);
+                } else if (session?.access_token) {
+                    log('tokenResult', `✅ Access Token: ${session.access_token}`);
+                    document.getElementById('accessToken').value = session.access_token;
+                } else {
+                    log('tokenResult', '❌ No access token found');
+                }
+            } catch (error) {
+                log('tokenResult', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function testAdminFunction() {
+            const token = document.getElementById('accessToken').value;
+            const url = document.getElementById('supabaseUrl').value;
+            
+            if (!token) {
+                log('adminResult', '❌ Please enter an access token');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${url}/functions/v1/admin-auth`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        action: 'validate_access'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('adminResult', `✅ Success: ${JSON.stringify(data, null, 2)}`);
+                } else {
+                    log('adminResult', `❌ Error ${response.status}: ${JSON.stringify(data, null, 2)}`);
+                }
+            } catch (error) {
+                log('adminResult', `❌ Network error: ${error.message}`);
+            }
+        }
+
+        async function checkDatabaseSetup() {
+            const token = document.getElementById('accessToken').value;
+            const url = document.getElementById('supabaseUrl').value;
+            
+            if (!token) {
+                log('dbResult', '❌ Please enter an access token first');
+                return;
+            }
+
+            try {
+                // Test different admin actions
+                const actions = ['validate_access', 'get_role', 'check_permission'];
+                
+                for (const action of actions) {
+                    const response = await fetch(`${url}/functions/v1/admin-auth`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ action })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        log('dbResult', `✅ ${action}: ${JSON.stringify(data, null, 2)}`);
+                    } else {
+                        log('dbResult', `❌ ${action} (${response.status}): ${JSON.stringify(data, null, 2)}`);
+                    }
+                }
+            } catch (error) {
+                log('dbResult', `❌ Error: ${error.message}`);
+            }
+        }
+
+        function log(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+            element.scrollTop = element.scrollHeight;
+        }
+    </script>
+</body>
+</html>

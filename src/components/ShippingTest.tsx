@@ -131,7 +131,7 @@ const ShippingTest: React.FC = () => {
             <div>
               <h3 className="font-medium">Total with Shipping</h3>
               <div className="text-sm text-gray-600">
-                £{(getTotalWithShipping() / 100).toFixed(2)}
+                £{getTotalWithShipping().toFixed(2)}
               </div>
             </div>
           </div>

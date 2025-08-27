@@ -164,7 +164,7 @@ export const ShippingProvider: React.FC<ShippingProviderProps> = ({ children }) 
       throw new Error('No shipping option selected')
     }
 
-    const itemsTotal = getTotalPrice() / 100 // Convert from pence to pounds
+    const itemsTotal = getTotalPrice() // getTotalPrice returns value in pounds
     
     // Validate the request
     const validationErrors = validateShippingSelection(
@@ -209,10 +209,10 @@ export const ShippingProvider: React.FC<ShippingProviderProps> = ({ children }) 
     return Math.round(rate * 100); // Convert to pence
   }, [selectedShippingOption]);
 
-  // Get total with shipping in pence
+  // Get total with shipping in pounds
   const getTotalWithShipping = useCallback((): number => {
     const subtotal = getTotalPrice();
-    const shippingCost = getShippingCost();
+    const shippingCost = getShippingCost() / 100; // Convert from pence to pounds
     return subtotal + shippingCost;
   }, [getTotalPrice, getShippingCost]);
 

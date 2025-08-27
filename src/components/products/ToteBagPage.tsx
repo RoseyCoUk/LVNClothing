@@ -20,7 +20,8 @@ import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
-import { totebagVariants, getToteBagVariant } from '../../hooks/totebag-variants';
+import { TotebagVariants, findTotebagVariantByCatalogId } from '../../hooks/totebag-variants';
+import { Toast, useToast } from '../../components/ui/Toast';
 
 // Fix 2: Add proper TypeScript interfaces
 interface Variant {
@@ -32,6 +33,7 @@ interface Variant {
   rating: number;
   reviews: number;
   printful_variant_id: number;
+  external_id: string;
   images: string[];
 }
 
@@ -68,22 +70,35 @@ const productData = {
       { name: 'Black', value: '#000000' }
     ],
     sizes: ['One Size']
-  },
-  variants: {
-    // Only one variant for the black tote bag. Assuming 4 images.
-    401: {
-      id: 401,
+  }
+};
+
+// Create variants from Printful data
+const createToteBagVariants = (): Variants => {
+  const variants: Variants = {};
+  let variantId = 400;
+  
+  TotebagVariants.forEach((variant) => {
+    variantId++;
+    
+    variants[variantId] = {
+      id: variantId,
       color: 'Black',
-      price: 19.99,
+      price: parseFloat(variant.price || '19.99'),
       inStock: true,
       stockCount: 22,
       rating: 4,
       reviews: 156,
-      printful_variant_id: 7000,
+      printful_variant_id: variant.externalId, // Real Printful external ID for ordering
+      external_id: variant.externalId,
       images: Array.from({ length: 3 }, (_, i) => `/StickerToteWater/ReformToteBagBlack${i + 1}.webp`)
-    }
-  } as Variants
+    };
+  });
+  
+  return variants;
 };
+
+const variants = createToteBagVariants();
 
 interface ToteBagPageProps {
   onBack: () => void;
@@ -91,13 +106,14 @@ interface ToteBagPageProps {
 
 const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
   const { addToCart, addToCartAndGetUpdated } = useCart();
+  const { isVisible, message, showToast, hideToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
   const navigate = useNavigate();
   
   // Fix 4: Add proper type assertion
-  const [currentVariant] = useState(productData.variants[productData.defaultVariant as keyof typeof productData.variants]);
+  const [currentVariant] = useState(variants[productData.defaultVariant as keyof typeof variants]);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
@@ -113,6 +129,9 @@ const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
       printful_variant_id: currentVariant.printful_variant_id
     };
     addToCart(itemToAdd);
+    
+    // Show success message
+    showToast(`Added to cart!`);
   };
 
   const handleBuyNow = () => {
@@ -205,6 +224,12 @@ const ToteBagPage = ({ onBack }: ToteBagPageProps) => {
 
   return (
     <>
+      <Toast 
+        message={message}
+        isVisible={isVisible}
+        onClose={hideToast}
+        duration={3000}
+      />
       <div className="min-h-screen bg-gray-50">
       {/* Breadcrumb */}
       <div className="bg-white border-b">

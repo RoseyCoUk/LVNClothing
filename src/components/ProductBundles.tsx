@@ -57,14 +57,13 @@ interface OrderToConfirm {
 
 type BundleKey = 'starter' | 'champion' | 'activist';
 type BundleSelections = {
-  [key in BundleKey]: Record<string, { gender?: string; size?: string; color?: string }>;
+  [key in BundleKey]: Record<string, { size?: string; color?: string }>;
 };
 
 // Add type for product options
 type ProductType = 'hoodie' | 'tshirt' | 'cap';
 type ProductOptions = {
   [key in ProductType]: {
-    genders?: readonly string[];
     sizes?: readonly string[];
     colors: Color[];
   };
@@ -82,16 +81,16 @@ const ProductBundles = () => {
   // Variant selection states for each bundle
   const [bundleSelections, setBundleSelections] = useState<BundleSelections>({
     starter: {
-      tshirt: { gender: 'Men', size: 'M', color: 'Black' },
+      tshirt: { size: 'M', color: 'Black' },
       cap: { color: 'Black' },
     },
     champion: {
-      hoodie: { gender: 'Men', size: 'M', color: 'Black' },
+      hoodie: { size: 'M', color: 'Black' },
       cap: { color: 'Black' },
     },
     activist: {
-      hoodie: { gender: 'Men', size: 'M', color: 'Black' },
-      tshirt: { gender: 'Men', size: 'M', color: 'White' },
+      hoodie: { size: 'M', color: 'Black' },
+      tshirt: { size: 'M', color: 'White' },
       cap: { color: 'Blue' },
     }
   });
@@ -99,7 +98,6 @@ const ProductBundles = () => {
   // Available options for each product type
   const productOptions: ProductOptions = {
     hoodie: {
-      genders: ['Men', 'Women'] as const,
       sizes: ['S', 'M', 'L', 'XL', 'XXL'] as const,
       colors: [
         { name: 'White', value: '#FFFFFF', border: true },
@@ -107,12 +105,16 @@ const ProductBundles = () => {
         { name: 'Ash Grey', value: '#B0B0B0' },
         { name: 'Charcoal', value: '#333333' },
         { name: 'Black', value: '#000000' },
-        { name: 'Royal Blue', value: '#0B4C8A' },
-        { name: 'Red', value: '#B31217' }
+        { name: 'Navy', value: '#131928' },
+        { name: 'Red', value: '#B31217' },
+        { name: 'Dark Heather', value: '#47484d' },
+        { name: 'Indigo Blue', value: '#395d82' },
+        { name: 'Sport Grey', value: '#9b969c' },
+        { name: 'Light Blue', value: '#a1c5e1' },
+        { name: 'Light Pink', value: '#f3d4e3' }
       ] as Color[]
     },
     tshirt: {
-      genders: ['Men', 'Women'] as const,
       sizes: ['S', 'M', 'L', 'XL', 'XXL'] as const,
       colors: [
         { name: 'White', value: '#FFFFFF', border: true },
@@ -120,8 +122,21 @@ const ProductBundles = () => {
         { name: 'Ash Grey', value: '#B0B0B0' },
         { name: 'Charcoal', value: '#333333' },
         { name: 'Black', value: '#000000' },
-        { name: 'Royal Blue', value: '#0B4C8A' },
-        { name: 'Red', value: '#B31217' }
+        { name: 'Navy', value: '#1B365D' },
+        { name: 'Red', value: '#B31217' },
+        { name: 'Forest Green', value: '#2D5016' },
+        { name: 'Burgundy', value: '#800020' },
+        { name: 'Orange', value: '#FF8C00' },
+        { name: 'Yellow', value: '#FFD667' },
+        { name: 'Pink', value: '#FDbfC7' },
+        { name: 'Athletic Heather', value: '#CECECC' },
+        { name: 'Heather Dust', value: '#E5D9C9' },
+        { name: 'Ash', value: '#F0F1EA' },
+        { name: 'Mauve', value: '#BF6E6E' },
+        { name: 'Steel Blue', value: '#668EA7' },
+        { name: 'Mustard', value: '#EDA027' },
+        { name: 'Heather Deep Teal', value: '#447085' },
+        { name: 'Heather Prism Peach', value: '#F3C2B2' }
       ] as Color[]
     },
     cap: {
@@ -294,46 +309,84 @@ const ProductBundles = () => {
       [activeBundle]: {
         ...prev[activeBundle as keyof typeof prev],
         [itemType]: {
-          ...(prev[activeBundle as keyof typeof prev] as Record<string, { gender?: string; size?: string; color?: string }>)[itemType],
+          ...(prev[activeBundle as keyof typeof prev] as Record<string, { size?: string; color?: string }>)[itemType],
           [field]: value
         }
       }
     }));
   };
 
-  const getImageForSelection = (item: BundleItem) => {
-    if (!item.customizable) return item.baseImage;
+  const getProductImage = (item: BundleItem) => {
+    if (!item.customizable) {
+      return item.baseImage;
+    }
+
+    const selection = currentSelections[item.type as keyof typeof currentSelections] as { size?: string; color?: string };
+    const color = selection.color || 'Black';
     
-    const selection = currentSelections[item.type as keyof typeof currentSelections] as { gender?: string; size?: string; color?: string };
-    if (!selection) return item.baseImage;
-    
-    // Generate image path based on selection
-    if (item.type === 'hoodie' || item.type === 'tshirt') {
-      const productType = item.type === 'hoodie' ? 'Hoodie' : 'Tshirt';
-      const gender = selection.gender || 'Men';
-      const color = selection.color === 'Royal Blue' ? 'Blue' : (selection.color || 'Black').replace(/\s/g, '');
-      return `${productType}/${gender}/Reform${gender}${productType}${color}1.webp`;
-    } else if (item.type === 'cap') {
-      const color = selection.color === 'Royal Blue' ? 'Blue' : (selection.color || 'Black').replace(/\s/g, '');
-      return `Cap/ReformCap${color}1.webp`;
+    if (item.type === 'hoodie') {
+      // Map color names to image file names
+      const colorMap: { [key: string]: string } = {
+        'Black': 'Black',
+        'Navy': 'Blue', // Using Blue images for Navy
+        'Red': 'Red',
+        'Dark Heather': 'Charcoal', // Using Charcoal images for Dark Heather
+        'Indigo Blue': 'Blue',
+        'Sport Grey': 'LightGrey',
+        'Light Blue': 'Blue', // Using Blue images for Light Blue
+        'Light Pink': 'Red', // Using Red images for Light Pink
+        'White': 'White',
+        'Light Grey': 'LightGrey',
+        'Ash Grey': 'AshGrey',
+        'Charcoal': 'Charcoal'
+      };
+      
+      const colorKey = colorMap[color] || color;
+      return `Hoodie/Men/ReformMenHoodie${colorKey}1.webp`;
+    } else if (item.type === 'tshirt') {
+      // Map color names to image file names
+      const colorMap: { [key: string]: string } = {
+        'Black': 'Black',
+        'White': 'White',
+        'Light Grey': 'LightGrey',
+        'Ash Grey': 'AshGrey',
+        'Charcoal': 'Charcoal',
+        'Navy': 'Blue', // Using Blue images for Navy
+        'Red': 'Red',
+        'Forest Green': 'Green',
+        'Burgundy': 'Burgundy',
+        'Orange': 'Orange',
+        'Yellow': 'Yellow',
+        'Pink': 'Pink',
+        'Athletic Heather': 'AthleticHeather',
+        'Heather Dust': 'HeatherDust',
+        'Ash': 'Ash',
+        'Mauve': 'Mauve',
+        'Steel Blue': 'SteelBlue',
+        'Mustard': 'Mustard',
+        'Heather Deep Teal': 'HeatherDeepTeal',
+        'Heather Prism Peach': 'HeatherPrismPeach'
+      };
+      
+      const colorKey = colorMap[color] || color;
+      return `Tshirt/Men/ReformMenTshirt${colorKey}1.webp`;
     }
     
     return item.baseImage;
   };
 
-  const getVariantText = (item: BundleItem): string => {
-    if (!item.customizable) return item.variant || '';
-    
-    const selection = currentSelections[item.type as keyof typeof currentSelections] as { gender?: string; size?: string; color?: string };
-    if (!selection) return '';
+  const getVariantDescription = (item: BundleItem): string => {
+    if (!item.customizable) {
+      return item.variant || '';
+    }
+
+    const selection = currentSelections[item.type as keyof typeof currentSelections] as { size?: string; color?: string };
     
     if (item.type === 'hoodie' || item.type === 'tshirt') {
-      return `${selection.gender || 'Men'}'s ${selection.color || 'Black'} (Size ${selection.size || 'M'})`;
-    } else if (item.type === 'cap') {
-      return selection.color || 'Black';
+      return `${selection.color || 'Black'} (Size ${selection.size || 'M'})`;
     }
     
-    return '';
+    return selection.color || 'Default';
   };
 
   const ColorSwatch = ({ color, isSelected, onClick }: { color: Color, isSelected: boolean, onClick: () => void }) => (
@@ -361,8 +414,8 @@ const ProductBundles = () => {
     // Generate bundle contents with selected variants
     const bundleContents: BundleContent[] = currentBundle.items.map(item => ({
       name: item.name,
-      variant: getVariantText(item),
-      image: getImageForSelection(item)
+      variant: getVariantDescription(item),
+      image: getProductImage(item)
     }));
 
     const bundleItem = {
@@ -391,8 +444,8 @@ const ProductBundles = () => {
     // Generate bundle contents with selected variants
     const bundleContents: BundleContent[] = currentBundle.items.map(item => ({
       name: item.name,
-      variant: getVariantText(item),
-      image: getImageForSelection(item)
+      variant: getVariantDescription(item),
+      image: getProductImage(item)
     }));
 
     const bundleItem = {
@@ -564,7 +617,7 @@ const ProductBundles = () => {
                     <div key={index} className="border border-gray-200 rounded-lg p-4">
                       <div className="flex items-start space-x-4">
                         <img 
-                          src={getImageForSelection(item)} 
+                          src={getProductImage(item)} 
                           alt={item.name}
                           className="w-16 h-16 object-cover rounded-lg"
                         />
@@ -573,28 +626,6 @@ const ProductBundles = () => {
                           
                           {item.customizable ? (
                             <div className="space-y-3">
-                              {/* Gender Selection for Hoodies/T-shirts */}
-                              {(item.type === 'hoodie' || item.type === 'tshirt') && (
-                                <div>
-                                  <label className="block text-xs font-medium text-gray-600 mb-1">Gender</label>
-                                  <div className="flex gap-2">
-                                    {(productOptions[item.type as ProductType]?.genders || []).map((gender) => (
-                                      <button
-                                        key={gender}
-                                        onClick={() => updateSelection(item.type, 'gender', gender)}
-                                        className={`px-3 py-1 text-xs border rounded-md transition-colors ${
-                                          currentSelections[item.type as keyof typeof currentSelections]?.gender === gender
-                                            ? 'border-[#009fe3] bg-[#009fe3] text-white'
-                                            : 'border-gray-300 text-gray-700 hover:border-[#009fe3]'
-                                        }`}
-                                      >
-                                        {gender}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                              
                               {/* Size Selection for Hoodies/T-shirts */}
                               {(item.type === 'hoodie' || item.type === 'tshirt') && (
                                 <div>

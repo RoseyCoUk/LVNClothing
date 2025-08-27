@@ -13,7 +13,7 @@ export interface CartItem {
   price: number;
   image: string;
   quantity: number;
-  printful_variant_id?: number; // Printful variant ID for shipping calculations
+  printful_variant_id?: number | string; // Printful variant ID for shipping calculations
   isBundle?: boolean;
   bundleContents?: BundleContent[];
   originalPrice?: number; // Store original price for comparison
@@ -180,9 +180,16 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         .filter(item => item.printful_variant_id)
         .map(async (item) => {
           try {
-            const pricing = await getVariantPricing(item.printful_variant_id!);
-            if (pricing) {
-              return { itemId: item.id, pricing };
+            // Convert string variant ID to number for pricing function compatibility
+            const variantId = typeof item.printful_variant_id === 'string' 
+              ? parseInt(item.printful_variant_id, 10) || 0 
+              : item.printful_variant_id;
+            
+            if (variantId) {
+              const pricing = await getVariantPricing(variantId);
+              if (pricing) {
+                return { itemId: item.id, pricing };
+              }
             }
           } catch (error) {
             console.warn(`Failed to refresh pricing for variant ${item.printful_variant_id}:`, error);

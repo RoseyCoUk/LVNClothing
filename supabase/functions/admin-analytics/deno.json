@@ -1,0 +1,8 @@
+{
+  "functions": [
+    {
+      "name": "admin-analytics",
+      "import_map": "./import_map.json"
+    }
+  ]
+}

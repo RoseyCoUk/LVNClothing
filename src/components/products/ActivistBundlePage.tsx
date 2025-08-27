@@ -8,6 +8,7 @@ import { usePrintfulProduct } from '../../hooks/usePrintfulProducts';
 import { useBundleCalculation } from '../../hooks/useBundleCalculation';
 import { useBundlePricing } from '../../hooks/useBundlePricing';
 import type { PrintfulProduct, PrintfulVariant, BundleProduct, BundleItem } from '../../types/printful';
+import { Toast, useToast } from '../../components/ui/Toast';
 
 interface Color {
   name: string;
@@ -49,6 +50,7 @@ interface ActivistBundlePageProps {
 
 const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   const { addToCart, addToCartAndGetUpdated } = useCart();
+  const { isVisible, message, showToast, hideToast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
@@ -384,6 +386,9 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       isBundle: true,
       bundleContents: bundleContents
     });
+    
+    // Show success message
+    showToast(`Added to cart!`);
   };
 
   const handleBuyNow = () => {
@@ -487,6 +492,12 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
 
   return (
     <>
+      <Toast 
+        message={message}
+        isVisible={isVisible}
+        onClose={hideToast}
+        duration={3000}
+      />
       <div className="min-h-screen bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back Button */}

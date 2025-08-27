@@ -20,7 +20,8 @@ import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
-import { waterbottleVariants, getWaterBottleVariant } from '../../hooks/waterbottle-variants';
+import { WaterbottleVariants, findWaterbottleVariantByCatalogId } from '../../hooks/waterbottle-variants';
+import { Toast, useToast } from '../../components/ui/Toast';
 
 // Fix 2: Add proper TypeScript interfaces
 interface Color {
@@ -38,6 +39,7 @@ interface Variant {
   rating: number;
   reviews: number;
   printful_variant_id: number;
+  external_id: string;
   images: string[];
 }
 
@@ -74,22 +76,35 @@ const productData = {
       { name: 'White', value: '#FFFFFF', border: true },
     ] as Color[],
     sizes: ['500ml']
-  },
-  variants: {
-    // Only one variant for the white water bottle. Assuming 4 images.
-    501: {
-      id: 501,
+  }
+};
+
+// Create variants from Printful data
+const createWaterBottleVariants = (): Variants => {
+  const variants: Variants = {};
+  let variantId = 500;
+  
+  WaterbottleVariants.forEach((variant) => {
+    variantId++;
+    
+    variants[variantId] = {
+      id: variantId,
       color: 'White',
-      price: 24.99,
+      price: parseFloat(variant.price || '24.99'),
       inStock: true,
       stockCount: 30,
       rating: 5,
       reviews: 203,
-      printful_variant_id: 8000,
+      printful_variant_id: variant.externalId, // Real Printful external ID for ordering
+      external_id: variant.externalId,
       images: Array.from({ length: 4 }, (_, i) => `/StickerToteWater/ReformWaterBottleWhite${i + 1}.webp`)
-    }
-  } as Variants
+    };
+  });
+  
+  return variants;
 };
+
+const variants = createWaterBottleVariants();
 
 // Fix 4: Add proper typing to ColorSwatch
 const ColorSwatch = ({ color }: { color: Color }) => (
@@ -110,6 +125,7 @@ interface WaterBottlePageProps {
 
 const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
   const { addToCart, addToCartAndGetUpdated } = useCart();
+  const { isVisible, message, showToast, hideToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   // Fix 5: Add proper typing for orderToConfirm
@@ -117,7 +133,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
   const navigate = useNavigate();
   
   // Fix 6: Add proper type assertion
-  const [currentVariant] = useState(productData.variants[productData.defaultVariant as keyof typeof productData.variants]);
+  const [currentVariant] = useState(variants[productData.defaultVariant as keyof typeof variants]);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
@@ -133,7 +149,9 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
       printful_variant_id: currentVariant.printful_variant_id
     };
     addToCart(itemToAdd);
-    // Don't redirect - just add to cart
+    
+    // Show success message
+    showToast(`Added to cart!`);
   };
 
   const handleBuyNow = () => {
@@ -226,6 +244,12 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
 
   return (
     <>
+      <Toast 
+        message={message}
+        isVisible={isVisible}
+        onClose={hideToast}
+        duration={3000}
+      />
       <div className="min-h-screen bg-gray-50">
       {/* Breadcrumb */}
       <div className="bg-white border-b">

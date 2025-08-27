@@ -14,7 +14,10 @@
     "test:totebags": "tsx src/test-totebag-runner.ts",
     "test:waterbottles": "tsx src/test-waterbottle-runner.ts",
     "test:mousepads": "tsx src/test-mousepad-runner.ts",
-    "test:mugs": "tsx src/test-mug-runner.ts"
+    "test:mugs": "tsx src/test-mug-runner.ts",
+    "printful:sync": "tsx scripts/printful-sync.ts",
+    "setup:admin": "bash scripts/setup-admin.sh",
+    "deploy:admin": "bash scripts/deploy-admin-backend.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

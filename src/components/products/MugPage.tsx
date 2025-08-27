@@ -20,7 +20,8 @@ import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
-import { mugVariants, getMugVariant } from '../../hooks/mug-variants';
+import { MugVariants, findMugVariantByCatalogId } from '../../hooks/mug-variants';
+import { Toast, useToast } from '../../components/ui/Toast';
 
 // Fix 2: Add proper TypeScript interfaces
 interface Color {
@@ -38,6 +39,7 @@ interface Variant {
   rating: number;
   reviews: number;
   printful_variant_id: number;
+  external_id: string;
   images: string[];
 }
 
@@ -74,18 +76,27 @@ const productData = {
       { name: 'White', value: '#FFFFFF', border: true }
     ] as Color[], // Fix 3: Add proper typing to colors array
     sizes: ['11oz']
-  },
-  variants: {
-    // Only one variant for the mug
-    601: {
-      id: 601,
+  }
+};
+
+// Create variants from Printful data
+const createMugVariants = (): Variants => {
+  const variants: Variants = {};
+  let variantId = 600;
+  
+  MugVariants.forEach((variant) => {
+    variantId++;
+    
+    variants[variantId] = {
+      id: variantId,
       color: 'White',
-      price: 19.99,
+      price: parseFloat(variant.price || '19.99'),
       inStock: true,
       stockCount: 8,
       rating: 4,
       reviews: 156,
-      printful_variant_id: 10000,
+      printful_variant_id: variant.externalId, // Real Printful external ID for ordering
+      external_id: variant.externalId,
       images: [
         "/MugMouse/ReformMug1.webp",
         "/MugMouse/ReformMug2.webp",
@@ -93,9 +104,13 @@ const productData = {
         "/MugMouse/ReformMug4.webp",
         "/MugMouse/ReformMug5.webp"
       ]
-    }
-  } as Variants // Fix 4: Add proper typing to variants object
+    };
+  });
+  
+  return variants;
 };
+
+const variants = createMugVariants();
 
 // Fix 5: Add proper typing to ColorSwatch
 const ColorSwatch = ({ color }: { color: Color }) => (
@@ -116,6 +131,7 @@ interface MugPageProps {
 
 const MugPage = ({ onBack }: MugPageProps) => {
   const { addToCart, addToCartAndGetUpdated } = useCart();
+  const { isVisible, message, showToast, hideToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   // Fix 6: Add proper typing for orderToConfirm
@@ -123,7 +139,7 @@ const MugPage = ({ onBack }: MugPageProps) => {
   const navigate = useNavigate();
   
   // Fix 7: Add proper type assertion
-  const [currentVariant] = useState(productData.variants[productData.defaultVariant as keyof typeof productData.variants]);
+  const [currentVariant] = useState(variants[productData.defaultVariant as keyof typeof variants]);
   
   // State
   const [selectedImage, setSelectedImage] = useState(0);
@@ -141,6 +157,9 @@ const MugPage = ({ onBack }: MugPageProps) => {
       printful_variant_id: currentVariant.printful_variant_id
     };
     addToCart(itemToAdd);
+    
+    // Show success message
+    showToast(`Added to cart!`);
   };
 
   const handleBuyNow = () => {
@@ -233,6 +252,12 @@ const MugPage = ({ onBack }: MugPageProps) => {
 
   return (
     <>
+      <Toast 
+        message={message}
+        isVisible={isVisible}
+        onClose={hideToast}
+        duration={3000}
+      />
       <div className="min-h-screen bg-gray-50">
       {/* Breadcrumb */}
       <div className="bg-white border-b">

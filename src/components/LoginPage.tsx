@@ -193,26 +193,7 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
             </p>
           </div>
 
-          {/* Debug section - remove in production */}
-          <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-            <p className="text-xs text-gray-600 mb-2">Debug Info:</p>
-            <p className="text-xs text-gray-600">Supabase URL: {import.meta.env.VITE_SUPABASE_URL ? '✅ Set' : '❌ Missing'}</p>
-            <p className="text-xs text-gray-600">Supabase Key: {import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing'}</p>
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  const { session } = useAuth();
-                  alert(`Session check: ${session ? 'Session found' : 'No session'}`);
-                } catch (err) {
-                  alert('Session check failed');
-                }
-              }}
-              className="mt-2 text-xs bg-gray-500 text-white px-2 py-1 rounded"
-            >
-              Test Session
-            </button>
-          </div>
+
         </form>
 
         <div className="mt-6 text-center">

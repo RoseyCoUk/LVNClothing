@@ -1,22 +1,45 @@
 import { useState, useEffect } from 'react';
 import { pf } from '../lib/printful/client';
 import type { PrintfulProduct, PrintfulVariant } from '../types/printful';
-import { tshirtVariants } from './tshirt-variants';
-import { totebagVariants } from './totebag-variants';
-import { waterbottleVariants } from './waterbottle-variants';
-import { mousepadVariants } from './mousepad-variants';
+import { TshirtVariants } from './tshirt-variants-merged';
+import { HoodieVariants } from './hoodie-variants-merged';
+import { TotebagVariants } from './totebag-variants';
+import { WaterbottleVariants } from './waterbottle-variants';
+import { MousepadVariants } from './mousepad-variants';
 
 // Mock data for when Printful API is not available
+// Debug logging
+console.log('🔍 TshirtVariants:', TshirtVariants);
+console.log('🔍 TshirtVariants length:', TshirtVariants?.length);
+console.log('🔍 First variant:', TshirtVariants?.[0]);
+console.log('🔍 TshirtVariants type:', typeof TshirtVariants);
+console.log('🔍 TshirtVariants constructor:', TshirtVariants?.constructor?.name);
+
 const mockProducts: PrintfulProduct[] = [
   {
     id: 1,
     name: "Reform UK T-Shirt",
     description: "Premium cotton t-shirt with Reform UK branding",
     category: 'tshirt',
-    variants: tshirtVariants.map(variant => ({
-      ...variant,
-      image: `https://files.cdn.printful.com/products/71/${variant.color.toLowerCase().replace(/\s+/g, '_')}_tshirt_${variant.size.toLowerCase()}_mockup.jpg`
-    })),
+    variants: (() => {
+      try {
+        console.log('🔍 Attempting to map TshirtVariants...');
+        if (!TshirtVariants || !Array.isArray(TshirtVariants)) {
+          console.error('❌ TshirtVariants is not an array:', TshirtVariants);
+          return [];
+        }
+        return TshirtVariants.map(variant => {
+          console.log('🔍 Processing variant:', variant);
+          return {
+            ...variant,
+            image: `https://files.cdn.printful.com/products/71/tshirt_mockup.jpg`
+          };
+        });
+      } catch (error) {
+        console.error('❌ Error mapping TshirtVariants:', error);
+        return [];
+      }
+    })(),
     isUnisex: true,
     hasDarkLightVariants: true,
     image: "https://files.cdn.printful.com/products/71/black_tshirt_m_mockup.jpg",
@@ -32,122 +55,20 @@ const mockProducts: PrintfulProduct[] = [
     name: "Reform UK Hoodie",
     description: "Premium cotton hoodie with Reform UK branding",
     category: 'hoodie',
-    variants: [
-      // Black variants
-      {
-        id: 201,
-        name: "Black Hoodie - S",
-        color: "Black",
-        size: "S",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 4016,
-        color_code: "#000000",
-        image: "https://files.cdn.printful.com/products/71/black_hoodie_s_mockup.jpg"
-      },
-      {
-        id: 202,
-        name: "Black Hoodie - M",
-        color: "Black",
-        size: "M",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 4017,
-        color_code: "#000000",
-        image: "https://files.cdn.printful.com/products/71/black_hoodie_m_mockup.jpg"
-      },
-      {
-        id: 203,
-        name: "Black Hoodie - L",
-        color: "Black",
-        size: "L",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 4018,
-        color_code: "#000000",
-        image: "https://files.cdn.printful.com/products/71/black_hoodie_l_mockup.jpg"
-      },
-      {
-        id: 204,
-        name: "Black Hoodie - XL",
-        color: "Black",
-        size: "XL",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 4019,
-        color_code: "#000000",
-        image: "https://files.cdn.printful.com/products/71/black_hoodie_xl_mockup.jpg"
-      },
-      {
-        id: 205,
-        name: "Black Hoodie - 2XL",
-        color: "Black",
-        size: "2XL",
-        price: "41.99",
-        in_stock: true,
-        printful_variant_id: 4020,
-        color_code: "#000000",
-        image: "https://files.cdn.printful.com/products/71/black_hoodie_2xl_mockup.jpg"
-      },
-      // White variants
-      {
-        id: 206,
-        name: "White Hoodie - S",
-        color: "White",
-        size: "S",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 4016,
-        color_code: "#FFFFFF",
-        image: "https://files.cdn.printful.com/products/71/white_hoodie_s_mockup.jpg"
-      },
-      {
-        id: 207,
-        name: "White Hoodie - M",
-        color: "White",
-        size: "M",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 4017,
-        color_code: "#FFFFFF",
-        image: "https://files.cdn.printful.com/products/71/white_hoodie_m_mockup.jpg"
-      },
-      {
-        id: 208,
-        name: "White Hoodie - L",
-        color: "White",
-        size: "L",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 4018,
-        color_code: "#FFFFFF",
-        image: "https://files.cdn.printful.com/products/71/white_hoodie_l_mockup.jpg"
-      },
-      {
-        id: 209,
-        name: "White Hoodie - XL",
-        color: "White",
-        size: "XL",
-        price: "39.99",
-        in_stock: true,
-        printful_variant_id: 4019,
-        color_code: "#FFFFFF",
-        image: "https://files.cdn.printful.com/products/71/white_hoodie_xl_mockup.jpg"
-      },
-      {
-        id: 210,
-        name: "White Hoodie - 2XL",
-        color: "White",
-        size: "2XL",
-        price: "41.99",
-        in_stock: true,
-        printful_variant_id: 4020,
-        color_code: "#FFFFFF",
-        image: "https://files.cdn.printful.com/products/71/white_hoodie_2xl_mockup.jpg"
-      }
-    ],
+    variants: HoodieVariants.map(variant => ({
+      ...variant,
+      id: variant.catalogVariantId,
+      name: `${variant.color} Hoodie - ${variant.size}`,
+      color: variant.color,
+      size: variant.size,
+      price: variant.price || "39.99",
+      in_stock: true,
+      printful_variant_id: variant.catalogVariantId,
+      color_code: variant.colorHex || "#000000",
+      image: `https://files.cdn.printful.com/products/71/${variant.color.toLowerCase().replace(/\s+/g, '_')}_hoodie_${variant.size.toLowerCase()}_mockup.jpg`
+    })),
     isUnisex: true,
-    hasDarkLightVariants: true,
+    hasDarkLightVariants: false,
     image: "https://files.cdn.printful.com/products/71/black_hoodie_m_mockup.jpg",
     brand: "Reform UK",
     model: "Premium Cotton",
@@ -272,7 +193,7 @@ const mockProducts: PrintfulProduct[] = [
     name: "Reform UK Tote Bag",
     description: "Eco-friendly canvas tote bag with Reform UK branding",
     category: 'tote',
-    variants: totebagVariants,
+    variants: TotebagVariants,
     isUnisex: true,
     hasDarkLightVariants: false,
     image: "/StickerToteWater/ReformToteBagBlack1.webp",
@@ -288,7 +209,7 @@ const mockProducts: PrintfulProduct[] = [
     name: "Reform UK Water Bottle",
     description: "Stainless steel water bottle with Reform UK logo",
     category: 'water-bottle',
-    variants: waterbottleVariants,
+    variants: WaterbottleVariants,
     isUnisex: true,
     hasDarkLightVariants: false,
     image: "/StickerToteWater/ReformWaterBottleWhite1.webp",
@@ -304,7 +225,7 @@ const mockProducts: PrintfulProduct[] = [
     name: "Reform UK Mouse Pad",
     description: "High-quality mouse pad with Reform UK branding",
     category: 'mouse-pad',
-    variants: mousepadVariants,
+    variants: MousepadVariants,
     isUnisex: true,
     hasDarkLightVariants: false,
     image: "/MugMouse/ReformMousePadWhite1.webp",
