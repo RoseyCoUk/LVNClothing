@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Menu, X, User, LogOut, Package } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, LogOut, Package, Settings, Heart } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useAdminAuth } from '../contexts/AdminAuthContext';
+import ProductSearch from './ProductSearch';
+import { useNavigate } from 'react-router-dom';
+import { Product } from '../lib/api';
 
 interface HeaderProps {
   currentPage: string;
@@ -16,6 +20,8 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { getTotalItems, setIsCartOpen } = useCart();
   const { user, signOut } = useAuth();
+  const { adminUser } = useAdminAuth();
+  const navigate = useNavigate();
 
   const totalItems = getTotalItems();
 
@@ -35,6 +41,11 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
     window.scrollTo(0, 0);
   };
 
+  const handleLogoClick = () => {
+    // Logo should always go to homepage
+    window.location.href = '/';
+  };
+
   const handleCartClick = () => {
     setIsCartOpen(true);
   };
@@ -42,6 +53,10 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
   const handleSignOut = async () => {
     await signOut();
     setIsUserMenuOpen(false);
+  };
+
+  const handleProductSelect = (product: Product) => {
+    navigate(`/product/${product.id}`);
   };
 
   return (
@@ -52,7 +67,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <button
-            onClick={() => handleNavigation('home')}
+            onClick={handleLogoClick}
             className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
             aria-label="Go to homepage"
           >
@@ -74,10 +89,30 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
 
           </button>
 
+          {/* Search Bar - Desktop */}
+          <div className="hidden lg:block flex-1 max-w-lg mx-8">
+            <ProductSearch 
+              onProductSelect={handleProductSelect}
+              placeholder="Search premium Christian streetwear..."
+              className="w-full"
+            />
+          </div>
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8" role="navigation" aria-label="Main navigation">
             <button
-              onClick={() => handleNavigation('shop')}
+              onClick={() => window.location.href = '/'}
+              className={`font-medium transition-colors ${
+                currentPage === 'home'
+                  ? 'text-lvn-maroon'
+                  : 'text-lvn-black hover:text-lvn-maroon'
+              }`}
+              aria-current={currentPage === 'home' ? 'page' : undefined}
+            >
+              Home
+            </button>
+            <button
+              onClick={() => window.location.href = '/shop'}
               className={`font-medium transition-colors ${
                 currentPage === 'shop'
                   ? 'text-lvn-maroon'
@@ -88,7 +123,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
               Shop
             </button>
             <button
-              onClick={() => handleNavigation('about')}
+              onClick={() => window.location.href = '/about'}
               className={`font-medium transition-colors ${
                 currentPage === 'about'
                   ? 'text-lvn-maroon'
@@ -99,7 +134,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
               About
             </button>
             <button
-              onClick={() => handleNavigation('contact')}
+              onClick={() => window.location.href = '/contact'}
               className={`font-medium transition-colors ${
                 currentPage === 'contact'
                   ? 'text-lvn-maroon'
@@ -135,24 +170,49 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                       <p className="text-sm font-medium text-lvn-black">
                         {user.user_metadata?.full_name || user.email}
                       </p>
-                      <p className="text-xs text-gray-500">{user.email}</p>
-                    </div>
-                    
-                    <button
+                                        <p className="text-xs text-gray-500">{user.email}</p>
+                </div>
+                
+                                    <button
                       onClick={() => {
-                        handleNavigation('account');
+                        navigate('/profile');
                         setIsUserMenuOpen(false);
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-lvn-black hover:bg-lvn-off-white flex items-center space-x-2"
                       role="menuitem"
                     >
                       <User className="w-4 h-4" />
-                      <span>My Account</span>
+                      <span>My Profile</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        navigate('/wishlist');
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-lvn-black hover:bg-lvn-off-white flex items-center space-x-2"
+                      role="menuitem"
+                    >
+                      <Heart className="w-4 h-4" />
+                      <span>My Wishlist</span>
+                    </button>
+
+                    {/* Admin Dashboard Link */}
+                    <button
+                      onClick={() => {
+                        window.location.href = '/admin';
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-lvn-black hover:bg-lvn-off-white flex items-center space-x-2"
+                      role="menuitem"
+                    >
+                      <Settings className="w-4 h-4" />
+                      <span>Admin Dashboard</span>
                     </button>
                     
                     <button
                       onClick={() => {
-                        handleNavigation('orders');
+                        window.location.href = '/orders';
                         setIsUserMenuOpen(false);
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-lvn-black hover:bg-lvn-off-white flex items-center space-x-2"
@@ -223,7 +283,29 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-lvn-white border-t border-gray-200 shadow-lg">
+          {/* Mobile Search */}
+          <div className="px-4 py-4 border-b border-gray-200">
+            <ProductSearch 
+              onProductSelect={(product) => {
+                handleProductSelect(product);
+                setIsMenuOpen(false);
+              }}
+              placeholder="Search products..."
+              className="w-full"
+            />
+          </div>
+          
           <div className="px-4 py-2 space-y-1">
+            <button
+              onClick={() => handleNavigation('home')}
+              className={`w-full text-left px-4 py-3 font-medium transition-colors rounded-none ${
+                currentPage === 'home'
+                  ? 'text-lvn-maroon bg-lvn-off-white'
+                  : 'text-lvn-black hover:bg-lvn-off-white'
+              }`}
+            >
+              Home
+            </button>
             <button
               onClick={() => handleNavigation('shop')}
               className={`w-full text-left px-4 py-3 font-medium transition-colors rounded-none ${

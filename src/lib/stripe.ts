@@ -1,173 +1,77 @@
-import { supabase } from './supabase';
+import { loadStripe } from '@stripe/stripe-js';
 
-export interface CheckoutSessionRequest {
-  price_id?: string;
-  line_items?: Array<{
-    price_data: {
-      currency: string;
-      product_data: {
-        name: string;
-        images?: string[];
-      };
-      unit_amount: number;
-    };
-    quantity: number;
-  }>;
-  metadata?: Record<string, string>;
-  success_url: string;
-  cancel_url: string;
-  mode: 'payment' | 'subscription';
-  customer_email?: string;
-  shipping_rate_id?: string;
+// Initialize Stripe with publishable key
+const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_51234567890abcdef...'; // Placeholder
+
+if (!stripePublishableKey) {
+  console.warn('Stripe publishable key not found. Please add VITE_STRIPE_PUBLISHABLE_KEY to your environment variables.');
 }
 
-export interface CheckoutSessionResponse {
-  id: string;           // Stripe returns 'id' for the session ID
-  url: string;          // Stripe checkout URL
-  sessionId?: string;   // Keep for backward compatibility
-}
+// This is safe to call on the client side
+export const stripePromise = loadStripe(stripePublishableKey);
 
-export async function createCheckoutSession(request: CheckoutSessionRequest): Promise<CheckoutSessionResponse> {
+// Payment intent creation function
+export const createPaymentIntent = async (amount: number, currency: string = 'gbp', metadata?: any) => {
   try {
-    const { data, error } = await supabase.functions.invoke('stripe-checkout', {
-      body: request,
+    const response = await fetch('/api/create-payment-intent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        amount: Math.round(amount * 100), // Convert to pence
+        currency,
+        metadata
+      }),
     });
 
-    if (error) {
-      throw new Error(error.message || 'Failed to create checkout session');
+    if (!response.ok) {
+      throw new Error('Failed to create payment intent');
     }
 
-    if (!data) {
-      throw new Error('No data returned from checkout function');
-    }
-
-    return data;
+    return await response.json();
   } catch (error) {
-    throw error instanceof Error 
-      ? error 
-      : new Error('Failed to create checkout session');
-  }
-}
-
-export async function getUserOrders() {
-  try {
-    // Get the current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
-    if (userError || !user) {
-      console.warn('getUserOrders: No authenticated user found');
-      return [];
-    }
-
-    // Query orders for the authenticated user by both user_id and customer_email
-    // This handles cases where orders might not have user_id populated yet
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .or(`user_id.eq.${user.id},customer_email.eq.${user.email}`)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('getUserOrders: Error fetching orders:', error);
-      return [];
-    }
-
-    return data || [];
-  } catch (error) {
-    console.error('getUserOrders: Unexpected error:', error);
-    return [];
-  }
-}
-
-export async function getUserSubscription() {
-  try {
-    const { data, error } = await supabase
-      .from('stripe_user_subscriptions')
-      .select('*')
-      .maybeSingle();
-
-    if (error) {
-      return null;
-    }
-
-    return data;
-  } catch (error) {
-    return null;
-  }
-}
-
-export async function trackOrderByNumber(orderNumber: string, email: string) {
-  try {
-    // Query order by readable_order_id and customer_email
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('readable_order_id', orderNumber)
-      .eq('customer_email', email)
-      .single();
-
-    if (error) {
-      return null;
-    }
-
-    return data;
-  } catch (error) {
-    return null;
-  }
-}
-
-export async function reorderFromOrder(orderId: string) {
-  try {
-    // Get the current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
-    if (userError || !user) {
-      throw new Error('User not authenticated');
-    }
-
-    // Get the order details
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('id', orderId)
-      .eq('user_id', user.id)
-      .single();
-
-    if (orderError || !order) {
-      throw new Error('Order not found or access denied');
-    }
-
-    // Parse order items
-    let orderItems = [];
-    try {
-      orderItems = Array.isArray(order.items) ? order.items : JSON.parse(order.items);
-    } catch (parseError) {
-      throw new Error('Invalid order items format');
-    }
-
-    if (!Array.isArray(orderItems) || orderItems.length === 0) {
-      throw new Error('No items found in order');
-    }
-
-    // Convert to cart format
-    const cartItems = orderItems.map((item: any) => ({
-      id: item.printful_variant_id || item.id || `item_${Date.now()}_${Math.random()}`,
-      name: item.name || item.product_name || 'Unknown Product',
-      price: item.price || (item.price_pence ? item.price_pence / 100 : 0),
-      quantity: item.quantity || 1,
-      image: item.image || '/placeholder-product.png',
-      printful_variant_id: item.printful_variant_id,
-      variant: item.variant
-    }));
-
-    return {
-      success: true,
-      items: cartItems,
-      orderId: order.id,
-      orderNumber: order.readable_order_id
-    };
-  } catch (error) {
-    console.error('Reorder error:', error);
+    console.error('Error creating payment intent:', error);
     throw error;
   }
-}
+};
+
+// Helper function to format price for Stripe
+export const formatPriceForStripe = (price: number): number => {
+  return Math.round(price * 100); // Convert pounds to pence
+};
+
+// Helper function to format price for display
+export const formatPriceForDisplay = (priceInPence: number): string => {
+  return (priceInPence / 100).toFixed(2);
+};
+
+// Stripe appearance configuration for LVN branding
+export const stripeAppearance = {
+  theme: 'stripe' as const,
+  variables: {
+    colorPrimary: '#800000', // LVN maroon
+    colorBackground: '#ffffff',
+    colorText: '#000000',
+    colorDanger: '#df1b41',
+    fontFamily: 'Inter, system-ui, sans-serif',
+    spacingUnit: '4px',
+    borderRadius: '8px',
+  },
+  rules: {
+    '.Input': {
+      border: '1px solid #e5e7eb',
+      boxShadow: 'none',
+    },
+    '.Input:focus': {
+      borderColor: '#800000',
+      boxShadow: '0 0 0 2px rgba(128, 0, 0, 0.1)',
+    },
+    '.Label': {
+      fontWeight: '500',
+      marginBottom: '8px',
+    },
+  },
+};
+
+export default stripePromise;

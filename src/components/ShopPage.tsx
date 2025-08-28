@@ -234,7 +234,7 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
             <p className="text-lg text-lvn-black/70 max-w-2xl mx-auto mb-4 scripture-quote">
               "Shelter. Strength. Style."
             </p>
-            <p className="text-lvn-maroon font-medium">Psalm 91 Inspired Apparel</p>
+            <p className="text-lvn-maroon font-medium">Matthew 13:33 Inspired Apparel</p>
           </div>
         </div>
       </section>

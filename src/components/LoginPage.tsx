@@ -16,23 +16,16 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
   const { signIn } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
-    console.log('🔍 handleLogin called with event:', e.type);
     e.preventDefault();
-    console.log('Login form submitted with:', { email, password: password ? '[REDACTED]' : 'empty' });
-    
     setIsLoading(true);
     setMessage(null);
 
     try {
-      console.log('Attempting authentication...');
       const { error } = await signIn(email, password);
-
-      console.log('Auth response:', { error: error?.message });
 
       if (error) {
         let errorMessage = error.message;
         
-        // Provide more user-friendly error messages
         if (error.message.includes('Invalid login credentials')) {
           errorMessage = 'Invalid email or password. Please try again.';
         } else if (error.message.includes('Email not confirmed')) {
@@ -43,12 +36,9 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
           errorMessage = 'No account found with this email address. Please sign up first.';
         }
         
-        console.log('Setting error message:', errorMessage);
         setMessage({ type: 'error', text: errorMessage });
       } else {
-        console.log('Login successful, setting success message');
         setMessage({ type: 'success', text: 'Successfully logged in!' });
-        // The auth state change will be handled by the parent component
         setTimeout(() => {
           onBack();
         }, 1000);
@@ -62,48 +52,54 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-lvn-off-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-lvnBg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <button
-            onClick={onBack}
-            className="flex items-center space-x-2 text-lvn-black/70 hover:text-lvn-maroon transition-colors mb-8"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to Shop</span>
-          </button>
+        {/* Back Button */}
+        <button
+          onClick={onBack}
+          className="flex items-center space-x-2 text-lvn-black/70 hover:text-lvn-maroon transition-colors mb-4"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span>Back to LVN</span>
+        </button>
+        
+        {/* Header */}
+        <div className="text-center">
+          <img 
+            src="/Leaven Logo.png" 
+            alt="LVN Clothing" 
+            className="h-16 w-auto mx-auto mb-6"
+          />
+          <h2 className="text-3xl font-bold text-lvn-black mb-2">
+            Welcome Back
+          </h2>
+          <p className="text-lvn-black/70 mb-6">
+            Sign in to your LVN Clothing account and continue spreading the Kingdom
+          </p>
           
-          <div className="text-center">
-            <img 
-              src="/Leaven Logo.png" 
-              alt="LVN Clothing" 
-              className="h-12 w-auto mx-auto mb-4"
-            />
-            <h2 className="text-3xl font-bold text-lvn-black">
-              Welcome Back
-            </h2>
-            <p className="mt-2 text-sm text-lvn-black/70">
-              Sign in to access your LVN Clothing account and orders
-            </p>
+          {/* Kingdom Mission Statement */}
+          <div className="bg-lvn-white p-4 rounded-none shadow-sm mb-6">
+            <div className="text-lvn-maroon italic text-sm mb-2">
+              "The kingdom of heaven is like leaven that a woman took and hid in three measures of flour, till it was all leavened."
+            </div>
+            <div className="text-xs text-lvn-black/60 font-medium">
+              — Matthew 13:33
+            </div>
           </div>
         </div>
 
+        {/* Login Form */}
         <form 
-          className="mt-8 space-y-6" 
+          className="mt-8 space-y-6 bg-lvn-white p-8 rounded-none shadow-sm" 
           onSubmit={handleLogin}
-          data-testid="login-form"
-          action="#"
-          method="post"
         >
           <div className="space-y-4">
+            {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-lvn-black mb-2">
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-lvn-black/40" />
-                </div>
                 <input
                   id="email"
                   name="email"
@@ -112,20 +108,21 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none relative block w-full px-3 py-3 pl-10 border border-lvn-black/20 rounded-none placeholder-lvn-black/50 text-lvn-black bg-lvn-white focus:outline-none focus:ring-2 focus:ring-lvn-maroon focus:border-transparent"
-                  placeholder="Enter your email"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-none focus:outline-none focus:ring-2 focus:ring-lvn-maroon focus:border-transparent transition-colors"
+                  placeholder="your@email.com"
                 />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <Mail className="h-5 w-5 text-lvn-black/40" />
+                </div>
               </div>
             </div>
 
+            {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-lvn-black mb-2">
                 Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-lvn-black/40" />
-                </div>
                 <input
                   id="password"
                   name="password"
@@ -134,69 +131,80 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none relative block w-full px-3 py-3 pl-10 pr-10 border border-lvn-black/20 rounded-none placeholder-lvn-black/50 text-lvn-black bg-lvn-white focus:outline-none focus:ring-2 focus:ring-lvn-maroon focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-none focus:outline-none focus:ring-2 focus:ring-lvn-maroon focus:border-transparent transition-colors"
                   placeholder="Enter your password"
                 />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-lvn-black/40 hover:text-lvn-black" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-lvn-black/40 hover:text-lvn-black" />
-                  )}
-                </button>
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-lvn-black/40 hover:text-lvn-maroon transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
+          {/* Message Display */}
           {message && (
-            <div className={`flex items-center space-x-2 p-3 rounded-none border ${
+            <div className={`p-4 rounded-none border ${
               message.type === 'error' 
                 ? 'bg-red-50 border-red-200 text-red-800' 
                 : 'bg-green-50 border-green-200 text-green-800'
             }`}>
-              {message.type === 'error' ? (
-                <AlertCircle className="w-5 h-5" />
-              ) : (
-                <CheckCircle className="w-5 h-5" />
-              )}
-              <span className="text-sm font-medium">{message.text}</span>
+              <div className="flex items-center space-x-2">
+                {message.type === 'error' ? (
+                  <AlertCircle className="h-5 w-5" />
+                ) : (
+                  <CheckCircle className="h-5 w-5" />
+                )}
+                <span className="text-sm font-medium">{message.text}</span>
+              </div>
             </div>
           )}
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-none text-lvn-white bg-lvn-maroon hover:bg-lvn-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lvn-maroon disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isLoading ? (
-                <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-lvn-white"></div>
-                  <span>Signing in...</span>
-                </div>
-              ) : (
-                'Sign in'
-              )}
-            </button>
-          </div>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full btn-lvn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+          >
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-lvn-white"></div>
+                <span>Signing In...</span>
+              </>
+            ) : (
+              <span>Sign In to LVN</span>
+            )}
+          </button>
 
+          {/* Sign Up Link */}
           <div className="text-center">
-            <p className="text-sm text-lvn-black/70">
+            <p className="text-sm text-lvn-black/60">
               Don't have an account?{' '}
               <button
                 type="button"
                 onClick={onSignupClick}
-                className="font-medium text-lvn-maroon hover:text-lvn-black transition-colors"
+                className="text-lvn-maroon hover:text-lvn-black font-medium transition-colors"
               >
-                Sign up here
+                Sign up for LVN Clothing
               </button>
             </p>
           </div>
         </form>
+
+        {/* Kingdom Mission Footer */}
+        <div className="text-center bg-lvn-maroon text-white p-4 rounded-none">
+          <p className="text-sm">
+            Join the Kingdom movement. Every LVN garment carries the Gospel message.
+          </p>
+          <p className="text-xs opacity-80 mt-1">
+            Christus Victor • Cultural Leaven • Gospel Witness
+          </p>
+        </div>
       </div>
     </div>
   );

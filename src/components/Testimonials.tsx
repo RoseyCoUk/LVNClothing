@@ -19,7 +19,7 @@ const Testimonials = () => {
       name: "Michael Johnson",
       location: "Birmingham",
       rating: 5,
-      text: "Finally, clothing I can wear with pride that reflects my faith. The t-shirt fits perfectly and the Psalm 91 message is exactly what I need daily.",
+              text: "Finally, clothing I can wear with pride that reflects my faith. The t-shirt fits perfectly and the Kingdom leaven message is exactly what I need daily.",
       product: "T-Shirt",
       verified: true
     },
@@ -64,7 +64,7 @@ const Testimonials = () => {
       name: "Sarah O'Connor",
       location: "Belfast, Northern Ireland",
       rating: 5,
-      text: "Delighted with my LVN gear. The hoodie is warm and comfortable, and the Psalm 91 message brings me peace every day.",
+              text: "Delighted with my LVN gear. The hoodie is warm and comfortable, and the Kingdom leaven message brings me peace every day.",
       product: "Hoodie",
       verified: true
     }
@@ -97,9 +97,8 @@ const Testimonials = () => {
             What Our Community Says
           </h2>
           <p className="text-lg text-lvn-black/70 scripture-quote">
-            "He who dwells in the shelter of the Most High"
+            "He who dwells in the shelter of the Most High will abide in the shadow of the almighty"
           </p>
-          <p className="text-sm text-lvn-maroon font-medium mt-2">Psalm 91:1</p>
         </div>
 
         {/* Hero Testimonial */}

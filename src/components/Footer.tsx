@@ -20,9 +20,9 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center">
             <div className="scripture-quote text-2xl md:text-3xl text-lvn-maroon mb-2">
-              "For he will command his angels concerning you to guard you in all your ways."
+              "The kingdom of heaven is like leaven that a woman took and hid in three measures of flour, till it was all leavened."
             </div>
-            <p className="text-sm text-lvn-white/70">Psalm 91:11</p>
+            <p className="text-sm text-lvn-white/70">Matthew 13:33</p>
           </div>
         </div>
       </div>
@@ -64,11 +64,11 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
               <span className="font-bold text-lg">LVN Clothing</span>
             </div>
             <p className="text-lvn-white/70 mb-3 text-sm leading-relaxed">
-              Premium Christian streetwear inspired by Psalm 91. 
-              Under His Wings - Shelter. Strength. Style.
+              Premium Christian streetwear inspired by Matthew 13:33. 
+              Kingdom Leaven - Cultural transformation through faith.
             </p>
             <p className="text-lvn-white/70 mb-4 text-sm leading-relaxed">
-              Dwell. Abide. LVN.
+              Every piece carries the Gospel message.
             </p>
             <div className="flex space-x-4">
               <a href="https://www.facebook.com/profile.php?id=61578282817124" target="_blank" rel="noopener noreferrer" className="text-lvn-white/70 hover:text-lvn-maroon transition-colors">
@@ -122,23 +122,16 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
           </div>
         </div>
 
-        {/* Newsletter Signup */}
+        {/* Community Message */}
         <div className="border-t border-lvn-white/20 mt-8 pt-8">
           <div className="max-w-md mx-auto text-center">
-            <h4 className="font-semibold mb-2">Stay Connected</h4>
-            <p className="text-sm text-lvn-white/70 mb-4">
-              Join our community and be the first to know about new collections and exclusive offers.
+            <h4 className="font-semibold mb-2">Join the Kingdom Movement</h4>
+            <p className="text-sm text-lvn-white/70 mb-2">
+              Subscribe to our newsletter above to join our faith community and be the first to know about new collections.
             </p>
-            <div className="flex">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-2 bg-lvn-white/10 border border-lvn-white/20 text-lvn-white placeholder-lvn-white/50 focus:outline-none focus:border-lvn-maroon"
-              />
-              <button className="bg-lvn-maroon text-lvn-white px-4 py-2 hover:bg-lvn-maroon/80 transition-colors">
-                <Mail className="w-4 h-4" />
-              </button>
-            </div>
+            <p className="text-xs text-lvn-white/60">
+              Spreading the Kingdom, one piece at a time.
+            </p>
           </div>
         </div>
 
@@ -148,7 +141,7 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
             <div className="flex items-center space-x-4 mb-4 md:mb-0">
               <span>© 2024 LVN Clothing. All rights reserved.</span>
               <span>•</span>
-              <span>Under His Wings - Psalm 91</span>
+                              <span>Kingdom Leaven - Matthew 13:33</span>
             </div>
             <div className="flex items-center space-x-4">
               <span>Premium Christian Streetwear</span>

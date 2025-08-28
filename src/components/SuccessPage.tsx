@@ -160,7 +160,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
           </h1>
           <p className="text-lg text-lvn-black/70 mb-6">
             Your LVN Clothing order has been confirmed. <br />
-            <span className="text-lvn-maroon font-medium">Psalm 91 – He is your refuge.</span>
+            <span className="text-lvn-maroon font-medium">Matthew 13:33 – Kingdom leaven transforms all.</span>
           </p>
           
           {readableOrderId && (
@@ -250,7 +250,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
           <div className="scripture-quote text-2xl mb-2">
             "For he will command his angels concerning you to guard you in all your ways."
           </div>
-          <p className="text-lvn-white/80">Psalm 91:11</p>
+          <p className="text-lvn-white/80">Matthew 13:33</p>
         </div>
 
         {/* Action Buttons */}

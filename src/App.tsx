@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -14,12 +14,29 @@ import Testimonials from './components/Testimonials';
 import EmailSignup from './components/EmailSignup';
 import CartDrawer from './components/CartDrawer';
 import CheckoutPage from './components/CheckoutPage';
-import AboutPage from './components/AboutPage';
+import StripeCheckoutPage from './components/StripeCheckoutPage';
+import ProductDetailPage from './components/ProductDetailPage';
+import ExitIntentPopup, { useExitIntent } from './components/ExitIntentPopup';
+import SocialProofNotification from './components/SocialProofNotification';
+import UserProfile from './components/UserProfile';
+import WishlistPage from './components/WishlistPage';
+
+
+// Admin Components
+import AdminLoginPage from './components/admin/AdminLoginPage';
+import AdminLayout from './components/admin/AdminLayout';
+import AdminOverviewPage from './components/admin/AdminOverviewPage';
+import AdminOrdersPage from './components/admin/AdminOrdersPage';
+import AdminProductsPage from './components/admin/AdminProductsPage';
+import AdminCustomersPage from './components/admin/AdminCustomersPage';
+import AdminSettingsPage from './components/admin/AdminSettingsPage';
+import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
 
 // Context Providers
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { ShippingProvider } from './contexts/ShippingContext';
+import { AdminAuthProvider } from './contexts/AdminAuthContext';
 
 // Error Boundary
 import ErrorBoundary from './components/ErrorBoundary';
@@ -27,10 +44,9 @@ import ErrorBoundary from './components/ErrorBoundary';
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { showPopup, closePopup } = useExitIntent();
 
-  const handleBackToHome = () => {
-    navigate('/');
-  };
+
 
   // Determine current page for header
   const currentPage = location.pathname === '/' ? 'home' : 
@@ -38,37 +54,50 @@ function AppContent() {
                      location.pathname === '/about' ? 'about' : 
                      location.pathname === '/contact' ? 'contact' : 'other';
 
+  // Check if we're on an admin page
+  const isAdminPage = location.pathname.startsWith('/admin');
+
   return (
     <div className="min-h-screen bg-lvnBg" role="application" aria-label="LVN Clothing - Premium Christian Streetwear">
-      <Header 
-        currentPage={currentPage} 
-        setCurrentPage={(page) => {
-          switch (page) {
-            case 'home':
-              navigate('/');
-              break;
-            case 'shop':
-              navigate('/shop');
-              break;
-            case 'about':
-              navigate('/about');
-              break;
-            case 'contact':
-              navigate('/contact');
-              break;
-            default:
-              navigate('/');
-          }
-        }}
-      />
-      
-      <UrgencyBar />
+      {/* Only show Header and UrgencyBar on non-admin pages */}
+      {!isAdminPage && (
+        <>
+          <Header 
+            currentPage={currentPage} 
+            setCurrentPage={(page) => {
+              switch (page) {
+                case 'home':
+                  navigate('/');
+                  break;
+                case 'shop':
+                  navigate('/shop');
+                  break;
+                case 'about':
+                  navigate('/about');
+                  break;
+                case 'contact':
+                  navigate('/contact');
+                  break;
+                default:
+                  navigate('/');
+              }
+            }}
+            onLoginClick={() => navigate('/login')}
+            onSignupClick={() => navigate('/signup')}
+          />
+          
+          <UrgencyBar />
+        </>
+      )}
       
       <main>
         <Routes>
           <Route path="/" element={
             <>
-              <Hero onShopClick={() => navigate('/shop')} />
+              <Hero 
+                onShopClick={() => navigate('/shop')} 
+                onStoryClick={() => navigate('/about')}
+              />
               <TopSellers onViewAllClick={() => navigate('/shop')} />
               <MovementSection />
               <Testimonials />
@@ -102,8 +131,14 @@ function AppContent() {
           } />
           
           <Route path="/checkout" element={
-            <CheckoutPage onBack={() => navigate('/')} />
+            <StripeCheckoutPage onBack={() => navigate('/')} />
           } />
+          
+          <Route path="/product/:productId" element={<ProductDetailPage />} />
+          
+          <Route path="/profile" element={<UserProfile />} />
+          
+          <Route path="/wishlist" element={<WishlistPage />} />
           
           <Route path="/about" element={
             <div className="min-h-screen bg-lvnBg py-20">
@@ -227,11 +262,35 @@ function AppContent() {
               </div>
             </div>
           } />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route 
+            path="/admin/*" 
+            element={
+              <ProtectedAdminRoute>
+                <AdminLayout />
+              </ProtectedAdminRoute>
+            }
+          >
+            <Route index element={<AdminOverviewPage />} />
+            <Route path="orders" element={<AdminOrdersPage />} />
+            <Route path="products" element={<AdminProductsPage />} />
+            <Route path="customers" element={<AdminCustomersPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
+          </Route>
         </Routes>
       </main>
       
-      <CartDrawer onCheckoutClick={() => navigate('/checkout')} />
-      <Footer />
+      {/* Only show CartDrawer and Footer on non-admin pages */}
+      {!isAdminPage && (
+        <>
+          <CartDrawer onCheckoutClick={() => navigate('/checkout')} />
+          <Footer />
+          <ExitIntentPopup isVisible={showPopup} onClose={closePopup} />
+          <SocialProofNotification />
+        </>
+      )}
     </div>
   );
 }
@@ -240,13 +299,15 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <CartProvider>
-          <ShippingProvider>
-            <Router>
-              <AppContent />
-            </Router>
-          </ShippingProvider>
-        </CartProvider>
+        <AdminAuthProvider>
+          <CartProvider>
+            <ShippingProvider>
+              <Router>
+                <AppContent />
+              </Router>
+            </ShippingProvider>
+          </CartProvider>
+        </AdminAuthProvider>
       </AuthProvider>
     </ErrorBoundary>
   );

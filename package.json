@@ -17,7 +17,15 @@
     "test:mugs": "tsx src/test-mug-runner.ts"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@stripe/react-stripe-js": "^3.9.2",
+    "@stripe/stripe-js": "^7.9.0",
     "@supabase/supabase-js": "^2.49.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "lucide-react": "^0.344.0",
     "openapi-fetch": "^0.14.0",
     "playwright": "^1.55.0",
@@ -25,8 +33,10 @@
     "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.3",
+    "recharts": "^3.1.2",
     "resend": "^4.6.0",
-    "supabase": "^2.30.4"
+    "supabase": "^2.30.4",
+    "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
@@ -41,6 +51,7 @@
     "openapi-typescript": "^7.9.1",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
+    "terser": "^5.43.1",
     "tsx": "^4.20.5",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.3.0",

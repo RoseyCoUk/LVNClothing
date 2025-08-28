@@ -98,7 +98,7 @@ const EmailSignup = () => {
                 Join Our Faith Community
               </h2>
               <p className="text-xl text-lvn-white/80 max-w-2xl mx-auto mb-4">
-                Be the first to know about new collections, exclusive offers, and daily inspiration from Psalm 91.
+                Be the first to know about new collections, exclusive offers, and daily inspiration from Matthew 13:33.
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-sm">
@@ -166,7 +166,7 @@ const EmailSignup = () => {
               Welcome to LVN Clothing!
             </h2>
             <p className="text-xl text-lvn-white/80 max-w-2xl mx-auto mb-6">
-              Thank you for joining our faith community. You'll receive updates about new collections and daily inspiration from Psalm 91.
+              Thank you for joining our faith community. You'll receive updates about new collections and daily inspiration from Matthew 13:33.
             </p>
             <div className="bg-lvn-white/10 border border-lvn-white/20 rounded-none p-4 max-w-md mx-auto">
               <p className="text-sm text-lvn-white/80">

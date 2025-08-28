@@ -51,6 +51,72 @@ const TopSellers = ({ onViewAllClick }: TopSellersProps) => {
     .sort((a, b) => (b.reviews || 0) - (a.reviews || 0))
     .slice(0, 3);
 
+  // Generate structured data for SEO
+  const generateProductStructuredData = (products: Product[]) => {
+    const itemListElement = products.map((product, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Product",
+        "@id": `https://lvnclothing.com/product/${product.slug}`,
+        "name": product.name,
+        "description": product.description,
+        "image": product.image_url,
+        "brand": {
+          "@type": "Brand",
+          "name": "LVN Clothing"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": product.price,
+          "priceCurrency": "GBP",
+          "availability": product.stock_quantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          "seller": {
+            "@type": "Organization",
+            "name": "LVN Clothing"
+          }
+        },
+        "category": product.category,
+        "aggregateRating": product.reviews ? {
+          "@type": "AggregateRating",
+          "ratingValue": "5",
+          "reviewCount": product.reviews,
+          "bestRating": "5",
+          "worstRating": "1"
+        } : undefined
+      }
+    }));
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "LVN Clothing Featured Collection",
+      "description": "Premium Christian streetwear inspired by Matthew 13:33",
+      "numberOfItems": products.length,
+      "itemListElement": itemListElement
+    };
+  };
+
+  // Inject structured data
+  useEffect(() => {
+    if (products.length > 0) {
+      const structuredData = generateProductStructuredData([...apparelProducts, ...gearProducts]);
+      
+      // Remove existing structured data
+      const existingScript = document.getElementById('featured-products-structured-data');
+      if (existingScript) {
+        existingScript.remove();
+      }
+
+      // Add new structured data
+      const script = document.createElement('script');
+      script.id = 'featured-products-structured-data';
+      script.type = 'application/ld+json';
+      script.textContent = JSON.stringify(structuredData);
+      document.head.appendChild(script);
+    }
+  }, [products, apparelProducts, gearProducts]);
+
   if (loading) {
     return (
       <section id="featured-products" className="py-16 bg-lvnBg">
@@ -88,7 +154,7 @@ const TopSellers = ({ onViewAllClick }: TopSellersProps) => {
           <p className="text-lg text-lvn-black/70 max-w-2xl mx-auto scripture-quote">
             "Shelter. Strength. Style."
           </p>
-          <p className="text-lvn-maroon font-medium mt-2">Psalm 91 Inspired Apparel</p>
+          <p className="text-lvn-maroon font-medium mt-2">Matthew 13:33 Inspired Apparel</p>
         </div>
         
         {/* Apparel Section */}
