@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Product Names</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        pre { background: #f3f4f6; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        button { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #2563eb; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .pass { background: #ecfdf5; border: 1px solid #10b981; }
+        .fail { background: #fef2f2; border: 1px solid #ef4444; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Product Names for Grouping Toggle</h1>
+    
+    <div class="container">
+        <h2>Current Issue</h2>
+        <p>The grouping toggle is not appearing because the <code>hasColors</code> logic is checking for exact matches like 'cap', 'tshirt', 'hoodie' but the actual product names are probably like "Reform UK T-Shirt" or "Reform UK Cap".</p>
+        
+        <h3>Test Product Names:</h3>
+        <div id="testNames"></div>
+        
+        <button onclick="testProductNames()">Test Product Name Detection</button>
+        <button onclick="showFix()">Show Fix</button>
+    </div>
+
+    <div class="container">
+        <h2>Results</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const sampleProductNames = [
+            "Reform UK T-Shirt",
+            "Reform UK Hoodie", 
+            "Reform UK Cap",
+            "Reform UK Tote Bag",
+            "tshirt",
+            "hoodie",
+            "cap",
+            "T-Shirt",
+            "Hoodie",
+            "Cap",
+            "REFORM UK T-SHIRT",
+            "reform uk hoodie"
+        ];
+
+        function testProductNames() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>Testing Current Logic vs Fixed Logic</h3>';
+            
+            sampleProductNames.forEach(productName => {
+                // Current logic (broken)
+                const currentLogic = (() => {
+                    const normalizedCategory = productName?.toLowerCase().replace(/\s+/g, '-');
+                    return ['cap', 'caps', 'tshirt', 'tshirts', 'hoodie', 'hoodies', 'tote', 'totes', 'tote-bags'].includes(normalizedCategory);
+                })();
+                
+                // Fixed logic (works)
+                const fixedLogic = (() => {
+                    const normalized = productName?.toLowerCase() || '';
+                    return normalized.includes('t-shirt') || 
+                           normalized.includes('tshirt') || 
+                           normalized.includes('hoodie') || 
+                           normalized.includes('cap') || 
+                           normalized.includes('tote');
+                })();
+                
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `result ${fixedLogic ? 'pass' : 'fail'}`;
+                resultDiv.innerHTML = `
+                    <strong>Product:</strong> "${productName}"<br>
+                    <strong>Normalized:</strong> "${productName?.toLowerCase().replace(/\s+/g, '-')}"<br>
+                    <strong>Current Logic:</strong> ${currentLogic ? '✅ PASS' : '❌ FAIL'}<br>
+                    <strong>Fixed Logic:</strong> ${fixedLogic ? '✅ PASS' : '❌ FAIL'}
+                `;
+                results.appendChild(resultDiv);
+            });
+        }
+
+        function showFix() {
+            const results = document.getElementById('results');
+            results.innerHTML = `
+                <h3>🔧 Fix for hasColors Logic</h3>
+                <p>Replace the current logic with this improved version:</p>
+                <pre>const hasColors = (() => {
+  const normalized = productName?.toLowerCase() || '';
+  return normalized.includes('t-shirt') || 
+         normalized.includes('tshirt') || 
+         normalized.includes('hoodie') || 
+         normalized.includes('cap') || 
+         normalized.includes('tote');
+})();</pre>
+                <p><strong>Why this works better:</strong></p>
+                <ul>
+                    <li>Uses <code>includes()</code> instead of exact match</li>
+                    <li>Handles "Reform UK T-Shirt" → finds "t-shirt"</li>
+                    <li>Handles "Reform UK Hoodie" → finds "hoodie"</li>
+                    <li>Handles "Reform UK Cap" → finds "cap"</li>
+                    <li>Case insensitive</li>
+                    <li>No need for complex regex replacement</li>
+                </ul>
+            `;
+        }
+
+        // Initialize
+        window.onload = function() {
+            const testNamesDiv = document.getElementById('testNames');
+            testNamesDiv.innerHTML = sampleProductNames.map(name => `<code>"${name}"</code>`).join(', ');
+        };
+    </script>
+</body>
+</html>

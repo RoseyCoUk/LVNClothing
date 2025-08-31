@@ -64,14 +64,18 @@ export const config = {
       return false;
     }
     
-    console.log('✅ Configuration validation passed');
+
     return true;
   },
 };
 
 // Log configuration on import
 if (config.features.enableDebugLogging) {
-  console.log('🔧 ReformUK Configuration:', config.getDebugInfo());
+  console.log('🔍 Environment Variables Debug:');
+  console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
+  console.log('VITE_SUPABASE_ANON_KEY:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'SET' : 'NOT SET');
+  console.log('VITE_SUPABASE_ANON_KEY length:', import.meta.env.VITE_SUPABASE_ANON_KEY?.length || 0);
+  console.log('Raw env object keys:', Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')));
 }
 
 // Validate configuration on import

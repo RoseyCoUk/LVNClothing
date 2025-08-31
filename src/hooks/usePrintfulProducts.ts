@@ -9,11 +9,7 @@ import { MousepadVariants } from './mousepad-variants';
 
 // Mock data for when Printful API is not available
 // Debug logging
-console.log('🔍 TshirtVariants:', TshirtVariants);
-console.log('🔍 TshirtVariants length:', TshirtVariants?.length);
-console.log('🔍 First variant:', TshirtVariants?.[0]);
-console.log('🔍 TshirtVariants type:', typeof TshirtVariants);
-console.log('🔍 TshirtVariants constructor:', TshirtVariants?.constructor?.name);
+
 
 const mockProducts: PrintfulProduct[] = [
   {
@@ -23,13 +19,12 @@ const mockProducts: PrintfulProduct[] = [
     category: 'tshirt',
     variants: (() => {
       try {
-        console.log('🔍 Attempting to map TshirtVariants...');
+
         if (!TshirtVariants || !Array.isArray(TshirtVariants)) {
           console.error('❌ TshirtVariants is not an array:', TshirtVariants);
           return [];
         }
         return TshirtVariants.map(variant => {
-          console.log('🔍 Processing variant:', variant);
           return {
             ...variant,
             image: `https://files.cdn.printful.com/products/71/tshirt_mockup.jpg`

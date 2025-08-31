@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Test Function</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Simple Test Function</h1>
+    <p>This will test basic database insertion to isolate the issue.</p>
+    
+    <button onclick="testSimpleFunction()">🧪 Test Simple Function</button>
+    
+    <div id="result"></div>
+
+    <script>
+        async function testSimpleFunction() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="result">🔄 Testing simple function...</div>';
+            
+            try {
+                const response = await fetch('https://nsmrxwnrtsllxvplazmm.supabase.co/functions/v1/simple-test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <h3>✅ Simple Test Successful</h3>
+                            <p><strong>Product Inserted:</strong> ${data.data.product_inserted}</p>
+                            <p><strong>Variant Inserted:</strong> ${data.data.variant_inserted}</p>
+                            <p><strong>Product ID:</strong> ${data.data.product_id}</p>
+                            <p><strong>Variant ID:</strong> ${data.data.variant_id}</p>
+                            <h4>Verification:</h4>
+                            <p><strong>Product Exists:</strong> ${data.data.verification.product_exists}</p>
+                            <p><strong>Variant Exists:</strong> ${data.data.verification.variant_exists}</p>
+                            <h4>Raw Data:</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <h3>❌ Simple Test Failed</h3>
+                            <p><strong>Error:</strong> ${data.error}</p>
+                            <p><strong>Message:</strong> ${data.message}</p>
+                            <p><strong>Step:</strong> ${data.step}</p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ Network Error</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

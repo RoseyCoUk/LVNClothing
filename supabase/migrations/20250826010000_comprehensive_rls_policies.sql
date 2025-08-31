@@ -40,24 +40,29 @@ CREATE POLICY "products_authenticated_delete" ON public.products
 -- PRODUCT_VARIANTS TABLE - Public read access, authenticated admin access
 -- ============================================================================
 
--- Enable RLS on product_variants table
-ALTER TABLE public.product_variants ENABLE ROW LEVEL SECURITY;
+-- Enable RLS on product_variants table if it exists
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'product_variants' AND table_schema = 'public') THEN
+    ALTER TABLE public.product_variants ENABLE ROW LEVEL SECURITY;
 
--- Drop existing policies if they exist
-DROP POLICY IF EXISTS "Allow public read access to product variants" ON public.product_variants;
-DROP POLICY IF EXISTS "Allow authenticated users to manage product variants" ON public.product_variants;
+    -- Drop existing policies if they exist
+    DROP POLICY IF EXISTS "Allow public read access to product variants" ON public.product_variants;
+    DROP POLICY IF EXISTS "Allow authenticated users to manage product variants" ON public.product_variants;
 
--- Create comprehensive policies for product_variants
-CREATE POLICY "product_variants_public_read" ON public.product_variants
-  FOR SELECT
-  TO anon, authenticated
-  USING (true);
+    -- Create comprehensive policies for product_variants
+    CREATE POLICY "product_variants_public_read" ON public.product_variants
+      FOR SELECT
+      TO anon, authenticated
+      USING (true);
 
-CREATE POLICY "product_variants_authenticated_all" ON public.product_variants
-  FOR ALL
-  TO authenticated
-  USING (true)
-  WITH CHECK (true);
+    CREATE POLICY "product_variants_authenticated_all" ON public.product_variants
+      FOR ALL
+      TO authenticated
+      USING (true)
+      WITH CHECK (true);
+  END IF;
+END $$;
 
 -- ============================================================================
 -- ORDERS TABLE - Users can only access their own orders
@@ -216,7 +221,15 @@ GRANT USAGE ON SCHEMA public TO anon, authenticated;
 
 -- Grant permissions on tables
 GRANT SELECT ON public.products TO anon, authenticated;
-GRANT SELECT ON public.product_variants TO anon, authenticated;
+
+-- Grant permissions on product_variants if it exists
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'product_variants' AND table_schema = 'public') THEN
+    GRANT SELECT ON public.product_variants TO anon, authenticated;
+  END IF;
+END $$;
+
 GRANT ALL ON public.orders TO authenticated;
 GRANT ALL ON public.order_items TO authenticated;
 GRANT ALL ON public.user_preferences TO authenticated;

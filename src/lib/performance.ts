@@ -19,7 +19,7 @@ class PerformanceMonitor {
 
   setMobileMode(isMobile: boolean) {
     this.metrics.isMobileMode = isMobile;
-    console.log(`📱 Performance mode set to: ${isMobile ? 'Mobile' : 'Desktop'}`);
+
   }
 
   startPageLoadTimer() {
@@ -37,7 +37,7 @@ class PerformanceMonitor {
       this.metrics.pageLoadTime = measure.duration;
       
       // Log performance data
-      console.log(`⚡ Page load time: ${this.metrics.pageLoadTime.toFixed(2)}ms`);
+      
       
       // Check if performance targets are met
       if (this.metrics.pageLoadTime > 3000) {

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supabase Auth</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        button { padding: 10px 20px; font-size: 16px; margin: 10px; }
+        .result { margin: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        input { padding: 8px; margin: 5px; width: 300px; }
+    </style>
+</head>
+<body>
+    <h1>Test Supabase Authentication</h1>
+    <p>This will test the Supabase connection and authentication directly.</p>
+    
+    <div>
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" value="support@backreform.co.uk" placeholder="Enter email">
+    </div>
+    
+    <div>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" placeholder="Enter password">
+    </div>
+    
+    <button id="testConnection">Test Supabase Connection</button>
+    <button id="testAuth">Test Authentication</button>
+    
+    <div id="result" class="result" style="display: none;"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase configuration
+        const supabaseUrl = 'https://nsmrxwnrtsllxvplazmm.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhem1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0OTY0NTIsImV4cCI6MjA2NzA3MjQ1Mn0.XyHiuQHXW_laGE4Caond1-8xK-2B4NzDzIOX8baD4UM';
+        
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+        
+        function showResult(message, isSuccess = true) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = message;
+            resultDiv.className = `result ${isSuccess ? 'success' : 'error'}`;
+        }
+        
+        document.getElementById('testConnection').addEventListener('click', async function() {
+            try {
+                showResult('Testing Supabase connection...', true);
+                
+                // Test basic connection
+                const { data, error } = await supabase.from('products').select('count').limit(1);
+                
+                if (error) {
+                    throw new Error('Connection failed: ' + error.message);
+                }
+                
+                showResult('✅ Supabase connection successful!<br>Products table accessible.', true);
+                
+            } catch (error) {
+                showResult('❌ Connection failed: ' + error.message, false);
+            }
+        });
+        
+        document.getElementById('testAuth').addEventListener('click', async function() {
+            try {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                if (!email || !password) {
+                    showResult('❌ Please enter both email and password', false);
+                    return;
+                }
+                
+                showResult('Testing authentication...', true);
+                
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) {
+                    throw new Error(error.message);
+                }
+                
+                showResult('✅ Authentication successful!<br>User ID: ' + data.user.id, true);
+                
+            } catch (error) {
+                showResult('❌ Authentication failed: ' + error.message, false);
+            }
+        });
+    </script>
+</body>
+</html>

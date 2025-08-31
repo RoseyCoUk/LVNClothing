@@ -112,22 +112,23 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 6. Create function to get order status timeline
-CREATE OR REPLACE FUNCTION public.get_order_status_timeline(order_id uuid)
-RETURNS TABLE (
-  status text,
-  timestamp timestamptz,
-  duration_interval interval
-) AS $$
-BEGIN
-  RETURN QUERY
-  SELECT 
-    o.status,
-    o.updated_at as timestamp,
-    o.updated_at - o.created_at as duration_interval
-  FROM public.orders o
-  WHERE o.id = order_id;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- Commented out due to missing tables dependency
+-- CREATE OR REPLACE FUNCTION public.get_order_status_timeline(order_id uuid)
+-- RETURNS TABLE (
+--   status text,
+--   timestamp timestamptz,
+--   duration_interval interval
+-- ) AS $$
+-- BEGIN
+--   RETURN QUERY
+--   SELECT 
+--     o.status,
+--     o.updated_at as timestamp,
+--     o.updated_at - o.created_at as duration_interval
+--   FROM public.orders o
+--   WHERE o.id = order_id;
+-- END;
+-- $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 7. Grant execute permissions to authenticated users
 GRANT EXECUTE ON FUNCTION public.get_orders_statistics() TO authenticated;
@@ -135,7 +136,7 @@ GRANT EXECUTE ON FUNCTION public.get_customer_statistics() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_revenue_trends(integer) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_top_products(integer) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_customer_acquisition_trends(integer) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.get_order_status_timeline(uuid) TO authenticated;
+-- GRANT EXECUTE ON FUNCTION public.get_order_status_timeline(uuid) TO authenticated;
 
 -- down
 -- DROP FUNCTION IF EXISTS public.get_order_status_timeline(uuid);

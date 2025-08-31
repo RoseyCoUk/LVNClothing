@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Phase 3 - Variant Grouping with Ungroup Option</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #8b5cf6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #7c3aed;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        .code-block {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin: 10px 0;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #8b5cf6;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Phase 3 - Variant Grouping with Ungroup Option</h1>
+    
+    <div class="test-section">
+        <h2>📋 Test Overview</h2>
+        <p>This test verifies that Phase 3 of the Image Variants implementation is working correctly:</p>
+        <ul>
+            <li>✅ <strong>Phase 1 COMPLETE</strong> - Images button added to Variants tab</li>
+            <li>✅ <strong>Phase 2 COMPLETE</strong> - Color filtering in image modal</li>
+            <li>🔄 <strong>Phase 3 IN PROGRESS</strong> - Group variants by color with ungroup option</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Phase 3 Requirements</h2>
+        <p><strong>Goal:</strong> Provide option to group variants by color for easier management, with ability to ungroup</p>
+        
+        <h3>Expected Behavior:</h3>
+        <ol>
+            <li>Grouping toggle appears for products with color variants</li>
+            <li>Toggle switches between grouped and ungrouped views</li>
+            <li>Grouped view shows one row per color with aggregated information</li>
+            <li>Ungrouped view shows individual variants as before</li>
+            <li>Bulk operations work for grouped variants</li>
+            <li>Images button works for color groups</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 Implementation Status</h2>
+        
+        <h3>✅ What's Already Implemented:</h3>
+        <ul>
+            <li><code>groupVariantsByColor</code> state variable with toggle</li>
+            <li><code>groupVariantsByColorFunction</code> to group variants by color</li>
+            <li><code>hasColors</code> function to detect color variants</li>
+            <li>Toggle UI with visual feedback (blue switch)</li>
+            <li>Dual table rendering (grouped vs ungrouped)</li>
+            <li>Enhanced grouped view with aggregated information</li>
+            <li>Bulk operations for grouped variants</li>
+        </ul>
+
+        <h3>🎨 Key Features:</h3>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>Toggle Control</h4>
+                <p>Easy switch between grouped and ungrouped views with visual feedback</p>
+            </div>
+            <div class="feature-card">
+                <h4>Smart Detection</h4>
+                <p>Only shows grouping option for products with color variants</p>
+            </div>
+            <div class="feature-card">
+                <h4>Aggregated Info</h4>
+                <p>Shows total sizes, stock status, and availability per color</p>
+            </div>
+            <div class="feature-card">
+                <h4>Bulk Operations</h4>
+                <p>Checkbox selects all variants of a color, bulk update availability/stock</p>
+            </div>
+            <div class="feature-card">
+                <h4>Visual Distinction</h4>
+                <p>Blue background for grouped rows, clear visual hierarchy</p>
+            </div>
+            <div class="feature-card">
+                <h4>Flexible Management</h4>
+                <p>Users can choose their preferred view for different tasks</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Testing Steps</h2>
+        
+        <h3>Step 1: Verify Toggle UI</h3>
+        <ol>
+            <li>Go to Admin Products page</li>
+            <li>Select a product with color variants (e.g., Hoodie, T-Shirt)</li>
+            <li>Go to Variants tab</li>
+            <li>Verify "Group by Color" toggle appears in header</li>
+            <li>Check toggle shows "Off" by default</li>
+            <li>Verify toggle has blue/gray styling</li>
+        </ol>
+
+        <h3>Step 2: Test Grouped View</h3>
+        <ol>
+            <li>Click the toggle to turn grouping "On"</li>
+            <li>Verify table changes to grouped view</li>
+            <li>Check that rows have blue background</li>
+            <li>Verify one row per color (e.g., Black, Red, Blue)</li>
+            <li>Check each row shows size count (e.g., "3 sizes available")</li>
+            <li>Verify aggregated stock/availability status</li>
+            <li>Check bulk operations work for grouped variants</li>
+        </ol>
+
+        <h3>Step 3: Test Ungrouped View</h3>
+        <ol>
+            <li>Click the toggle to turn grouping "Off"</li>
+            <li>Verify table returns to individual variant view</li>
+            <li>Check that rows have normal white background</li>
+            <li>Verify individual variants are shown</li>
+            <li>Check individual variant actions work</li>
+        </ol>
+
+        <h3>Step 4: Test Grouped View Actions</h3>
+        <ol>
+            <li>Turn grouping "On" again</li>
+            <li>Test Images button for color groups</li>
+            <li>Verify bulk availability toggle works</li>
+            <li>Verify bulk stock toggle works</li>
+            <li>Check checkbox selection for color groups</li>
+        </ol>
+
+        <h3>Step 5: Test Simple Products</h3>
+        <ol>
+            <li>Select a simple product (e.g., Cap)</li>
+            <li>Go to Variants tab</li>
+            <li>Verify grouping toggle does NOT appear</li>
+            <li>Check table shows individual variants</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 Technical Implementation</h2>
+        
+        <h3>State Management:</h3>
+        <div class="code-block">// Variant grouping state
+const [groupVariantsByColor, setGroupVariantsByColor] = useState(false);
+
+// Smart color detection
+const hasColors = (() => {
+  const normalizedCategory = productName?.toLowerCase().replace(/\s+/g, '-');
+  return ['cap', 'caps', 'tshirt', 'tshirts', 'hoodie', 'hoodies', ...].includes(normalizedCategory);
+})();</div>
+
+        <h3>Grouping Function:</h3>
+        <div class="code-block">const groupVariantsByColorFunction = (variants: ProductVariant[]) => {
+  const grouped: Record<string, ProductVariant[]> = {};
+  
+  variants.forEach(variant => {
+    const color = getColorName(variant);
+    if (!grouped[color]) {
+      grouped[color] = [];
+    }
+    grouped[color].push(variant);
+  });
+  
+  return grouped;
+};</div>
+
+        <h3>Dual Rendering:</h3>
+        <div class="code-block">{groupVariantsByColor && hasColors ? (
+  // Grouped view - one row per color
+  Object.entries(groupVariantsByColorFunction(variants)).map(...)
+) : (
+  // Ungrouped view - individual variants
+  variants.map(...)
+)}</div>
+    </div>
+
+    <div class="test-section">
+        <h2>🐛 Potential Issues & Debugging</h2>
+        
+        <h3>Common Issues:</h3>
+        <ul>
+            <li><strong>Toggle not appearing:</strong> Check if product has color variants</li>
+            <li><strong>Grouping not working:</strong> Verify <code>hasColors</code> function</li>
+            <li><strong>Visual issues:</strong> Check CSS classes and styling</li>
+            <li><strong>Bulk operations failing:</strong> Verify grouped variant logic</li>
+        </ul>
+
+        <h3>Debug Console Logs:</h3>
+        <div class="code-block">// Check if grouping is working
+console.log('Grouping state:', groupVariantsByColor);
+console.log('Has colors:', hasColors);
+console.log('Grouped variants:', groupVariantsByColorFunction(variants));</div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Test Results</h2>
+        
+        <div id="test-results">
+            <p>Run the tests above and document results here:</p>
+        </div>
+
+        <button class="test-button" onclick="addTestResult('Toggle UI Appears', 'PASS')">✅ Toggle UI Pass</button>
+        <button class="test-button" onclick="addTestResult('Toggle UI Appears', 'FAIL')">❌ Toggle UI Fail</button>
+        <button class="test-button" onclick="addTestResult('Grouped View Works', 'PASS')">✅ Grouped View Pass</button>
+        <button class="test-button" onclick="addTestResult('Grouped View Works', 'FAIL')">❌ Grouped View Fail</button>
+        <button class="test-button" onclick="addTestResult('Ungrouped View Works', 'PASS')">✅ Ungrouped View Pass</button>
+        <button class="test-button" onclick="addTestResult('Ungrouped View Works', 'FAIL')">❌ Ungrouped View Fail</button>
+        <button class="test-button" onclick="addTestResult('Bulk Operations Work', 'PASS')">✅ Bulk Operations Pass</button>
+        <button class="test-button" onclick="addTestResult('Bulk Operations Work', 'FAIL')">❌ Bulk Operations Fail</button>
+        <button class="test-button" onclick="addTestResult('Simple Products Hide Toggle', 'PASS')">✅ Simple Products Pass</button>
+        <button class="test-button" onclick="addTestResult('Simple Products Hide Toggle', 'FAIL')">❌ Simple Products Fail</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🚀 Next Steps</h2>
+        
+        <h3>If Phase 3 Works:</h3>
+        <ul>
+            <li>✅ All three phases are complete</li>
+            <li>Ready for production use</li>
+            <li>Test with different product types</li>
+            <li>Document any edge cases found</li>
+        </ul>
+
+        <h3>If Phase 3 Has Issues:</h3>
+        <ul>
+            <li>Check browser console for error messages</li>
+            <li>Verify state management and toggle logic</li>
+            <li>Check if grouping function is working</li>
+            <li>Debug visual styling issues</li>
+        </ul>
+
+        <h3>Final Status:</h3>
+        <ul>
+            <li><strong>Phase 1:</strong> ✅ Images button added to Variants tab</li>
+            <li><strong>Phase 2:</strong> ✅ Color filtering in image modal</li>
+            <li><strong>Phase 3:</strong> 🔄 Group variants by color with ungroup option</li>
+        </ul>
+    </div>
+
+    <script>
+        function addTestResult(testName, result) {
+            const resultsDiv = document.getElementById('test-results');
+            const statusClass = result === 'PASS' ? 'success' : 'error';
+            
+            const resultElement = document.createElement('div');
+            resultElement.className = `status ${statusClass}`;
+            resultElement.innerHTML = `<strong>${testName}:</strong> ${result}`;
+            
+            resultsDiv.appendChild(resultElement);
+        }
+
+        // Auto-populate with current status
+        document.addEventListener('DOMContentLoaded', function() {
+            addTestResult('Test Page Loaded', 'PASS');
+            addTestResult('Phase 1 Implementation', 'COMPLETE');
+            addTestResult('Phase 2 Implementation', 'COMPLETE');
+            addTestResult('Phase 3 Implementation', 'IN PROGRESS');
+        });
+    </script>
+</body>
+</html>

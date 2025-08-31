@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Product Category</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">
+            🧪 Test Product Category Detection
+        </h1>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                Check Product Categories in Database
+            </h2>
+            <button 
+                onclick="checkProductCategories()"
+                class="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+            >
+                🔍 Check Product Categories
+            </button>
+            <div id="categoryResults" class="mt-4 text-gray-600">
+                Click the button above to check...
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                Test Variant Detection Logic
+            </h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Product Category
+                    </label>
+                    <select id="testCategory" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                        <option value="">Select Category</option>
+                        <option value="tshirt">tshirt</option>
+                        <option value="hoodie">hoodie</option>
+                        <option value="cap">cap</option>
+                        <option value="tote">tote</option>
+                        <option value="water-bottle">water-bottle</option>
+                        <option value="mug">mug</option>
+                        <option value="mouse-pad">mouse-pad</option>
+                        <option value="sticker">sticker</option>
+                    </select>
+                </div>
+                <button 
+                    onclick="testVariantLogic()"
+                    class="px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700"
+                >
+                    🧪 Test Variant Logic
+                </button>
+                <div id="variantResults" class="mt-4 text-gray-600">
+                    Select a category and click test...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://nsmrxwnrtsllxvplazmm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhem1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0OTY0NTIsImV4cCI6MjA2NzA3MjQ1Mn0.XyHiuQHXW_laGE4Caond1-8xK-2B4NzDzIOX8baD4UM';
+
+        async function checkProductCategories() {
+            try {
+                console.log('🔍 Checking product categories...');
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/products?select=id,name,category&order=category.asc`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch: ${response.status}`);
+                }
+
+                const products = await response.json();
+                console.log(`📊 Found ${products.length} products`);
+                
+                // Group by category
+                const categories = {};
+                products.forEach(product => {
+                    if (!categories[product.category]) {
+                        categories[product.category] = [];
+                    }
+                    categories[product.category].push(product.name);
+                });
+                
+                let html = '<div class="space-y-3">';
+                Object.entries(categories).forEach(([category, names]) => {
+                    html += `
+                        <div class="border border-gray-200 rounded-lg p-3">
+                            <div class="font-semibold text-gray-800">📁 ${category}</div>
+                            <div class="text-sm text-gray-600">${names.length} products</div>
+                            <div class="text-xs text-gray-500">${names.join(', ')}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                
+                document.getElementById('categoryResults').innerHTML = html;
+                
+            } catch (error) {
+                console.error('❌ Error checking product categories:', error);
+                document.getElementById('categoryResults').innerHTML = `
+                    <div class="text-red-600">
+                        <strong>❌ Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testVariantLogic() {
+            const category = document.getElementById('testCategory').value;
+            
+            if (!category) {
+                document.getElementById('variantResults').innerHTML = `
+                    <div class="text-yellow-600">
+                        <strong>⚠️ Please select a category first</strong>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Test the same logic as the component
+            const hasVariants = category === 'tshirt' || category === 'hoodie' || category === 'cap' || category === 'tote' || category === 'water-bottle' || category === 'mug' || category === 'mouse-pad';
+            const hasColors = category === 'tshirt' || category === 'hoodie' || category === 'cap' || category === 'tote' || category === 'water-bottle' || category === 'mug' || category === 'mouse-pad';
+            const hasSizes = category === 'tshirt' || category === 'hoodie';
+            
+            // Get available colors
+            function getAvailableColors(cat) {
+                switch (cat) {
+                    case 'tshirt':
+                        return ['Black', 'Navy', 'White', 'Red', 'Olive', 'Army', 'Asphalt', 'Autumn', 'Black Heather', 'Dark Grey Heather', 'Heather Deep Teal', 'Mauve', 'Steel Blue', 'Ash', 'Athletic Heather', 'Heather Dust', 'Heather Prism Peach', 'Mustard', 'Pink', 'Yellow'];
+                    case 'hoodie':
+                        return ['Black', 'Navy', 'Red', 'Dark Heather', 'Indigo Blue', 'Light Blue', 'Light Pink', 'Sport Grey', 'White'];
+                    case 'cap':
+                        return ['Black', 'Dark Grey', 'Khaki', 'Light Blue', 'Navy', 'Pink', 'Stone', 'White'];
+                    case 'tote':
+                        return ['Black', 'Navy', 'White', 'Red', 'Blue', 'Green'];
+                    case 'water-bottle':
+                        return ['White', 'Black', 'Silver', 'Blue'];
+                    case 'mug':
+                        return ['White', 'Black', 'Blue'];
+                    case 'mouse-pad':
+                        return ['Black', 'White', 'Blue', 'Red'];
+                    case 'sticker':
+                        return ['Default'];
+                    default:
+                        return [];
+                }
+            }
+            
+            const availableColors = getAvailableColors(category);
+            
+            document.getElementById('variantResults').innerHTML = `
+                <div class="space-y-3">
+                    <div class="border border-gray-200 rounded-lg p-3">
+                        <div class="font-semibold text-gray-800">🎯 Category: ${category}</div>
+                        <div class="text-sm text-gray-600">
+                            <div><strong>Has Variants:</strong> ${hasVariants ? '✅ Yes' : '❌ No'}</div>
+                            <div><strong>Has Colors:</strong> ${hasColors ? '✅ Yes' : '❌ No'}</div>
+                            <div><strong>Has Sizes:</strong> ${hasSizes ? '✅ Yes' : '❌ No'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-3">
+                        <div class="font-semibold text-gray-800">🎨 Available Colors</div>
+                        <div class="text-sm text-gray-600">
+                            ${availableColors.length > 0 ? availableColors.join(', ') : 'None'}
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-3">
+                        <div class="font-semibold text-gray-800">🔍 Debug Info</div>
+                        <div class="text-xs text-gray-500 font-mono">
+                            <div>category === 'tote': ${category === 'tote'}</div>
+                            <div>category === 'tshirt': ${category === 'tshirt'}</div>
+                            <div>category === 'hoodie': ${category === 'hoodie'}</div>
+                            <div>category === 'cap': ${category === 'cap'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

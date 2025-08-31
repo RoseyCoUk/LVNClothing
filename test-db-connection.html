@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Connection Test</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Database Connection Test</h1>
+    <button onclick="testConnection()">Test Database Connection</button>
+    <button onclick="testProductImages()">Test Product Images Query</button>
+    <div id="results"></div>
+
+    <script>
+        const supabaseUrl = 'https://nsmrxwnrtsllxvplazmm.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhem1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU2NzI5NzQsImV4cCI6MjA1MTI0ODk3NH0.Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8';
+        
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function testConnection() {
+            try {
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('id, name')
+                    .limit(1);
+                
+                if (error) {
+                    document.getElementById('results').innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                } else {
+                    document.getElementById('results').innerHTML = `<p>✅ Connection successful. Found ${data.length} products</p>`;
+                }
+            } catch (err) {
+                document.getElementById('results').innerHTML = `<p>❌ Exception: ${err.message}</p>`;
+            }
+        }
+
+        async function testProductImages() {
+            try {
+                // First get a product ID
+                const { data: products, error: productsError } = await supabase
+                    .from('products')
+                    .select('id, name')
+                    .limit(1);
+                
+                if (productsError) {
+                    document.getElementById('results').innerHTML = `<p>❌ Error getting products: ${productsError.message}</p>`;
+                    return;
+                }
+
+                if (products.length === 0) {
+                    document.getElementById('results').innerHTML = `<p>❌ No products found</p>`;
+                    return;
+                }
+
+                const productId = products[0].id;
+                document.getElementById('results').innerHTML = `<p>🔍 Testing product images for: ${products[0].name} (${productId})</p>`;
+
+                // Now test product images query
+                const { data: images, error: imagesError } = await supabase
+                    .from('product_images')
+                    .select('*')
+                    .eq('product_id', productId)
+                    .order('image_order', { ascending: true });
+                
+                if (imagesError) {
+                    document.getElementById('results').innerHTML += `<p>❌ Error getting product images: ${imagesError.message}</p>`;
+                } else {
+                    document.getElementById('results').innerHTML += `<p>✅ Product images query successful. Found ${images.length} images</p>`;
+                    if (images.length > 0) {
+                        document.getElementById('results').innerHTML += `<p>📊 First image: ${JSON.stringify(images[0], null, 2)}</p>`;
+                    }
+                }
+            } catch (err) {
+                document.getElementById('results').innerHTML = `<p>❌ Exception: ${err.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Products Loading</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .primary { background-color: #007bff; color: white; }
+        .secondary { background-color: #6c757d; color: white; }
+        .success-btn { background-color: #28a745; color: white; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Products Loading</h1>
+    <p>This page will help debug why products are not loading in the admin panel.</p>
+
+    <div class="test-section info">
+        <h3>🔍 Environment Check</h3>
+        <p><strong>Current URL:</strong> <span id="current-url"></span></p>
+        <p><strong>Supabase URL:</strong> <span id="supabase-url"></span></p>
+        <p><strong>Supabase Anon Key:</strong> <span id="supabase-key"></span></p>
+    </div>
+
+    <div class="test-section">
+        <h3>📊 Database Connection Test</h3>
+        <button onclick="testDatabaseConnection()" class="primary">Test Database Connection</button>
+        <div id="db-connection-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🛍️ Products Table Test</h3>
+        <button onclick="testProductsTable()" class="primary">Check Products Table</button>
+        <div id="products-table-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🖼️ Product Images Test</h3>
+        <button onclick="testProductImages()" class="primary">Check Product Images</button>
+        <div id="product-images-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔄 Refresh Function Test</h3>
+        <button onclick="testRefreshFunction()" class="primary">Test Refresh Function</button>
+        <div id="refresh-function-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>📋 Summary</h3>
+        <div id="summary-result"></div>
+    </div>
+
+    <script>
+        // Get environment variables
+        const currentUrl = window.location.href;
+        const supabaseUrl = 'https://nsmrxwnrtsllxvplazmm.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhenNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY1MzI5NjMsImV4cCI6MjA3MjEwODk2M30.8s4y0wtzrr4';
+
+        // Display environment info
+        document.getElementById('current-url').textContent = currentUrl;
+        document.getElementById('supabase-url').textContent = supabaseUrl;
+        document.getElementById('supabase-key').textContent = supabaseKey.substring(0, 20) + '...';
+
+        // Test database connection
+        async function testDatabaseConnection() {
+            const resultDiv = document.getElementById('db-connection-result');
+            resultDiv.innerHTML = '<p>🔄 Testing database connection...</p>';
+            
+            try {
+                const response = await fetch(`${supabaseUrl}/rest/v1/products?select=count`, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<p class="success">✅ Database connection successful!</p>';
+                } else {
+                    resultDiv.innerHTML = `<p class="error">❌ Database connection failed: ${response.status} ${response.statusText}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Database connection error: ${error.message}</p>`;
+            }
+        }
+
+        // Test products table
+        async function testProductsTable() {
+            const resultDiv = document.getElementById('products-table-result');
+            resultDiv.innerHTML = '<p>🔄 Checking products table...</p>';
+            
+            try {
+                const response = await fetch(`${supabaseUrl}/rest/v1/products?select=*&limit=5`, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const products = await response.json();
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Products table accessible!</p>
+                        <p><strong>Total products found:</strong> ${products.length}</p>
+                        <details>
+                            <summary>Product details (click to expand)</summary>
+                            <pre>${JSON.stringify(products, null, 2)}</pre>
+                        </details>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">❌ Products table access failed: ${response.status} ${response.statusText}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Products table error: ${error.message}</p>`;
+            }
+        }
+
+        // Test product images
+        async function testProductImages() {
+            const resultDiv = document.getElementById('product-images-result');
+            resultDiv.innerHTML = '<p>🔄 Checking product images...</p>';
+            
+            try {
+                const response = await fetch(`${supabaseUrl}/rest/v1/product_images?select=*&limit=5`, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const images = await response.json();
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Product images table accessible!</p>
+                        <p><strong>Total images found:</strong> ${images.length}</p>
+                        <details>
+                            <summary>Image details (click to expand)</summary>
+                            <pre>${JSON.stringify(images, null, 2)}</pre>
+                        </details>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">❌ Product images table access failed: ${response.status} ${response.statusText}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Product images table error: ${error.message}</p>`;
+            }
+        }
+
+        // Test refresh function
+        async function testRefreshFunction() {
+            const resultDiv = document.getElementById('refresh-function-result');
+            resultDiv.innerHTML = '<p>🔄 Testing refresh function...</p>';
+            
+            try {
+                // Test the admin products API endpoint
+                const response = await fetch(`${supabaseUrl}/rest/v1/products?select=*`, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const products = await response.json();
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Refresh function test successful!</p>
+                        <p><strong>Products loaded:</strong> ${products.length}</p>
+                        <p><strong>First product:</strong> ${products[0]?.name || 'None'}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">❌ Refresh function test failed: ${response.status} ${response.statusText}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Refresh function test error: ${error.message}</p>`;
+            }
+        }
+
+        // Update summary
+        function updateSummary() {
+            const summaryDiv = document.getElementById('summary-result');
+            summaryDiv.innerHTML = `
+                <h4>🔍 Current Status</h4>
+                <p><strong>Environment:</strong> ${currentUrl.includes('localhost') ? 'Development' : 'Production'}</p>
+                <p><strong>Supabase:</strong> ${supabaseUrl}</p>
+                <p><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
+            `;
+        }
+
+        // Initialize
+        updateSummary();
+    </script>
+</body>
+</html>

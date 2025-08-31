@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printful Webhook Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Printful Webhook Test</h1>
+    
+    <div class="test-section">
+        <h3>📡 Test 1: Basic Webhook Endpoint</h3>
+        <p>Testing the webhook endpoint without authentication:</p>
+        <button onclick="testBasicWebhook()">Test Basic Webhook</button>
+        <div id="result1"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔐 Test 2: Webhook with Authorization</h3>
+        <p>Testing the webhook endpoint with Supabase authorization:</p>
+        <button onclick="testAuthWebhook()">Test Auth Webhook</button>
+        <div id="result2"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>📊 Test 3: Manual Inventory Sync</h3>
+        <p>Testing the manual inventory sync endpoint:</p>
+        <button onclick="testManualSync()">Test Manual Sync</button>
+        <div id="result3"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🎯 Printful Webhook Simulator</h3>
+        <p>Use this URL in Printful's Webhook Simulator:</p>
+        <pre>https://nsmrxwnrtsllxvplazmm.supabase.co/functions/v1/printful-inventory-sync?webhook=true</pre>
+        <p><strong>Webhook Types to test:</strong></p>
+        <ul>
+            <li><code>stock_updated</code> - For inventory changes</li>
+            <li><code>product_updated</code> - For product updates</li>
+            <li><code>product_synced</code> - For product syncs</li>
+        </ul>
+    </div>
+
+    <script>
+        const WEBHOOK_URL = 'https://nsmrxwnrtsllxvplazmm.supabase.co/functions/v1/printful-inventory-sync?webhook=true';
+        const MANUAL_SYNC_URL = 'https://nsmrxwnrtsllxvplazmm.supabase.co/functions/v1/printful-inventory-sync';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhem1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0OTY0NTIsImV4cCI6MjA2NzA3MjQ1Mn0.XyHiuQHXW_laGE4Caond1-8xK-2B4NzDzIOX8baD4UM';
+
+        async function testBasicWebhook() {
+            const resultDiv = document.getElementById('result1');
+            resultDiv.innerHTML = '<p>Testing...</p>';
+            
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: 'stock_updated',
+                        created: Date.now(),
+                        retries: 0,
+                        store: 1,
+                        data: {
+                            product_id: 9001,
+                            variant_stock: {
+                                '68a9daac4dcb25': false
+                            }
+                        }
+                    })
+                });
+
+                const result = await response.text();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div class="success"><h4>✅ Success!</h4><pre>${result}</pre></div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error"><h4>❌ Error ${response.status}</h4><pre>${result}</pre></div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error"><h4>❌ Network Error</h4><pre>${error.message}</pre></div>`;
+            }
+        }
+
+        async function testAuthWebhook() {
+            const resultDiv = document.getElementById('result2');
+            resultDiv.innerHTML = '<p>Testing...</p>';
+            
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({
+                        type: 'stock_updated',
+                        created: Date.now(),
+                        retries: 0,
+                        store: 1,
+                        data: {
+                            product_id: 9001,
+                            variant_stock: {
+                                '68a9daac4dcb25': false
+                            }
+                        }
+                    })
+                });
+
+                const result = await response.text();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div class="success"><h4>✅ Success!</h4><pre>${result}</pre></div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error"><h4>❌ Error ${response.status}</h4><pre>${result}</pre></div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error"><h4>❌ Network Error</h4><pre>${error.message}</pre></div>`;
+            }
+        }
+
+        async function testManualSync() {
+            const resultDiv = document.getElementById('result3');
+            resultDiv.innerHTML = '<p>Testing...</p>';
+            
+            try {
+                const response = await fetch(MANUAL_SYNC_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                const result = await response.text();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div class="success"><h4>✅ Success!</h4><pre>${result}</pre></div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error"><h4>❌ Error ${response.status}</h4><pre>${result}</pre></div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error"><h4>❌ Network Error</h4><pre>${error.message}</pre></div>`;
+            }
+        }
+    </script>
+</body>
+</html>

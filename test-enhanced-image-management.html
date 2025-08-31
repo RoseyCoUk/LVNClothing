@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Enhanced Image Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">
+            🧪 Test Enhanced Image Management
+        </h1>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                Database Structure Verification
+            </h2>
+            <div id="dbStructure" class="text-gray-600">
+                Loading...
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                Sample Image Data
+            </h2>
+            <div id="sampleData" class="text-gray-600">
+                Loading...
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                Test Variant Image Queries
+            </h2>
+            <div class="space-y-4">
+                <button 
+                    onclick="testProductImages()"
+                    class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+                >
+                    🔍 Test Product Images Query
+                </button>
+                
+                <button 
+                    onclick="testColorImages()"
+                    class="w-full px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700"
+                >
+                    🎨 Test Color Variant Images Query
+                </button>
+                
+                <button 
+                    onclick="testSizeImages()"
+                    class="w-full px-4 py-2 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700"
+                >
+                    📏 Test Size Variant Images Query
+                </button>
+            </div>
+            <div id="queryResults" class="mt-4 text-gray-600">
+                Click a button above to test queries...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://nsmrxwnrtsllxvplazmm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhem1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0OTY0NTIsImV4cCI6MjA2NzA3MjQ1Mn0.XyHiuQHXW_laGE4Caond1-8xK-2B4NzDzIOX8baD4UM';
+
+        // Load data on page load
+        window.onload = function() {
+            checkDatabaseStructure();
+            loadSampleData();
+        };
+
+        async function checkDatabaseStructure() {
+            try {
+                console.log('🔍 Checking database structure...');
+                
+                // Check if the new columns exist
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/product_images?select=id,product_id,image_url,variant_type,color,size&limit=1`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('✅ Database structure check successful');
+                
+                if (data.length > 0) {
+                    const sample = data[0];
+                    const hasNewColumns = 'variant_type' in sample && 'color' in sample && 'size' in sample;
+                    
+                    document.getElementById('dbStructure').innerHTML = `
+                        <div class="text-green-600">
+                            <strong>✅ Database structure verified!</strong>
+                        </div>
+                        <div class="mt-2 text-sm">
+                            <div><strong>variant_type:</strong> ${sample.variant_type || 'NULL'}</div>
+                            <div><strong>color:</strong> ${sample.color || 'NULL'}</div>
+                            <div><strong>size:</strong> ${sample.size || 'NULL'}</div>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-500">
+                            New columns are ${hasNewColumns ? 'present' : 'missing'}
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('dbStructure').innerHTML = `
+                        <div class="text-yellow-600">
+                            <strong>⚠️ No images found in database</strong>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error checking database structure:', error);
+                document.getElementById('dbStructure').innerHTML = `
+                    <div class="text-red-600">
+                        <strong>❌ Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function loadSampleData() {
+            try {
+                console.log('📊 Loading sample data...');
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/product_images?select=*&limit=10`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch: ${response.status}`);
+                }
+
+                const images = await response.json();
+                console.log(`📊 Loaded ${images.length} sample images`);
+                
+                if (images.length > 0) {
+                    const imagesHtml = images.map((img, index) => `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2 text-sm text-gray-900">${index + 1}</td>
+                            <td class="px-4 py-2 text-sm text-gray-600">${img.product_id?.substring(0, 8)}...</td>
+                            <td class="px-4 py-2 text-sm text-gray-600">${img.variant_type || 'NULL'}</td>
+                            <td class="px-4 py-2 text-sm text-gray-600">${img.color || 'NULL'}</td>
+                            <td class="px-4 py-2 text-sm text-gray-600">${img.size || 'NULL'}</td>
+                            <td class="px-4 py-2 text-sm text-gray-600">${img.image_order}</td>
+                            <td class="px-4 py-2 text-sm text-gray-600">${img.is_primary ? 'Yes' : 'No'}</td>
+                        </tr>
+                    `).join('');
+
+                    document.getElementById('sampleData').innerHTML = `
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product ID</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variant Type</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Color</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Primary</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    ${imagesHtml}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-600">
+                            <strong>Total:</strong> ${images.length} images loaded
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('sampleData').innerHTML = `
+                        <div class="text-yellow-600">
+                            <strong>⚠️ No images found in database</strong>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error loading sample data:', error);
+                document.getElementById('sampleData').innerHTML = `
+                    <div class="text-red-600">
+                        <strong>❌ Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testProductImages() {
+            try {
+                console.log('🔍 Testing product images query...');
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/product_images?select=*&variant_type=eq.product&limit=5`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch: ${response.status}`);
+                }
+
+                const images = await response.json();
+                console.log(`✅ Found ${images.length} product images`);
+                
+                document.getElementById('queryResults').innerHTML = `
+                    <div class="text-green-600">
+                        <strong>✅ Product Images Query Successful!</strong>
+                    </div>
+                    <div class="mt-2 text-sm">
+                        <strong>Found:</strong> ${images.length} product images
+                    </div>
+                    <div class="mt-2 text-xs text-gray-500">
+                        Query: variant_type = 'product'
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('❌ Error testing product images query:', error);
+                document.getElementById('queryResults').innerHTML = `
+                    <div class="text-red-600">
+                        <strong>❌ Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testColorImages() {
+            try {
+                console.log('🎨 Testing color variant images query...');
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/product_images?select=*&variant_type=eq.color&limit=5`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch: ${response.status}`);
+                }
+
+                const images = await response.json();
+                console.log(`✅ Found ${images.length} color variant images`);
+                
+                document.getElementById('queryResults').innerHTML = `
+                    <div class="text-green-600">
+                        <strong>✅ Color Variant Images Query Successful!</strong>
+                    </div>
+                    <div class="mt-2 text-sm">
+                        <strong>Found:</strong> ${images.length} color variant images
+                    </div>
+                    <div class="mt-2 text-xs text-gray-500">
+                        Query: variant_type = 'color'
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('❌ Error testing color variant images query:', error);
+                document.getElementById('queryResults').innerHTML = `
+                    <div class="text-red-600">
+                        <strong>❌ Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testSizeImages() {
+            try {
+                console.log('📏 Testing size variant images query...');
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/product_images?select=*&variant_type=eq.size&limit=5`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch: ${response.status}`);
+                }
+
+                const images = await response.json();
+                console.log(`✅ Found ${images.length} size variant images`);
+                
+                document.getElementById('queryResults').innerHTML = `
+                    <div class="text-green-600">
+                        <strong>✅ Size Variant Images Query Successful!</strong>
+                    </div>
+                    <div class="mt-2 text-sm">
+                        <strong>Found:</strong> ${images.length} size variant images
+                    </div>
+                    <div class="mt-2 text-xs text-gray-500">
+                        Query: variant_type = 'size'
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('❌ Error testing size variant images query:', error);
+                document.getElementById('queryResults').innerHTML = `
+                    <div class="text-red-600">
+                        <strong>❌ Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

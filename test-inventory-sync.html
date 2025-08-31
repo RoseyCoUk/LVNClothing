@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Printful Inventory Sync</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .status.success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .status.info { background: #d1ecf1; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Printful Inventory Sync</h1>
+    
+    <div class="test-section">
+        <h2>📊 Current Status</h2>
+        <p>This page tests the Printful inventory sync system we just implemented.</p>
+        <p><strong>Function URL:</strong> <code>https://nsmrxwnrtsllxvplazmm.supabase.co/functions/v1/printful-inventory-sync</code></p>
+    </div>
+
+    <div class="test-section">
+        <h2>🔄 Test Manual Inventory Sync</h2>
+        <p>This will trigger a full inventory sync of all 158 variants.</p>
+        <button onclick="testManualSync()">Run Manual Sync</button>
+        <div id="manualSyncResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📡 Test Webhook Handling</h2>
+        <p>This simulates a Printful webhook updating variant availability.</p>
+        <button onclick="testWebhook()">Test Webhook</button>
+        <div id="webhookResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📋 Test Results</h2>
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://nsmrxwnrtsllxvplazmm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhem1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0OTY0NTIsImV4cCI6MjA2NzA3MjQ1Mn0.XyHiuQHXW_laGE4Caond1-8xK-2B4NzDzIOX8baD4UM';
+
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            resultsDiv.appendChild(statusDiv);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        async function testManualSync() {
+            const resultDiv = document.getElementById('manualSyncResult');
+            resultDiv.innerHTML = '<div class="status info">🔄 Running manual sync...</div>';
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/printful-inventory-sync`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ Manual sync completed successfully!<br>
+                            <strong>Summary:</strong><br>
+                            • Total variants: ${result.summary.total_variants}<br>
+                            • Updated: ${result.summary.updated}<br>
+                            • Errors: ${result.summary.errors}
+                        </div>
+                    `;
+                    addResult(`Manual sync completed: ${result.summary.updated} variants updated, ${result.summary.errors} errors`, 'success');
+                } else {
+                    resultDiv.innerHTML = `<div class="status error">❌ Sync failed: ${result.error}</div>`;
+                    addResult(`Manual sync failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="status error">❌ Network error: ${error.message}</div>`;
+                addResult(`Network error during manual sync: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWebhook() {
+            const resultDiv = document.getElementById('webhookResult');
+            resultDiv.innerHTML = '<div class="status info">📡 Testing webhook...</div>';
+            
+            try {
+                // Simulate a Printful webhook updating a t-shirt variant
+                const webhookData = {
+                    variant_id: '68a9daac4dcb25', // Army / S t-shirt
+                    in_stock: false,
+                    is_available: false
+                };
+
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/printful-inventory-sync?webhook=true`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(webhookData)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ Webhook processed successfully!<br>
+                            <strong>Data:</strong> ${JSON.stringify(webhookData, null, 2)}
+                        </div>
+                    `;
+                    addResult(`Webhook processed successfully for variant ${webhookData.variant_id}`, 'success');
+                } else {
+                    resultDiv.innerHTML = `<div class="status error">❌ Webhook failed: ${result.error}</div>`;
+                    addResult(`Webhook failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="status error">❌ Network error: ${error.message}</div>`;
+                addResult(`Network error during webhook test: ${error.message}`, 'error');
+            }
+        }
+
+        // Add initial status
+        addResult('Test page loaded successfully', 'info');
+        addResult('Ready to test inventory sync functions', 'info');
+    </script>
+</body>
+</html>

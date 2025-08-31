@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0.0">
+    <title>Test Image Management Debug</title>
+</head>
+<body>
+    <h1>Image Management Debug Test</h1>
+    
+    <div id="debug-info">
+        <h2>Debug Information</h2>
+        <p>This page will help debug why the variant selector isn't showing.</p>
+        
+        <h3>Expected Behavior:</h3>
+        <ul>
+            <li>For caps, t-shirts, hoodies: Should show variant selector</li>
+            <li>For stickers, mugs: Should NOT show variant selector</li>
+        </ul>
+        
+        <h3>Test Cases:</h3>
+        <div id="test-cases">
+                    <button onclick="testCategory('cap')">Test Cap Category</button>
+        <button onclick="testCategory('tshirt')">Test T-Shirt Category</button>
+        <button onclick="testCategory('hoodie')">Test Hoodie Category</button>
+        <button onclick="testCategory('hoodies')">Test Hoodies Category</button>
+        <button onclick="testCategory('sticker')">Test Sticker Category</button>
+        <button onclick="testCategory('mug')">Test Mug Category</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+    
+    <script>
+        function testCategory(category) {
+            const resultsDiv = document.getElementById('results');
+            
+            // Test the logic from EnhancedImageManagement
+            const normalizedCategory = category.toLowerCase().replace(/\s+/g, '-');
+            const hasVariants = ['cap', 'caps', 'tshirt', 'tshirts', 'hoodie', 'hoodies', 'tote', 'totes', 'water-bottle', 'water-bottles', 'mug', 'mugs', 'mouse-pad', 'mouse-pads', 'sticker', 'stickers'].includes(normalizedCategory);
+            const hasColors = ['cap', 'caps', 'tshirt', 'tshirts', 'hoodie', 'hoodies', 'tote', 'totes', 'water-bottle', 'water-bottles', 'mug', 'mugs', 'mouse-pad', 'mouse-pads', 'sticker', 'stickers'].includes(normalizedCategory);
+            const hasSizes = ['tshirt', 'tshirts', 'hoodie', 'hoodies'].includes(normalizedCategory);
+            
+            // Get available colors
+            const getAvailableColors = () => {
+                switch (normalizedCategory) {
+                    case 'cap':
+                        return ['Black', 'Dark Grey', 'Khaki', 'Light Blue', 'Navy', 'Pink', 'Stone', 'White'];
+                    case 'tshirt':
+                        return ['Army', 'Asphalt', 'Autumn', 'Black', 'Black Heather', 'Dark Grey Heather', 'Heather Deep Teal', 'Mauve', 'Navy', 'Olive', 'Red', 'Steel Blue', 'Ash', 'Athletic Heather', 'Heather Dust', 'Heather Prism Peach', 'Mustard', 'Pink', 'White', 'Yellow'];
+                    case 'hoodie':
+                        return ['Black', 'Dark Heather', 'Indigo Blue', 'Navy', 'Red', 'Light Blue', 'Light Pink', 'Sport Grey', 'White'];
+                    case 'tote':
+                        return ['Black'];
+                    case 'water-bottle':
+                        return ['Stainless Steel'];
+                    case 'mug':
+                        return ['White'];
+                    case 'mouse-pad':
+                        return ['White'];
+                    case 'sticker':
+                        return ['Default'];
+                    default:
+                        return [];
+                }
+            };
+            
+            const availableColors = getAvailableColors();
+            
+            resultsDiv.innerHTML = `
+                <h3>Results for Category: "${category}"</h3>
+                <div style="background: #f0f0f0; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                    <p><strong>Normalized Category:</strong> ${normalizedCategory}</p>
+                    <p><strong>Has Variants:</strong> ${hasVariants}</p>
+                    <p><strong>Has Colors:</strong> ${hasColors}</p>
+                    <p><strong>Has Sizes:</strong> ${hasSizes}</p>
+                    <p><strong>Available Colors:</strong> ${availableColors.join(', ')}</p>
+                    <p><strong>Should Show Variant Selector:</strong> ${hasVariants ? 'YES' : 'NO'}</p>
+                </div>
+                
+                <h4>Expected UI Elements:</h4>
+                <ul>
+                    <li>Variant Type Selector: ${hasVariants ? '✅ Should Show' : '❌ Should NOT Show'}</li>
+                    <li>Color Options: ${hasColors ? '✅ Should Show' : '❌ Should NOT Show'}</li>
+                    <li>Size Options: ${hasSizes ? '✅ Should Show' : '❌ Should NOT Show'}</li>
+                </ul>
+            `;
+        }
+        
+        // Test with a default category
+        testCategory('tshirt');
+    </script>
+</body>
+</html>

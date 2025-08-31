@@ -59,7 +59,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       if (savedCart) {
         const parsedCart = JSON.parse(savedCart);
         setCartItems(parsedCart);
-        console.log('Cart loaded from localStorage:', parsedCart);
+    
       }
     } catch (error) {
       console.error('Error loading cart from localStorage:', error);
@@ -79,17 +79,17 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   // Debug cart state changes
   useEffect(() => {
-    console.log('Cart state updated:', cartItems)
+
   }, [cartItems])
 
   // Initialize cart context
   useEffect(() => {
-    console.log('CartProvider initialized')
+
   }, [])
 
   const addToCart = (product: Omit<CartItem, 'quantity'>) => {
     try {
-      console.log('Adding to cart:', product)
+  
       
       // Validate product data
       if (!product.id || !product.name || typeof product.price !== 'number' || product.price <= 0) {
@@ -100,14 +100,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       setCartItems(prev => {
         const existingItem = prev.find(item => item.id === product.id)
         if (existingItem) {
-          console.log('Product already in cart, updating quantity')
+  
           return prev.map(item =>
             item.id === product.id
               ? { ...item, quantity: item.quantity + 1 }
               : item
           )
         }
-        console.log('Adding new product to cart')
+
         return [...prev, { ...product, quantity: 1 }]
       })
     } catch (error) {

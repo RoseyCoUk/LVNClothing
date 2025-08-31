@@ -7,7 +7,8 @@ import {
   Users, 
   Home,
   Settings,
-  LogOut
+  LogOut,
+  Package
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -22,6 +23,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingBag },
+    { name: 'Products', href: '/admin/products', icon: Package },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
     { name: 'Customers', href: '/admin/customers', icon: Users },
     { name: 'Settings', href: '/admin/settings', icon: Settings },

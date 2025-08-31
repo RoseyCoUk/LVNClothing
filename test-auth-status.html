@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Authentication Status</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .primary { background-color: #007bff; color: white; }
+        .secondary { background-color: #6c757d; color: white; }
+        .success-btn { background-color: #28a745; color: white; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+        .status-ok { background-color: #28a745; }
+        .status-error { background-color: #dc3545; }
+        .status-warning { background-color: #ffc107; }
+        .status-unknown { background-color: #6c757d; }
+    </style>
+</head>
+<body>
+    <h1>🔐 Test Authentication Status</h1>
+    <p>This page will help debug the authentication and products loading issues.</p>
+
+    <div class="test-section info">
+        <h3>🔍 Environment Check</h3>
+        <p><strong>Current URL:</strong> <span id="current-url"></span></p>
+        <p><strong>Environment:</strong> <span id="environment"></span></p>
+        <p><strong>Supabase URL:</strong> <span id="supabase-url"></span></p>
+        <p><strong>Supabase Anon Key:</strong> <span id="supabase-key"></span></p>
+    </div>
+
+    <div class="test-section">
+        <h3>🔑 Authentication Status</h3>
+        <button onclick="checkAuthStatus()" class="primary">Check Authentication Status</button>
+        <div id="auth-status-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>👤 User Session Test</h3>
+        <button onclick="checkUserSession()" class="primary">Check User Session</button>
+        <div id="user-session-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🛍️ Products API Test (Authenticated)</h3>
+        <button onclick="testProductsAPI()" class="primary">Test Products API</button>
+        <div id="products-api-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🖼️ Product Images API Test (Authenticated)</h3>
+        <button onclick="testProductImagesAPI()" class="primary">Test Product Images API</button>
+        <div id="product-images-api-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔧 Manual Authentication Test</h3>
+        <button onclick="testManualAuth()" class="primary">Test Manual Authentication</button>
+        <div id="manual-auth-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>📋 Summary & Next Steps</h3>
+        <div id="summary-result"></div>
+    </div>
+
+    <!-- Supabase Client -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Configuration
+        const supabaseUrl = 'https://nsmrxwnrtsllxvplazmm.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhenNtIiwicm9sZSI6ImFub24iLCJleHAiOjE3NTY1MzI5NjMsImV4cCI6MjA3MjEwODk2M30.8s4y0wtzrr4';
+        
+        // Create Supabase client
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Display environment info
+        document.getElementById('current-url').textContent = window.location.href;
+        document.getElementById('environment').textContent = window.location.href.includes('localhost') ? 'Development' : 'Production';
+        document.getElementById('supabase-url').textContent = supabaseUrl;
+        document.getElementById('supabase-key').textContent = supabaseKey.substring(0, 20) + '...';
+
+        // Check authentication status
+        async function checkAuthStatus() {
+            const resultDiv = document.getElementById('auth-status-result');
+            resultDiv.innerHTML = '<p>🔄 Checking authentication status...</p>';
+            
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    resultDiv.innerHTML = `<p class="error">❌ Authentication error: ${error.message}</p>`;
+                    return;
+                }
+                
+                if (session) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ User is authenticated!</p>
+                        <p><strong>User ID:</strong> ${session.user.id}</p>
+                        <p><strong>Email:</strong> ${session.user.email}</p>
+                        <p><strong>Last Sign In:</strong> ${new Date(session.user.last_sign_in_at).toLocaleString()}</p>
+                        <p><strong>Access Token:</strong> ${session.access_token ? 'Present' : 'Missing'}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="warning">⚠️ No active session found</p>
+                        <p>You need to log in to access the admin panel.</p>
+                        <button onclick="signInWithEmail()" class="success-btn">Sign In with Email</button>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Authentication check failed: ${error.message}</p>`;
+            }
+        }
+
+        // Check user session
+        async function checkUserSession() {
+            const resultDiv = document.getElementById('user-session-result');
+            resultDiv.innerHTML = '<p>🔄 Checking user session...</p>';
+            
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser();
+                
+                if (error) {
+                    resultDiv.innerHTML = `<p class="error">❌ User session error: ${error.message}</p>`;
+                    return;
+                }
+                
+                if (user) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ User session active!</p>
+                        <p><strong>User ID:</strong> ${user.id}</p>
+                        <p><strong>Email:</strong> ${user.email}</p>
+                        <p><strong>Role:</strong> ${user.role || 'Not specified'}</p>
+                        <p><strong>Created:</strong> ${new Date(user.created_at).toLocaleString()}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p class="warning">⚠️ No user found in session</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ User session check failed: ${error.message}</p>`;
+            }
+        }
+
+        // Test products API with authentication
+        async function testProductsAPI() {
+            const resultDiv = document.getElementById('products-api-result');
+            resultDiv.innerHTML = '<p>🔄 Testing products API with authentication...</p>';
+            
+            try {
+                // First check if we have a session
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (!session) {
+                    resultDiv.innerHTML = `<p class="error">❌ No active session. Please log in first.</p>`;
+                    return;
+                }
+                
+                // Test the products API
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .limit(5);
+                
+                if (error) {
+                    resultDiv.innerHTML = `<p class="error">❌ Products API error: ${error.message}</p>`;
+                    return;
+                }
+                
+                resultDiv.innerHTML = `
+                    <p class="success">✅ Products API working with authentication!</p>
+                    <p><strong>Products found:</strong> ${data.length}</p>
+                    <details>
+                        <summary>Product details (click to expand)</summary>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </details>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Products API test failed: ${error.message}</p>`;
+            }
+        }
+
+        // Test product images API with authentication
+        async function testProductImagesAPI() {
+            const resultDiv = document.getElementById('product-images-api-result');
+            resultDiv.innerHTML = '<p>🔄 Testing product images API with authentication...</p>';
+            
+            try {
+                // First check if we have a session
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (!session) {
+                    resultDiv.innerHTML = `<p class="error">❌ No active session. Please log in first.</p>`;
+                    return;
+                }
+                
+                // Test the product_images API
+                const { data, error } = await supabase
+                    .from('product_images')
+                    .select('*')
+                    .limit(5);
+                
+                if (error) {
+                    resultDiv.innerHTML = `<p class="error">❌ Product images API error: ${error.message}</p>`;
+                    return;
+                }
+                
+                resultDiv.innerHTML = `
+                    <p class="success">✅ Product images API working with authentication!</p>
+                    <p><strong>Images found:</strong> ${data.length}</p>
+                    <details>
+                        <summary>Image details (click to expand)</summary>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </details>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Product images API test failed: ${error.message}</p>`;
+            }
+        }
+
+        // Test manual authentication
+        async function testManualAuth() {
+            const resultDiv = document.getElementById('manual-auth-result');
+            resultDiv.innerHTML = '<p>🔄 Testing manual authentication...</p>';
+            
+            try {
+                // Try to sign in with a test email (this will fail but shows the flow)
+                const { data, error } = await supabase.auth.signInWithOtp({
+                    email: 'test@example.com'
+                });
+                
+                if (error) {
+                    resultDiv.innerHTML = `
+                        <p class="warning">⚠️ Manual auth test completed (expected to fail)</p>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Status:</strong> ${error.status}</p>
+                        <p>This is normal - we're just testing the auth flow.</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p class="success">✅ Manual auth test successful!</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Manual auth test failed: ${error.message}</p>`;
+            }
+        }
+
+        // Sign in with email (placeholder)
+        function signInWithEmail() {
+            alert('To sign in, please go to your admin panel and log in there. This test page cannot handle authentication.');
+        }
+
+        // Update summary
+        function updateSummary() {
+            const summaryDiv = document.getElementById('summary-result');
+            summaryDiv.innerHTML = `
+                <h4>🔍 Current Status</h4>
+                <p><strong>Environment:</strong> ${window.location.href.includes('localhost') ? 'Development' : 'Production'}</p>
+                <p><strong>Supabase:</strong> ${supabaseUrl}</p>
+                <p><strong>Authentication:</strong> <span id="auth-status">Unknown</span></p>
+                <p><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
+                
+                <h4>🚨 Next Steps</h4>
+                <ol>
+                    <li><strong>Check Authentication:</strong> Click "Check Authentication Status" to see if you're logged in</li>
+                    <li><strong>Verify Session:</strong> Click "Check User Session" to confirm user details</li>
+                    <li><strong>Test API Access:</strong> Click "Test Products API" to see if authenticated API calls work</li>
+                    <li><strong>Go to Admin Panel:</strong> If auth is working, the issue is in the admin panel code</li>
+                </ol>
+                
+                <h4>💡 Expected Results</h4>
+                <ul>
+                    <li><span class="status-indicator status-ok"></span>Authentication should show "User is authenticated"</li>
+                    <li><span class="status-indicator status-ok"></span>User session should show user details</li>
+                    <li><span class="status-indicator status-ok"></span>Products API should return products (not 401)</li>
+                    <li><span class="status-indicator status-ok"></span>Product images API should return images (not 401)</li>
+                </ul>
+            `;
+        }
+
+        // Initialize
+        updateSummary();
+        
+        // Update auth status in summary
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            const authStatusSpan = document.getElementById('auth-status');
+            if (authStatusSpan) {
+                authStatusSpan.textContent = session ? 'Authenticated' : 'Not Authenticated';
+                authStatusSpan.className = session ? 'success' : 'error';
+            }
+        });
+    </script>
+</body>
+</html>

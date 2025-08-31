@@ -1,0 +1,1 @@
+UPDATE public.admin_roles SET permissions = '["admin_access","view_orders","manage_orders","view_customers","manage_customers","view_analytics","manage_analytics","view_settings","manage_settings","read_analytics","view_products"]' WHERE user_id = '3e14b0c3-ed51-4ca4-9405-654ea84688b6';

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test RLS Status</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Test RLS Status for product_images</h1>
+    
+    <div id="status"></div>
+    <div id="test-insert"></div>
+    
+    <script>
+        const supabaseUrl = 'https://your-project.supabase.co'; // Replace with your URL
+        const supabaseKey = 'your-anon-key'; // Replace with your anon key
+        
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        async function checkRLSStatus() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '<p>Checking RLS status...</p>';
+            
+            try {
+                // Check RLS status
+                const { data: rlsData, error: rlsError } = await supabase
+                    .from('product_images')
+                    .select('*')
+                    .limit(1);
+                
+                if (rlsError) {
+                    statusDiv.innerHTML = `<p><strong>RLS Error:</strong> ${rlsError.message}</p>`;
+                } else {
+                    statusDiv.innerHTML = `<p><strong>RLS Status:</strong> Working - can read data</p>`;
+                }
+                
+                // Try to get table info
+                const { data: tableInfo, error: tableError } = await supabase
+                    .rpc('get_table_info', { table_name: 'product_images' });
+                
+                if (tableError) {
+                    statusDiv.innerHTML += `<p><strong>Table Info Error:</strong> ${tableError.message}</p>`;
+                } else {
+                    statusDiv.innerHTML += `<p><strong>Table Info:</strong> ${JSON.stringify(tableInfo)}</p>`;
+                }
+                
+            } catch (error) {
+                statusDiv.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
+            }
+        }
+        
+        async function testInsert() {
+            const testDiv = document.getElementById('test-insert');
+            testDiv.innerHTML = '<p>Testing insert...</p>';
+            
+            try {
+                // Get a product ID first
+                const { data: products, error: productError } = await supabase
+                    .from('products')
+                    .select('id')
+                    .limit(1);
+                
+                if (productError || !products.length) {
+                    testDiv.innerHTML = `<p><strong>Product Error:</strong> ${productError?.message || 'No products found'}</p>`;
+                    return;
+                }
+                
+                const productId = products[0].id;
+                
+                // Try to insert a test image
+                const { data: insertData, error: insertError } = await supabase
+                    .from('product_images')
+                    .insert({
+                        product_id: productId,
+                        image_url: 'https://test.com/test-image.jpg',
+                        image_order: 0,
+                        is_primary: true,
+                        variant_type: 'product',
+                        color: null,
+                        size: null
+                    })
+                    .select();
+                
+                if (insertError) {
+                    testDiv.innerHTML = `<p><strong>Insert Error:</strong> ${insertError.message}</p>`;
+                } else {
+                    testDiv.innerHTML = `<p><strong>Insert Success!</strong> ${JSON.stringify(insertData)}</p>`;
+                    
+                    // Clean up test data
+                    await supabase
+                        .from('product_images')
+                        .delete()
+                        .eq('image_url', 'https://test.com/test-image.jpg');
+                }
+                
+            } catch (error) {
+                testDiv.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
+            }
+        }
+        
+        // Run tests on page load
+        window.onload = function() {
+            checkRLSStatus();
+            setTimeout(testInsert, 1000);
+        };
+    </script>
+</body>
+</html>

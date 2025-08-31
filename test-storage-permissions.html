@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Storage Permissions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .upload-area.dragover {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+        }
+        .file-input {
+            display: none;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Storage Permissions Test</h1>
+        
+        <div class="test-section">
+            <h3>1. Environment Check</h3>
+            <div id="env-status" class="status info">
+                Checking environment variables...
+            </div>
+            <button class="button" onclick="checkEnvironment()">Check Environment</button>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Supabase Connection Test</h3>
+            <div id="connection-status" class="status info">
+                Not tested yet
+            </div>
+            <button class="button" onclick="testConnection()">Test Connection</button>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Storage Bucket Test</h3>
+            <div id="bucket-status" class="status info">
+                Not tested yet
+            </div>
+            <button class="button" onclick="testStorageBucket()">Test Storage Bucket</button>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Image Upload Test</h3>
+            <div id="upload-status" class="status info">
+                Select a file to test upload
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('file-input').click()">
+                <p>📁 Click here to select a file or drag and drop</p>
+                <p><small>Supports: JPG, PNG, WebP</small></p>
+            </div>
+            
+            <input type="file" id="file-input" class="file-input" accept="image/*" onchange="handleFileSelect(event)">
+            
+            <button class="button" onclick="testUpload()" id="upload-btn" disabled>Test Upload</button>
+        </div>
+
+        <div class="test-section">
+            <h3>5. Database Insert Test</h3>
+            <div id="db-status" class="status info">
+                Not tested yet
+            </div>
+            <button class="button" onclick="testDatabaseInsert()">Test Database Insert</button>
+        </div>
+
+        <div class="test-section">
+            <h3>6. Log Output</h3>
+            <div class="log" id="log-output">
+                Ready to test...
+            </div>
+            <button class="button" onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Supabase client
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+        let supabase;
+        let selectedFile = null;
+
+        // Initialize Supabase client
+        function initSupabase() {
+            const supabaseUrl = 'https://nsmrxwnrtsllxvplazmm.supabase.co';
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhem1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0OTY0NTIsImV4cCI6MjA2NzA3MjQ1Mn0.XyHiuQHXW_laGE4Caond1-8xK-2B4NzDzIOX8baD4UM';
+            
+            supabase = createClient(supabaseUrl, supabaseKey);
+            log('Supabase client initialized');
+        }
+
+        // Logging function
+        function log(message) {
+            const logOutput = document.getElementById('log-output');
+            const timestamp = new Date().toLocaleTimeString();
+            logOutput.innerHTML += `[${timestamp}] ${message}\n`;
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+
+        // Check environment variables
+        window.checkEnvironment = function() {
+            const envStatus = document.getElementById('env-status');
+            envStatus.className = 'status info';
+            envStatus.textContent = 'Checking...';
+            
+            try {
+                // Check if we can access environment variables
+                const hasUrl = typeof window !== 'undefined' && window.location.href.includes('nsmrxwnrtsllxvplazmm');
+                const hasKey = typeof window !== 'undefined' && window.location.href.includes('supabase');
+                
+                if (hasUrl && hasKey) {
+                    envStatus.className = 'status success';
+                    envStatus.textContent = 'Environment variables accessible';
+                    log('✅ Environment check passed');
+                } else {
+                    envStatus.className = 'status error';
+                    envStatus.textContent = 'Environment variables not accessible';
+                    log('❌ Environment check failed');
+                }
+            } catch (error) {
+                envStatus.className = 'status error';
+                envStatus.textContent = `Error: ${error.message}`;
+                log(`❌ Environment check error: ${error.message}`);
+            }
+        };
+
+        // Test Supabase connection
+        window.testConnection = async function() {
+            const connectionStatus = document.getElementById('connection-status');
+            connectionStatus.className = 'status info';
+            connectionStatus.textContent = 'Testing connection...';
+            
+            try {
+                if (!supabase) {
+                    initSupabase();
+                }
+                
+                // Test a simple query
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('id, name')
+                    .limit(1);
+                
+                if (error) {
+                    throw error;
+                }
+                
+                connectionStatus.className = 'status success';
+                connectionStatus.textContent = `Connection successful! Found ${data.length} products`;
+                log('✅ Supabase connection successful');
+            } catch (error) {
+                connectionStatus.className = 'status error';
+                connectionStatus.textContent = `Connection failed: ${error.message}`;
+                log(`❌ Supabase connection failed: ${error.message}`);
+            }
+        };
+
+        // Test storage bucket
+        window.testStorageBucket = async function() {
+            const bucketStatus = document.getElementById('bucket-status');
+            bucketStatus.className = 'status info';
+            bucketStatus.textContent = 'Testing storage bucket...';
+            
+            try {
+                if (!supabase) {
+                    initSupabase();
+                }
+                
+                // Test bucket access
+                const { data, error } = await supabase.storage
+                    .from('product-images')
+                    .list('', { limit: 1 });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                bucketStatus.className = 'status success';
+                bucketStatus.textContent = `Storage bucket accessible! Found ${data.length} files`;
+                log('✅ Storage bucket accessible');
+            } catch (error) {
+                bucketStatus.className = 'status error';
+                bucketStatus.textContent = `Storage bucket failed: ${error.message}`;
+                log(`❌ Storage bucket failed: ${error.message}`);
+            }
+        };
+
+        // Handle file selection
+        window.handleFileSelect = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                const uploadStatus = document.getElementById('upload-status');
+                uploadStatus.className = 'status success';
+                uploadStatus.textContent = `File selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                
+                const uploadBtn = document.getElementById('upload-btn');
+                uploadBtn.disabled = false;
+                
+                log(`📁 File selected: ${file.name}`);
+            }
+        };
+
+        // Test upload
+        window.testUpload = async function() {
+            if (!selectedFile) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            const uploadStatus = document.getElementById('upload-status');
+            uploadStatus.className = 'status info';
+            uploadStatus.textContent = 'Uploading...';
+            
+            try {
+                if (!supabase) {
+                    initSupabase();
+                }
+                
+                // Generate unique filename
+                const timestamp = Date.now();
+                const randomId = Math.random().toString(36).substring(2, 15);
+                const fileExtension = selectedFile.name.split('.').pop();
+                const fileName = `test_${timestamp}_${randomId}.${fileExtension}`;
+                const path = `test/${fileName}`;
+                
+                log(`🚀 Starting upload: ${path}`);
+                
+                // Upload to storage
+                const { data, error } = await supabase.storage
+                    .from('product-images')
+                    .upload(path, selectedFile, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                log('✅ File uploaded to storage successfully');
+                
+                // Get public URL
+                const { data: urlData } = supabase.storage
+                    .from('product-images')
+                    .getPublicUrl(data.path);
+                
+                log(`🔗 Public URL: ${urlData.publicUrl}`);
+                
+                uploadStatus.className = 'status success';
+                uploadStatus.textContent = `Upload successful! File: ${fileName}`;
+                
+            } catch (error) {
+                uploadStatus.className = 'status error';
+                uploadStatus.textContent = `Upload failed: ${error.message}`;
+                log(`❌ Upload failed: ${error.message}`);
+            }
+        };
+
+        // Test database insert
+        window.testDatabaseInsert = async function() {
+            const dbStatus = document.getElementById('db-status');
+            dbStatus.className = 'status info';
+            dbStatus.textContent = 'Testing database insert...';
+            
+            try {
+                if (!supabase) {
+                    initSupabase();
+                }
+                
+                // Test inserting a simple record
+                const { data, error } = await supabase
+                    .from('product_images')
+                    .insert({
+                        product_id: '00000000-0000-0000-0000-000000000000', // Test UUID
+                        image_url: 'https://example.com/test.jpg',
+                        image_order: 0,
+                        is_primary: false,
+                        is_thumbnail: false,
+                        variant_type: 'product'
+                    })
+                    .select()
+                    .single();
+                
+                if (error) {
+                    throw error;
+                }
+                
+                log('✅ Database insert successful');
+                
+                // Clean up test record
+                await supabase
+                    .from('product_images')
+                    .delete()
+                    .eq('id', data.id);
+                
+                log('🧹 Test record cleaned up');
+                
+                dbStatus.className = 'status success';
+                dbStatus.textContent = 'Database insert test successful!';
+                
+            } catch (error) {
+                dbStatus.className = 'status error';
+                dbStatus.textContent = `Database insert failed: ${error.message}`;
+                log(`❌ Database insert failed: ${error.message}`);
+            }
+        };
+
+        // Clear log
+        window.clearLog = function() {
+            document.getElementById('log-output').innerHTML = 'Log cleared...\n';
+        };
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Storage permissions test page loaded');
+            log('Click "Check Environment" to start testing');
+        });
+    </script>
+</body>
+</html>
+

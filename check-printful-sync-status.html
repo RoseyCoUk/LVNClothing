@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Printful Sync Status</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f9fafb;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .alert-danger { background: #fef2f2; border: 1px solid #ef4444; color: #dc2626; }
+        .alert-warning { background: #fffbeb; border: 1px solid #f59e0b; color: #d97706; }
+        .alert-info { background: #eff6ff; border: 1px solid #3b82f6; color: #2563eb; }
+        .alert-success { background: #ecfdf5; border: 1px solid #10b981; color: #059669; }
+        
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover { background: #2563eb; }
+        button.danger { background: #ef4444; }
+        button.danger:hover { background: #dc2626; }
+        button.success { background: #10b981; }
+        button.success:hover { background: #059669; }
+        
+        pre {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 13px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .status-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        
+        .status-ok { border-color: #10b981; background: #ecfdf5; }
+        .status-warning { border-color: #f59e0b; background: #fffbeb; }
+        .status-error { border-color: #ef4444; background: #fef2f2; }
+        
+        .code-block {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Printful Sync Status Investigation</h1>
+    
+    <div class="container">
+        <h2>⚠️ Issue Identified</h2>
+        <div class="alert alert-danger">
+            <strong>🚨 ROOT CAUSE FOUND:</strong> There's a <strong>15-minute cron job</strong> running that syncs inventory from Printful and overrides your manual changes!
+        </div>
+        
+        <h3>The Cron Job:</h3>
+        <div class="code-block">
+*/15 * * * * curl -X POST 'https://nsmrxwnrtsllxvplazmm.supabase.co/functions/v1/printful-inventory-sync' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'</div>
+        
+        <p><strong>What this means:</strong></p>
+        <ul>
+            <li>Every 15 minutes, the system pulls inventory data from Printful</li>
+            <li>This overwrites your manual stock/availability changes</li>
+            <li>Your changes appear to "revert" because Printful data is different</li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h2>🔧 Immediate Solutions</h2>
+        
+        <div class="status-grid">
+            <div class="status-card status-warning">
+                <h3>📋 Option 1: Bulk Update (Quick Fix)</h3>
+                <p>Update all variants to available/in stock immediately</p>
+                <button onclick="showBulkUpdate()">Show SQL Script</button>
+            </div>
+            
+            <div class="status-card status-error">
+                <h3>⏸️ Option 2: Disable Cron (Temporary)</h3>
+                <p>Stop the automatic sync while you fix the data</p>
+                <button onclick="showDisableCron()">Show Commands</button>
+            </div>
+            
+            <div class="status-card status-ok">
+                <h3>🔄 Option 3: Fix Printful Data</h3>
+                <p>Ensure Printful has correct stock status</p>
+                <button onclick="showPrintfulCheck()">Show Instructions</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📊 Diagnostic Tools</h2>
+        
+        <button onclick="checkCronStatus()">Check if Cron is Running</button>
+        <button onclick="testSyncEndpoint()">Test Sync Endpoint</button>
+        <button onclick="showMonitoring()">Show Monitoring Commands</button>
+        
+        <div id="diagnosticResults"></div>
+    </div>
+
+    <div class="container" id="solutionDetails" style="display: none;">
+        <h2>📝 Solution Details</h2>
+        <div id="solutionContent"></div>
+    </div>
+
+    <script>
+        function showBulkUpdate() {
+            const content = `
+                <h3>🗄️ Bulk Update SQL Script</h3>
+                <p>Run this in your Supabase SQL editor to fix all variants at once:</p>
+                <div class="alert alert-info">
+                    <strong>File:</strong> <code>bulk-update-stock-available.sql</code> (already created)
+                </div>
+                <pre>-- Set ALL variants to available and in stock
+UPDATE public.product_variants 
+SET 
+    is_available = true,
+    in_stock = true,
+    updated_at = NOW()
+WHERE 
+    is_available = false 
+    OR is_available IS NULL 
+    OR in_stock = false 
+    OR in_stock IS NULL;</pre>
+                
+                <h4>Steps:</h4>
+                <ol>
+                    <li>Open Supabase Dashboard → SQL Editor</li>
+                    <li>Run the script above</li>
+                    <li>Check results - should show "ALL VARIANTS ARE NOW AVAILABLE AND IN STOCK!"</li>
+                    <li><strong>Important:</strong> Changes will revert in 15 minutes unless you fix the root cause</li>
+                </ol>
+            `;
+            showSolution(content);
+        }
+
+        function showDisableCron() {
+            const content = `
+                <h3>⏸️ Disable Automatic Sync (Temporary)</h3>
+                <div class="alert alert-warning">
+                    <strong>⚠️ Warning:</strong> This stops real-time inventory updates from Printful
+                </div>
+                
+                <h4>Check if Cron is Running:</h4>
+                <div class="code-block">crontab -l</div>
+                
+                <h4>Disable the Cron Job:</h4>
+                <div class="code-block">
+# Open crontab editor
+crontab -e
+
+# Comment out the sync line by adding # at the beginning:
+# */15 * * * * curl -X POST 'https://nsmrxwnrtsllxvplazmm.supabase.co/functions/v1/printful-inventory-sync'...
+
+# Save and exit (Ctrl+X, Y, Enter)
+                </div>
+                
+                <h4>Re-enable Later:</h4>
+                <p>Remove the # when you want to re-enable automatic sync</p>
+                
+                <div class="alert alert-info">
+                    <strong>Alternative:</strong> You can also modify the sync function to respect manual overrides
+                </div>
+            `;
+            showSolution(content);
+        }
+
+        function showPrintfulCheck() {
+            const content = `
+                <h3>🔍 Check Printful Stock Status</h3>
+                
+                <h4>1. Log into Printful Dashboard</h4>
+                <ol>
+                    <li>Go to <a href="https://www.printful.com/dashboard" target="_blank">Printful Dashboard</a></li>
+                    <li>Navigate to <strong>Products → Your Products</strong></li>
+                    <li>Check stock status for your products</li>
+                    <li>Ensure variants show as "In Stock" in Printful</li>
+                </ol>
+                
+                <h4>2. Test Manual Sync</h4>
+                <div class="code-block">
+# Test what data Printful returns
+curl -X POST 'https://nsmrxwnrtsllxvplazmm.supabase.co/functions/v1/printful-inventory-sync' \\
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                </div>
+                
+                <h4>3. Check Sync Logs</h4>
+                <ol>
+                    <li>Supabase Dashboard → Functions → Logs</li>
+                    <li>Look for <code>printful-inventory-sync</code> function calls</li>
+                    <li>Check what data is being synced</li>
+                </ol>
+                
+                <div class="alert alert-success">
+                    <strong>✅ If Printful shows items as in stock:</strong> The sync function might have a bug or be using cached data
+                </div>
+            `;
+            showSolution(content);
+        }
+
+        function checkCronStatus() {
+            const results = document.getElementById('diagnosticResults');
+            results.innerHTML = `
+                <h3>🔍 Cron Status Check</h3>
+                <div class="alert alert-info">
+                    Run these commands in your terminal to check the cron job status:
+                </div>
+                
+                <h4>1. Check Current Cron Jobs:</h4>
+                <div class="code-block">crontab -l</div>
+                
+                <h4>2. Check Cron Service Status:</h4>
+                <div class="code-block">sudo systemctl status cron</div>
+                
+                <h4>3. View Cron Logs:</h4>
+                <div class="code-block">sudo tail -f /var/log/syslog | grep CRON</div>
+                
+                <h4>What to Look For:</h4>
+                <ul>
+                    <li><strong>Cron line present:</strong> Look for the printful-inventory-sync URL</li>
+                    <li><strong>Service running:</strong> Should show "active (running)"</li>
+                    <li><strong>Recent executions:</strong> Should see entries every 15 minutes</li>
+                </ul>
+            `;
+        }
+
+        function testSyncEndpoint() {
+            const results = document.getElementById('diagnosticResults');
+            results.innerHTML = `
+                <h3>🧪 Test Sync Endpoint</h3>
+                <div class="alert alert-warning">
+                    <strong>⚠️ Warning:</strong> This will trigger a manual sync and may override your changes
+                </div>
+                
+                <h4>Manual Sync Test:</h4>
+                <div class="code-block">
+curl -X POST 'https://nsmrxwnrtsllxvplazmm.supabase.co/functions/v1/printful-inventory-sync' \\
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhem1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0OTY0NTIsImV4cCI6MjA2NzA3MjQ1Mn0.XyHiuQHXW_laGE4Caond1-8xK-2B4NzDzIOX8baD4UM'
+                </div>
+                
+                <h4>What This Does:</h4>
+                <ul>
+                    <li>Triggers the same sync that runs every 15 minutes</li>
+                    <li>Shows you what data Printful is returning</li>
+                    <li>Helps identify if the issue is with Printful data or sync logic</li>
+                </ul>
+                
+                <h4>Before Running:</h4>
+                <ol>
+                    <li>Note current stock status of a few variants</li>
+                    <li>Run the command</li>
+                    <li>Check if variants changed</li>
+                    <li>Compare with Printful dashboard data</li>
+                </ol>
+            `;
+        }
+
+        function showMonitoring() {
+            const results = document.getElementById('diagnosticResults');
+            results.innerHTML = `
+                <h3>📊 Monitoring Commands</h3>
+                
+                <h4>Real-time Stock Change Monitoring:</h4>
+                <div class="code-block">
+-- SQL to monitor variant changes
+SELECT 
+    p.name as product_name,
+    pv.name as variant_name,
+    pv.is_available,
+    pv.in_stock,
+    pv.updated_at
+FROM product_variants pv
+JOIN products p ON p.id = pv.product_id
+ORDER BY pv.updated_at DESC
+LIMIT 20;
+                </div>
+                
+                <h4>Supabase Function Logs:</h4>
+                <ol>
+                    <li>Supabase Dashboard → Functions → printful-inventory-sync</li>
+                    <li>Click "Logs" tab</li>
+                    <li>Look for recent executions (every 15 minutes)</li>
+                    <li>Check for errors or unusual data</li>
+                </ol>
+                
+                <h4>Database Change Tracking:</h4>
+                <div class="code-block">
+-- Set up a simple change log
+CREATE TABLE IF NOT EXISTS variant_change_log (
+    id SERIAL PRIMARY KEY,
+    variant_id TEXT,
+    old_available BOOLEAN,
+    new_available BOOLEAN,
+    old_stock BOOLEAN,
+    new_stock BOOLEAN,
+    changed_at TIMESTAMP DEFAULT NOW(),
+    change_source TEXT
+);
+                </div>
+            `;
+        }
+
+        function showSolution(content) {
+            document.getElementById('solutionContent').innerHTML = content;
+            document.getElementById('solutionDetails').style.display = 'block';
+            document.getElementById('solutionDetails').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

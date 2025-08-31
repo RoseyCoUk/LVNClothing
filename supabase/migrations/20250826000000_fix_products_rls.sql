@@ -30,18 +30,23 @@ CREATE POLICY "Allow authenticated users to delete products" ON public.products
   TO authenticated
   USING (true);
 
--- 6. Enable RLS on product_variants table if not already enabled
-ALTER TABLE public.product_variants ENABLE ROW LEVEL SECURITY;
+-- 6. Enable RLS on product_variants table if it exists
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'product_variants' AND table_schema = 'public') THEN
+    ALTER TABLE public.product_variants ENABLE ROW LEVEL SECURITY;
+    
+    -- Create policy to allow public read access to product variants
+    CREATE POLICY "Allow public read access to product variants" ON public.product_variants
+      FOR SELECT
+      TO anon, authenticated
+      USING (true);
 
--- 7. Create policy to allow public read access to product variants
-CREATE POLICY "Allow public read access to product variants" ON public.product_variants
-  FOR SELECT
-  TO anon, authenticated
-  USING (true);
-
--- 8. Create policy to allow authenticated users to manage product variants
-CREATE POLICY "Allow authenticated users to manage product variants" ON public.product_variants
-  FOR ALL
-  TO authenticated
-  USING (true)
-  WITH CHECK (true);
+    -- Create policy to allow authenticated users to manage product variants
+    CREATE POLICY "Allow authenticated users to manage product variants" ON public.product_variants
+      FOR ALL
+      TO authenticated
+      USING (true)
+      WITH CHECK (true);
+  END IF;
+END $$;

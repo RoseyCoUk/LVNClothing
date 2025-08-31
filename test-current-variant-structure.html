@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Variant Structure - Before Fix</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .problem {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .solution {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #fffbf0;
+            border: 1px solid #fbd38d;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Current Variant Structure - Before Fix</h1>
+    
+    <div class="test-section">
+        <h2>❌ Current Problem</h2>
+        <p>The <code>product_variants</code> table currently stores color and size as JSONB objects, which creates several issues:</p>
+        
+        <div class="problem">
+            <h3>Current Data Format (Problematic)</h3>
+            <div class="code-block">
+{
+  "size": {"name": "XL", "value": "XL"},
+  "color": {"name": "Red", "value": "Red"}
+}
+            </div>
+            <p>This JSONB format requires complex parsing in the frontend and causes performance issues.</p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔧 Solution: Database-Level Fix</h2>
+        <p>Instead of complex frontend parsing, we're fixing this at the database level:</p>
+        
+        <div class="solution">
+            <h3>What We're Doing</h3>
+            <ol>
+                <li><strong>Extract values</strong> from JSONB objects using PostgreSQL functions</li>
+                <li><strong>Convert to string fields</strong> for clean, simple access</li>
+                <li><strong>Maintain backward compatibility</strong> throughout the process</li>
+            </ol>
+        </div>
+        
+        <div class="solution">
+            <h3>Expected Result (After Fix)</h3>
+            <div class="code-block">
+{
+  "size": "XL",
+  "color": "Red"
+}
+            </div>
+            <p>Clean string values that are easy to work with in the frontend.</p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📁 Files Created for the Fix</h2>
+        
+        <div class="test-item">
+            <h3>1. Full Migration</h3>
+            <p><strong>File:</strong> <code>supabase/migrations/20250129000000_fix_variant_jsonb_fields.sql</code></p>
+            <p><strong>Purpose:</strong> Complete migration with error handling and verification</p>
+            <p><strong>Usage:</strong> Run with <code>supabase db push</code></p>
+        </div>
+        
+        <div class="test-item">
+            <h3>2. Simple SQL Script</h3>
+            <p><strong>File:</strong> <code>fix-variant-jsonb-fields.sql</code></p>
+            <p><strong>Purpose:</strong> Direct execution in Supabase SQL Editor</p>
+            <p><strong>Usage:</strong> Copy-paste into Supabase dashboard</p>
+        </div>
+        
+        <div class="test-item">
+            <h3>3. Deployment Script</h3>
+            <p><strong>File:</strong> <code>deploy-variant-jsonb-fix.sh</code></p>
+            <p><strong>Purpose:</strong> Automated deployment with checks</p>
+            <p><strong>Usage:</strong> <code>./deploy-variant-jsonb-fix.sh</code></p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🚀 How to Deploy the Fix</h2>
+        
+        <div class="test-item">
+            <h3>Option 1: Automated Script (Recommended)</h3>
+            <div class="code-block">
+./deploy-variant-jsonb-fix.sh
+            </div>
+            <p>This script checks prerequisites and runs the migration automatically.</p>
+        </div>
+        
+        <div class="test-item">
+            <h3>Option 2: Supabase CLI</h3>
+            <div class="code-block">
+supabase db push
+            </div>
+            <p>Runs all pending migrations including our JSONB fix.</p>
+        </div>
+        
+        <div class="test-item">
+            <h3>Option 3: Manual SQL Execution</h3>
+            <ol>
+                <li>Go to Supabase Dashboard</li>
+                <li>Navigate to SQL Editor</li>
+                <li>Copy-paste content from <code>fix-variant-jsonb-fields.sql</code></li>
+                <li>Execute the script</li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🧪 Testing the Fix</h2>
+        
+        <div class="test-item">
+            <h3>Before Migration (Current State)</h3>
+            <ul>
+                <li>❌ Variants display with complex JSONB objects</li>
+                <li>❌ Helper functions need to handle multiple data types</li>
+                <li>❌ Inconsistent display across components</li>
+                <li>❌ Complex frontend parsing logic</li>
+            </ul>
+        </div>
+        
+        <div class="test-item">
+            <h3>After Migration (Fixed State)</h3>
+            <ul>
+                <li>✅ Variants display with clean string values</li>
+                <li>✅ Helper functions are simple and straightforward</li>
+                <li>✅ Consistent display across all components</li>
+                <li>✅ No more complex JSONB parsing</li>
+            </ul>
+        </div>
+        
+        <div class="test-item">
+            <h3>Verification Steps</h3>
+            <ol>
+                <li><strong>Run the migration</strong> using one of the provided methods</li>
+                <li><strong>Check admin products page</strong> - go to Variants tab</li>
+                <li><strong>Verify color/size display</strong> - should show clean values</li>
+                <li><strong>Test Images button</strong> - tooltips should show proper variant info</li>
+                <li><strong>Check image modal titles</strong> - should display variant details clearly</li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="warning">
+        <h3>⚠️ Important Notes</h3>
+        <ul>
+            <li><strong>Backup Recommended:</strong> Always backup your database before running migrations</li>
+            <li><strong>Test Environment:</strong> Test the migration in a development environment first</li>
+            <li><strong>Data Integrity:</strong> The migration preserves all existing data while converting the format</li>
+            <li><strong>Rollback:</strong> Data changes cannot be automatically reverted - restore from backup if needed</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>📋 Benefits After Migration</h2>
+        
+        <div class="test-item">
+            <h3>Frontend Benefits</h3>
+            <ul>
+                <li><strong>Simpler Code:</strong> No more complex JSONB parsing</li>
+                <li><strong>Better Performance:</strong> Direct string access instead of object parsing</li>
+                <li><strong>Consistent Display:</strong> All components use the same data format</li>
+                <li><strong>Easier Debugging:</strong> Simple string values instead of nested objects</li>
+            </ul>
+        </div>
+        
+        <div class="test-item">
+            <h3>Database Benefits</h3>
+            <ul>
+                <li><strong>Faster Queries:</strong> String fields are more efficient than JSONB</li>
+                <li><strong>Better Indexing:</strong> Can create proper indexes on string fields</li>
+                <li><strong>Cleaner SQL:</strong> Simple WHERE clauses instead of JSONB operators</li>
+                <li><strong>Easier Maintenance:</strong> Standard SQL operations</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        console.log('🔍 Current Variant Structure Test Page Loaded');
+        console.log('❌ Problem: JSONB color/size fields causing frontend complexity');
+        console.log('💡 Solution: Database-level fix to convert JSONB to strings');
+        console.log('📁 Files created: Migration, SQL script, and deployment script');
+        console.log('🚀 Ready to deploy the fix!');
+    </script>
+</body>
+</html>

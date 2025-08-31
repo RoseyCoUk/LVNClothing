@@ -132,37 +132,13 @@ serve(async (req) => {
     // Handle different actions
     switch (action) {
       case 'get_role':
-        // Get user's admin role with permissions
-        const { data: permissions, error: permError } = await supabaseClient
-          .from('admin_role_permissions')
-          .select(`
-            admin_permissions (
-              name,
-              description,
-              resource,
-              action
-            )
-          `)
-          .eq('admin_role_id', adminRole.id)
-
-        if (permError) {
-          console.error('Permissions fetch error:', permError)
-          return new Response(
-            JSON.stringify({ error: 'Failed to fetch permissions', details: permError.message }),
-            { 
-              status: 500, 
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-            }
-          )
-        }
-
-        const permissionNames = permissions?.map(p => p.admin_permissions?.name).filter(Boolean) || []
-        
+        // Get user's admin role with permissions from the admin_roles table
+        // Use the permissions array directly from the admin_roles table
         return new Response(
           JSON.stringify({ 
             role: {
               role: adminRole.role,
-              permissions: permissionNames,
+              permissions: adminRole.permissions || [],
               is_active: adminRole.is_active
             }
           }),

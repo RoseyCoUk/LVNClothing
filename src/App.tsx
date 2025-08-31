@@ -53,6 +53,7 @@ import { CartProvider } from './contexts/CartContext';
 import { ShippingProvider } from './contexts/ShippingContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { AdminProvider } from './contexts/AdminContext';
+import { AdminProductsProvider } from './contexts/AdminProductsContext';
 import PrintfulStatus from './components/PrintfulStatus';
 import { performanceMonitor } from './lib/performance';
 
@@ -63,6 +64,7 @@ import AdminOrdersPage from './components/AdminOrdersPage';
 import AdminAnalyticsPage from './components/AdminAnalyticsPage';
 import AdminCustomersPage from './components/AdminCustomersPage';
 import AdminSettingsPage from './components/AdminSettingsPage';
+import AdminProductsPage from './components/AdminProductsPage';
 import AdminLayout from './components/AdminLayout';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 
@@ -114,7 +116,7 @@ const App = () => {
       const height = window.innerHeight;
       
       // Log device characteristics for performance optimization
-      console.log('Device dimensions:', { width, height });
+  
       
       // Adjust performance monitoring based on device capabilities
       if (width < 768) {
@@ -196,8 +198,9 @@ const App = () => {
   return (
     <AuthProvider>
       <AdminProvider>
-        <CartProvider>
-          <ShippingProvider>
+        <AdminProductsProvider>
+          <CartProvider>
+            <ShippingProvider>
           <div className="min-h-screen bg-white" role="application" aria-label="Reform UK E-commerce Platform">
           {!location.pathname.startsWith('/admin') && (
             <Header currentPage={currentPage} setCurrentPage={handleNavigation} onLoginClick={handleLoginClick} onSignupClick={handleSignupClick} />
@@ -265,21 +268,28 @@ const App = () => {
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/admin/dashboard" element={
-              <AdminProtectedRoute requiredPermission="analytics">
+              <AdminProtectedRoute requiredPermission="view_analytics">
                 <AdminLayout>
                   <AdminDashboard />
                 </AdminLayout>
               </AdminProtectedRoute>
             } />
             <Route path="/admin/orders" element={
-              <AdminProtectedRoute requiredPermission="orders">
+              <AdminProtectedRoute requiredPermission="view_orders">
                 <AdminLayout>
                   <AdminOrdersPage />
                 </AdminLayout>
               </AdminProtectedRoute>
             } />
+            <Route path="/admin/products" element={
+              <AdminProtectedRoute requiredPermission="view_products">
+                <AdminLayout>
+                  <AdminProductsPage />
+                </AdminLayout>
+              </AdminProtectedRoute>
+            } />
             <Route path="/admin/analytics" element={
-              <AdminProtectedRoute requiredPermission="analytics">
+              <AdminProtectedRoute requiredPermission="view_analytics">
                 <AdminLayout>
                   <AdminAnalyticsPage />
                 </AdminLayout>
@@ -312,6 +322,7 @@ const App = () => {
         </div>
         </ShippingProvider>
         </CartProvider>
+        </AdminProductsProvider>
       </AdminProvider>
     </AuthProvider>
   );

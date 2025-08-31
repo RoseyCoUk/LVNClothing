@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Printful Simple</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        button { padding: 10px 20px; font-size: 16px; margin: 10px; }
+        .result { margin: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Test Printful Simple Function</h1>
+    <p>This will test the simple Printful connection function.</p>
+
+    <button id="testFunction">Test Printful Simple Function</button>
+
+    <div id="result" class="result" style="display: none;"></div>
+
+    <script>
+        function showResult(message, isSuccess = true) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = message;
+            resultDiv.className = `result ${isSuccess ? 'success' : 'error'}`;
+        }
+
+        document.getElementById('testFunction').addEventListener('click', async function() {
+            try {
+                showResult('Testing function...', true);
+
+                const response = await fetch('https://nsmrxwnrtsllxvplazmm.supabase.co/functions/v1/test-printful-simple', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhem1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0OTY0NTIsImV4cCI6MjA2NzA3MjQ1Mn0.XyHiuQHXW_laGE4Caond1-8xK-2B4NzDzIOX8baD4UM'
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult(`✅ Success!<br>Message: ${data.message}<br>Products Count: ${data.productsCount}<br>Sample Product: ${data.sampleProduct ? `${data.sampleProduct.name} (ID: ${data.sampleProduct.id})` : 'None'}`, true);
+                } else {
+                    showResult(`❌ Function returned error:<br>${data.error}<br>${data.message}`, false);
+                }
+
+            } catch (error) {
+                showResult('❌ Error: ' + error.message, false);
+            }
+        });
+    </script>
+</body>
+</html>
