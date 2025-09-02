@@ -1,7 +1,11 @@
 import { ArrowRight } from 'lucide-react';
 import ProductCard from './ui/ProductCard';
+import BundleCard from './ui/BundleCard';
 import { Product } from '../lib/api';
 import { useMergedProducts, MergedProduct } from '../hooks/useMergedProducts';
+import { useBundlePricing } from '../hooks/useBundlePricing';
+import { useCart } from '../contexts/CartContext';
+import { BUNDLES } from '../lib/bundle-pricing';
 
 interface TopSellersProps {
   onViewAllClick?: () => void;
@@ -10,6 +14,10 @@ interface TopSellersProps {
 const TopSellers = ({ onViewAllClick }: TopSellersProps) => {
   // Use merged products hook for consistent product display
   const { mergedProducts, isLoading: loading, error } = useMergedProducts();
+  
+  // Use bundle pricing hook
+  const { bundlePricing, loading: bundleLoading } = useBundlePricing();
+  const { addToCart } = useCart();
 
   // Helper function to categorize products (consistent with ShopPage)
   const getCategoryForProduct = (product: MergedProduct | Product) => {
@@ -175,6 +183,38 @@ const TopSellers = ({ onViewAllClick }: TopSellersProps) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {gearProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Bundles Section */}
+        {!bundleLoading && (
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Value Bundles - Save Big!</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {(['starter', 'champion', 'activist'] as const).map((bundleKey) => (
+                <BundleCard
+                  key={bundleKey}
+                  bundleKey={bundleKey}
+                  price={bundlePricing[bundleKey].price}
+                  originalPrice={bundlePricing[bundleKey].originalPrice}
+                  onAddToCart={() => {
+                    // Add bundle items to cart
+                    const bundle = BUNDLES[bundleKey];
+                    bundle.products.forEach(product => {
+                      // Add default variant for each product in bundle
+                      addToCart({
+                        id: `bundle-${bundleKey}-${product.productId}`,
+                        name: product.name,
+                        price: 0, // Price handled at bundle level
+                        image: '',
+                        category: 'bundle',
+                        quantity: 1
+                      });
+                    });
+                  }}
+                />
               ))}
             </div>
           </div>

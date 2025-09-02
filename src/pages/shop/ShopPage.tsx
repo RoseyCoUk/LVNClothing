@@ -3,8 +3,12 @@ import { Link, useSearchParams } from 'react-router-dom';
 import ProductBundles from '../../components/ProductBundles';
 import SidebarFilters from '../../components/SidebarFilters';
 import ProductCard from '../../components/ui/ProductCard';
+import BundleCard from '../../components/ui/BundleCard';
 import { getProducts, getProductVariants, Product } from '../../lib/api';
 import { useMergedProducts, MergedProduct } from '../../hooks/useMergedProducts';
+import { useBundlePricing } from '../../hooks/useBundlePricing';
+import { useCart } from '../../contexts/CartContext';
+import { BUNDLES } from '../../lib/bundle-pricing';
 import {
   Search,
   Grid,
@@ -135,6 +139,10 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
   // Use merged products hook
   const { mergedProducts, isLoading: loading, error } = useMergedProducts();
   
+  // Use bundle pricing hook
+  const { bundlePricing, loading: bundleLoading } = useBundlePricing();
+  const { addToCart } = useCart();
+  
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['all']);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000]); // £0-£200
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -179,10 +187,13 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
 
   // Products are now fetched via useMergedProducts hook
 
-  // Calculate category counts
+  // Calculate category counts (including bundles)
   const categoryCounts = CATEGORY_DEFS.map(cat => {
     if (cat.id === 'all') {
-      return { id: cat.id, name: cat.label, count: mergedProducts.length };
+      return { id: cat.id, name: cat.label, count: mergedProducts.length + 3 }; // +3 for bundles
+    }
+    if (cat.id === 'bundles') {
+      return { id: cat.id, name: cat.label, count: 3 }; // 3 bundles available
     }
     return {
       id: cat.id,
@@ -350,7 +361,7 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
             </div>
 
             {/* Product Grid */}
-            {sortedProducts.length === 0 ? (
+            {sortedProducts.length === 0 && (!selectedCategories.includes('bundles') || bundleLoading) ? (
               <div className="text-center py-16">
                 <div className="text-gray-500 mb-4">
                   <p className="text-lg font-medium">No products found</p>
@@ -365,9 +376,40 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
               </div>
             ) : (
               <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {sortedProducts.map(mergedProduct => (
-                  <ProductCard key={mergedProduct.id} product={convertToProductFormat(mergedProduct)} />
-                ))}
+                {/* Show bundles first if bundles category is selected */}
+                {(selectedCategories.includes('bundles') || selectedCategories.includes('all')) && !bundleLoading && (
+                  <>        
+                    {(['starter', 'champion', 'activist'] as const).map((bundleKey) => (
+                      <BundleCard
+                        key={bundleKey}
+                        bundleKey={bundleKey}
+                        price={bundlePricing[bundleKey].price}
+                        originalPrice={bundlePricing[bundleKey].originalPrice}
+                        onAddToCart={() => {
+                          // Add bundle items to cart
+                          const bundle = BUNDLES[bundleKey];
+                          bundle.products.forEach(product => {
+                            // Add default variant for each product in bundle
+                            addToCart({
+                              id: `bundle-${bundleKey}-${product.productId}`,
+                              name: product.name,
+                              price: 0, // Price handled at bundle level
+                              image: '',
+                              category: 'bundle',
+                              quantity: 1
+                            });
+                          });
+                        }}
+                      />
+                    ))}
+                  </>
+                )}
+                {/* Show regular products if not exclusively bundles */}
+                {!selectedCategories.includes('bundles') || selectedCategories.includes('all') ? (
+                  sortedProducts.map(mergedProduct => (
+                    <ProductCard key={mergedProduct.id} product={convertToProductFormat(mergedProduct)} />
+                  ))
+                ) : null}
               </div>
             )}
           </div>
