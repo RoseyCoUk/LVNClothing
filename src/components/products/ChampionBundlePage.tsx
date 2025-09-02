@@ -342,11 +342,15 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
       price: calculation?.totalPrice || productData.bundlePrice,
       image: bundleProducts[0]?.variant?.image || bundleProducts[0]?.product.image || '/championbundle.png',
       isBundle: true,
-      bundleContents: bundleContents
+      bundleContents: bundleContents,
+      quantity: quantity
     });
     
-    // Show success message
-    showToast(`Added to cart!`);
+    // Show success message and redirect to checkout
+    showToast('Added to cart! Redirecting to checkout...');
+    setTimeout(() => {
+      navigate('/checkout');
+    }, 1000);
   };
 
   const handleBuyNow = () => {

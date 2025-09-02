@@ -270,7 +270,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
 
   const handleAddToCart = () => {
     if (bundleProducts.length === 0) {
-      alert('Please wait for bundle to load.');
+      showToast('Please wait for bundle to load.');
       return;
     }
 
@@ -280,17 +280,24 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
       image: item.variant.image || item.product.image || '/starterbundle.png'
     }));
 
+    // Add bundle to cart with proper pricing
+    const bundlePrice = starterPricing?.price || bundleData.bundlePrice;
+    
     addToCart({
       id: 'starter-bundle',
       name: bundleData.name,
-      price: calculation?.totalPrice || bundleData.bundlePrice,
+      price: bundlePrice,
       image: bundleProducts[0]?.variant?.image || bundleProducts[0]?.product.image || '/starterbundle.png',
       isBundle: true,
-      bundleContents: bundleContents
+      bundleContents: bundleContents,
+      quantity: quantity
     });
     
-    // Show success message
-    showToast(`Added to cart!`);
+    // Show success message and redirect to checkout
+    showToast('Added to cart! Redirecting to checkout...');
+    setTimeout(() => {
+      navigate('/checkout');
+    }, 1000);
   };
 
   const handleBuyNow = () => {
