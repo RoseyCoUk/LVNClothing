@@ -21,10 +21,12 @@ import { useCart } from '../../contexts/CartContext';
 import { 
   HoodieVariants, 
   findHoodieVariant,
-  hoodieColors,
   hoodieSizes
-} from '../../hooks/hoodie-variants-merged';
+} from '../../hooks/hoodie-variants-merged-fixed';
+import { useMergedProducts } from '../../hooks/useMergedProducts';
 import { Toast, useToast } from '../../components/ui/Toast';
+import { supabase } from '../../lib/supabase';
+import { sortColorsByBrightness } from '../../lib/colorUtils';
 
 interface HoodiePageProps {
   onBack: () => void;
@@ -32,9 +34,8 @@ interface HoodiePageProps {
 
 interface ColorOption {
   name: string;
-  value: string;
+  hex: string;
   border?: boolean;
-  availableSizes: string[];
 }
 
 interface SizeOption {
@@ -47,6 +48,9 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
   const { addToCart } = useCart();
   const { isVisible, message, showToast, hideToast } = useToast();
   
+  // Use merged products hook
+  const { mergedProducts, isLoading, error, getProductByCategory } = useMergedProducts();
+  
   // State for variant selection
   const [selectedColor, setSelectedColor] = useState<string>('Black');
   const [selectedSize, setSelectedSize] = useState<string>('M');
@@ -55,32 +59,40 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('description');
   const [isWishlisted, setIsWishlisted] = useState(false);
+  
+  // Get merged hoodie product
+  const hoodieProduct = getProductByCategory('hoodie');
 
-  // Product data with merged variant structure
-  const productData = {
-    id: 2,
-    name: "Reform UK Hoodie",
-    description: "Premium cotton blend hoodie featuring the Reform UK logo. Available in 9 beautiful colors with 5 size options. Made from high-quality materials for comfort and durability. Perfect for casual wear and outdoor activities.",
-    features: ["Premium cotton blend", "Classic fit", "Reinforced seams", "Pre-shrunk fabric", "Kangaroo pocket", "Screen-printed logo", "9 color options"],
+  // Product data from merged products
+  const productData = hoodieProduct ? {
+    id: hoodieProduct.id,
+    name: hoodieProduct.name,
+    description: hoodieProduct.description || "Premium cotton blend hoodie featuring the Reform UK logo. Available in multiple beautiful colors and sizes. Made from high-quality materials for comfort and durability. Perfect for casual wear and outdoor activities.",
+    features: ["Premium cotton blend", "Classic fit", "Reinforced seams", "Pre-shrunk fabric", "Kangaroo pocket", "Screen-printed logo", `${hoodieProduct.colorOptions.length} color options`],
     careInstructions: "Machine wash cold. Tumble dry low. Do not bleach.",
     materials: "80% cotton, 20% polyester",
-    category: 'apparel',
+    category: hoodieProduct.category || 'apparel',
     shipping: "Ships in 48H",
+    priceRange: hoodieProduct.priceRange,
     variantDetails: {
-      sizes: hoodieSizes,
-      colors: hoodieColors
+      sizes: hoodieProduct.sizeOptions,
+      colors: hoodieProduct.colorOptions
     }
-  };
+  } : null;
 
-  // Set initial selections
+  // Set initial selections when merged product is available
   useEffect(() => {
-    if (hoodieColors.length > 0 && !selectedColor) {
-      setSelectedColor(hoodieColors[0].name);
+    if (hoodieProduct && hoodieProduct.colorOptions.length > 0) {
+      if (!selectedColor) {
+        setSelectedColor(hoodieProduct.colorOptions[0].name);
+      }
     }
-    if (hoodieSizes.length > 0 && !selectedSize) {
-      setSelectedSize(hoodieSizes[0]);
+    if (hoodieProduct && hoodieProduct.sizeOptions.length > 0) {
+      if (!selectedSize) {
+        setSelectedSize(hoodieProduct.sizeOptions[0]);
+      }
     }
-  }, [hoodieColors, hoodieSizes]);
+  }, [hoodieProduct, selectedColor, selectedSize]);
 
   // Find the selected variant
   useEffect(() => {
@@ -102,19 +114,31 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
 
   // Get available colors
   const getAvailableColors = () => {
-    return hoodieColors.map(color => color.name);
+    return hoodieProduct?.colorOptions.map(color => color.name) || [];
   };
 
   // Check if size is available for selected color
   const isSizeAvailableForColor = (sizeName: string, color: string) => {
-    return HoodieVariants.some(variant => 
-      variant.size === sizeName && variant.color === color
-    );
+    if (!hoodieProduct) return false;
+    
+    // If database variants exist, check if variant exists (ignore stock for availability)
+    if (hoodieProduct.variants && hoodieProduct.variants.length > 0) {
+      const hasVariant = hoodieProduct.variants.some(variant => 
+        variant.size === sizeName && variant.color === color
+        // REMOVED stock check - variant existence is enough for availability
+      );
+      return hasVariant;
+    }
+    
+    // Fallback to static variant data when database is empty
+    const staticVariant = findHoodieVariant('DARK', sizeName, color) ||
+                         findHoodieVariant('LIGHT', sizeName, color);
+    return !!staticVariant;
   };
 
   // Check if color is available
   const isColorAvailable = (colorName: string) => {
-    return hoodieColors.some(c => c.name === colorName);
+    return hoodieProduct?.colorOptions.some(c => c.name === colorName) || false;
   };
 
   const handleSizeChange = (size: string) => {
@@ -123,6 +147,8 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
 
   const handleColorChange = (color: string) => {
     setSelectedColor(color);
+    // Reset to first image when color changes
+    setCurrentImageIndex(0);
   };
 
 
@@ -149,8 +175,8 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
       quantity: quantity,
       size: selectedSize,
       color: selectedColor,
-      image: `/Hoodie/Men/ReformMenHoodie${selectedColor.replace(/\s+/g, '')}1.webp`,
-      printful_variant_id: printfulVariant.externalId, // Real Printful external ID for ordering
+      image: getProductImages()[0] || '/BackReformLogo.png',
+      printful_variant_id: printfulVariant.catalogVariantId, // Real Printful catalog ID for ordering
       external_id: printfulVariant.externalId
     };
 
@@ -170,18 +196,66 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
     navigate('/checkout');
   };
 
-  // Generate product images based on selected color
+  // Get product images based on selected color from database
   const getProductImages = () => {
-    if (!selectedColor) return [];
+    if (!hoodieProduct?.baseProduct?.images || hoodieProduct.baseProduct.images.length === 0) {
+      // Fallback to logo if no images in merged product
+      return ['/BackReformLogo.png'];
+    }
     
-    const colorKey = selectedColor.replace(/\s+/g, '');
-    return [
-      `/Hoodie/Men/ReformMenHoodie${colorKey}1.webp`,
-      `/Hoodie/Men/ReformMenHoodie${colorKey}2.webp`,
-      `/Hoodie/Men/ReformMenHoodie${colorKey}3.webp`,
-      `/Hoodie/Men/ReformMenHoodie${colorKey}4.webp`,
-      `/Hoodie/Men/ReformMenHoodie${colorKey}5.webp`
-    ].filter(img => img.includes('undefined') === false);
+    const mergedImages = hoodieProduct.baseProduct.images;
+    
+    // If a color is selected, try to get color-specific images first
+    if (selectedColor) {
+      const selectedColorLower = selectedColor.toLowerCase();
+      
+      // Priority 1: Exact color match with variant_type = 'color'
+      const exactColorImages = mergedImages.filter(img => 
+        img.variant_type === 'color' && 
+        img.color?.toLowerCase() === selectedColorLower
+      );
+      
+      if (exactColorImages.length > 0) {
+        return exactColorImages
+          .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url);
+      }
+      
+      // Priority 2: Look for images with color field matching (any variant_type)
+      const colorFieldImages = mergedImages.filter(img => 
+        img.color?.toLowerCase() === selectedColorLower
+      );
+      
+      if (colorFieldImages.length > 0) {
+        return colorFieldImages
+          .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url);
+      }
+    }
+    
+    // Priority 3: General product images (variant_type = 'product' or null)
+    const generalImages = mergedImages.filter(img => 
+      img.variant_type === 'product' || img.variant_type === null || img.variant_type === undefined
+    );
+    
+    if (generalImages.length > 0) {
+      return generalImages
+        .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+        .map(img => img.image_url);
+    }
+    
+    // Priority 4: Primary image if available
+    const primaryImages = mergedImages.filter(img => img.is_primary === true);
+    if (primaryImages.length > 0) {
+      return primaryImages.map(img => img.image_url);
+    }
+    
+    // Priority 5: All available images as final fallback
+    return mergedImages.length > 0 
+      ? mergedImages
+          .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url)
+      : [hoodieProduct.image_url || '/BackReformLogo.png'];
   };
 
   const nextImage = () => {
@@ -199,12 +273,35 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
   };
 
   // Loading state
-  if (!selectedVariant) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
           <p className="text-gray-600">Loading Hoodie details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Failed to load product data</p>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // No product found
+  if (!hoodieProduct || !productData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Product not found</p>
         </div>
       </div>
     );
@@ -308,10 +405,10 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                 <div className="flex items-center space-x-2 mb-4">
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-5 h-5 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                      <Star key={i} className={`w-5 h-5 ${i < Math.floor(hoodieProduct?.baseProduct?.rating || product?.rating || 4.8) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
                     ))}
                   </div>
-                  <span className="text-gray-600">(89 reviews)</span>
+                  <span className="text-gray-600">({hoodieProduct?.baseProduct?.reviews || product?.reviews || 89} reviews)</span>
                 </div>
                 <div className="flex items-center space-x-3 mb-6">
                   <span className="text-3xl font-bold text-[#009fe3]">£{selectedVariant?.price || '39.99'}</span>
@@ -333,16 +430,17 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   Color: <span className="font-semibold text-gray-900">{selectedColor}</span>
                 </label>
-                <div className="grid grid-cols-6 gap-2">
-                  {hoodieColors.map((color) => (
+                <div className="grid grid-cols-5 gap-3">
+                  {sortColorsByBrightness(hoodieProduct.colorOptions).map((color) => (
                     <button
                       key={color.name}
                       onClick={() => handleColorChange(color.name)}
-                      className={`relative w-12 h-12 border-2 rounded-full transition-all duration-200 hover:scale-105 ${
+                      className={`relative w-12 h-12 border-2 rounded-full transition-all duration-200 hover:scale-110 ${
                         selectedColor === color.name
                           ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2'
-                          : 'border-gray-300 hover:border-[#009fe3]'
+                          : `border-gray-300 hover:border-[#009fe3] ${color.border ? 'border-gray-400' : ''}`
                       }`}
+                      title={color.name}
                     >
                       <div 
                         className="w-full h-full rounded-full"
@@ -350,7 +448,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                       />
                       {selectedColor === color.name && (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <Check className="w-5 h-5 text-white drop-shadow-lg" />
+                          <Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Blue' ? 'text-gray-600' : 'text-white'} drop-shadow-lg`} />
                         </div>
                       )}
                     </button>
@@ -370,14 +468,17 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                   </button>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
-                  {hoodieSizes.map((size) => (
+                  {hoodieProduct.sizeOptions.map((size) => (
                     <button
                       key={size}
                       onClick={() => handleSizeChange(size)}
+                      disabled={!isSizeAvailableForColor(size, selectedColor)}
                       className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
                         selectedSize === size
                           ? 'border-[#009fe3] bg-[#009fe3] text-white'
-                          : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
+                          : isSizeAvailableForColor(size, selectedColor)
+                            ? 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
+                            : 'border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50'
                       }`}
                     >
                       {size}
@@ -540,10 +641,10 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                     <div className="flex items-center space-x-2">
                       <div className="flex items-center">
                         {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-4 h-4 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                          <Star key={i} className={`w-4 h-4 ${i < Math.floor(hoodieProduct?.baseProduct?.rating || product?.rating || 4.8) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
                         ))}
                       </div>
-                      <span className="text-sm text-gray-600">(89 reviews)</span>
+                      <span className="text-sm text-gray-600">({hoodieProduct?.baseProduct?.reviews || product?.reviews || 89} reviews)</span>
                     </div>
                   </div>
                   <div className="space-y-6">

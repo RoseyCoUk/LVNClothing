@@ -29,17 +29,22 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 // Add error handling for authentication failures
 supabase.auth.onAuthStateChange((event, session) => {
   if (config.features.enableDebugLogging) {
-    if (event === 'SIGNED_OUT') {
-      
-    } else if (event === 'TOKEN_REFRESHED') {
-      
-    } else if (event === 'SIGNED_IN') {
-      
-    } else if (event === 'USER_UPDATED') {
-      
-    } else if (event === 'PASSWORD_RECOVERY') {
-      
+    console.log(`Auth state changed: ${event}`, session ? 'with session' : 'no session');
+  }
+  
+  // Clear invalid tokens on sign out or auth errors
+  if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
+    if (config.features.enableDebugLogging) {
+      console.log('Clearing invalid auth tokens');
     }
+  }
+});
+
+// Handle auth errors gracefully
+supabase.auth.getSession().catch((error) => {
+  if (error.message.includes('Refresh Token Not Found') || error.message.includes('Invalid Refresh Token')) {
+    console.warn('Auth token issue detected, clearing session');
+    supabase.auth.signOut({ scope: 'local' });
   }
 });
 

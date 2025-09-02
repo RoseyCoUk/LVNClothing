@@ -3,7 +3,7 @@ import { useShippingQuotes } from '../hooks/useShippingQuotes'
 import { useShipping } from '../contexts/ShippingContext'
 import { useCart } from '../contexts/CartContext'
 import ShippingMethods from './checkout/ShippingMethods'
-import { testMoneyUtils, testTypes, testData, createTestRequest, validateTestData } from '../test-shipping-utils'
+import { testMoneyUtils, testTypes, testData, createTestRequest, validateTestData } from '../../tests/test-shipping-utils'
 import type { ShippingOption } from '../lib/shipping/types'
 
 const ShippingTestDashboard: React.FC = () => {

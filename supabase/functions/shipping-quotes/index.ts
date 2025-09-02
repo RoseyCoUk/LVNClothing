@@ -15,7 +15,7 @@ interface Recipient {
 }
 
 interface CartItem {
-  printful_variant_id: number
+  printful_variant_id: number | string
   quantity: number
 }
 
@@ -101,17 +101,49 @@ serve(async (req: Request) => {
   }
 
   try {
+    console.log('🚀 Shipping quotes function called')
+    
     const body = await req.json() as ShippingQuoteRequest
+    console.log('📦 Request body:', JSON.stringify(body, null, 2))
 
     // Basic validation
     if (!body?.recipient?.country_code || 
         !body?.recipient?.zip || 
         !Array.isArray(body.items) || 
         body.items.length === 0) {
+      console.error('❌ Invalid payload:', { 
+        hasCountryCode: !!body?.recipient?.country_code,
+        hasZip: !!body?.recipient?.zip,
+        isItemsArray: Array.isArray(body.items),
+        itemsLength: body.items?.length 
+      })
       return new Response(
         JSON.stringify({ error: "Invalid payload - missing required fields" }), 
         { status: 400, headers: { ...headers, "Content-Type": "application/json" } }
       )
+    }
+
+    // Validate variant IDs
+    console.log('🔍 Validating variant IDs...')
+    for (const item of body.items) {
+      console.log(`  - Item: ${item.printful_variant_id} (quantity: ${item.quantity})`)
+      
+      const variantId = item.printful_variant_id;
+      
+      // Accept both numeric and alphanumeric formats (matching frontend validation)
+      const isNumeric = typeof variantId === 'number' || /^\d+$/.test(variantId.toString());
+      const isAlphanumeric = typeof variantId === 'string' && /^[a-zA-Z0-9\-_]{8,}$/.test(variantId);
+      
+      if (!isNumeric && !isAlphanumeric) {
+        console.error(`❌ Invalid variant ID format: ${variantId}`)
+        return new Response(
+          JSON.stringify({ 
+            error: "Invalid variant ID", 
+            message: `Variant ID ${variantId} is not in a valid format`
+          }), 
+          { status: 400, headers: { ...headers, "Content-Type": "application/json" } }
+        )
+      }
     }
 
     // Check cache first
@@ -130,8 +162,11 @@ serve(async (req: Request) => {
     // Get Printful token from environment
     const printfulToken = Deno.env.get('PRINTFUL_TOKEN')
     
+    console.log('🔑 PRINTFUL_TOKEN configured:', !!printfulToken)
+    console.log('🔑 PRINTFUL_TOKEN length:', printfulToken?.length || 0)
+    
     if (!printfulToken) {
-      console.error('PRINTFUL_TOKEN not configured')
+      console.error('❌ PRINTFUL_TOKEN not configured - using fallback shipping rates')
       
       // Return fallback shipping options instead of error
       const fallbackOptions: ShippingOption[] = [
@@ -173,27 +208,35 @@ serve(async (req: Request) => {
     }
 
     // Call Printful API
+    const printfulPayload = {
+      recipient: body.recipient,
+      items: body.items.map(i => ({ 
+        variant_id: typeof i.printful_variant_id === 'string' && /^\d+$/.test(i.printful_variant_id) 
+          ? parseInt(i.printful_variant_id, 10) 
+          : i.printful_variant_id, 
+        quantity: i.quantity 
+      }))
+    }
+    
+    console.log('🌐 Calling Printful API with payload:', JSON.stringify(printfulPayload, null, 2))
+    
     const printfulResponse = await fetch('https://api.printful.com/shipping/rates', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${printfulToken}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        recipient: body.recipient,
-        items: body.items.map(i => ({ 
-          variant_id: i.printful_variant_id, 
-          quantity: i.quantity 
-        }))
-      })
+      body: JSON.stringify(printfulPayload)
     })
 
+    console.log('📡 Printful API response status:', printfulResponse.status)
+    
     if (!printfulResponse.ok) {
       const errorText = await printfulResponse.text()
-      console.error('Printful API error:', printfulResponse.status, errorText)
+      console.error('❌ Printful API error:', printfulResponse.status, errorText)
       
       // Return fallback shipping options instead of error
-      console.log('Using fallback shipping options due to Printful API failure');
+      console.log('❌ Using fallback shipping options due to Printful API failure');
       
       const fallbackOptions: ShippingOption[] = [
         {
@@ -234,12 +277,13 @@ serve(async (req: Request) => {
     }
 
     const printfulData = await printfulResponse.json()
+    console.log('📦 Printful API response data:', JSON.stringify(printfulData, null, 2))
     
     if (!printfulData.result) {
-      console.error('Invalid Printful response:', printfulData)
+      console.error('❌ Invalid Printful response - no result field:', printfulData)
       
       // Return fallback shipping options instead of error
-      console.log('Using fallback shipping options due to invalid Printful response');
+      console.log('❌ Using fallback shipping options due to invalid Printful response');
       
       const fallbackOptions: ShippingOption[] = [
         {

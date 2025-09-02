@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
-import ProductCard from './ProductCard';
+import ProductCard from './ui/ProductCard';
 import { getProducts, Product } from '../lib/api';
 
 interface TopSellersProps {

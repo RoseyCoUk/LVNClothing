@@ -1,0 +1,366 @@
+# Page snapshot
+
+```yaml
+- application "Reform UK E-commerce Platform" [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - button "Go to homepage" [ref=e7] [cursor=pointer]:
+        - img "Reform UK Logo" [ref=e8] [cursor=pointer]
+        - generic [ref=e9] [cursor=pointer]: Back Reform
+      - navigation "Main navigation" [ref=e10]:
+        - button "Shop" [ref=e11] [cursor=pointer]
+        - button "About" [ref=e12] [cursor=pointer]
+        - button "Contact" [ref=e13] [cursor=pointer]
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - button "Sign In" [ref=e16] [cursor=pointer]
+          - generic [ref=e17]: "|"
+          - button "Sign Up" [ref=e18] [cursor=pointer]
+        - button "Shopping cart with 0 items" [ref=e19] [cursor=pointer]:
+          - img [ref=e20] [cursor=pointer]
+  - main [ref=e24]:
+    - generic [ref=e25]:
+      - generic [ref=e28]:
+        - heading "Shop Official Reform UK Merch" [level=1] [ref=e29]
+        - paragraph [ref=e30]: Support the movement. Every purchase powers the mission.
+      - generic [ref=e32]:
+        - generic [ref=e35]:
+          - heading "Filters" [level=3] [ref=e37]
+          - generic [ref=e38]:
+            - generic [ref=e39]: Search
+            - generic [ref=e40]:
+              - img [ref=e41]
+              - textbox "Search products..." [ref=e44]
+          - generic [ref=e45]:
+            - generic [ref=e46]: Category
+            - generic [ref=e47]:
+              - button "All Products (10)" [ref=e48] [cursor=pointer]:
+                - generic [ref=e49] [cursor=pointer]: All Products
+                - generic [ref=e50] [cursor=pointer]: (10)
+              - button "Apparel (5)" [ref=e51] [cursor=pointer]:
+                - generic [ref=e52] [cursor=pointer]: Apparel
+                - generic [ref=e53] [cursor=pointer]: (5)
+              - button "Gear & Goods (5)" [ref=e54] [cursor=pointer]:
+                - generic [ref=e55] [cursor=pointer]: Gear & Goods
+                - generic [ref=e56] [cursor=pointer]: (5)
+              - button "Bundles (0)" [ref=e57] [cursor=pointer]:
+                - generic [ref=e58] [cursor=pointer]: Bundles
+                - generic [ref=e59] [cursor=pointer]: (0)
+          - generic [ref=e60]:
+            - generic [ref=e61]: "Price Range: £0.00 - £200.00"
+            - slider [ref=e62]: "20000"
+          - generic [ref=e63]:
+            - generic [ref=e64]: Tags
+            - generic [ref=e65]:
+              - button "New" [ref=e66] [cursor=pointer]
+              - button "Bestseller" [ref=e67] [cursor=pointer]
+              - button "Limited Edition" [ref=e68] [cursor=pointer]
+              - button "Bundle Deals" [ref=e69] [cursor=pointer]
+        - generic [ref=e70]:
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - heading "All Products" [level=2] [ref=e73]
+              - paragraph [ref=e74]: 10 products
+            - generic [ref=e75]:
+              - generic [ref=e76]: Sort by
+              - combobox "Sort by" [ref=e77]:
+                - option "Most Popular" [selected]
+                - 'option "Price: Low to High"'
+                - 'option "Price: High to Low"'
+                - option "Newest First"
+                - option "Highest Rated"
+          - generic [ref=e78]:
+            - link "View details for Reform UK Cap" [ref=e79] [cursor=pointer]:
+              - /url: /product/870b5bf9-1ae8-4882-bc3a-29e697803508
+              - generic [ref=e81] [cursor=pointer]: No Image
+              - generic [ref=e82] [cursor=pointer]:
+                - generic [ref=e83] [cursor=pointer]:
+                  - heading "Reform UK Cap" [level=3] [ref=e84] [cursor=pointer]
+                  - generic [ref=e85] [cursor=pointer]:
+                    - img [ref=e86] [cursor=pointer]
+                    - generic [ref=e88] [cursor=pointer]: "4.5"
+                    - generic [ref=e89] [cursor=pointer]: (0)
+                  - generic [ref=e90] [cursor=pointer]: £19.99
+                  - generic [ref=e91] [cursor=pointer]:
+                    - img [ref=e92] [cursor=pointer]
+                    - text: Ships in 48H
+                - generic [ref=e97] [cursor=pointer]:
+                  - button "Add to Cart" [ref=e98] [cursor=pointer]:
+                    - img [ref=e99] [cursor=pointer]
+                    - text: Add to Cart
+                  - button "View Options" [ref=e103] [cursor=pointer]:
+                    - img [ref=e104] [cursor=pointer]
+                    - text: View Options
+            - link "View details for Reform UK Hoodie" [ref=e106] [cursor=pointer]:
+              - /url: /product/a687e808-1d4a-437b-bfdd-863566412df2
+              - generic [ref=e108] [cursor=pointer]: No Image
+              - generic [ref=e109] [cursor=pointer]:
+                - generic [ref=e110] [cursor=pointer]:
+                  - heading "Reform UK Hoodie" [level=3] [ref=e111] [cursor=pointer]
+                  - generic [ref=e112] [cursor=pointer]:
+                    - img [ref=e113] [cursor=pointer]
+                    - generic [ref=e115] [cursor=pointer]: "4.5"
+                    - generic [ref=e116] [cursor=pointer]: (0)
+                  - generic [ref=e117] [cursor=pointer]: £39.99
+                  - generic [ref=e118] [cursor=pointer]:
+                    - img [ref=e119] [cursor=pointer]
+                    - text: Ships in 48H
+                - generic [ref=e124] [cursor=pointer]:
+                  - button "Add to Cart" [ref=e125] [cursor=pointer]:
+                    - img [ref=e126] [cursor=pointer]
+                    - text: Add to Cart
+                  - button "View Options" [ref=e130] [cursor=pointer]:
+                    - img [ref=e131] [cursor=pointer]
+                    - text: View Options
+            - link "View details for Reform UK Hoodie Light" [ref=e133] [cursor=pointer]:
+              - /url: /product/6db0ead7-f936-42dc-906a-b6979710433d
+              - generic [ref=e135] [cursor=pointer]: No Image
+              - generic [ref=e136] [cursor=pointer]:
+                - generic [ref=e137] [cursor=pointer]:
+                  - heading "Reform UK Hoodie Light" [level=3] [ref=e138] [cursor=pointer]
+                  - generic [ref=e139] [cursor=pointer]:
+                    - img [ref=e140] [cursor=pointer]
+                    - generic [ref=e142] [cursor=pointer]: "4.5"
+                    - generic [ref=e143] [cursor=pointer]: (0)
+                  - generic [ref=e144] [cursor=pointer]: £39.99
+                  - generic [ref=e145] [cursor=pointer]:
+                    - img [ref=e146] [cursor=pointer]
+                    - text: Ships in 48H
+                - generic [ref=e151] [cursor=pointer]:
+                  - button "Add to Cart" [ref=e152] [cursor=pointer]:
+                    - img [ref=e153] [cursor=pointer]
+                    - text: Add to Cart
+                  - button "View Options" [ref=e157] [cursor=pointer]:
+                    - img [ref=e158] [cursor=pointer]
+                    - text: View Options
+            - link "View details for Reform UK Mouse Pad" [ref=e160] [cursor=pointer]:
+              - /url: /product/d5159fda-5e6a-41e8-a535-36d09e216f6e
+              - generic [ref=e162] [cursor=pointer]: No Image
+              - generic [ref=e163] [cursor=pointer]:
+                - generic [ref=e164] [cursor=pointer]:
+                  - heading "Reform UK Mouse Pad" [level=3] [ref=e165] [cursor=pointer]
+                  - generic [ref=e166] [cursor=pointer]:
+                    - img [ref=e167] [cursor=pointer]
+                    - generic [ref=e169] [cursor=pointer]: "4.5"
+                    - generic [ref=e170] [cursor=pointer]: (0)
+                  - generic [ref=e171] [cursor=pointer]: £14.99
+                  - generic [ref=e172] [cursor=pointer]:
+                    - img [ref=e173] [cursor=pointer]
+                    - text: Ships in 48H
+                - generic [ref=e178] [cursor=pointer]:
+                  - button "Add to Cart" [ref=e179] [cursor=pointer]:
+                    - img [ref=e180] [cursor=pointer]
+                    - text: Add to Cart
+                  - button "View Options" [ref=e184] [cursor=pointer]:
+                    - img [ref=e185] [cursor=pointer]
+                    - text: View Options
+            - link "View details for Reform UK Mug" [ref=e187] [cursor=pointer]:
+              - /url: /product/63bee7e9-a595-4efe-ac7a-24d7079ed16c
+              - generic [ref=e189] [cursor=pointer]: No Image
+              - generic [ref=e190] [cursor=pointer]:
+                - generic [ref=e191] [cursor=pointer]:
+                  - heading "Reform UK Mug" [level=3] [ref=e192] [cursor=pointer]
+                  - generic [ref=e193] [cursor=pointer]:
+                    - img [ref=e194] [cursor=pointer]
+                    - generic [ref=e196] [cursor=pointer]: "4.5"
+                    - generic [ref=e197] [cursor=pointer]: (0)
+                  - generic [ref=e198] [cursor=pointer]: £9.99
+                  - generic [ref=e199] [cursor=pointer]:
+                    - img [ref=e200] [cursor=pointer]
+                    - text: Ships in 48H
+                - generic [ref=e205] [cursor=pointer]:
+                  - button "Add to Cart" [ref=e206] [cursor=pointer]:
+                    - img [ref=e207] [cursor=pointer]
+                    - text: Add to Cart
+                  - button "View Options" [ref=e211] [cursor=pointer]:
+                    - img [ref=e212] [cursor=pointer]
+                    - text: View Options
+            - link "View details for Reform UK Sticker" [ref=e214] [cursor=pointer]:
+              - /url: /product/bfd1596f-7df1-41d6-92a8-87ae234440e1
+              - generic [ref=e216] [cursor=pointer]: No Image
+              - generic [ref=e217] [cursor=pointer]:
+                - generic [ref=e218] [cursor=pointer]:
+                  - heading "Reform UK Sticker" [level=3] [ref=e219] [cursor=pointer]
+                  - generic [ref=e220] [cursor=pointer]:
+                    - img [ref=e221] [cursor=pointer]
+                    - generic [ref=e223] [cursor=pointer]: "4.5"
+                    - generic [ref=e224] [cursor=pointer]: (0)
+                  - generic [ref=e225] [cursor=pointer]: £2.99
+                  - generic [ref=e226] [cursor=pointer]:
+                    - img [ref=e227] [cursor=pointer]
+                    - text: Ships in 48H
+                - generic [ref=e232] [cursor=pointer]:
+                  - button "Add to Cart" [ref=e233] [cursor=pointer]:
+                    - img [ref=e234] [cursor=pointer]
+                    - text: Add to Cart
+                  - button "View Options" [ref=e238] [cursor=pointer]:
+                    - img [ref=e239] [cursor=pointer]
+                    - text: View Options
+            - link "View details for Reform UK T-Shirt" [ref=e241] [cursor=pointer]:
+              - /url: /product/02942d1f-34ee-4921-ad01-08adee93706c
+              - generic [ref=e243] [cursor=pointer]: No Image
+              - generic [ref=e244] [cursor=pointer]:
+                - generic [ref=e245] [cursor=pointer]:
+                  - heading "Reform UK T-Shirt" [level=3] [ref=e246] [cursor=pointer]
+                  - generic [ref=e247] [cursor=pointer]:
+                    - img [ref=e248] [cursor=pointer]
+                    - generic [ref=e250] [cursor=pointer]: "4.5"
+                    - generic [ref=e251] [cursor=pointer]: (0)
+                  - generic [ref=e252] [cursor=pointer]: £24.99
+                  - generic [ref=e253] [cursor=pointer]:
+                    - img [ref=e254] [cursor=pointer]
+                    - text: Ships in 48H
+                - generic [ref=e259] [cursor=pointer]:
+                  - button "Add to Cart" [ref=e260] [cursor=pointer]:
+                    - img [ref=e261] [cursor=pointer]
+                    - text: Add to Cart
+                  - button "View Options" [ref=e265] [cursor=pointer]:
+                    - img [ref=e266] [cursor=pointer]
+                    - text: View Options
+            - link "View details for Reform UK T-Shirt Light" [ref=e268] [cursor=pointer]:
+              - /url: /product/c51773ed-2905-4cfc-bf07-bb1699ec4d7d
+              - generic [ref=e270] [cursor=pointer]: No Image
+              - generic [ref=e271] [cursor=pointer]:
+                - generic [ref=e272] [cursor=pointer]:
+                  - heading "Reform UK T-Shirt Light" [level=3] [ref=e273] [cursor=pointer]
+                  - generic [ref=e274] [cursor=pointer]:
+                    - img [ref=e275] [cursor=pointer]
+                    - generic [ref=e277] [cursor=pointer]: "4.5"
+                    - generic [ref=e278] [cursor=pointer]: (0)
+                  - generic [ref=e279] [cursor=pointer]: £24.99
+                  - generic [ref=e280] [cursor=pointer]:
+                    - img [ref=e281] [cursor=pointer]
+                    - text: Ships in 48H
+                - generic [ref=e286] [cursor=pointer]:
+                  - button "Add to Cart" [ref=e287] [cursor=pointer]:
+                    - img [ref=e288] [cursor=pointer]
+                    - text: Add to Cart
+                  - button "View Options" [ref=e292] [cursor=pointer]:
+                    - img [ref=e293] [cursor=pointer]
+                    - text: View Options
+            - link "View details for Reform UK Tote Bag" [ref=e295] [cursor=pointer]:
+              - /url: /product/26181f8f-ec68-4414-9f17-7e774ff304bf
+              - generic [ref=e297] [cursor=pointer]: No Image
+              - generic [ref=e298] [cursor=pointer]:
+                - generic [ref=e299] [cursor=pointer]:
+                  - heading "Reform UK Tote Bag" [level=3] [ref=e300] [cursor=pointer]
+                  - generic [ref=e301] [cursor=pointer]:
+                    - img [ref=e302] [cursor=pointer]
+                    - generic [ref=e304] [cursor=pointer]: "4.5"
+                    - generic [ref=e305] [cursor=pointer]: (0)
+                  - generic [ref=e306] [cursor=pointer]: £24.99
+                  - generic [ref=e307] [cursor=pointer]:
+                    - img [ref=e308] [cursor=pointer]
+                    - text: Ships in 48H
+                - generic [ref=e313] [cursor=pointer]:
+                  - button "Add to Cart" [ref=e314] [cursor=pointer]:
+                    - img [ref=e315] [cursor=pointer]
+                    - text: Add to Cart
+                  - button "View Options" [ref=e319] [cursor=pointer]:
+                    - img [ref=e320] [cursor=pointer]
+                    - text: View Options
+            - link "View details for Reform UK Water Bottle" [ref=e322] [cursor=pointer]:
+              - /url: /product/1c41c2af-f2d3-47b1-98a8-a38c54122814
+              - generic [ref=e324] [cursor=pointer]: No Image
+              - generic [ref=e325] [cursor=pointer]:
+                - generic [ref=e326] [cursor=pointer]:
+                  - heading "Reform UK Water Bottle" [level=3] [ref=e327] [cursor=pointer]
+                  - generic [ref=e328] [cursor=pointer]:
+                    - img [ref=e329] [cursor=pointer]
+                    - generic [ref=e331] [cursor=pointer]: "4.5"
+                    - generic [ref=e332] [cursor=pointer]: (0)
+                  - generic [ref=e333] [cursor=pointer]: £24.99
+                  - generic [ref=e334] [cursor=pointer]:
+                    - img [ref=e335] [cursor=pointer]
+                    - text: Ships in 48H
+                - generic [ref=e340] [cursor=pointer]:
+                  - button "Add to Cart" [ref=e341] [cursor=pointer]:
+                    - img [ref=e342] [cursor=pointer]
+                    - text: Add to Cart
+                  - button "View Options" [ref=e346] [cursor=pointer]:
+                    - img [ref=e347] [cursor=pointer]
+                    - text: View Options
+  - contentinfo [ref=e349]:
+    - generic [ref=e352]:
+      - generic [ref=e353]:
+        - img [ref=e354]
+        - generic [ref=e356]: Secure Checkout
+      - generic [ref=e357]:
+        - img [ref=e358]
+        - generic [ref=e363]: Best Shipping Rates
+      - generic [ref=e364]:
+        - img [ref=e365]
+        - generic [ref=e367]: Easy Returns
+      - generic [ref=e368]:
+        - generic [ref=e369]: 🇬🇧
+        - generic [ref=e370]: Printed in Britain
+    - generic [ref=e372]:
+      - generic [ref=e373]:
+        - generic [ref=e374]:
+          - img "Reform UK" [ref=e375]
+          - generic [ref=e376]: Back Reform
+        - paragraph [ref=e377]: Official merchandise supporting Reform UK's mission for real change in Britain. Every purchase helps fund our democratic movement.
+        - paragraph [ref=e378]: Run by Reform UK volunteers and supporters.
+        - generic [ref=e379]:
+          - link [ref=e380] [cursor=pointer]:
+            - /url: https://www.facebook.com/profile.php?id=61578282817124
+            - img [ref=e381] [cursor=pointer]
+          - link [ref=e383] [cursor=pointer]:
+            - /url: https://www.instagram.com/backreformuk/
+            - img [ref=e384] [cursor=pointer]
+          - link [ref=e387] [cursor=pointer]:
+            - /url: https://x.com/backreformuk
+            - img [ref=e388] [cursor=pointer]
+          - link [ref=e390] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@backreformuk?is_from_webapp=1&sender_device=pc
+            - img [ref=e391] [cursor=pointer]
+      - generic [ref=e393]:
+        - heading "Shop" [level=3] [ref=e394]
+        - list [ref=e395]:
+          - listitem [ref=e396]:
+            - button "View All Merch" [ref=e397] [cursor=pointer]
+          - listitem [ref=e398]:
+            - button "Clothing" [ref=e399] [cursor=pointer]
+          - listitem [ref=e400]:
+            - button "Accessories" [ref=e401] [cursor=pointer]
+          - listitem [ref=e402]:
+            - button "Bundles" [ref=e403] [cursor=pointer]
+      - generic [ref=e404]:
+        - heading "Support" [level=3] [ref=e405]
+        - list [ref=e406]:
+          - listitem [ref=e407]:
+            - button "FAQ" [ref=e408] [cursor=pointer]
+          - listitem [ref=e409]:
+            - button "Contact Us" [ref=e410] [cursor=pointer]
+          - listitem [ref=e411]:
+            - button "Size Guide" [ref=e412] [cursor=pointer]
+          - listitem [ref=e413]:
+            - button "Shipping Info" [ref=e414] [cursor=pointer]
+          - listitem [ref=e415]:
+            - button "Returns & Exchanges" [ref=e416] [cursor=pointer]
+      - generic [ref=e417]:
+        - heading "Get in Touch" [level=3] [ref=e418]
+        - generic [ref=e419]:
+          - generic [ref=e420]:
+            - img [ref=e421]
+            - link "WhatsApp Support" [ref=e423] [cursor=pointer]:
+              - /url: https://wa.me/447405853303
+          - generic [ref=e424]:
+            - img [ref=e425]
+            - link "support@backreform.co.uk" [ref=e428] [cursor=pointer]:
+              - /url: mailto:support@backreform.co.uk
+          - generic [ref=e429]:
+            - img [ref=e430]
+            - generic [ref=e433]:
+              - text: Reform UK HQ
+              - text: London, United Kingdom
+    - generic [ref=e436]:
+      - generic [ref=e437]:
+        - button "Privacy Policy" [ref=e438] [cursor=pointer]
+        - button "Terms of Service" [ref=e439] [cursor=pointer]
+        - button "Cookie Policy" [ref=e440] [cursor=pointer]
+        - button "Accessibility" [ref=e441] [cursor=pointer]
+      - generic [ref=e442]:
+        - paragraph [ref=e443]: © 2025 Back Reform. All rights reserved.
+        - paragraph [ref=e444]: Support the movement. Wear the movement.
+```

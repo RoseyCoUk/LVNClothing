@@ -305,8 +305,9 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 1
 
-# [edge_runtime.secrets]
-# secret_key = "env(SECRET_VALUE)"
+[edge_runtime.secrets]
+PRINTFUL_TOKEN = "dHfrvwWHc1abLufS0xz4EEEqgE0XboN7cDMX24mB"
+PRINTFUL_STORE_ID = "16651763"
 
 [analytics]
 enabled = true

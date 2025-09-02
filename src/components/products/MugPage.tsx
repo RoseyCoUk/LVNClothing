@@ -95,7 +95,7 @@ const createMugVariants = (): Variants => {
       stockCount: 8,
       rating: 4,
       reviews: 156,
-      printful_variant_id: variant.externalId, // Real Printful external ID for ordering
+      printful_variant_id: variant.catalogVariantId, // Real Printful external ID for ordering
       external_id: variant.externalId,
       images: [
         "/MugMouse/ReformMug1.webp",

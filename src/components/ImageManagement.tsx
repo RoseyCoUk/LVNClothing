@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useAdminProducts } from '../contexts/AdminProductsContext';
+import { useAdminProducts } from '../admin/contexts/AdminProductsContext';
+import DeleteConfirmationModal from './ui/DeleteConfirmationModal';
 import { 
   Upload, 
   X, 
@@ -47,7 +48,7 @@ const ImageManagement: React.FC<ImageManagementProps> = ({
   onImagesUpdate,
   onClose
 }) => {
-  const { uploadImage, createProductImage, updateProductImage, deleteProductImage, reorderProductImages } = useAdminProducts();
+  const { uploadImage, createProductImage, updateProductImage, deleteProductImage, reorderProductImages, deleteImage } = useAdminProducts();
   
   // State management
   const [images, setImages] = useState<ProductImage[]>(currentImages);
@@ -55,6 +56,14 @@ const ImageManagement: React.FC<ImageManagementProps> = ({
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  
+  // Delete confirmation modal state
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    imageId: string | null;
+    imageData: ProductImage | null;
+    isDeleting: boolean;
+  }>({ isOpen: false, imageId: null, imageData: null, isDeleting: false });
   
   // File input refs
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -340,28 +349,130 @@ const ImageManagement: React.FC<ImageManagementProps> = ({
     }
   };
 
-  // Delete image
-  const handleDeleteImage = async (imageId: string) => {
+  // Open delete confirmation modal
+  const handleDeleteImageClick = (imageId: string) => {
+    const imageToDelete = images.find(img => img.id === imageId);
+    if (!imageToDelete) {
+      console.error('Image not found:', imageId);
+      return;
+    }
+    
+    setDeleteModal({
+      isOpen: true,
+      imageId,
+      imageData: imageToDelete,
+      isDeleting: false
+    });
+  };
+  
+  // Cancel delete operation
+  const handleDeleteCancel = () => {
+    setDeleteModal({
+      isOpen: false,
+      imageId: null,
+      imageData: null,
+      isDeleting: false
+    });
+  };
+  
+  // Confirm and execute delete operation
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.imageId || !deleteModal.imageData) {
+      console.error('No image selected for deletion');
+      return;
+    }
+    
+    // Set deleting state
+    setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+    
     try {
-      const imageToDelete = images.find(img => img.id === imageId);
-      if (!imageToDelete) return;
+      const { imageId, imageData } = deleteModal;
       
-      // Delete from database
+      // Extract storage path from image URL for cleanup
+      let imagePath: string | null = null;
+      try {
+        const url = new URL(imageData.image_url);
+        const pathMatch = url.pathname.match(/\/storage\/v1\/object\/public\/product-images\/(.+)$/);
+        if (pathMatch) {
+          imagePath = pathMatch[1];
+        }
+      } catch (urlError) {
+        console.warn('Could not parse image URL for storage cleanup:', urlError);
+      }
+      
+      // Delete from database first
       await deleteProductImage(imageId);
       
-      // Remove from state
+      // Clean up storage if we have the path
+      if (imagePath) {
+        try {
+          await deleteImage('product-images', imagePath);
+          console.log('✅ Image deleted from storage:', imagePath);
+        } catch (storageError) {
+          console.warn('⚠️ Could not delete image from storage (may already be deleted):', storageError);
+          // Don't fail the entire operation if storage cleanup fails
+        }
+      }
+      
+      // Remove from local state
       setImages(prev => prev.filter(img => img.id !== imageId));
       
       // If this was the primary image and there are other images, set the first one as primary
-      if (imageToDelete.is_primary && images.length > 1) {
+      if (imageData.is_primary && images.length > 1) {
         const remainingImages = images.filter(img => img.id !== imageId);
         if (remainingImages.length > 0) {
           await handleSetPrimary(remainingImages[0].id);
         }
       }
+      
+      // Close modal
+      handleDeleteCancel();
+      
+      console.log('✅ Image deleted successfully:', imageId);
+      
     } catch (error) {
-      console.error('Failed to delete image:', error);
+      console.error('❌ Failed to delete image:', error);
+      
+      // Keep modal open but reset deleting state so user can try again or cancel
+      setDeleteModal(prev => ({ ...prev, isDeleting: false }));
+      
+      // You could also show a toast notification here
+      alert(`Failed to delete image: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  };
+  
+  // Get delete modal content based on image properties
+  const getDeleteModalContent = () => {
+    if (!deleteModal.imageData) {
+      return {
+        title: 'Delete Image',
+        message: 'Are you sure you want to delete this image?',
+        warningText: undefined
+      };
+    }
+    
+    const { imageData } = deleteModal;
+    const warnings: string[] = [];
+    
+    if (imageData.is_primary) {
+      warnings.push('This is the primary image for the product');
+    }
+    
+    if (imageData.is_thumbnail) {
+      warnings.push('This is the thumbnail image for the product');
+    }
+    
+    if (images.length === 1) {
+      warnings.push('This is the only image for the product');
+    }
+    
+    const warningText = warnings.length > 0 ? warnings.join('. ') + '.' : undefined;
+    
+    return {
+      title: 'Delete Product Image',
+      message: 'This action cannot be undone. The image will be permanently removed from both the database and storage.',
+      warningText
+    };
   };
 
   // Remove uploading image
@@ -557,8 +668,8 @@ const ImageManagement: React.FC<ImageManagementProps> = ({
                         <GripVertical className="h-4 w-4 text-white bg-black bg-opacity-50 rounded p-1" />
                       </div>
 
-                      {/* Order Number */}
-                      <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                      {/* Order Number - Moved to bottom-right to avoid delete button overlap */}
+                      <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
                         {image.image_order + 1}
                       </div>
 
@@ -583,7 +694,7 @@ const ImageManagement: React.FC<ImageManagementProps> = ({
 
                       {/* Actions Overlay */}
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center">
-                        <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
                           <button
                             onClick={() => handleSetPrimary(image.id)}
                             disabled={image.is_primary}
@@ -606,9 +717,10 @@ const ImageManagement: React.FC<ImageManagementProps> = ({
                           </button>
                           
                           <button
-                            onClick={() => handleDeleteImage(image.id)}
-                            className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600"
+                            onClick={() => handleDeleteImageClick(image.id)}
+                            className="p-3 bg-red-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 shadow-lg"
                             title="Delete image"
+                            aria-label={`Delete image ${index + 1}${image.is_primary ? ' (primary)' : ''}${image.is_thumbnail ? ' (thumbnail)' : ''}`}
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -653,6 +765,16 @@ const ImageManagement: React.FC<ImageManagementProps> = ({
           </div>
         </div>
       </div>
+      
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        isLoading={deleteModal.isDeleting}
+        isDangerous={true}
+        {...getDeleteModalContent()}
+      />
     </div>
   );
 };

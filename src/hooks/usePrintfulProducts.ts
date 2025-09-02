@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { pf } from '../lib/printful/client';
 import type { PrintfulProduct, PrintfulVariant } from '../types/printful';
-import { TshirtVariants } from './tshirt-variants-merged';
-import { HoodieVariants } from './hoodie-variants-merged';
+import { TshirtVariants } from './tshirt-variants-merged-fixed';
+import { HoodieVariants } from './hoodie-variants-merged-fixed';
 import { TotebagVariants } from './totebag-variants';
 import { WaterbottleVariants } from './waterbottle-variants';
 import { MousepadVariants } from './mousepad-variants';
@@ -27,6 +27,16 @@ const mockProducts: PrintfulProduct[] = [
         return TshirtVariants.map(variant => {
           return {
             ...variant,
+            // Use externalId as printful_variant_id for database consistency
+            printful_variant_id: variant.externalId,
+            // Use catalogVariantId for Printful API calls
+            id: variant.catalogVariantId,
+            name: `${variant.color} T-Shirt - ${variant.size}`,
+            color: variant.color,
+            size: variant.size,
+            price: variant.price,
+            in_stock: true,
+            color_code: variant.colorHex,
             image: `https://files.cdn.printful.com/products/71/tshirt_mockup.jpg`
           };
         });
@@ -52,14 +62,16 @@ const mockProducts: PrintfulProduct[] = [
     category: 'hoodie',
     variants: HoodieVariants.map(variant => ({
       ...variant,
+      // Use externalId as printful_variant_id for database consistency
+      printful_variant_id: variant.externalId,
+      // Use catalogVariantId for Printful API calls
       id: variant.catalogVariantId,
       name: `${variant.color} Hoodie - ${variant.size}`,
       color: variant.color,
       size: variant.size,
-      price: variant.price || "39.99",
+      price: variant.price,
       in_stock: true,
-      printful_variant_id: variant.catalogVariantId,
-      color_code: variant.colorHex || "#000000",
+      color_code: variant.colorHex,
       image: `https://files.cdn.printful.com/products/71/${variant.color.toLowerCase().replace(/\s+/g, '_')}_hoodie_${variant.size.toLowerCase()}_mockup.jpg`
     })),
     isUnisex: true,
@@ -259,18 +271,27 @@ const isPrintfulAvailable = () => {
   try {
     // Check if we have the basic objects
     if (!pf || !(pf as any).h) {
+      console.log('Printful API: Missing pf client or headers function');
       return false;
     }
     
     // Check if we have the required environment variable
     if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      console.log('Printful API: Missing VITE_SUPABASE_ANON_KEY');
       return false;
     }
     
-    // For now, let's assume Printful is not available and use mock data
-    // This ensures we always get the correct mock data with proper images
-    return false;
-  } catch {
+    // Check if Printful token is available
+    if (!import.meta.env.VITE_PRINTFUL_TOKEN) {
+      console.log('Printful API: Missing VITE_PRINTFUL_TOKEN - using mock data');
+      return false;
+    }
+    
+    // Enable real Printful API if all requirements are met
+    console.log('Printful API: All requirements met - using real API');
+    return true;
+  } catch (error) {
+    console.log('Printful API: Error checking availability:', error);
     return false;
   }
 };

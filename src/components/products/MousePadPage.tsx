@@ -94,7 +94,7 @@ const createMousePadVariants = (): Variants => {
       stockCount: 45,
       rating: 4,
       reviews: 78,
-      printful_variant_id: variant.externalId, // Real Printful external ID for ordering
+      printful_variant_id: variant.catalogVariantId, // Real Printful external ID for ordering
       external_id: variant.externalId,
       images: Array.from({ length: 2 }, (_, i) => `/MugMouse/ReformMousePadWhite${i + 1}.webp`)
     };

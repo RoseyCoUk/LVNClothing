@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useAdminProducts } from '../contexts/AdminProductsContext';
+import { useAdminProducts } from '../admin/contexts/AdminProductsContext';
 import ProductDisplay from './ProductDisplay';
 import BundleDisplay from './BundleDisplay';
 import { 

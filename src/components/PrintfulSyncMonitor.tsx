@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAdminProducts } from '../contexts/AdminProductsContext';
+import { useAdminProducts } from '../admin/contexts/AdminProductsContext';
 import { 
   RefreshCw, 
   AlertCircle, 

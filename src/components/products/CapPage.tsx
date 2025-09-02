@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Star,
@@ -21,23 +21,26 @@ import { createCheckoutSession } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import OrderOverviewModal from '../OrderOverviewModal';
 import { CapVariants, findCapVariantByCatalogId, capColors, findCapVariantByColor } from '../../hooks/cap-variants';
+import { useMergedProducts } from '../../hooks/useMergedProducts';
 import { Toast, useToast } from '../../components/ui/Toast';
+import { sortColorsByBrightness } from '../../lib/colorUtils';
 
 // --- FIX: Cap data is moved OUTSIDE the component to ensure it's a stable constant ---
-const productData = {
-  id: 3,
-  name: "Reform UK Cap",
-  description: "Adjustable cap with embroidered Reform UK logo. Features a classic 6-panel design with a curved visor and adjustable strap for the perfect fit.",
+const getCapProductData = (mergedProduct: any) => ({
+  id: mergedProduct?.id || 3,
+  name: mergedProduct?.name || "Reform UK Cap",
+  description: mergedProduct?.description || "Adjustable cap with embroidered Reform UK logo. Features a classic 6-panel design with a curved visor and adjustable strap for the perfect fit.",
   features: ["Embroidered logo", "Adjustable strap", "Curved visor", "6-panel construction", "Breathable fabric", "One size fits most"],
   careInstructions: "Spot clean only. Air dry.",
   materials: "100% cotton twill",
-  category: 'apparel',
+  category: mergedProduct?.category || 'apparel',
   shipping: "Ships in 48H",
   defaultVariant: 301, // Default to first variant
   variantDetails: {
-    colors: capColors
+    // Use database colors if available, fallback to static colors
+    colors: mergedProduct?.colorOptions || capColors
   }
-};
+});
 
 // Create variants from Printful data
 const createCapVariants = () => {
@@ -55,7 +58,7 @@ const createCapVariants = () => {
       stockCount: 18,
       rating: 5,
       reviews: 92,
-      printful_variant_id: variant.externalId, // Real Printful external ID for ordering
+      printful_variant_id: variant.catalogVariantId, // Real Printful external ID for ordering
       external_id: variant.externalId,
       images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCap${variant.color.replace(/\s+/g, '')}${i + 1}.webp`)
     };
@@ -90,25 +93,106 @@ const CapPage = ({ onBack }: CapPageProps) => {
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
   const navigate = useNavigate();
   
-  // Fix 4: Add proper type assertion
-  const [currentVariant] = useState(variants[productData.defaultVariant as keyof typeof variants]);
+  // Use merged products hook to get database colors
+  const { mergedProducts, isLoading: productsLoading, error, getProductByCategory } = useMergedProducts();
+  
+  // Get cap product from merged products
+  const capProduct = getProductByCategory('cap') || getProductByCategory('individual-cap');
+  const productData = getCapProductData(capProduct);
+  
+  // Get product images based on selected color from database (same pattern as working Hoodie page)
+  const getProductImages = () => {
+    if (!capProduct?.baseProduct?.images || capProduct.baseProduct.images.length === 0) {
+      // Fallback to logo if no images in merged product
+      return ['/BackReformLogo.png'];
+    }
+    
+    const mergedImages = capProduct.baseProduct.images;
+    
+    // If a color is selected, try to get color-specific images first
+    if (selectedColor) {
+      const selectedColorLower = selectedColor.toLowerCase();
+      
+      // Priority 1: Exact color match with variant_type = 'color'
+      const exactColorImages = mergedImages.filter(img => 
+        img.variant_type === 'color' && 
+        img.color?.toLowerCase() === selectedColorLower
+      );
+      
+      if (exactColorImages.length > 0) {
+        return exactColorImages
+          .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url);
+      }
+      
+      // Priority 2: Look for images with color field matching (any variant_type)
+      const colorFieldImages = mergedImages.filter(img => 
+        img.color?.toLowerCase() === selectedColorLower
+      );
+      
+      if (colorFieldImages.length > 0) {
+        return colorFieldImages
+          .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url);
+      }
+    }
+    
+    // Priority 3: General product images (variant_type = 'product' or null)
+    const generalImages = mergedImages.filter(img => 
+      img.variant_type === 'product' || img.variant_type === null || img.variant_type === undefined
+    );
+    
+    if (generalImages.length > 0) {
+      return generalImages
+        .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+        .map(img => img.image_url);
+    }
+    
+    // Priority 4: Primary image if available
+    const primaryImages = mergedImages.filter(img => img.is_primary === true);
+    if (primaryImages.length > 0) {
+      return primaryImages.map(img => img.image_url);
+    }
+    
+    // Priority 5: All available images as final fallback
+    return mergedImages.length > 0 
+      ? mergedImages
+          .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url)
+      : [capProduct.image_url || '/BackReformLogo.png'];
+  };
+  
+  // State for product display and selection
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [selectedColor, setSelectedColor] = useState(currentVariant.color);
+  const [selectedColor, setSelectedColor] = useState('');
   const [activeTab, setActiveTab] = useState('description');
   const [isWishlisted, setIsWishlisted] = useState(false);
+  
+  // Initialize selected color when colors are available
+  React.useEffect(() => {
+    if (!selectedColor && productData.variantDetails.colors.length > 0) {
+      setSelectedColor(productData.variantDetails.colors[0].name);
+    }
+  }, [productData.variantDetails.colors, selectedColor]);
 
-  // Effect to update the variant when color changes
-  useEffect(() => {
-    const newVariant = Object.values(variants).find(
+  // Get current variant based on selected color
+  const getCurrentVariant = () => {
+    if (!selectedColor) {
+      return variants[productData.defaultVariant as keyof typeof variants];
+    }
+    const variant = Object.values(variants).find(
       variant => variant.color === selectedColor
     );
-    // Only update state if the variant has actually changed
-    if (newVariant && newVariant.id !== currentVariant.id) {
-      // setCurrentVariant(newVariant); // This line is removed
-      setSelectedImage(0); // Reset to the first image ONLY when the variant changes
-    }
-  }, [selectedColor, currentVariant.id]);
+    return variant || variants[productData.defaultVariant as keyof typeof variants];
+  };
+  
+  const currentVariant = getCurrentVariant();
+  
+  // Effect to reset image when color changes
+  useEffect(() => {
+    setSelectedImage(0); // Reset to the first image when color changes
+  }, [selectedColor]);
 
   const handleAddToCart = () => {
     if (!selectedColor) {
@@ -127,9 +211,9 @@ const CapPage = ({ onBack }: CapPageProps) => {
       id: currentVariant.id,
       name: `${productData.name} (${selectedColor})`,
       price: currentVariant.price,
-      image: currentVariant.images[0],
+      image: getProductImages()[0] || '/BackReformLogo.png',
       quantity: quantity,
-      printful_variant_id: selectedVariant.externalId
+      printful_variant_id: selectedVariant.catalogVariantId
     };
     addToCart(itemToAdd);
     
@@ -155,10 +239,10 @@ const CapPage = ({ onBack }: CapPageProps) => {
       id: `${currentVariant.id}-${selectedColor}`,
       name: `${productData.name} - ${selectedColor}`,
       price: currentVariant.price,
-      image: currentVariant.images[0],
+      image: getProductImages()[0] || '/BackReformLogo.png',
       color: selectedColor,
       quantity: quantity,
-      printful_variant_id: selectedVariant.externalId
+      printful_variant_id: selectedVariant.catalogVariantId
     };
     
     const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
@@ -224,11 +308,17 @@ const CapPage = ({ onBack }: CapPageProps) => {
   };
 
   const nextImage = () => {
-    setSelectedImage((prev) => (prev + 1) % currentVariant.images.length);
+    const images = getProductImages();
+    if (images.length > 1) {
+      setSelectedImage((prev) => (prev + 1) % images.length);
+    }
   };
 
   const prevImage = () => {
-    setSelectedImage((prev) => (prev - 1 + currentVariant.images.length) % currentVariant.images.length);
+    const images = getProductImages();
+    if (images.length > 1) {
+      setSelectedImage((prev) => (prev + 1 + images.length) % images.length);
+    }
   };
 
   const reviews = [
@@ -239,12 +329,32 @@ const CapPage = ({ onBack }: CapPageProps) => {
 
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
-    // Find the variant with the selected color
-    const variantWithColor = Object.values(variants).find(variant => variant.color === color);
-    if (variantWithColor) {
-      // Update currentVariant if needed, but since we're using useState with initial value, we don't need setCurrentVariant
-    }
+    // Reset image to first when color changes (handled by useEffect)
   };
+
+  // Loading state
+  if (productsLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#009fe3] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading Cap details...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Failed to load product data</p>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -273,15 +383,15 @@ const CapPage = ({ onBack }: CapPageProps) => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Product Images */}
-          <div key={currentVariant.id} className="space-y-4">
+          <div key={`${currentVariant.id}-${selectedColor}`} className="space-y-4">
             <div className="relative aspect-square bg-white rounded-lg overflow-hidden shadow-lg">
               <img
-                src={currentVariant.images[selectedImage]}
-                alt={`${productData.name} - ${currentVariant.color} - Image ${selectedImage + 1}`}
+                src={getProductImages()[selectedImage] || getProductImages()[0] || '/BackReformLogo.png'}
+                alt={`${productData.name} - ${selectedColor || currentVariant.color} - Image ${selectedImage + 1}`}
                 className="w-full h-full object-cover aspect-square"
               />
               
-              {currentVariant.images.length > 1 && (
+              {getProductImages().length > 1 && (
                 <>
                   <button onClick={prevImage} className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-colors z-10" aria-label="Previous image"><ChevronLeft className="w-5 h-5" /></button>
                   <button onClick={nextImage} className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-colors z-10" aria-label="Next image"><ChevronRight className="w-5 h-5" /></button>
@@ -294,16 +404,16 @@ const CapPage = ({ onBack }: CapPageProps) => {
                 </span>
               </div>
               
-              {currentVariant.images.length > 1 && (
+              {getProductImages().length > 1 && (
                 <div className="absolute bottom-4 right-4 bg-black/50 text-white px-2 py-1 rounded-full text-xs z-10">
-                  {selectedImage + 1} / {currentVariant.images.length}
+                  {selectedImage + 1} / {getProductImages().length}
                 </div>
               )}
             </div>
 
-            {currentVariant.images.length > 1 && (
+            {getProductImages().length > 1 && (
               <div className="flex space-x-2 overflow-x-auto pb-2">
-                {currentVariant.images.map((image, index) => (
+                {getProductImages().map((image, index) => (
                   <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
                     <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover aspect-square" />
                   </button>
@@ -335,7 +445,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">Color: <span className="font-semibold text-gray-900">{selectedColor}</span></label>
               <div className="flex flex-wrap gap-3">
-                {productData.variantDetails.colors.map((color) => (
+                {sortColorsByBrightness(productData.variantDetails.colors).map((color) => (
                   <button key={color.name} onClick={() => handleColorSelect(color.name)} className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${selectedColor === color.name ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' : color.border ? 'border-gray-300 hover:border-gray-400' : 'border-gray-200 hover:border-gray-300'}`} style={{ backgroundColor: color.hex }} title={color.name}>
                     {selectedColor === color.name && (<div className="absolute inset-0 flex items-center justify-center"><Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Blue' ? 'text-gray-600' : 'text-white'}`} /></div>)}
                   </button>

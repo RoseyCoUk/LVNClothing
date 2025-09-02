@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { useAdminProducts } from '../contexts/AdminProductsContext';
+import { useAdminProducts } from '../admin/contexts/AdminProductsContext';
+import DeleteConfirmationModal from './ui/DeleteConfirmationModal';
 import { 
   X, 
   Upload, 
@@ -52,7 +53,7 @@ const EnhancedImageManagement: React.FC<ImageManagementProps> = ({
   variantColor,
   productVariants = []
 }) => {
-  const { uploadImage, createProductImage, deleteProductImage, fetchProductImages, updateProductImage } = useAdminProducts();
+  const { uploadImage, createProductImage, deleteProductImage, fetchProductImages, updateProductImage, deleteImage } = useAdminProducts();
   
   // Toast notification helper
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
@@ -80,6 +81,14 @@ const EnhancedImageManagement: React.FC<ImageManagementProps> = ({
   
   // Toast notification state
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error' | 'info'} | null>(null);
+  
+  // Delete confirmation modal state
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    imageId: string | null;
+    imageData: ProductImage | null;
+    isDeleting: boolean;
+  }>({ isOpen: false, imageId: null, imageData: null, isDeleting: false });
 
   // Update local images state when currentImages prop changes
   useEffect(() => {
@@ -566,77 +575,175 @@ const EnhancedImageManagement: React.FC<ImageManagementProps> = ({
     console.log(`👑 Set thumbnail image for ${selectedVariantType}${selectedColor ? ` (${selectedColor})` : ''}:`, imageId);
   };
 
-  const handleDeleteImage = async (imageId: any) => {
-    console.log('🗑️ handleDeleteImage called with:', imageId);
+  // Open delete confirmation modal
+  const handleDeleteImageClick = (imageId: any) => {
+    console.log('🗑️ handleDeleteImageClick called with:', imageId);
     console.log('imageId type:', typeof imageId);
     console.log('imageId value:', imageId);
     
     // Type check - ensure imageId is a string or number
     if (imageId === undefined || imageId === null) {
       console.error('❌ imageId is undefined or null:', imageId);
-      alert('Invalid image ID. Please try again.');
+      showToast('Invalid image ID. Please try again.', 'error');
       return;
     }
     
     if (typeof imageId !== 'string' && typeof imageId !== 'number') {
       console.error('❌ imageId is not a string or number:', imageId);
-      alert('Invalid image ID. Please try again.');
+      showToast('Invalid image ID. Please try again.', 'error');
       return;
     }
     
     // Convert to string for consistent handling
     const imageIdStr = String(imageId);
     
-    // Add confirmation before deletion
-    if (!confirm('Are you sure you want to delete this image? This action cannot be undone.')) {
+    const imageToDelete = images.find(img => img.id === imageIdStr);
+    if (!imageToDelete) {
+      console.error('❌ Image not found:', imageIdStr);
+      showToast('Image not found. Please try again.', 'error');
       return;
     }
     
-    // Check if this is a thumbnail or primary image
-    const imageToDelete = images.find(img => img.id === imageId);
-    if (imageToDelete) {
-      if (imageToDelete.is_thumbnail) {
-        if (!confirm('⚠️ WARNING: This is a thumbnail image. Deleting it will remove the thumbnail from the product card. Continue?')) {
-          return;
-        }
-      }
-      
-      if (imageToDelete.is_primary) {
-        if (!confirm('⚠️ WARNING: This is a primary image. Deleting it will remove the primary status. Continue?')) {
-          return;
-        }
-      }
-      
-      // Additional safety check - prevent deletion if this is the only image
-      if (images.length === 1) {
-        alert('❌ Cannot delete the last remaining image. Products must have at least one image.');
-        return;
-      }
+    setDeleteModal({
+      isOpen: true,
+      imageId: imageIdStr,
+      imageData: imageToDelete,
+      isDeleting: false
+    });
+  };
+  
+  // Cancel delete operation
+  const handleDeleteCancel = () => {
+    setDeleteModal({
+      isOpen: false,
+      imageId: null,
+      imageData: null,
+      isDeleting: false
+    });
+  };
+  
+  // Confirm and execute delete operation
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.imageId || !deleteModal.imageData) {
+      console.error('❌ No image selected for deletion');
+      showToast('No image selected for deletion', 'error');
+      return;
     }
+    
+    const { imageId, imageData } = deleteModal;
+    
+    // Additional safety check - prevent deletion if this is the only image
+    if (images.length === 1) {
+      showToast('❌ Cannot delete the last remaining image. Products must have at least one image.', 'error');
+      handleDeleteCancel();
+      return;
+    }
+    
+    // Set deleting state
+    setDeleteModal(prev => ({ ...prev, isDeleting: true }));
     
     console.log('🗑️ Deleting image:', imageId);
     
     try {
       // Check if this is a temporary image or a saved image
-      if (imageIdStr.startsWith('temp-')) {
+      if (imageId.startsWith('temp-')) {
         // Temporary image - just remove from local state
         console.log('🗑️ Removing temporary image from local state');
         setImages(prev => prev.filter(img => img.id !== imageId));
       } else {
         // Saved image - delete from database
         console.log('🗑️ Deleting saved image from database');
-        await deleteProductImage(imageIdStr);
+        
+        // Extract storage path from image URL for cleanup
+        let imagePath: string | null = null;
+        try {
+          const url = new URL(imageData.image_url);
+          const pathMatch = url.pathname.match(/\/storage\/v1\/object\/public\/product-images\/(.+)$/);
+          if (pathMatch) {
+            imagePath = pathMatch[1];
+          }
+        } catch (urlError) {
+          console.warn('⚠️ Could not parse image URL for storage cleanup:', urlError);
+        }
+        
+        // Delete from database first
+        await deleteProductImage(imageId);
         console.log('✅ Image deleted from database successfully');
+        
+        // Clean up storage if we have the path
+        if (imagePath) {
+          try {
+            await deleteImage('product-images', imagePath);
+            console.log('✅ Image deleted from storage:', imagePath);
+          } catch (storageError) {
+            console.warn('⚠️ Could not delete image from storage (may already be deleted):', storageError);
+            // Don't fail the entire operation if storage cleanup fails
+          }
+        }
         
         // Remove from local state
         setImages(prev => prev.filter(img => img.id !== imageId));
       }
       
+      // If this was the primary image and there are other images, set the first one as primary
+      if (imageData.is_primary && images.length > 1) {
+        const remainingImages = images.filter(img => img.id !== imageId);
+        if (remainingImages.length > 0) {
+          await handleSetPrimary(remainingImages[0].id);
+        }
+      }
+      
+      // Close modal and show success message
+      handleDeleteCancel();
+      showToast('✅ Image deleted successfully!', 'success');
+      
     } catch (error) {
       console.error('❌ Failed to delete image:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      showToast(`Failed to delete image: ${errorMessage}`, 'error');
+      showToast(`❌ Failed to delete image: ${errorMessage}`, 'error');
+      
+      // Keep modal open but reset deleting state so user can try again or cancel
+      setDeleteModal(prev => ({ ...prev, isDeleting: false }));
     }
+  };
+  
+  // Get delete modal content based on image properties
+  const getDeleteModalContent = () => {
+    if (!deleteModal.imageData) {
+      return {
+        title: 'Delete Image',
+        message: 'Are you sure you want to delete this image?',
+        warningText: undefined
+      };
+    }
+    
+    const { imageData } = deleteModal;
+    const warnings: string[] = [];
+    
+    if (imageData.is_primary) {
+      warnings.push('This is the primary image for the product');
+    }
+    
+    if (imageData.is_thumbnail) {
+      warnings.push('This is the thumbnail image for the product');
+    }
+    
+    if (images.length === 1) {
+      warnings.push('This is the only image for the product');
+    }
+    
+    // Check if it's a temporary image
+    const isTemporary = String(imageData.id).startsWith('temp-');
+    
+    const warningText = warnings.length > 0 ? warnings.join('. ') + '.' : undefined;
+    
+    return {
+      title: 'Delete Product Image',
+      message: isTemporary 
+        ? 'This image has not been saved yet. It will be removed from the upload queue.'
+        : 'This action cannot be undone. The image will be permanently removed from both the database and storage.',
+      warningText
+    };
   };
 
   const handleSave = async () => {
@@ -1026,8 +1133,8 @@ const EnhancedImageManagement: React.FC<ImageManagementProps> = ({
                         </div>
                       </div>
 
-                      {/* Order Badge - Top Right */}
-                      <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center z-10">
+                      {/* Order Badge - Moved to bottom-left to avoid conflicts */}
+                      <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center z-10 shadow-md">
                         {image.image_order + 1}
                       </div>
 
@@ -1067,32 +1174,28 @@ const EnhancedImageManagement: React.FC<ImageManagementProps> = ({
                         </button>
                       </div>
 
-                      {/* Variant Info - Bottom Left */}
+                      {/* Variant Info - Bottom Right to avoid order badge overlap */}
                       {(image.variant_type === 'color' || image.variant_type === 'size') && (
-                        <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                        <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded shadow-md">
                           {image.variant_type === 'color' && image.color && `Color: ${image.color}`}
                           {image.variant_type === 'size' && image.size && `Size: ${image.size}`}
                         </div>
                       )}
 
-                      {/* Delete Button - Top Right */}
+                      {/* Delete Button - Top Right with better spacing and larger hit area */}
                       <button
                         onClick={() => {
                           console.log('🗑️ Delete button clicked for image:', image);
                           console.log('Image ID:', image.id);
                           console.log('Image ID type:', typeof image.id);
-                          handleDeleteImage(image.id);
+                          handleDeleteImageClick(image.id);
                         }}
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-2 bg-red-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 shadow-lg z-30"
                         title="Delete Image"
+                        aria-label={`Delete image ${index + 1}${image.is_primary ? ' (primary)' : ''}${image.is_thumbnail ? ' (thumbnail)' : ''}`}
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
-
-                      {/* Order Number */}
-                      <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
-                        {image.image_order + 1}
-                      </div>
                     </div>
                   ))}
                 </div>
@@ -1147,6 +1250,16 @@ const EnhancedImageManagement: React.FC<ImageManagementProps> = ({
           </div>
         </div>
       </div>
+      
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        isLoading={deleteModal.isDeleting}
+        isDangerous={true}
+        {...getDeleteModalContent()}
+      />
       
       {/* Toast Notification */}
       {toast && (

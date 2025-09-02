@@ -89,7 +89,7 @@ const createToteBagVariants = (): Variants => {
       stockCount: 22,
       rating: 4,
       reviews: 156,
-      printful_variant_id: variant.externalId, // Real Printful external ID for ordering
+      printful_variant_id: variant.catalogVariantId, // Real Printful external ID for ordering
       external_id: variant.externalId,
       images: Array.from({ length: 3 }, (_, i) => `/StickerToteWater/ReformToteBagBlack${i + 1}.webp`)
     };

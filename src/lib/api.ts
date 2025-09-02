@@ -25,11 +25,21 @@ export interface Product {
  */
 export async function getProducts(): Promise<Product[]> {
   try {
-    console.log('🛍️ Fetching products...');
+    console.log('🛍️ Fetching products with images...');
     
+    // Fetch products with their primary image from product_images table
     const { data, error } = await supabase
       .from('products')
-      .select('*')
+      .select(`
+        *,
+        product_images!left (
+          image_url,
+          is_primary,
+          image_order,
+          variant_type,
+          color
+        )
+      `)
       .order('name', { ascending: true })
 
     if (error) {
@@ -47,6 +57,65 @@ export async function getProducts(): Promise<Product[]> {
         return !excludedProducts.includes(product.name);
       })
       .map(product => {
+        // Get the best image URL using priority chain - CUSTOM THUMBNAILS FIRST
+        const getImageUrl = () => {
+          const images = product.product_images || [];
+          
+          if (images.length === 0) {
+            // Fallback to product.image_url or default logo
+            return product.image_url || '/BackReformLogo.png';
+          }
+          
+          // PRIORITY 1: Custom thumbnail (is_thumbnail = true and source = 'custom')
+          // Custom thumbnails ALWAYS take priority over everything else
+          const customThumbnail = images.find((img: any) => 
+            img.is_thumbnail === true && img.source === 'custom'
+          );
+          if (customThumbnail) return customThumbnail.image_url;
+          
+          // PRIORITY 2: Any thumbnail (is_thumbnail = true) - includes Printful thumbnails
+          const thumbnail = images.find((img: any) => img.is_thumbnail === true);
+          if (thumbnail) return thumbnail.image_url;
+          
+          // PRIORITY 3: Custom primary image (is_primary = true and source = 'custom')
+          const customPrimary = images.find((img: any) => 
+            img.is_primary === true && img.source === 'custom'
+          );
+          if (customPrimary) return customPrimary.image_url;
+          
+          // PRIORITY 4: Any primary image (is_primary = true)
+          const primaryImage = images.find((img: any) => img.is_primary === true);
+          if (primaryImage) return primaryImage.image_url;
+          
+          // PRIORITY 5: Custom general product images
+          const customGeneralImage = images.find((img: any) => 
+            (img.variant_type === 'product' || img.variant_type === null) && 
+            img.source === 'custom'
+          );
+          if (customGeneralImage) return customGeneralImage.image_url;
+          
+          // PRIORITY 6: Any general product image (variant_type = 'product' or null)
+          const generalImage = images.find((img: any) => 
+            img.variant_type === 'product' || img.variant_type === null
+          );
+          if (generalImage) return generalImage.image_url;
+          
+          // PRIORITY 7: First custom image by order
+          const customOrderedImages = images
+            .filter((img: any) => img.image_url && img.source === 'custom')
+            .sort((a: any, b: any) => (a.image_order || 0) - (b.image_order || 0));
+          if (customOrderedImages.length > 0) return customOrderedImages[0].image_url;
+          
+          // PRIORITY 8: First image by order (any source)
+          const orderedImages = images
+            .filter((img: any) => img.image_url)
+            .sort((a: any, b: any) => (a.image_order || 0) - (b.image_order || 0));
+          if (orderedImages.length > 0) return orderedImages[0].image_url;
+          
+          // FINAL FALLBACK
+          return product.image_url || '/BackReformLogo.png';
+        };
+        
         const mappedProduct = {
           id: product.id,
           name: product.name,
@@ -60,11 +129,10 @@ export async function getProducts(): Promise<Product[]> {
           dateAdded: product.created_at, // Use created_at as dateAdded
           created_at: product.created_at,
           updated_at: product.updated_at,
-          image_url: product.image_url, // Map image_url
-          slug: product.slug // Map slug
+          image_url: getImageUrl(), // Use intelligent image selection
+          slug: product.slug, // Map slug
+          images: product.product_images || [] // Include full images array for useMergedProducts
         };
-        
-        // Activist Bundle price conversion handled automatically
         
         return mappedProduct;
       });
@@ -90,7 +158,8 @@ export async function getProductVariants(productId: string): Promise<any[]> {
       .from('product_variants')
       .select('*')
       .eq('product_id', productId)
-      .order('description', { ascending: true })
+      .order('color', { ascending: true })
+      .order('size', { ascending: true })
 
     if (error) {
       console.error('❌ Failed to fetch product variants:', error);

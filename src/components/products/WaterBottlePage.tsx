@@ -95,7 +95,7 @@ const createWaterBottleVariants = (): Variants => {
       stockCount: 30,
       rating: 5,
       reviews: 203,
-      printful_variant_id: variant.externalId, // Real Printful external ID for ordering
+      printful_variant_id: variant.catalogVariantId, // Real Printful external ID for ordering
       external_id: variant.externalId,
       images: Array.from({ length: 4 }, (_, i) => `/StickerToteWater/ReformWaterBottleWhite${i + 1}.webp`)
     };

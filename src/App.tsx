@@ -7,24 +7,14 @@ import MovementSection from './components/MovementSection';
 import Testimonials from './components/Testimonials';
 import TopSellers from './components/TopSellers';
 import EmailSignup from './components/EmailSignup';
-import ShopPage from './components/ShopPage';
-import AboutPage from './components/AboutPage';
-import ContactPage from './components/ContactPage';
-import LoginPage from './components/LoginPage';
-import SignupPage from './components/SignupPage';
-import AccountPage from './components/AccountPage';
-import CheckoutPage from './components/CheckoutPage';
-import SuccessPage from './components/SuccessPage';
-import OrdersPage from './components/OrdersPage';
-import TrackOrderPage from './components/TrackOrderPage';
-import FAQPage from './components/FAQPage';
-import PrivacyPolicyPage from './components/PrivacyPolicyPage';
-import CookiePolicyPage from './components/CookiePolicyPage';
-import TermsOfServicePage from './components/TermsOfServicePage';
-import ReturnsExchangesPage from './components/ReturnsExchangesPage';
-import ShippingInfoPage from './components/ShippingInfoPage';
-import SizeGuidePage from './components/SizeGuidePage';
-import AccessibilityPage from './components/AccessibilityPage';
+import { ShopPage } from '@/pages/shop';
+import { AboutPage, ContactPage } from '@/pages/support';
+import { LoginPage, SignupPage, AccountPage } from '@/pages/auth';
+import DynamicCheckoutPage from '@/components/checkout/DynamicCheckoutPage';
+import { SuccessPage, OrdersPage, TrackOrderPage } from '@/pages/shop';
+import { FAQPage } from '@/pages/support';
+import { PrivacyPolicyPage, CookiePolicyPage, TermsOfServicePage } from '@/pages/legal';
+import { ReturnsExchangesPage, ShippingInfoPage, SizeGuidePage, AccessibilityPage } from '@/pages/support';
 import TestPaymentFlow from './components/TestPaymentFlow';
 import UrgencyBar from './components/UrgencyBar';
 import ProductBundles from './components/ProductBundles';
@@ -36,7 +26,10 @@ import ShippingTest from './components/ShippingTest';
 import ShippingTestDashboard from './components/ShippingTestDashboard';
 import ShippingExample from './components/checkout/ShippingExample';
 
-// Product Pages
+// Dynamic Product Page
+import DynamicProductPage from './components/products/DynamicProductPage';
+
+// Dedicated Product Pages
 import TShirtPage from './components/products/TShirtPage';
 import HoodiePage from './components/products/HoodiePage';
 import CapPage from './components/products/CapPage';
@@ -45,28 +38,28 @@ import WaterBottlePage from './components/products/WaterBottlePage';
 import MugPage from './components/products/MugPage';
 import MousePadPage from './components/products/MousePadPage';
 
+// Bundle Pages (keep these for now)
 import StarterBundlePage from './components/products/StarterBundlePage';
 import ChampionBundlePage from './components/products/ChampionBundlePage';
 import ActivistBundlePage from './components/products/ActivistBundlePage';
 
-import { CartProvider } from './contexts/CartContext';
-import { ShippingProvider } from './contexts/ShippingContext';
-import { AuthProvider } from './contexts/AuthContext';
-import { AdminProvider } from './contexts/AdminContext';
-import { AdminProductsProvider } from './contexts/AdminProductsContext';
-import PrintfulStatus from './components/PrintfulStatus';
-import { performanceMonitor } from './lib/performance';
+import { CartProvider, AuthProvider, ShippingProvider } from '@/contexts';
+import { AdminProvider, AdminProductsProvider } from '@/admin/contexts';
+import PrintfulStatus from '@/components/PrintfulStatus';
+import { performanceMonitor } from '@/lib/performance';
 
 // Admin Components
-import AdminLoginPage from './components/AdminLoginPage';
-import AdminDashboard from './components/AdminDashboard';
-import AdminOrdersPage from './components/AdminOrdersPage';
-import AdminAnalyticsPage from './components/AdminAnalyticsPage';
-import AdminCustomersPage from './components/AdminCustomersPage';
-import AdminSettingsPage from './components/AdminSettingsPage';
-import AdminProductsPage from './components/AdminProductsPage';
-import AdminLayout from './components/AdminLayout';
-import AdminProtectedRoute from './components/AdminProtectedRoute';
+import {
+  AdminLoginPage,
+  AdminDashboard,
+  AdminOrdersPage,
+  AdminAnalyticsPage,
+  AdminCustomersPage,
+  AdminSettingsPage,
+  AdminProductsPage,
+  AdminLayout,
+  AdminProtectedRoute
+} from '@/admin/components';
 
 const App = () => {
   const navigate = useNavigate();
@@ -230,7 +223,7 @@ const App = () => {
             <Route path="/login" element={<LoginPage onBack={handleBackToHome} onSignupClick={handleSignupClick} />} />
             <Route path="/signup" element={<SignupPage onBack={handleBackToHome} onLoginClick={handleLoginClick} />} />
             <Route path="/account" element={<AccountPage onBack={handleBackToHome} />} />
-            <Route path="/checkout" element={<CheckoutPage onBack={handleBackToHome} />} />
+            <Route path="/checkout" element={<DynamicCheckoutPage />} />
             <Route path="/success" element={<SuccessPage onBackToShop={handleBackToHome} />} />
             <Route path="/orders" element={<OrdersPage onBack={handleBackToHome} />} />
             <Route path="/track-order" element={<TrackOrderPage onBack={handleBackToHome} />} />
@@ -249,7 +242,7 @@ const App = () => {
             <Route path="/shipping-example" element={<ShippingExample />} />
             <Route path="/printful-product/:id" element={<PrintfulProductDetailWrapper />} />
             
-            {/* Product Routes */}
+            {/* Product Routes - Using dedicated product pages for merged products */}
             <Route path="/product/reform-uk-tshirt" element={<TShirtPage onBack={handleBackToShop} />} />
             <Route path="/product/reform-uk-hoodie" element={<HoodiePage onBack={handleBackToShop} />} />
             <Route path="/product/reform-uk-cap" element={<CapPage onBack={handleBackToShop} />} />
@@ -263,7 +256,7 @@ const App = () => {
             <Route path="/product/activist-bundle" element={<ActivistBundlePage onBack={handleBackToShop} />} />
             
             {/* Fallback route for any other product URLs */}
-            <Route path="/product/:slug" element={<ShopPage onProductClick={handleProductClick} />} />
+            <Route path="/product/:slug" element={<DynamicProductPage onBack={handleBackToShop} />} />
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLoginPage />} />

@@ -20,13 +20,15 @@ import { useCart } from '../../contexts/CartContext';
 import { 
   TshirtVariants, 
   findTshirtVariant,
-  tshirtSizes,
-  tshirtColors
-} from '../../hooks/tshirt-variants-merged';
+  tshirtSizes
+} from '../../hooks/tshirt-variants-merged-fixed';
+import { useMergedProducts } from '../../hooks/useMergedProducts';
 import { Toast, useToast } from '../../components/ui/Toast';
+import { supabase } from '../../lib/supabase';
+import { sortColorsByBrightness } from '../../lib/colorUtils';
 
 // Fix: Add proper TypeScript interfaces
-interface Color {
+interface ColorOption {
   name: string;
   hex: string;
   border?: boolean;
@@ -41,6 +43,9 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
   const navigate = useNavigate();
   const { isVisible, message, showToast, hideToast } = useToast();
   
+  // Use merged products hook
+  const { mergedProducts, isLoading, error, getProductByCategory } = useMergedProducts();
+  
   // State
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -50,33 +55,40 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
 
   const [activeTab, setActiveTab] = useState('description');
   const [isWishlisted, setIsWishlisted] = useState(false);
+  
+  // Get merged t-shirt product
+  const tshirtProduct = getProductByCategory('tshirt');
 
-  // Product data with merged variant structure
-  const productData = {
-    id: 1,
-    name: "Reform UK T-Shirt",
-    description: "Comfortable cotton t-shirt featuring the Reform UK logo. Available in 20 beautiful colors with 5 size options. Made from premium cotton for all-day comfort and durability. A classic fit that works for any occasion.",
-    features: ["100% premium cotton", "Classic fit", "Reinforced seams", "Pre-shrunk fabric", "Tagless for comfort", "Screen-printed logo", "20 color options"],
+  // Product data from merged products
+  const productData = tshirtProduct ? {
+    id: tshirtProduct.id,
+    name: tshirtProduct.name,
+    description: tshirtProduct.description || "Comfortable cotton t-shirt featuring the Reform UK logo. Available in multiple beautiful colors and sizes. Made from premium cotton for all-day comfort and durability. A classic fit that works for any occasion.",
+    features: ["100% premium cotton", "Classic fit", "Reinforced seams", "Pre-shrunk fabric", "Tagless for comfort", "Screen-printed logo", `${tshirtProduct.colorOptions.length} color options`],
     careInstructions: "Machine wash cold. Tumble dry low. Do not bleach.",
     materials: "100% cotton",
-    category: 'apparel',
+    category: tshirtProduct.category || 'apparel',
     shipping: "Ships in 48H",
-    defaultVariant: 201, // Default to M White
+    priceRange: tshirtProduct.priceRange,
     variantDetails: {
-      sizes: tshirtSizes,
-      colors: tshirtColors
+      sizes: tshirtProduct.sizeOptions,
+      colors: tshirtProduct.colorOptions
     }
-  };
+  } : null;
 
-  // Set initial selections
+  // Set initial selections when merged product is available
   useEffect(() => {
-    if (tshirtColors.length > 0 && !selectedColor) {
-      setSelectedColor(tshirtColors[0].name);
+    if (tshirtProduct && tshirtProduct.colorOptions.length > 0) {
+      if (!selectedColor) {
+        setSelectedColor(tshirtProduct.colorOptions[0].name);
+      }
     }
-    if (tshirtSizes.length > 0 && !selectedSize) {
-      setSelectedSize(tshirtSizes[0]);
+    if (tshirtProduct && tshirtProduct.sizeOptions.length > 0) {
+      if (!selectedSize) {
+        setSelectedSize(tshirtProduct.sizeOptions[0]);
+      }
     }
-  }, [tshirtColors, tshirtSizes]);
+  }, [tshirtProduct, selectedColor, selectedSize]);
 
   // Find the selected variant
   useEffect(() => {
@@ -87,13 +99,73 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
     }
   }, [selectedColor, selectedSize]);
 
+  // Get product images based on selected color from database (same pattern as working Hoodie page)
+  const getProductImages = () => {
+    if (!tshirtProduct?.baseProduct?.images || tshirtProduct.baseProduct.images.length === 0) {
+      // Fallback to logo if no images in merged product
+      return ['/BackReformLogo.png'];
+    }
+    
+    const mergedImages = tshirtProduct.baseProduct.images;
+    
+    // If a color is selected, try to get color-specific images first
+    if (selectedColor) {
+      const selectedColorLower = selectedColor.toLowerCase();
+      
+      // Priority 1: Exact color match with variant_type = 'color'
+      const exactColorImages = mergedImages.filter(img => 
+        img.variant_type === 'color' && 
+        img.color?.toLowerCase() === selectedColorLower
+      );
+      
+      if (exactColorImages.length > 0) {
+        return exactColorImages
+          .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url);
+      }
+      
+      // Priority 2: Look for images with color field matching (any variant_type)
+      const colorFieldImages = mergedImages.filter(img => 
+        img.color?.toLowerCase() === selectedColorLower
+      );
+      
+      if (colorFieldImages.length > 0) {
+        return colorFieldImages
+          .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url);
+      }
+    }
+    
+    // Priority 3: General product images (variant_type = 'product' or null)
+    const generalImages = mergedImages.filter(img => 
+      img.variant_type === 'product' || img.variant_type === null || img.variant_type === undefined
+    );
+    
+    if (generalImages.length > 0) {
+      return generalImages
+        .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+        .map(img => img.image_url);
+    }
+    
+    // Priority 4: Primary image if available
+    const primaryImages = mergedImages.filter(img => img.is_primary === true);
+    if (primaryImages.length > 0) {
+      return primaryImages.map(img => img.image_url);
+    }
+    
+    // Priority 5: All available images as final fallback
+    return mergedImages.length > 0 
+      ? mergedImages
+          .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url)
+      : [tshirtProduct.image_url || '/BackReformLogo.png'];
+  };
+  
   // Generate variant data for display
   const getVariantData = () => {
     if (!selectedVariant) return null;
     
-    const colorKey = selectedColor.replace(/\s+/g, '');
-    const design = selectedVariant.design;
-    const imagePrefix = design === 'DARK' ? 'ReformMenTshirt' : 'ReformMenTshirtLight';
+    const images = getProductImages();
     
     return {
       id: selectedVariant.catalogVariantId,
@@ -101,11 +173,11 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
       price: parseFloat(selectedVariant.price),
       inStock: true,
       stockCount: 25,
-      rating: 5,
-      reviews: 156,
-      images: Array.from({ length: 5 }, (_, i) => `/Tshirt/Men/${imagePrefix}${colorKey}${i + 1}.webp`),
+      rating: tshirtProduct?.baseProduct?.rating || 4.8,
+      reviews: tshirtProduct?.baseProduct?.reviews || 156,
+      images: images,
       size: selectedSize,
-      design: design
+      design: selectedVariant.design
     };
   };
 
@@ -114,12 +186,35 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
 
 
   // Loading state
-  if (!selectedVariant || !variantData) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#009fe3] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Failed to load product data</p>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // No product found
+  if (!tshirtProduct || !productData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Product not found</p>
         </div>
       </div>
     );
@@ -131,8 +226,6 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
       return;
     }
 
-    console.log('🛒 Adding to cart:', { selectedColor, selectedSize });
-    
     const cartItem = {
       id: `tshirt-${selectedSize}-${selectedColor}`,
       name: `${productData.name} - ${selectedColor}`,
@@ -140,8 +233,8 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
       quantity: quantity,
       size: selectedSize,
       color: selectedColor,
-      image: variantData.images[0],
-      printful_variant_id: selectedVariant.externalId,
+      image: getProductImages()[0] || '/BackReformLogo.png',
+      printful_variant_id: selectedVariant.catalogVariantId,
       external_id: selectedVariant.externalId
     };
 
@@ -165,21 +258,27 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
   };
 
   const nextImage = () => {
-    setSelectedImage((prev) => (prev + 1) % variantData.images.length);
+    const images = getProductImages();
+    if (images.length > 1) {
+      setSelectedImage((prev) => (prev + 1) % images.length);
+    }
   };
 
   const prevImage = () => {
-    setSelectedImage((prev) => (prev - 1 + variantData.images.length) % variantData.images.length);
+    const images = getProductImages();
+    if (images.length > 1) {
+      setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
+    }
   };
 
   const handleSizeChange = (size: string) => {
-    console.log('📏 Size selected:', size);
     setSelectedSize(size);
   };
 
   const handleColorChange = (color: string) => {
-    console.log('🎨 Color selected:', color);
     setSelectedColor(color);
+    // Reset to first image when color changes
+    setSelectedImage(0);
   };
 
 
@@ -224,12 +323,12 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
             <div key={variantData.id} className="space-y-4">
               <div className="relative aspect-square bg-white rounded-lg overflow-hidden shadow-lg">
                 <img
-                  src={variantData.images[selectedImage]}
+                  src={getProductImages()[selectedImage] || getProductImages()[0] || '/BackReformLogo.png'}
                   alt={`${productData.name} - ${variantData.color} - Image ${selectedImage + 1}`}
                   className="w-full h-full object-cover aspect-square"
                 />
                 
-                {variantData.images.length > 1 && (
+                {getProductImages().length > 1 && (
                   <>
                     <button onClick={prevImage} className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-colors z-10" aria-label="Previous image">
                       <ChevronLeft className="w-5 h-5" />
@@ -246,17 +345,17 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                   </span>
                 </div>
                 
-                {variantData.images.length > 1 && (
+                {getProductImages().length > 1 && (
                   <div className="absolute bottom-4 right-4 bg-black/50 text-white px-2 py-1 rounded-full text-xs z-10">
-                    {selectedImage + 1} / {variantData.images.length}
+                    {selectedImage + 1} / {getProductImages().length}
                   </div>
                 )}
               </div>
 
               {/* Thumbnail Gallery */}
-              {variantData.images.length > 1 && (
+              {getProductImages().length > 1 && (
                 <div className="flex space-x-2 overflow-x-auto pb-2">
-                  {variantData.images.map((image, index) => (
+                  {getProductImages().map((image, index) => (
                     <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
                       <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover aspect-square" />
                     </button>
@@ -297,15 +396,15 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   Color: <span className="font-semibold text-gray-900">{selectedColor}</span>
                 </label>
-                <div className="grid grid-cols-5 gap-2">
-                  {tshirtColors.map((color) => (
+                <div className="grid grid-cols-5 gap-3">
+                  {sortColorsByBrightness(tshirtProduct.colorOptions).map((color) => (
                     <button 
                       key={color.name} 
                       onClick={() => handleColorChange(color.name)} 
-                      className={`relative w-14 h-14 border-2 rounded-full transition-all duration-200 hover:scale-105 ${
+                      className={`relative w-12 h-12 border-2 rounded-full transition-all duration-200 hover:scale-110 ${
                         selectedColor === color.name
                           ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2'
-                          : 'border-gray-300 hover:border-[#009fe3]'
+                          : `border-gray-300 hover:border-[#009fe3] ${color.border ? 'border-gray-400' : ''}`
                       }`}
                       title={color.name}
                     >
@@ -315,7 +414,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                       />
                       {selectedColor === color.name && (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <Check className="w-6 h-6 text-white drop-shadow-lg" />
+                          <Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Blue' ? 'text-gray-600' : 'text-white'} drop-shadow-lg`} />
                         </div>
                       )}
                     </button>
@@ -335,7 +434,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                   </button>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
-                  {tshirtSizes.map((size) => (
+                  {tshirtProduct.sizeOptions.map((size) => (
                     <button 
                       key={size} 
                       onClick={() => handleSizeChange(size)} 

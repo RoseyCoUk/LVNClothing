@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import EnhancedImageManagement from './EnhancedImageManagement';
 import { ProductVariant, VariantUpdateData, getProductVariants, updateVariant, bulkUpdateVariants, getVariantStats } from '../lib/variant-api';
-import { useAdminProducts } from '../contexts/AdminProductsContext';
+import { useAdminProducts } from '../admin/contexts/AdminProductsContext';
 
 interface VariantManagementProps {
   productId: string;

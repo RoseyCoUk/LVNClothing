@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useAdminProducts } from '../contexts/AdminProductsContext';
+import { useAdminProducts } from '../admin/contexts/AdminProductsContext';
+import DeleteConfirmationModal from './ui/DeleteConfirmationModal';
 import { 
   Upload, 
   X, 
@@ -49,7 +50,7 @@ const MobileImageManagement: React.FC<MobileImageManagementProps> = ({
   onImagesUpdate,
   onClose
 }) => {
-  const { uploadImage, createProductImage, updateProductImage, deleteProductImage, reorderProductImages } = useAdminProducts();
+  const { uploadImage, createProductImage, updateProductImage, deleteProductImage, reorderProductImages, deleteImage } = useAdminProducts();
   
   // State management
   const [images, setImages] = useState<ProductImage[]>(currentImages);
@@ -61,6 +62,13 @@ const MobileImageManagement: React.FC<MobileImageManagementProps> = ({
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [showUploadOptions, setShowUploadOptions] = useState(false);
   const [uploadMethod, setUploadMethod] = useState<'camera' | 'gallery' | 'bulk'>('gallery');
+  
+  // Delete confirmation modal state
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    selectedImages: Set<string>;
+    isDeleting: boolean;
+  }>({ isOpen: false, selectedImages: new Set(), isDeleting: false });
 
   // Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -291,25 +299,122 @@ const MobileImageManagement: React.FC<MobileImageManagementProps> = ({
   }, []);
 
   // Bulk operations
-  const deleteSelectedImages = useCallback(async () => {
+  // Open delete confirmation modal for selected images
+  const handleDeleteSelectedImagesClick = useCallback(() => {
     if (selectedImages.size === 0) return;
     
+    setDeleteModal({
+      isOpen: true,
+      selectedImages: new Set(selectedImages),
+      isDeleting: false
+    });
+  }, [selectedImages]);
+  
+  // Cancel delete operation
+  const handleDeleteCancel = () => {
+    setDeleteModal({
+      isOpen: false,
+      selectedImages: new Set(),
+      isDeleting: false
+    });
+  };
+  
+  // Confirm and execute bulk delete operation
+  const handleDeleteConfirm = async () => {
+    if (deleteModal.selectedImages.size === 0) {
+      console.error('No images selected for deletion');
+      return;
+    }
+    
+    // Set deleting state
+    setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+    
     try {
-      for (const imageId of selectedImages) {
+      const imagesToDelete = Array.from(deleteModal.selectedImages);
+      
+      for (const imageId of imagesToDelete) {
         const image = images.find(img => img.id === imageId);
         if (image) {
+          // Extract storage path from image URL for cleanup
+          let imagePath: string | null = null;
+          try {
+            const url = new URL(image.imageUrl);
+            const pathMatch = url.pathname.match(/\/storage\/v1\/object\/public\/product-images\/(.+)$/);
+            if (pathMatch) {
+              imagePath = pathMatch[1];
+            }
+          } catch (urlError) {
+            console.warn('Could not parse image URL for storage cleanup:', urlError);
+          }
+          
+          // Delete from database first
           await deleteProductImage(imageId);
+          
+          // Clean up storage if we have the path
+          if (imagePath) {
+            try {
+              await deleteImage('product-images', imagePath);
+              console.log('Image deleted from storage:', imagePath);
+            } catch (storageError) {
+              console.warn('Could not delete image from storage (may already be deleted):', storageError);
+              // Don't fail the entire operation if storage cleanup fails
+            }
+          }
         }
       }
       
-      setImages(prev => prev.filter(img => !selectedImages.has(img.id)));
+      // Update local state
+      setImages(prev => prev.filter(img => !deleteModal.selectedImages.has(img.id)));
       setSelectedImages(new Set());
       setIsSelectionMode(false);
       
+      // Close modal
+      handleDeleteCancel();
+      
+      console.log('Successfully deleted', imagesToDelete.length, 'images');
+      
     } catch (error) {
       console.error('Failed to delete selected images:', error);
+      
+      // Keep modal open but reset deleting state so user can try again or cancel
+      setDeleteModal(prev => ({ ...prev, isDeleting: false }));
+      
+      // Show error feedback
+      alert(`Failed to delete images: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-  }, [selectedImages, images, deleteProductImage]);
+  };
+  
+  // Get delete modal content for bulk delete
+  const getBulkDeleteModalContent = () => {
+    const selectedCount = deleteModal.selectedImages.size;
+    const selectedImagesData = images.filter(img => deleteModal.selectedImages.has(img.id));
+    
+    const warnings: string[] = [];
+    
+    // Check if any selected images are primary or thumbnail
+    const primaryImages = selectedImagesData.filter(img => img.isPrimary);
+    const thumbnailImages = selectedImagesData.filter(img => img.isThumbnail);
+    
+    if (primaryImages.length > 0) {
+      warnings.push(`${primaryImages.length} primary image${primaryImages.length > 1 ? 's' : ''}`);
+    }
+    
+    if (thumbnailImages.length > 0) {
+      warnings.push(`${thumbnailImages.length} thumbnail image${thumbnailImages.length > 1 ? 's' : ''}`);
+    }
+    
+    if (selectedCount === images.length) {
+      warnings.push('This will delete ALL images for the product');
+    }
+    
+    const warningText = warnings.length > 0 ? `You are deleting ${warnings.join(' and ')}.` : undefined;
+    
+    return {
+      title: `Delete ${selectedCount} Image${selectedCount > 1 ? 's' : ''}`,
+      message: `This action cannot be undone. ${selectedCount} image${selectedCount > 1 ? 's' : ''} will be permanently removed from both the database and storage.`,
+      warningText
+    };
+  };
 
   const setPrimarySelected = useCallback(async () => {
     if (selectedImages.size !== 1) return;
@@ -472,8 +577,9 @@ const MobileImageManagement: React.FC<MobileImageManagementProps> = ({
               )}
               
               <button
-                onClick={deleteSelectedImages}
-                className="px-3 py-1 text-xs font-medium text-red-600 bg-red-100 rounded-md hover:bg-red-200"
+                onClick={handleDeleteSelectedImagesClick}
+                className="px-3 py-1 text-xs font-medium text-red-600 bg-red-100 rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                aria-label={`Delete ${selectedImages.size} selected image${selectedImages.size > 1 ? 's' : ''}`}
               >
                 Delete
               </button>
@@ -567,16 +673,16 @@ const MobileImageManagement: React.FC<MobileImageManagementProps> = ({
                 </div>
               )}
               
-              {/* Order indicator */}
-              <div className="absolute top-2 right-2">
-                <span className="inline-flex items-center justify-center w-6 h-6 bg-black bg-opacity-50 text-white text-xs font-bold rounded-full">
+              {/* Order indicator - Moved to bottom-left to avoid overlap */}
+              <div className="absolute bottom-2 left-2">
+                <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded-full shadow-md">
                   {image.imageOrder + 1}
                 </span>
               </div>
               
-              {/* Drag handle */}
+              {/* Drag handle - Moved to bottom-right to avoid order badge overlap */}
               {!isSelectionMode && (
-                <div className="absolute bottom-2 left-2">
+                <div className="absolute bottom-2 right-2">
                   <Move className="h-4 w-4 text-white drop-shadow-lg" />
                 </div>
               )}
@@ -608,10 +714,10 @@ const MobileImageManagement: React.FC<MobileImageManagementProps> = ({
                           console.error('Failed to delete image:', error);
                         }
                       }}
-                      className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-50"
+                      className="p-3 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                       title="Delete image"
                     >
-                      <Trash2 className="h-4 w-4 text-gray-700" />
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
@@ -654,6 +760,16 @@ const MobileImageManagement: React.FC<MobileImageManagementProps> = ({
         capture="environment"
         onChange={handleCameraCapture}
         className="hidden"
+      />
+      
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        isLoading={deleteModal.isDeleting}
+        isDangerous={true}
+        {...getBulkDeleteModalContent()}
       />
     </div>
   );

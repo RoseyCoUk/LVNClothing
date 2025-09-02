@@ -75,7 +75,25 @@ export const ShippingProvider: React.FC<ShippingProviderProps> = ({ children }) 
         items: getShippingCartItems()
       }
 
+      console.log('🚚 ShippingContext: Sending request to Printful:', {
+        recipient,
+        items: request.items,
+        cartItems: cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          printful_variant_id: item.printful_variant_id,
+          quantity: item.quantity
+        }))
+      });
+
       const response: ShippingQuoteResponse = await getShippingRates(request)
+      
+      console.log('🚚 ShippingContext: Received response:', {
+        hasOptions: !!response.options,
+        optionsLength: response.options?.length || 0,
+        options: response.options,
+        ttlSeconds: response.ttlSeconds
+      });
       
       if (response.options && response.options.length > 0) {
         setShippingOptions(response.options)

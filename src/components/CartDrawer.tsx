@@ -78,6 +78,13 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
                       />
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
+                        {/* Show variant information if available */}
+                        {(item.color || item.size) && (
+                          <p className="text-sm text-gray-600 mb-1">
+                            {item.color && item.size ? `${item.color}, ${item.size}` : 
+                             item.color ? item.color : item.size}
+                          </p>
+                        )}
                         <p className="text-[#009fe3] font-bold">£{item.price.toFixed(2)}</p>
                         {item.isBundle && (
                           <div className="flex items-center space-x-1 mt-1">

@@ -14,6 +14,8 @@ export interface CartItem {
   image: string;
   quantity: number;
   printful_variant_id?: number | string; // Printful variant ID for shipping calculations
+  size?: string; // Product size variant (e.g., S, M, L, XL)
+  color?: string; // Product color variant (e.g., Black, White, Navy)
   isBundle?: boolean;
   bundleContents?: BundleContent[];
   originalPrice?: number; // Store original price for comparison
@@ -89,8 +91,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = (product: Omit<CartItem, 'quantity'>) => {
     try {
-  
-      
       // Validate product data
       if (!product.id || !product.name || typeof product.price !== 'number' || product.price <= 0) {
         console.error('Invalid product data:', product)
