@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Heart, Share2, Star, Check, Plus, Minus, Clock, Truck, Shield, RotateCcw, Info, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Star, Check, Plus, Minus, Clock, Truck, Shield, RotateCcw, Info, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import OrderOverviewModal from '../OrderOverviewModal';
@@ -46,7 +46,6 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderOverview, setShowOrderOverview] = useState(false);
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
 
@@ -725,17 +724,6 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                   <ShoppingCart className="w-5 h-5" />
                   <span>Add to Cart - £{((calculation?.totalPrice || productData.bundlePrice) * quantity).toFixed(2)}</span>
                 </button>
-                <div className="flex space-x-3">
-                  <button onClick={() => setIsWishlisted(!isWishlisted)} className={`flex-1 border-2 font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
-                    isWishlisted ? 'border-red-500 text-red-500 bg-red-50' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
-                  }`}>
-                    <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
-                    <span>{isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}</span>
-                  </button>
-                  <button className="border-2 border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3] font-semibold p-3 rounded-lg transition-colors flex items-center justify-center">
-                    <Share2 className="w-4 h-4" />
-                  </button>
-                </div>
               </div>
 
               {/* Trust Badges */}

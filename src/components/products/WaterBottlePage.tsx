@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   Star,
   ShoppingCart,
-  Heart,
-  Share2,
   Truck,
   Shield,
   RotateCcw,
@@ -137,9 +135,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
-  const [isWishlisted, setIsWishlisted] = useState(false);
-
-  const handleAddToCart = () => {
+    const handleAddToCart = () => {
     const itemToAdd = {
       id: currentVariant.id,
       name: `${productData.name} (${currentVariant.color})`,
@@ -372,15 +368,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
                 <ShoppingCart className="w-5 h-5" />
                 <span>Add to Cart - £{(currentVariant.price * quantity).toFixed(2)}</span>
               </button>
-              <div className="flex space-x-3">
-                <button onClick={() => setIsWishlisted(!isWishlisted)} className={`flex-1 border-2 font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 ${isWishlisted ? 'border-red-500 text-red-500 bg-red-50' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'}`}>
-                  <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
-                  <span>{isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}</span>
-                </button>
-                <button className="border-2 border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3] font-semibold p-3 rounded-lg transition-colors flex items-center justify-center">
-                  <Share2 className="w-4 h-4" />
-                </button>
-              </div>
+              
             </div>
 
             {/* Trust Badges */}

@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  ShoppingCart, 
-  Heart, 
-  Star, 
-  Check, 
-  Truck, 
-  Shield, 
-  RefreshCw, 
-  Plus, 
-  Minus, 
-  ChevronLeft, 
-  ChevronRight, 
-  Share2, 
-  Clock, 
-  Info 
+import {
+  ArrowLeft,
+  ShoppingCart,
+  Star,
+  Check,
+  Truck,
+  Shield,
+  RefreshCw,
+  Plus,
+  Minus,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Info
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { 
@@ -58,9 +56,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('description');
-  const [isWishlisted, setIsWishlisted] = useState(false);
-  
-  // Get merged hoodie product
+    // Get merged hoodie product
   const hoodieProduct = getProductByCategory('hoodie');
 
   // Product data from merged products
@@ -537,20 +533,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                   <span>Add to Cart - £{((selectedVariant?.price || 39.99) * quantity).toFixed(2)}</span>
                 </button>
                 
-                <div className="flex space-x-3">
-                  <button 
-                    onClick={() => setIsWishlisted(!isWishlisted)} 
-                    className={`flex-1 border-2 font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
-                      isWishlisted ? 'border-red-500 text-red-500 bg-red-50' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
-                    }`}
-                  >
-                    <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
-                    <span>{isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}</span>
-                  </button>
-                  <button className="border-2 border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3] font-semibold p-3 rounded-lg transition-colors flex items-center justify-center">
-                    <Share2 className="w-4 h-4" />
-                  </button>
-                </div>
+                
               </div>
 
               {/* Trust Badges */}

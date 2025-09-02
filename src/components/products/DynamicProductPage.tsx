@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
   ShoppingCart, 
-  Heart, 
   Star, 
   Check, 
   Truck, 
@@ -13,7 +12,6 @@ import {
   Minus, 
   ChevronLeft, 
   ChevronRight, 
-  Share2, 
   Clock, 
   Info,
   AlertCircle
@@ -69,7 +67,6 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeTab, setActiveTab] = useState('description');
-  const [isWishlisted, setIsWishlisted] = useState(false);
 
   // Fetch product and variants from database
   useEffect(() => {
@@ -577,20 +574,6 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
                   <span>Add to Cart{selectedVariant ? ` - £${(selectedVariant.price * quantity).toFixed(2)}` : ''}</span>
                 </button>
                 
-                <div className="flex space-x-3">
-                  <button 
-                    onClick={() => setIsWishlisted(!isWishlisted)} 
-                    className={`flex-1 border-2 font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
-                      isWishlisted ? 'border-red-500 text-red-500 bg-red-50' : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
-                    }`}
-                  >
-                    <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
-                    <span>{isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}</span>
-                  </button>
-                  <button className="border-2 border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3] font-semibold p-3 rounded-lg transition-colors flex items-center justify-center">
-                    <Share2 className="w-4 h-4" />
-                  </button>
-                </div>
               </div>
 
               {/* Trust Badges */}
@@ -613,14 +596,14 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
 
           {/* Product Information Tabs */}
           <div className="mt-16">
-            <div className="border-b border-gray-200">
-              <nav className="flex space-x-8">
+            <div className="border-b-2 border-gray-100">
+              <nav className="flex space-x-2">
                 {['description', 'variants', 'reviews', 'shipping'].map((tab) => (
                   <button 
                     key={tab} 
                     onClick={() => setActiveTab(tab)} 
-                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                      activeTab === tab ? 'border-[#009fe3] text-[#009fe3]' : 'border-transparent text-gray-500 hover:text-gray-700'
+                    className={`py-4 px-6 border-b-2 font-medium text-sm transition-all duration-200 relative ${
+                      activeTab === tab ? 'border-[#009fe3] text-[#009fe3] bg-blue-50/50' : 'border-transparent text-gray-600 hover:text-[#009fe3] hover:bg-gray-50'
                     }`}
                   >
                     {tab.charAt(0).toUpperCase() + tab.slice(1)}
