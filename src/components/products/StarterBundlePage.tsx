@@ -22,7 +22,7 @@ import OrderOverviewModal from '../OrderOverviewModal';
 import { useBundleCalculation } from '../../hooks/useBundleCalculation';
 import { useBundlePricing } from '../../hooks/useBundlePricing';
 import { useMergedProducts } from '../../hooks/useMergedProducts';
-import { useTshirtVariants } from '../../hooks/tshirt-variants-merged-fixed';
+import { useTshirtVariants, colorDesignMapping } from '../../hooks/tshirt-variants-merged-fixed';
 import { findCapVariantByColor } from '../../hooks/cap-variants';
 import type { PrintfulProduct, PrintfulVariant, BundleProduct, BundleItem } from '../../types/printful';
 import { Toast, useToast } from '../../components/ui/Toast';
@@ -32,7 +32,7 @@ interface BundlePageProps {
 }
 
 const StarterBundlePage = ({ onBack }: BundlePageProps) => {
-  const { addToCart, addToCartAndGetUpdated } = useCart();
+  const { addToCart, addToCartAndGetUpdated, addMultipleToCart } = useCart();
   const { isVisible, message, showToast, hideToast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -58,6 +58,29 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
   const tshirtVariantsHook = useTshirtVariants();
   const findTshirtVariant = tshirtVariantsHook?.findTshirtVariant;
   
+  console.log('DEBUG: T-shirt variants hook loaded:', {
+    hookExists: !!tshirtVariantsHook,
+    findFunctionExists: !!findTshirtVariant,
+    variantsCount: tshirtVariantsHook?.variants?.length || 0
+  });
+  
+  // Debug: Test finding Pink M variant specifically
+  useEffect(() => {
+    if (findTshirtVariant && tshirtVariantsHook?.variants) {
+      console.log('DEBUG: Testing Pink M variant lookup...');
+      const testVariant = findTshirtVariant('LIGHT', 'M', 'Pink');
+      console.log('DEBUG: LIGHT-Pink-M test result:', testVariant);
+      
+      // Also test all Pink variants
+      const pinkVariants = tshirtVariantsHook.variants.filter(v => v.color === 'Pink');
+      console.log('DEBUG: All Pink variants:', pinkVariants);
+      
+      // Test all M variants
+      const mVariants = tshirtVariantsHook.variants.filter(v => v.size === 'M');
+      console.log('DEBUG: All M variants count:', mVariants.length);
+    }
+  }, [findTshirtVariant, tshirtVariantsHook]);
+  
   // Get products using the same method as individual pages
   const tshirtProduct = getProductByCategory('tshirt');
   const capProduct = getProductByCategory('cap');
@@ -65,7 +88,12 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
   
   // Track variant selections
   const [tshirtSize, setTshirtSize] = useState('M');
-  const [tshirtColor, setTshirtColor] = useState('Black');
+  const [tshirtColor, setTshirtColor] = useState('Pink');
+  
+  // Helper function to convert UI size to variant size
+  const convertSizeForVariant = (size: string): string => {
+    return size === 'XXL' ? '2XL' : size;
+  };
   const [capColor, setCapColor] = useState('Black');
   const [selectedTshirtVariant, setSelectedTshirtVariant] = useState<any>(null);
   const [selectedCapVariant, setSelectedCapVariant] = useState<any>(null);
@@ -160,12 +188,33 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
     }
   }, [tshirtProduct, capProduct, mugProduct, bundleProducts.length, selectedTshirtVariant, selectedCapVariant, selectedMugVariant]);
 
+  // Use color design mapping to determine LIGHT vs DARK
+  
   // Update t-shirt variant when color/size changes
   useEffect(() => {
     if (tshirtColor && tshirtSize && findTshirtVariant) {
-      const variant = findTshirtVariant('DARK', tshirtSize, tshirtColor) || 
-                     findTshirtVariant('LIGHT', tshirtSize, tshirtColor);
-      setSelectedTshirtVariant(variant);
+      // Convert UI size to variant size (XXL -> 2XL)
+      const variantSize = convertSizeForVariant(tshirtSize);
+      
+      // Determine the correct design based on color
+      const design = colorDesignMapping[tshirtColor] || 'DARK';
+      console.log(`DEBUG: useEffect - T-shirt variant lookup starting - Color: ${tshirtColor}, Design: ${design}, UI Size: ${tshirtSize}, Variant Size: ${variantSize}`);
+      
+      const variant = findTshirtVariant(design, variantSize, tshirtColor);
+      console.log(`DEBUG: useEffect - First attempt result:`, variant);
+      
+      // Try opposite design if first attempt fails
+      if (!variant) {
+        const fallbackDesign = design === 'DARK' ? 'LIGHT' : 'DARK';
+        console.log(`DEBUG: useEffect - Trying fallback design: ${fallbackDesign}`);
+        const fallbackVariant = findTshirtVariant(fallbackDesign, variantSize, tshirtColor);
+        console.log(`DEBUG: useEffect - Fallback result:`, fallbackVariant);
+        setSelectedTshirtVariant(fallbackVariant);
+      } else {
+        setSelectedTshirtVariant(variant);
+      }
+      
+      console.log(`DEBUG: useEffect - Final selected variant:`, variant || 'none found');
     }
   }, [tshirtColor, tshirtSize, findTshirtVariant]);
 
@@ -217,7 +266,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
     materials: "Premium cotton T-shirt, adjustable cap, and ceramic mug"
   };
 
-  // Get T-shirt images based on selected color (same logic as TShirtPage)
+  // Get T-shirt images based on selected color
   const getTshirtImages = () => {
     if (!tshirtProduct?.baseProduct?.images || tshirtProduct.baseProduct.images.length === 0) {
       return ['/BackReformLogo.png'];
@@ -396,16 +445,34 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
       showToast('Please wait for bundle to load.');
       return;
     }
+    
+    // Validate that we have a valid t-shirt variant
+    if (!selectedTshirtVariant) {
+      const variantSize = convertSizeForVariant(tshirtSize);
+      const design = colorDesignMapping[tshirtColor] || 'DARK';
+      showToast(`Sorry, ${tshirtColor} T-shirt in size ${tshirtSize} is not available. Please select a different color or size.`);
+      console.error(`No variant found for ${tshirtColor} in size ${variantSize} with design ${design}`);
+      return;
+    }
 
     console.log('DEBUG: Starting handleAddToCart');
     console.log('DEBUG: bundleProducts.length:', bundleProducts.length);
     console.log('DEBUG: bundleProducts:', bundleProducts);
 
     const bundlePrice = starterPricing?.price || bundleData.bundlePrice;
+    const bundleOriginalPrice = starterPricing?.originalPrice || 54.97;
+    const bundleSavings = bundleOriginalPrice - bundlePrice;
     console.log('DEBUG: bundlePrice:', bundlePrice);
     
-    // Add each product in the bundle individually with proper variant IDs
-    bundleProducts.forEach((item, index) => {
+    // Get individual prices from bundle configuration
+    const starterComponents = starterPricing?.components || [
+      { productId: 1, name: 'T-Shirt', price: 24.99 },
+      { productId: 3, name: 'Cap', price: 19.99 },
+      { productId: 4, name: 'Mug', price: 9.99 }
+    ];
+    
+    // Build array of all bundle items with real individual prices
+    const cartItems = bundleProducts.map((item, index) => {
       console.log(`DEBUG: Processing item ${index}:`, item);
       
       // Get the variant ID - check multiple possible fields
@@ -414,80 +481,114 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                      item.variant.id;
       
       // For cap, use the specific cap variant
-      if (item.product.category === 'cap' && selectedCapVariant) {
-        variantId = selectedCapVariant.catalogVariantId || selectedCapVariant.externalId;
+      if (item.product.category === 'cap') {
+        const capVariant = selectedCapVariant || findCapVariantByColor(capColor);
+        if (capVariant) {
+          variantId = capVariant.externalId || capVariant.catalogVariantId;
+        }
       }
       
-      // For t-shirt, use the specific t-shirt variant
-      if (item.product.category === 'tshirt' && selectedTshirtVariant) {
-        variantId = selectedTshirtVariant.catalogVariantId || selectedTshirtVariant.externalId;
+      // For t-shirt, use the specific t-shirt variant with correct design
+      if (item.product.category === 'tshirt') {
+        // Convert UI size to variant size (XXL -> 2XL)
+        const variantSize = convertSizeForVariant(tshirtSize);
+        const design = colorDesignMapping[tshirtColor] || 'DARK';
+        console.log(`DEBUG: T-shirt variant lookup starting - Color: ${tshirtColor}, UI Size: ${tshirtSize}, Variant Size: ${variantSize}, Design: ${design}`);
+        
+        let tshirtVariant = selectedTshirtVariant || findTshirtVariant(design, variantSize, tshirtColor);
+        console.log(`DEBUG: First attempt - Found variant:`, tshirtVariant);
+        
+        // If not found with the mapped design, try the opposite design as fallback
+        if (!tshirtVariant) {
+          const fallbackDesign = design === 'DARK' ? 'LIGHT' : 'DARK';
+          console.log(`DEBUG: Trying fallback design: ${fallbackDesign}`);
+          tshirtVariant = findTshirtVariant(fallbackDesign, variantSize, tshirtColor);
+          console.log(`DEBUG: Fallback attempt - Found variant:`, tshirtVariant);
+        }
+        
+        if (tshirtVariant) {
+          variantId = tshirtVariant.externalId || tshirtVariant.catalogVariantId;
+          console.log(`DEBUG: T-shirt variant ID set to: ${variantId} (from ${tshirtVariant.externalId ? 'externalId' : 'catalogVariantId'})`);
+        } else {
+          console.error(`ERROR: No T-shirt variant found for ${tshirtColor}, UI size ${tshirtSize}, variant size ${variantSize}, tried both DARK and LIGHT designs`);
+        }
+      }
+      
+      // Ensure we have a valid variant ID
+      if (!variantId) {
+        console.error(`ERROR: No variant ID found for ${item.product.name}`, {
+          category: item.product.category,
+          tshirtColor: item.product.category === 'tshirt' ? tshirtColor : 'N/A',
+          tshirtSize: item.product.category === 'tshirt' ? tshirtSize : 'N/A',
+          capColor: item.product.category === 'cap' ? capColor : 'N/A',
+          selectedTshirtVariant,
+          selectedCapVariant,
+          itemVariant: item.variant
+        });
+        showToast(`Error: Unable to add ${item.product.name} - missing variant information`);
+        return null;
+      }
+
+      // Get the real individual price for this component
+      let individualPrice = 0;
+      if (item.product.category === 'tshirt') {
+        individualPrice = starterComponents.find(c => c.name === 'T-Shirt')?.price || 24.99;
+      } else if (item.product.category === 'cap') {
+        individualPrice = starterComponents.find(c => c.name === 'Cap')?.price || 19.99;
+      } else if (item.product.category === 'mug') {
+        individualPrice = starterComponents.find(c => c.name === 'Mug')?.price || 9.99;
       }
       
       const cartItem = {
         id: `starter-bundle-${item.product.category}-${index}`,
         name: item.product.name,
-        price: index === 0 ? bundlePrice : 0, // Only charge for the first item
+        price: individualPrice, // Show real individual price
         image: item.variant.image || item.product.image || '/BackReformLogo.png',
-        quantity: quantity,
         printful_variant_id: variantId,
-        external_id: item.variant.external_id || item.variant.sku || item.variant.id,
-        size: item.variant.size,
-        color: item.variant.color,
+        external_id: variantId, // Use the same valid variant ID
+        // Only set size for items that actually have sizes (t-shirts, not caps or mugs)
+        size: item.product.category === 'tshirt' ? convertSizeForVariant(tshirtSize) : undefined,
+        color: item.product.category === 'tshirt' ? tshirtColor : 
+               item.product.category === 'cap' ? capColor : 'White',
+        // For mug, add volume instead of size
+        volume: item.product.category === 'mug' ? '11 oz' : undefined,
         isPartOfBundle: true,
         bundleName: 'Starter Bundle',
         bundleId: 'starter-bundle'
       };
       
-      console.log(`DEBUG: Adding cart item ${index}:`, cartItem);
-      addToCart(cartItem);
-    });
+      console.log(`DEBUG: Prepared cart item ${index}:`, cartItem);
+      console.log(`DEBUG: Variant ID for ${item.product.name}:`, variantId);
+      return cartItem;
+    }).filter(item => item !== null); // Remove any items with missing variant IDs
     
-    console.log('DEBUG: Finished forEach loop');
+    console.log(`DEBUG: After filtering, ${cartItems.length} out of ${bundleProducts.length} items remain:`, cartItems);
+    
+    // Don't add discount item - instead apply bundle pricing to first item and make others £0
+    // The first item gets the full bundle price, others get £0 to show the bundle savings
+    
+    if (cartItems.length === 0) {
+      console.error('ERROR: No valid items to add to cart');
+      showToast('Error: Unable to add bundle - missing product information');
+      return;
+    }
+    
+    console.log('DEBUG: Adding all items to cart at once:', cartItems);
+    addMultipleToCart(cartItems);
+    
+    console.log('DEBUG: Finished adding to cart');
     // Show success message - don't redirect to checkout
     showToast(`Starter Bundle (${bundleProducts.length} items) added to cart!`);
   };
 
   const handleBuyNow = () => {
-    if (bundleProducts.length === 0) {
-      alert('Please wait for bundle to load.');
-      return;
-    }
-
-    const bundleContents = [
-      {
-        name: tshirtProduct?.name || 'Reform UK T-shirt',
-        variant: getVariantText('tshirt'),
-        image: getTshirtImages()[0] || '/BackReformLogo.png'
-      },
-      {
-        name: capProduct?.name || 'Reform UK Cap',
-        variant: getVariantText('cap'),
-        image: getCapImages()[0] || '/BackReformLogo.png'
-      },
-      {
-        name: mugProduct?.name || 'Reform UK Mug',
-        variant: getVariantText('mug'),
-        image: getMugImages()[0] || '/BackReformLogo.png'
-      }
-    ];
-
-    const itemToAdd = {
-      id: 'starter-bundle',
-      name: 'Starter Bundle',
-      price: bundleData.bundlePrice,
-      image: getTshirtImages()[0] || '/BackReformLogo.png',
-      quantity: quantity,
-      isBundle: true,
-      bundleContents: bundleContents
-    };
-
-    const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
+    // Use the same logic as handleAddToCart to add individual items
+    handleAddToCart();
     
-    // Store cart items in sessionStorage to ensure they're available on checkout page
-    sessionStorage.setItem('tempCartItems', JSON.stringify(updatedCartItems));
-    
-    // Navigate to checkout
-    navigate('/checkout');
+    // After adding items, navigate to checkout
+    setTimeout(() => {
+      navigate('/checkout');
+    }, 100);
   };
 
   const reviews = [
@@ -832,12 +933,13 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                 <h4 className="font-semibold text-gray-900 mb-3">Bundle Contents:</h4>
                 <div className="space-y-2 text-sm text-gray-700">
                   <p>• Reform UK T-shirt: <span className="font-medium text-gray-900">
-                    {tshirtColor} (Size {tshirtSize})
+                    {tshirtColor} (Size {tshirtSize}) - £24.99
+                    {!selectedTshirtVariant && <span className="text-red-600 ml-2">(Not Available)</span>}
                   </span></p>
                   <p>• Reform UK Cap: <span className="font-medium text-gray-900">
-                    {capColor}
+                    {capColor} - £19.99
                   </span></p>
-                  <p>• Reform UK Mug: <span className="font-medium text-gray-900">White</span></p>
+                  <p>• Reform UK Mug: <span className="font-medium text-gray-900">White - £9.99</span></p>
                 </div>
               </div>
 
@@ -859,7 +961,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
               <div className="space-y-3">
                 <button 
                   onClick={handleBuyNow}
-                  disabled={isLoading || bundleProducts.length === 0}
+                  disabled={isLoading || bundleProducts.length === 0 || !selectedTshirtVariant}
                   className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   {isLoading ? (
@@ -874,7 +976,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                 
                 <button 
                   onClick={handleAddToCart} 
-                  disabled={bundleProducts.length === 0}
+                  disabled={bundleProducts.length === 0 || !selectedTshirtVariant}
                   className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="w-5 h-5" />
