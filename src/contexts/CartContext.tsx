@@ -20,6 +20,11 @@ export interface CartItem {
   bundleContents?: BundleContent[];
   originalPrice?: number; // Store original price for comparison
   currency?: string; // Store currency information
+  sku?: string; // Product SKU
+  external_id?: string; // External product ID
+  isPartOfBundle?: boolean; // Whether this item is part of a bundle
+  bundleName?: string; // Name of the bundle this item belongs to
+  bundleId?: string; // ID of the bundle this item belongs to
 }
 
 interface CartContextType {
@@ -91,24 +96,33 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = (product: Omit<CartItem, 'quantity'>) => {
     try {
+      console.log('DEBUG CartContext: Adding product to cart:', product);
+      
       // Validate product data
-      if (!product.id || !product.name || typeof product.price !== 'number' || product.price <= 0) {
-        console.error('Invalid product data:', product)
+      if (!product.id || !product.name || typeof product.price !== 'number' || product.price < 0) {
+        console.error('DEBUG CartContext: Invalid product data:', product)
         return
       }
       
       setCartItems(prev => {
+        console.log('DEBUG CartContext: Current cart before adding:', prev);
+        
         const existingItem = prev.find(item => item.id === product.id)
         if (existingItem) {
-  
-          return prev.map(item =>
+          console.log('DEBUG CartContext: Found existing item, updating quantity:', existingItem);
+          const updatedCart = prev.map(item =>
             item.id === product.id
               ? { ...item, quantity: item.quantity + 1 }
               : item
-          )
+          );
+          console.log('DEBUG CartContext: Updated cart:', updatedCart);
+          return updatedCart;
         }
 
-        return [...prev, { ...product, quantity: 1 }]
+        console.log('DEBUG CartContext: Adding new item to cart');
+        const newCart = [...prev, { ...product, quantity: 1 }];
+        console.log('DEBUG CartContext: New cart:', newCart);
+        return newCart;
       })
     } catch (error) {
       console.error('Error adding to cart:', error)
