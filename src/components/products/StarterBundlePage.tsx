@@ -43,6 +43,11 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
 
   // Bundle products state
   const [bundleProducts, setBundleProducts] = useState<BundleItem[]>([]);
+  
+  // Debug bundleProducts changes
+  useEffect(() => {
+    console.log('DEBUG: bundleProducts state changed:', bundleProducts);
+  }, [bundleProducts]);
 
   // Image browsing state
   const [selectedItem, setSelectedItem] = useState('tshirt');
@@ -81,7 +86,15 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
 
   // Initialize bundle products when merged products are available
   useEffect(() => {
+    console.log('DEBUG: Bundle initialization useEffect triggered');
+    console.log('DEBUG: tshirtProduct:', tshirtProduct);
+    console.log('DEBUG: capProduct:', capProduct);
+    console.log('DEBUG: mugProduct:', mugProduct);
+    console.log('DEBUG: bundleProducts.length:', bundleProducts.length);
+    
     if (tshirtProduct && capProduct && mugProduct && bundleProducts.length === 0) {
+      console.log('DEBUG: Creating bundle items');
+      
       // Create bundle items from merged products
       const tshirtBundleItem = {
         product: {
@@ -135,7 +148,15 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
         }
       };
       
+      console.log('DEBUG: Created bundle items:', [tshirtBundleItem, capBundleItem, mugBundleItem]);
       setBundleProducts([tshirtBundleItem, capBundleItem, mugBundleItem]);
+    } else {
+      console.log('DEBUG: Bundle initialization conditions not met:', {
+        hasTshirt: !!tshirtProduct,
+        hasCap: !!capProduct,
+        hasMug: !!mugProduct,
+        bundleLength: bundleProducts.length
+      });
     }
   }, [tshirtProduct, capProduct, mugProduct, bundleProducts.length, selectedTshirtVariant, selectedCapVariant, selectedMugVariant]);
 
