@@ -4,9 +4,13 @@ import { ArrowLeft, ShoppingCart, Star, Check, Plus, Minus, Clock, Truck, Shield
 import { useCart } from '../../contexts/CartContext';
 import { createCheckoutSession } from '../../lib/stripe';
 import OrderOverviewModal from '../OrderOverviewModal';
-import { usePrintfulProduct } from '../../hooks/usePrintfulProducts';
 import { useBundleCalculation } from '../../hooks/useBundleCalculation';
 import { useBundlePricing } from '../../hooks/useBundlePricing';
+import { useMergedProducts } from '../../hooks/useMergedProducts';
+import { useHoodieVariants } from '../../hooks/hoodie-variants-merged-fixed';
+import { useTshirtVariants, colorDesignMapping } from '../../hooks/tshirt-variants-merged-fixed';
+import { findCapVariantByColor } from '../../hooks/cap-variants';
+import { TotebagVariants } from '../../hooks/totebag-variants';
 import type { PrintfulProduct, PrintfulVariant, BundleProduct, BundleItem } from '../../types/printful';
 import { Toast, useToast } from '../../components/ui/Toast';
 
@@ -40,7 +44,7 @@ interface ChampionBundlePageProps {
 }
 
 const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
-  const { addToCart, addToCartAndGetUpdated } = useCart();
+  const { addToCart, addToCartAndGetUpdated, addMultipleToCart } = useCart();
   const { isVisible, message, showToast, hideToast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -50,8 +54,26 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
   const [activeTab, setActiveTab] = useState('description');
 
   // Hoodie customization options
-  const [selectedSize, setSelectedSize] = useState('M');
-  const [selectedColor, setSelectedColor] = useState('Black');
+  const [hoodieSize, setHoodieSize] = useState('M');
+  const [hoodieColor, setHoodieColor] = useState('Black');
+  
+  // T-shirt customization options
+  const [tshirtSize, setTshirtSize] = useState('M');
+  const [tshirtColor, setTshirtColor] = useState('Pink');
+  
+  // Cap customization options
+  const [capColor, setCapColor] = useState('Black');
+
+  // Helper function to convert size names for variant lookup
+  const convertSizeForVariant = (size: string): string => {
+    // T-shirt/Hoodie variants use "2XL" but UI shows "XXL"
+    if (size === 'XXL') return '2XL';
+    return size;
+  };
+
+  // Track variant selections
+  const [selectedTshirtVariant, setSelectedTshirtVariant] = useState<any>(null);
+  const [selectedCapVariant, setSelectedCapVariant] = useState<any>(null);
 
   // Image browsing state
   const [selectedItem, setSelectedItem] = useState('hoodie');
@@ -64,11 +86,18 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
   const { bundlePricing } = useBundlePricing();
   const championPricing = bundlePricing.champion;
 
-  // Fetch Printful products for the bundle
-  const { product: hoodieProduct, loading: hoodieLoading } = usePrintfulProduct(2); // Hoodie
-  const { product: totebagProduct, loading: totebagLoading } = usePrintfulProduct(5); // Tote Bag
-  const { product: waterbottleProduct, loading: waterbottleLoading } = usePrintfulProduct(6); // Water Bottle
-  const { product: mousepadProduct, loading: mousepadLoading } = usePrintfulProduct(7); // Mouse Pad
+  // Use the same merged products system as individual product pages
+  const { getProductByCategory, isLoading: mergedLoading, error: mergedError } = useMergedProducts();
+  const hoodieVariantsHook = useHoodieVariants();
+  const tshirtVariantsHook = useTshirtVariants();
+  const findHoodieVariant = hoodieVariantsHook?.findHoodieVariant;
+  const findTshirtVariant = tshirtVariantsHook?.findTshirtVariant;
+  
+  // Get products using the same method as individual pages
+  const hoodieProduct = getProductByCategory('hoodie');
+  const tshirtProduct = getProductByCategory('tshirt');
+  const capProduct = getProductByCategory('cap');
+  const totebagProduct = getProductByCategory('tote');
 
   // Bundle calculation hook
   const {
@@ -79,26 +108,108 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
     getItemCount
   } = useBundleCalculation(bundleProducts, setBundleProducts);
 
-  // Initialize bundle with products when they load
+  // Initialize bundle products when merged products are available
   useEffect(() => {
-    if (hoodieProduct && totebagProduct && waterbottleProduct && mousepadProduct && bundleProducts.length === 0) {
-      // Add default variants to bundle
-      const defaultHoodieVariant = hoodieProduct.variants.find(v => v.color === selectedColor && v.size === selectedSize);
-      const defaultToteBagVariant = totebagProduct.variants[0];
-      const defaultWaterBottleVariant = waterbottleProduct.variants[0];
-      const defaultMousePadVariant = mousepadProduct.variants[0];
+    if (hoodieProduct && tshirtProduct && capProduct && totebagProduct && bundleProducts.length === 0) {
+      // Create bundle items from merged products
+      const hoodieBundleItem = {
+        product: {
+          id: hoodieProduct.id,
+          name: hoodieProduct.name,
+          category: 'hoodie',
+          image: hoodieProduct.image_url,
+          images: hoodieProduct.baseProduct?.images || [],
+          variants: hoodieProduct.variants || []
+        },
+        variant: hoodieProduct.variants?.[0] || {
+          id: 'hoodie-default',
+          color: hoodieColor,
+          size: hoodieSize,
+          price: hoodieProduct.priceRange?.min || '24.99',
+          image: getHoodieImages()[0]
+        }
+      };
       
-      if (defaultHoodieVariant && defaultToteBagVariant && defaultWaterBottleVariant && defaultMousePadVariant) {
-        addItem(hoodieProduct, defaultHoodieVariant);
-        addItem(totebagProduct, defaultToteBagVariant);
-        addItem(waterbottleProduct, defaultWaterBottleVariant);
-        addItem(mousepadProduct, defaultMousePadVariant);
+      const tshirtBundleItem = {
+        product: {
+          id: tshirtProduct.id,
+          name: tshirtProduct.name,
+          category: 'tshirt',
+          image: tshirtProduct.image_url,
+          images: tshirtProduct.baseProduct?.images || [],
+          variants: tshirtProduct.variants || []
+        },
+        variant: tshirtProduct.variants?.[0] || {
+          id: 'tshirt-default',
+          color: tshirtColor,
+          size: tshirtSize,
+          price: tshirtProduct.priceRange?.min || '14.99',
+          image: getTshirtImages()[0]
+        }
+      };
+      
+      const capBundleItem = {
+        product: {
+          id: capProduct.id,
+          name: capProduct.name,
+          category: 'cap',
+          image: capProduct.image_url,
+          images: capProduct.baseProduct?.images || [],
+          variants: capProduct.variants || []
+        },
+        variant: capProduct.variants?.[0] || {
+          id: 'cap-default',
+          color: capColor,
+          price: capProduct.priceRange?.min || '12.99',
+          image: getCapImages()[0]
+        }
+      };
+      
+      const totebagBundleItem = {
+        product: {
+          id: totebagProduct.id,
+          name: totebagProduct.name,
+          category: 'tote',
+          image: totebagProduct.image_url,
+          images: totebagProduct.baseProduct?.images || [],
+          variants: totebagProduct.variants || []
+        },
+        variant: totebagProduct.variants?.[0] || {
+          id: 'totebag-default',
+          color: 'Black',
+          price: totebagProduct.priceRange?.min || '9.99',
+          image: getTotebagImages()[0]
+        }
+      };
+      
+      setBundleProducts([hoodieBundleItem, tshirtBundleItem, capBundleItem, totebagBundleItem]);
+    }
+  }, [hoodieProduct, tshirtProduct, capProduct, totebagProduct, bundleProducts.length]);
+
+  // Update t-shirt variant when color/size changes
+  useEffect(() => {
+    if (tshirtColor && tshirtSize && findTshirtVariant) {
+      // Determine the correct design based on color
+      const design = colorDesignMapping[tshirtColor] || 'DARK';
+      const variantSize = convertSizeForVariant(tshirtSize);
+      const variant = findTshirtVariant(design, variantSize, tshirtColor);
+      setSelectedTshirtVariant(variant);
+      console.log(`DEBUG: T-shirt variant lookup - Color: ${tshirtColor}, Design: ${design}, Size: ${tshirtSize}, Variant Size: ${variantSize}, Found variant:`, variant);
+    }
+  }, [tshirtColor, tshirtSize, findTshirtVariant]);
+
+  // Update cap variant when color changes
+  useEffect(() => {
+    if (capColor) {
+      const variant = findCapVariantByColor(capColor);
+      if (variant) {
+        setSelectedCapVariant(variant);
       }
     }
-  }, [hoodieProduct, totebagProduct, waterbottleProduct, mousepadProduct, bundleProducts.length, addItem, selectedColor, selectedSize]);
+  }, [capColor]);
 
   // Loading state
-  if (hoodieLoading || totebagLoading || waterbottleLoading || mousepadLoading) {
+  if (mergedLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -111,25 +222,25 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
 
   const productData = {
     name: "Champion Bundle",
-    originalPrice: "£114.96",
-    bundlePrice: 99.99,
-    savings: "Save £14.97",
-    description: "For the dedicated Reform UK supporter. This champion bundle includes a premium hoodie, tote bag, water bottle, and mouse pad - everything you need to show your commitment to the movement in style and comfort.",
-    shipping: "Free UK Shipping",
+    originalPrice: "£109.96",
+    bundlePrice: 93.99,
+    savings: "Save £15.97",
+    description: "For the dedicated Reform UK supporter. This champion bundle includes a premium hoodie, classic t-shirt, stylish cap, and practical tote bag - everything you need to show your commitment to the movement in style and comfort.",
+    shipping: "Fast UK Shipping",
     urgency: "Limited Time Offer",
     popular: true,
     rating: 4.9,
     reviews: 203,
-    materials: "Premium cotton hoodie, durable canvas tote bag, stainless steel water bottle, and high-quality mouse pad",
-    careInstructions: "Machine wash hoodie at 30°C. Tote bag spot clean. Water bottle dishwasher safe.",
+    materials: "Premium cotton hoodie, high-quality cotton t-shirt, adjustable cap, and durable canvas tote bag",
+    careInstructions: "Machine wash hoodie and t-shirt at 30°C. Hand wash cap. Tote bag spot clean.",
     features: [
       "Premium cotton hoodie with Reform UK branding",
+      "High-quality cotton t-shirt with Reform UK design",
+      "Adjustable cap with Reform UK logo",
       "Durable canvas tote bag for daily use",
-      "Stainless steel water bottle keeps drinks cold for 24 hours",
-      "High-quality mouse pad for desk setup",
       "Excellent value bundle with significant savings",
-      "Perfect for active supporters",
-      "Free UK shipping included",
+      "Perfect for dedicated supporters",
+      "Fast UK shipping available",
       "30-day money-back guarantee"
     ],
     bundleItems: [
@@ -202,53 +313,141 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
 
   const sizeOptions = ['S', 'M', 'L', 'XL', 'XXL'];
 
+  // Get Hoodie images based on selected color (same logic as HoodiePage)
   const getHoodieImages = () => {
-    // Map color names to image paths (same as hoodie page)
-    const colorMap: { [key: string]: string } = {
-      'Black': 'Black',
-      'Navy': 'Blue', // Using Blue images for Navy
-      'Red': 'Red',
-      'Dark Heather': 'Charcoal', // Using Charcoal images for Dark Heather
-      'Indigo Blue': 'Blue',
-      'Sport Grey': 'LightGrey',
-      'Light Blue': 'Blue', // Using Blue images for Light Blue
-      'Light Pink': 'Red', // Using Red images for Light Pink
-      'White': 'White'
-    };
+    if (!hoodieProduct?.baseProduct?.images) return ['/BackReformLogo.png'];
+    const mergedImages = hoodieProduct.baseProduct.images;
     
-    const colorKey = colorMap[selectedColor] || selectedColor;
+    if (hoodieColor) {
+      const colorImages = mergedImages.filter(img => 
+        img.color?.toLowerCase() === hoodieColor.toLowerCase()
+      );
+      if (colorImages.length > 0) {
+        return colorImages.sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url);
+      }
+    }
     
-    return [
-      `/Hoodie/Men/ReformMenHoodie${colorKey}1.webp`,
-      `/Hoodie/Men/ReformMenHoodie${colorKey}2.webp`,
-      `/Hoodie/Men/ReformMenHoodie${colorKey}3.webp`,
-      `/Hoodie/Men/ReformMenHoodie${colorKey}4.webp`,
-      `/Hoodie/Men/ReformMenHoodie${colorKey}5.webp`,
-      `/Hoodie/Men/ReformMenHoodie${colorKey}6.webp`
-    ];
+    const generalImages = mergedImages.filter(img => !img.variant_type || img.variant_type === 'product');
+    return generalImages.length > 0 ? generalImages.map(img => img.image_url) : ['/BackReformLogo.png'];
   };
 
+  // Get T-shirt images based on selected color (same logic as TShirtPage)
+  const getTshirtImages = () => {
+    if (!tshirtProduct?.baseProduct?.images || tshirtProduct.baseProduct.images.length === 0) {
+      return ['/BackReformLogo.png'];
+    }
+    
+    const mergedImages = tshirtProduct.baseProduct.images;
+    
+    if (tshirtColor) {
+      const selectedColorLower = tshirtColor.toLowerCase();
+      
+      // Try exact color match first
+      const exactColorImages = mergedImages.filter(img => 
+        img.variant_type === 'color' && 
+        img.color?.toLowerCase() === selectedColorLower
+      );
+      
+      if (exactColorImages.length > 0) {
+        return exactColorImages
+          .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url);
+      }
+    }
+    
+    // Fall back to general images
+    const generalImages = mergedImages.filter(img => 
+      img.variant_type === 'product' || img.variant_type === null
+    );
+    
+    return generalImages.length > 0 
+      ? generalImages.map(img => img.image_url)
+      : [tshirtProduct.image_url || '/BackReformLogo.png'];
+  };
+  
+  // Get Cap images (same logic as CapPage for consistent ordering)
   const getCapImages = () => {
-    return [
-      `/Cap/ReformCapBlack1.webp`,
-      `/Cap/ReformCapBlack2.webp`,
-      `/Cap/ReformCapBlack3.webp`,
-      `/Cap/ReformCapBlack4.webp`,
-      `/Cap/ReformCapBlack5.webp`,
-      `/Cap/ReformCapBlack6.webp`,
-      `/Cap/ReformCapBlack7.webp`
-    ];
+    if (!capProduct?.baseProduct?.images || capProduct.baseProduct.images.length === 0) {
+      return ['/BackReformLogo.png'];
+    }
+    
+    const mergedImages = capProduct.baseProduct.images;
+    
+    // If a color is selected, try to get color-specific images first
+    if (capColor) {
+      const selectedColorLower = capColor.toLowerCase();
+      
+      // Priority 1: Exact color match with variant_type = 'color'
+      const exactColorImages = mergedImages.filter(img => 
+        img.variant_type === 'color' && 
+        img.color?.toLowerCase() === selectedColorLower
+      );
+      
+      if (exactColorImages.length > 0) {
+        return exactColorImages
+          .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url);
+      }
+      
+      // Priority 2: Look for images with color field matching (any variant_type)
+      const colorFieldImages = mergedImages.filter(img => 
+        img.color?.toLowerCase() === selectedColorLower
+      );
+      
+      if (colorFieldImages.length > 0) {
+        return colorFieldImages
+          .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url);
+      }
+    }
+    
+    // Priority 3: General product images (variant_type = 'product' or null)
+    const generalImages = mergedImages.filter(img => 
+      img.variant_type === 'product' || img.variant_type === null || img.variant_type === undefined
+    );
+    
+    if (generalImages.length > 0) {
+      return generalImages
+        .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+        .map(img => img.image_url);
+    }
+    
+    // Priority 4: Primary image if available
+    const primaryImages = mergedImages.filter(img => img.is_primary === true);
+    if (primaryImages.length > 0) {
+      return primaryImages
+        .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+        .map(img => img.image_url);
+    }
+    
+    // Priority 5: All available images as final fallback
+    return mergedImages.length > 0 
+      ? mergedImages
+          .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
+          .map(img => img.image_url)
+      : [capProduct.image_url || '/BackReformLogo.png'];
   };
-
+  
+  // Get Totebag images
+  const getTotebagImages = () => {
+    if (!totebagProduct?.baseProduct?.images || totebagProduct.baseProduct.images.length === 0) {
+      return ['/BackReformLogo.png'];
+    }
+    return totebagProduct.baseProduct.images.map(img => img.image_url);
+  };
+  
   const getCurrentImages = () => {
     if (selectedItem === 'hoodie') {
       return getHoodieImages();
+    } else if (selectedItem === 'tshirt') {
+      return getTshirtImages();
     } else if (selectedItem === 'cap') {
       return getCapImages();
-    } else {
-      const item = bundleProducts.find(item => item.product.category === selectedItem);
-      return item?.variant?.image ? [item.variant.image] : [];
+    } else if (selectedItem === 'tote') {
+      return getTotebagImages();
     }
+    return [];
   };
 
   const getCurrentImage = () => {
@@ -256,14 +455,20 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
     return images[currentImageIndex] || images[0] || '';
   };
 
-  const getVariantText = (item: BundleItem): string => {
-    if (item.product.category === 'hoodie') {
-      return `${selectedColor} (Size ${selectedSize})`;
+  const getVariantText = (category: string): string => {
+    if (category === 'hoodie') {
+      return `${hoodieColor} (Size ${hoodieSize})`;
     }
-    if (item.product.category === 'cap') {
-      return 'Black Cap';
+    if (category === 'tshirt') {
+      return `${tshirtColor} (Size ${tshirtSize})`;
     }
-    return `${item.variant.color} ${item.variant.size}`;
+    if (category === 'cap') {
+      return `${capColor} Cap`;
+    }
+    if (category === 'tote') {
+      return `Black Tote Bag`;
+    }
+    return '';
   };
 
   const handleItemClick = (itemType: string) => {
@@ -285,100 +490,229 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
     }
   };
 
-  const handleColorChange = (color: string) => {
-    setSelectedColor(color);
+  // Handle variant changes for hoodie
+  const handleHoodieVariantChange = (variantType: 'color' | 'size', value: string) => {
+    if (variantType === 'color') {
+      setHoodieColor(value);
+      setCurrentImageIndex(0);
+    } else {
+      setHoodieSize(value);
+    }
+  };
+
+  // Handle variant changes for t-shirt
+  const handleTshirtVariantChange = (variantType: 'color' | 'size', value: string) => {
+    if (variantType === 'color') {
+      setTshirtColor(value);
+    } else {
+      setTshirtSize(value);
+    }
+    setCurrentImageIndex(0);
+  };
+  
+  // Handle cap color change
+  const handleCapColorChange = (color: string) => {
+    setCapColor(color);
+    // Use the cap variants hook to find the correct variant
+    const capVariant = findCapVariantByColor(color);
+    if (capVariant) {
+      // Handle cap variant change if needed
+    }
     setCurrentImageIndex(0);
   };
 
-
-
-  // Handle variant changes for hoodie
-  const handleVariantChange = (variantType: 'color' | 'size', value: string) => {
-    if (variantType === 'color') {
-      setSelectedColor(value);
-      setCurrentImageIndex(0);
-    } else if (variantType === 'size') {
-      setSelectedSize(value);
-    }
-    
-    // Update the hoodie variant in bundle products
-    if (hoodieProduct) {
-      const newHoodieVariant = hoodieProduct.variants.find(v => v.color === (variantType === 'color' ? value : selectedColor) && v.size === (variantType === 'size' ? value : selectedSize));
-      if (newHoodieVariant) {
-        setBundleProducts(prev => 
-          prev.map(item => 
-            item.product.category === 'hoodie' 
-              ? { ...item, variant: newHoodieVariant }
-              : item
-          )
-        );
-      }
-    }
-  };
-
   const handleAddToCart = () => {
-    if (bundleProducts.length === 0) {
-      alert('Please wait for bundle to load.');
+    if (!hoodieProduct || !tshirtProduct || !capProduct || !totebagProduct || bundleProducts.length === 0) {
+      showToast('Please wait for bundle to load.');
       return;
     }
 
-    const bundleContents: BundleContent[] = bundleProducts.map(item => ({
-      name: item.product.name,
-      variant: getVariantText(item),
-      image: item.variant.image || item.product.image || '/championbundle.png'
-    }));
-
-    const variants: Record<string, string> = {
-      hoodieSize: selectedSize,
-      hoodieColor: selectedColor,
-      capColor: 'Black',
-      totebagVariant: 'Black',
-      waterbottleVariant: 'White'
-    };
-
-    addToCart({
-      id: 'champion-bundle',
-      name: productData.name,
-      price: calculation?.totalPrice || productData.bundlePrice,
-      image: bundleProducts[0]?.variant?.image || bundleProducts[0]?.product.image || '/championbundle.png',
-      isBundle: true,
-      bundleContents: bundleContents,
-      quantity: quantity
-    });
+    console.log('DEBUG: Starting handleAddToCart for Champion Bundle');
+    console.log('DEBUG: bundleProducts.length:', bundleProducts.length);
+    console.log('DEBUG: bundleProducts:', bundleProducts);
     
-    // Show success message and redirect to checkout
-    showToast('Added to cart! Redirecting to checkout...');
-    setTimeout(() => {
-      navigate('/checkout');
-    }, 1000);
+    const bundlePrice = championPricing?.price || productData.bundlePrice;
+    const bundleOriginalPrice = championPricing?.originalPrice || 109.96;
+    const bundleSavings = bundleOriginalPrice - bundlePrice;
+    console.log('DEBUG: bundlePrice:', bundlePrice);
+
+    // Build array of all bundle items with real individual prices
+    const cartItems = bundleProducts.map((item, index) => {
+      console.log(`DEBUG: Processing item ${index}:`, item);
+      
+      // Get the variant ID - check multiple possible fields
+      let variantId = item.variant.printful_variant_id || 
+                     item.variant.external_id || 
+                     item.variant.id;
+      
+      // For hoodie, use the specific hoodie variant
+      if (item.product.category === 'hoodie') {
+        const variantSize = convertSizeForVariant(hoodieSize);
+        console.log(`🔍 Hoodie lookup - Size: ${hoodieSize}, Variant Size: ${variantSize}, Color: ${hoodieColor}`);
+        const hoodieVariant = findHoodieVariant ? findHoodieVariant(variantSize, hoodieColor) : null;
+        console.log('📦 Hoodie variant found:', hoodieVariant);
+        if (hoodieVariant) {
+          variantId = hoodieVariant.catalogVariantId || hoodieVariant.externalId;
+          console.log('✅ Hoodie variant ID:', variantId);
+        } else {
+          console.error('❌ No hoodie variant found!');
+        }
+      }
+      
+      // For t-shirt, use the specific t-shirt variant with correct design
+      if (item.product.category === 'tshirt') {
+        const design = colorDesignMapping[tshirtColor] || 'DARK';
+        const variantSize = convertSizeForVariant(tshirtSize);
+        console.log(`🔍 T-shirt lookup - Design: ${design}, Size: ${tshirtSize}, Variant Size: ${variantSize}, Color: ${tshirtColor}`);
+        
+        let tshirtVariant = findTshirtVariant(design, variantSize, tshirtColor);
+        
+        if (!tshirtVariant && design === 'LIGHT') {
+          console.log('⚠️ LIGHT variant not found, trying DARK');
+          tshirtVariant = findTshirtVariant('DARK', variantSize, tshirtColor);
+        } else if (!tshirtVariant && design === 'DARK') {
+          console.log('⚠️ DARK variant not found, trying LIGHT');
+          tshirtVariant = findTshirtVariant('LIGHT', variantSize, tshirtColor);
+        }
+        
+        console.log('📦 T-shirt variant found:', tshirtVariant);
+        
+        if (tshirtVariant) {
+          variantId = tshirtVariant.externalId || tshirtVariant.catalogVariantId;
+          console.log('✅ T-shirt variant ID:', variantId);
+        } else {
+          console.error('❌ No T-shirt variant found!');
+        }
+      }
+      
+      // For cap, use the specific cap variant
+      if (item.product.category === 'cap') {
+        console.log(`🔍 Cap lookup - Color: ${capColor}`);
+        const capVariant = selectedCapVariant || findCapVariantByColor(capColor);
+        console.log('📦 Cap variant found:', capVariant);
+        if (capVariant) {
+          variantId = capVariant.externalId || capVariant.catalogVariantId;
+          console.log('✅ Cap variant ID:', variantId);
+        } else {
+          console.error('❌ No cap variant found!');
+        }
+      }
+      
+      // For tote bag, use the tote bag variant
+      if (item.product.category === 'tote') {
+        const totebagVariant = TotebagVariants[0]; // There's only one tote bag variant
+        if (totebagVariant) {
+          variantId = totebagVariant.externalId || totebagVariant.catalogVariantId;
+        }
+      }
+      
+      // Ensure we have a valid variant ID
+      if (!variantId) {
+        console.error(`ERROR: No variant ID found for ${item.product.name}`);
+        showToast(`Error: Unable to add ${item.product.name} - missing variant information`);
+        return null;
+      }
+
+      // Get individual prices from bundle configuration
+      const championComponents = championPricing?.components || [
+        { productId: 2, name: 'Hoodie', price: 39.99 },
+        { productId: 1, name: 'T-Shirt', price: 24.99 },
+        { productId: 3, name: 'Cap', price: 19.99 },
+        { productId: 5, name: 'Tote Bag', price: 24.99 }
+      ];
+      
+      // Get the real individual price for this component
+      let individualPrice = 0;
+      if (item.product.category === 'hoodie') {
+        individualPrice = championComponents.find(c => c.name === 'Hoodie')?.price || 39.99;
+      } else if (item.product.category === 'tshirt') {
+        individualPrice = championComponents.find(c => c.name === 'T-Shirt')?.price || 24.99;
+      } else if (item.product.category === 'cap') {
+        individualPrice = championComponents.find(c => c.name === 'Cap')?.price || 19.99;
+      } else if (item.product.category === 'tote') {
+        individualPrice = championComponents.find(c => c.name === 'Tote Bag')?.price || 24.99;
+      }
+
+      // Get the real individual price for this component
+      const itemPrice = individualPrice;
+
+      // Use correct variant images based on selected colors
+      let itemImage = '/BackReformLogo.png';
+      if (item.product.category === 'hoodie') {
+        itemImage = getHoodieImages()[0];
+      } else if (item.product.category === 'tshirt') {
+        itemImage = getTshirtImages()[0];
+      } else if (item.product.category === 'cap') {
+        itemImage = getCapImages()[0];
+      } else if (item.product.category === 'tote') {
+        itemImage = getTotebagImages()[0];
+      }
+
+      const cartItem = {
+        id: `champion-bundle-${item.product.category}-${index}`,
+        name: item.product.name,
+        price: itemPrice, // Real individual price
+        image: itemImage,
+        printful_variant_id: variantId,
+        external_id: variantId, // Use the same valid variant ID
+        // Only set size for items that actually have sizes (t-shirts and hoodies, not caps or tote bags)
+        size: (item.product.category === 'hoodie' || item.product.category === 'tshirt') ? 
+              (item.product.category === 'hoodie' ? hoodieSize : tshirtSize) : undefined,
+        color: item.product.category === 'hoodie' ? hoodieColor :
+               item.product.category === 'tshirt' ? tshirtColor :
+               item.product.category === 'cap' ? capColor : 'Black',
+        isPartOfBundle: true,
+        bundleName: 'Champion Bundle',
+        bundleId: 'champion-bundle'
+      };
+      
+      console.log(`DEBUG: Prepared cart item ${index}:`, cartItem);
+      console.log(`DEBUG: Variant ID for ${item.product.name}:`, variantId);
+      return cartItem;
+    }).filter(item => item !== null); // Remove any items with missing variant IDs
+    
+    console.log(`DEBUG: After filtering, ${cartItems.length} out of ${bundleProducts.length} items remain:`, cartItems);
+    
+    // Add discount item as the 4th item with negative price
+    const discountAmount = bundleSavings; // This is the savings amount (15.97)
+    const discountItem = {
+      id: `champion-bundle-discount`,
+      name: 'Champion Bundle Discount (15%)',
+      price: -discountAmount, // Negative price for discount
+      image: '/BackReformLogo.png', // Use logo for discount item
+      printful_variant_id: 'BUNDLE_DISCOUNT_CHAMPION', // Placeholder that won't break checkout
+      external_id: 'BUNDLE_DISCOUNT_CHAMPION',
+      isPartOfBundle: true,
+      bundleName: 'Champion Bundle',
+      bundleId: 'champion-bundle',
+      isDiscount: true // Special flag to identify as discount
+    };
+    
+    // Add the discount item to the cart items
+    cartItems.push(discountItem);
+    
+    if (cartItems.length === 0) {
+      console.error('ERROR: No valid items to add to cart');
+      showToast('Error: Unable to add bundle - missing product information');
+      return;
+    }
+    
+    console.log('DEBUG: Adding all items to cart at once:', cartItems);
+    addMultipleToCart(cartItems);
+    
+    console.log('DEBUG: Finished adding to cart');
+    // Show success message - don't redirect to checkout
+    showToast(`Champion Bundle (${cartItems.length} items) added to cart!`);
   };
 
   const handleBuyNow = () => {
-    // Add bundle to cart
-    const bundleContents = [
-      { name: 'Reform UK Hoodie', variant: `${selectedColor} (Size: ${selectedSize})`, image: getHoodieImages()[0] },
-      { name: 'Reform UK Cap', variant: 'Black', image: getCapImages()[0] },
-      { name: 'Reform UK Tote Bag', variant: 'Black', image: '/StickerToteWater/ReformToteBagBlack1.webp' },
-      { name: 'Reform UK Water Bottle', variant: 'White', image: '/StickerToteWater/ReformWaterBottleWhite1.webp' }
-    ];
-
-    const itemToAdd = {
-      id: 'champion-bundle',
-      name: 'Champion Bundle',
-      price: calculation?.totalPrice || productData.bundlePrice,
-      image: bundleProducts[0]?.variant?.image || bundleProducts[0]?.product.image || '/championbundle.png',
-      quantity: quantity,
-      isBundle: true,
-      bundleContents: bundleContents
-    };
-
-    const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
+    // Use the same logic as handleAddToCart to add individual items
+    handleAddToCart();
     
-    // Store cart items in sessionStorage to ensure they're available on checkout page
-    sessionStorage.setItem('tempCartItems', JSON.stringify(updatedCartItems));
-    
-    // Navigate to checkout
-    navigate('/checkout');
+    // After adding items, navigate to checkout
+    setTimeout(() => {
+      navigate('/checkout');
+    }, 100);
   };
 
   const handleConfirmCheckout = async () => {
@@ -509,19 +843,24 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                 </div>
 
                 {/* Viewing Indicator */}
-                {selectedItemData && (
+                {selectedItem && (
                   <div className="absolute top-4 right-4 z-10">
                     <span className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
-                      Viewing: {selectedItemData?.product.name}
-                      {selectedItem === 'hoodie' && ` - ${selectedColor}`}
-                      {selectedItem === 'cap' && ` - Black`}
+                      Viewing: {selectedItem === 'hoodie' ? 'Hoodie' :
+                               selectedItem === 'tshirt' ? 'T-shirt' :
+                               selectedItem === 'cap' ? 'Cap' :
+                               selectedItem === 'tote' ? 'Tote Bag' : ''}
+                      {selectedItem === 'hoodie' && ` - ${hoodieColor}`}
+                      {selectedItem === 'tshirt' && ` - ${tshirtColor}`}
+                      {selectedItem === 'cap' && ` - ${capColor}`}
+                      {selectedItem === 'tote' && ` - Black`}
                     </span>
                   </div>
                 )}
               </div>
               
               {/* Bundle Items Grid - Clickable Thumbnails */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 {bundleProducts.map((item) => (
                   <button
                     key={item.product.category}
@@ -534,9 +873,11 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                   >
                     <img 
                       src={
-                        item.product.category === 'hoodie' ? getHoodieImages()[0] : 
+                        item.product.category === 'hoodie' ? getHoodieImages()[0] :
+                        item.product.category === 'tshirt' ? getTshirtImages()[0] :
                         item.product.category === 'cap' ? getCapImages()[0] :
-                        item.variant.image || item.product.image
+                        item.product.category === 'tote' ? getTotebagImages()[0] :
+                        '/BackReformLogo.png'
                       } 
                       alt={item.product.name} 
                       className={`w-full object-cover rounded-lg border-2 transition-all duration-200 aspect-square ${
@@ -607,16 +948,49 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
               <div className="border-t border-gray-200 pt-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Customize Your Hoodie</h3>
 
-                {/* Color Selection */}
+                {/* Size Selection */}
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Color: <span className="font-semibold text-gray-900">{selectedColor}</span></label>
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="block text-sm font-medium text-gray-700">Size</label>
+                    <button 
+                      onClick={() => navigate('/size-guide')}
+                      className="text-sm text-[#009fe3] hover:text-blue-600 underline"
+                    >
+                      Size Guide
+                    </button>
+                  </div>
+                  <div className="bg-pink-50 border border-pink-200 rounded-lg p-3 mb-3">
+                    <p className="text-sm text-pink-800">
+                      <strong>Women's Fit Recommendation:</strong> It is recommended women size down one size for a better fit.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {sizeOptions.map((size) => (
+                      <button 
+                        key={size} 
+                        onClick={() => handleHoodieVariantChange('size', size)} 
+                        className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
+                          hoodieSize === size 
+                            ? 'border-[#009fe3] bg-[#009fe3] text-white' 
+                            : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Color Selection */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Color: <span className="font-semibold text-gray-900">{hoodieColor}</span></label>
                   <div className="flex flex-wrap gap-3">
                     {colorOptions.map((color) => (
                       <button 
                         key={color.name} 
-                        onClick={() => handleVariantChange('color', color.name)} 
+                        onClick={() => handleHoodieVariantChange('color', color.name)} 
                         className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
-                          selectedColor === color.name 
+                          hoodieColor === color.name 
                             ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
                             : color.border 
                               ? 'border-gray-300 hover:border-gray-400' 
@@ -625,7 +999,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                         style={{ backgroundColor: color.value }} 
                         title={color.name}
                       >
-                        {selectedColor === color.name && (
+                        {hoodieColor === color.name && (
                           <div className="absolute inset-0 flex items-center justify-center">
                             <Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Blue' || color.name === 'Light Pink' || color.name === 'Sport Grey' ? 'text-gray-600' : 'text-white'}`} />
                           </div>
@@ -634,7 +1008,12 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                     ))}
                   </div>
                 </div>
+              </div>
 
+              {/* T-shirt Customization */}
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Customize Your T-shirt</h3>
+                
                 {/* Size Selection */}
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-3">
@@ -646,18 +1025,120 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                       Size Guide
                     </button>
                   </div>
+                  <div className="bg-pink-50 border border-pink-200 rounded-lg p-3 mb-3">
+                    <p className="text-sm text-pink-800">
+                      <strong>Women's Fit Recommendation:</strong> It is recommended women size down one size for a better fit.
+                    </p>
+                  </div>
                   <div className="flex flex-wrap gap-2">
-                    {sizeOptions.map((size) => (
+                    {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
                       <button 
                         key={size} 
-                        onClick={() => handleVariantChange('size', size)} 
+                        onClick={() => handleTshirtVariantChange('size', size)} 
                         className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
-                          selectedSize === size 
+                          tshirtSize === size 
                             ? 'border-[#009fe3] bg-[#009fe3] text-white' 
                             : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
                         }`}
                       >
                         {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Color Selection */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Color: <span className="font-semibold text-gray-900">
+                    {tshirtColor}
+                  </span></label>
+                  <div className="grid grid-cols-5 gap-3">
+                    {[
+                      // LIGHT design colors
+                      { name: 'White', value: '#ffffff', border: true },
+                      { name: 'Ash', value: '#f0f1ea' },
+                      { name: 'Heather Prism Peach', value: '#f3c2b2' },
+                      { name: 'Heather Dust', value: '#e5d9c9' },
+                      { name: 'Athletic Heather', value: '#cececc' },
+                      { name: 'Yellow', value: '#ffd667' },
+                      { name: 'Pink', value: '#fdbfc7' },
+                      { name: 'Mustard', value: '#eda027' },
+                      // DARK design colors
+                      { name: 'Mauve', value: '#bf6e6e' },
+                      { name: 'Steel Blue', value: '#668ea7' },
+                      { name: 'Heather Deep Teal', value: '#447085' },
+                      { name: 'Olive', value: '#47452b' },
+                      { name: 'Navy', value: '#212642' },
+                      { name: 'Asphalt', value: '#52514f' },
+                      { name: 'Army', value: '#5f5849' },
+                      { name: 'Autumn', value: '#c85313' },
+                      { name: 'Dark Grey Heather', value: '#3e3c3d' },
+                      { name: 'Red', value: '#df1f26' },
+                      { name: 'Black Heather', value: '#0b0b0b' },
+                      { name: 'Black', value: '#0c0c0c' }
+                    ].map((color) => (
+                      <button 
+                        key={color.name} 
+                        onClick={() => handleTshirtVariantChange('color', color.name)} 
+                        className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
+                          tshirtColor === color.name 
+                            ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
+                            : color.border 
+                              ? 'border-gray-300 hover:border-gray-400' 
+                              : 'border-gray-200 hover:border-gray-300'
+                        }`} 
+                        style={{ backgroundColor: color.value }} 
+                        title={color.name}
+                      >
+                        {tshirtColor === color.name && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Grey' || color.name === 'Ash' || color.name === 'Athletic Heather' || color.name === 'Heather Dust' || color.name === 'Heather Prism Peach' ? 'text-gray-600' : 'text-white'}`} />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Cap Customization */}
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Customize Your Cap</h3>
+                
+                {/* Color Selection */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Color: <span className="font-semibold text-gray-900">
+                    {capColor}
+                  </span></label>
+                  <div className="flex flex-wrap gap-3">
+                    {[
+                      { name: 'White', value: '#ffffff', border: true },
+                      { name: 'Stone', value: '#e5e3df' },
+                      { name: 'Khaki', value: '#b6a593' },
+                      { name: 'Dark Grey', value: '#484848' },
+                      { name: 'Black', value: '#0c0c0c' },
+                      { name: 'Light Blue', value: '#a2ccd4' },
+                      { name: 'Navy', value: '#1f2937' },
+                      { name: 'Pink', value: '#ffb6c1' }
+                    ].map((color) => (
+                      <button 
+                        key={color.name} 
+                        onClick={() => handleCapColorChange(color.name)} 
+                        className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
+                          capColor === color.name 
+                            ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
+                            : color.border 
+                              ? 'border-gray-300 hover:border-gray-400' 
+                              : 'border-gray-200 hover:border-gray-300'
+                        }`} 
+                        style={{ backgroundColor: color.value }} 
+                        title={color.name}
+                      >
+                        {capColor === color.name && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Grey' ? 'text-gray-600' : 'text-white'}`} />
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -685,11 +1166,11 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
               {/* Bundle Contents */}
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <h4 className="font-semibold text-gray-900 mb-3">Bundle Contents:</h4>
-                <div className="space-y-2 text-sm text-sm text-gray-700">
-                  <p>• Reform UK Hoodie: <span className="font-medium text-gray-900">{selectedColor} (Size {selectedSize})</span></p>
-                  <p>• Reform UK Cap: <span className="font-medium text-gray-900">Black</span></p>
-                  <p>• Reform UK Tote Bag: <span className="font-medium text-gray-900">Black</span></p>
-                  <p>• Reform UK Water Bottle: <span className="font-medium text-gray-900">White</span></p>
+                <div className="space-y-2 text-sm text-gray-700">
+                  <p>• Reform UK Hoodie: <span className="font-medium text-gray-900">{hoodieColor} (Size {hoodieSize}) - £39.99</span></p>
+                  <p>• Reform UK T-shirt: <span className="font-medium text-gray-900">{tshirtColor} (Size {tshirtSize}) - £24.99</span></p>
+                  <p>• Reform UK Cap: <span className="font-medium text-gray-900">{capColor} - £19.99</span></p>
+                  <p>• Reform UK Tote Bag: <span className="font-medium text-gray-900">Black - £24.99</span></p>
                 </div>
               </div>
 
@@ -719,14 +1200,14 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                   ) : (
                     <>
                       <ShoppingCart className="w-5 h-5 mr-2" />
-                      Buy Now - £{(calculation?.totalPrice || productData.bundlePrice).toFixed(2)}
+                      Buy Now - £{productData.bundlePrice.toFixed(2)}
                     </>
                   )}
                 </button>
                 
                 <button onClick={handleAddToCart} className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
                   <ShoppingCart className="w-5 h-5" />
-                  <span>Add to Cart - £{((calculation?.totalPrice || productData.bundlePrice) * quantity).toFixed(2)}</span>
+                  <span>Add to Cart - £{(productData.bundlePrice * quantity).toFixed(2)}</span>
                 </button>
               </div>
 
