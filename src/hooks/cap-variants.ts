@@ -96,3 +96,22 @@ export function findCapVariant(key: string): CapVariant | undefined {
 export function findCapVariantByCatalogId(catalogVariantId: number): CapVariant | undefined {
   return CapVariants.find(v => v.catalogVariantId === catalogVariantId);
 }
+
+// Color mapping for caps based on catalog variant IDs
+export const capColors = [
+  { value: 'Black', catalogVariantId: 7854, hex: '#000000' },
+  { value: 'Navy', catalogVariantId: 7857, hex: '#001F3F' },
+  { value: 'White', catalogVariantId: 12736, hex: '#FFFFFF' },
+  { value: 'Red', catalogVariantId: 7855, hex: '#DC143C' },
+  { value: 'Grey', catalogVariantId: 7859, hex: '#808080' },
+  { value: 'Khaki', catalogVariantId: 7858, hex: '#C3B091' },
+  { value: 'Green', catalogVariantId: 7856, hex: '#228B22' },
+  { value: 'Blue', catalogVariantId: 7853, hex: '#0000FF' }
+];
+
+// Helper function to find variant by color
+export function findCapVariantByColor(color: string): CapVariant | undefined {
+  const colorMapping = capColors.find(c => c.value === color);
+  if (!colorMapping) return undefined;
+  return findCapVariantByCatalogId(colorMapping.catalogVariantId);
+}
