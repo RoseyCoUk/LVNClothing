@@ -47,7 +47,7 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
           <div>
             <div className="flex items-center space-x-3 mb-4">
               <img 
-                src="/Leaven Logo.png" 
+                src="/images/Leaven Logo.png" 
                 alt="LVN Clothing" 
                 className="h-8 w-auto"
               />

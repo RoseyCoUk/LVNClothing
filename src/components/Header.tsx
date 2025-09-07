@@ -57,7 +57,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
             aria-label="Go to homepage"
           >
             <img
-              src="/Leaven Logo.png"
+              src="/images/Leaven Logo.png"
               alt="LVN Clothing Logo"
               className="h-6 w-auto sm:h-8 md:h-10 lg:h-12"
               loading="eager"
