@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+// Use Deno.serve instead of the old serve function
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 // Temporarily removed performance monitoring to debug 500 error
@@ -207,7 +207,7 @@ async function getShippingCost(items: CartItem[], shippingAddress: ShippingAddre
   }
 }
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
   // const performanceMonitor = createPerformanceMonitor('create-payment-intent', req);
   const origin = req.headers.get("origin");
   const headers = cors(origin);
