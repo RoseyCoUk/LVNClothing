@@ -343,7 +343,9 @@ Deno.serve(async (req: Request) => {
       // Use last 8 chars of ID to save space
       id: item.id.slice(-8),
       q: item.quantity,
-      p: item.real_price || item.price
+      p: item.real_price || item.price,
+      // Include printful_variant_id as 'pv' to save space
+      pv: item.printful_variant_id ? String(item.printful_variant_id) : null
     }));
     
     // Split items into chunks that fit within 500 chars

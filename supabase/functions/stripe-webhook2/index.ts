@@ -476,6 +476,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
           id: item.id,
           quantity: item.q,
           price: item.p,
+          printful_variant_id: item.pv || null, // Extract printful_variant_id from 'pv' field
           // Preserve any additional fields
           ...item
         };
@@ -496,7 +497,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
       console.log(`   ID: ${item.id}`);
       console.log(`   Color: ${item.color || 'not specified'}`);
       console.log(`   Size: ${item.size || 'not specified'}`);
-      console.log(`   Printful Variant ID from frontend: ${item.printful_variant_id || 'not provided'}`);
+      console.log(`   Printful Variant ID from metadata: ${item.printful_variant_id || 'not provided'}`);
       
       // Skip discount items and bundle discounts
       if (item.id && (String(item.id).includes('discount') || String(item.id).includes('-discount'))) {
@@ -504,6 +505,15 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
         return {
           ...item,
           printful_variant_id: null // Discounts don't have Printful IDs
+        };
+      }
+      
+      // If we already have a printful_variant_id from metadata, use it directly
+      if (item.printful_variant_id && item.printful_variant_id !== 'null' && item.printful_variant_id !== 'undefined') {
+        console.log(`   ✅ Using printful_variant_id from metadata: ${item.printful_variant_id}`);
+        return {
+          ...item,
+          printful_variant_id: String(item.printful_variant_id)
         };
       }
       
