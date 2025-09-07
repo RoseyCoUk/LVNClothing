@@ -200,10 +200,18 @@ const CapPage = ({ onBack }: CapPageProps) => {
       return;
     }
     
+    // Debug logging
+    console.log('Selected color:', selectedColor);
+    console.log('Available cap colors:', capColors);
+    
     // Find the correct variant for the selected color
     const selectedVariant = findCapVariantByColor(selectedColor);
+    console.log('Found variant:', selectedVariant);
+    
     if (!selectedVariant) {
-      alert('Selected color variant not found.');
+      console.error('Failed to find variant for color:', selectedColor);
+      console.error('Available colors:', capColors.map(c => c.value));
+      alert(`Selected color variant not found for: ${selectedColor}`);
       return;
     }
     

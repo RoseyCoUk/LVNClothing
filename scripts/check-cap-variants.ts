@@ -17,8 +17,8 @@ async function checkCapVariants() {
     console.log(`  ${v.color_name}: ${v.printful_variant_id} (${v.name})`);
   });
   
-  // Also check the mapping in cap-variants.ts
-  console.log('\nCap color mapping in cap-variants.ts:');
+  // Also check the mapping in cap-variants.ts  
+  console.log('\nCap color mapping (matching cap-variants.ts):');
   const capColors = [
     { value: 'Black', catalogVariantId: 7854, syncVariantId: 4938937571 },
     { value: 'Navy', catalogVariantId: 7857, syncVariantId: 4938937572 },

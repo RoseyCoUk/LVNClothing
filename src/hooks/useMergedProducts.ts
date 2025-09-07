@@ -435,11 +435,13 @@ function createFallbackProducts(): MergedProduct[] {
     variants: [],
     colorOptions: [
       { name: 'Black', hex: '#000000' },
-      { name: 'Navy', hex: '#001f3f' },
-      { name: 'White', hex: '#ffffff', border: true },
-      { name: 'Pink', hex: '#FF69B4' },
-      { name: 'Stone', hex: '#918F8A' },
-      { name: 'Khaki', hex: '#7E7F56' }
+      { name: 'Navy', hex: '#001F3F' },
+      { name: 'White', hex: '#FFFFFF', border: true },
+      { name: 'Red', hex: '#DC143C' },
+      { name: 'Grey', hex: '#808080' },
+      { name: 'Khaki', hex: '#C3B091' },
+      { name: 'Green', hex: '#228B22' },
+      { name: 'Blue', hex: '#0000FF' }
     ],
     sizeOptions: ['One Size'],
     priceRange: { min: 19.99, max: 19.99 },
