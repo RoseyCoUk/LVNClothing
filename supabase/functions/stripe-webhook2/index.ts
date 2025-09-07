@@ -59,10 +59,27 @@ async function sendOrderEmails(
     // Handle image URLs - ensure they're absolute
     let imageHtml = '';
     if (item.image_url) {
-      const imageUrl = item.image_url.startsWith('http') 
-        ? item.image_url 
-        : `https://backreform.co.uk${item.image_url}`;
-      imageHtml = `<img src="${imageUrl}" alt="${item.product_name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px; margin-right: 12px;">`;
+      let imageUrl = item.image_url;
+      
+      // Handle different URL formats
+      if (imageUrl.startsWith('http')) {
+        // Already absolute - use as is
+      } else if (imageUrl.startsWith('/')) {
+        // Relative URL - prepend domain
+        imageUrl = `https://backreform.co.uk${imageUrl}`;
+      } else {
+        // Might be a storage path - check if it's a Supabase storage URL
+        imageUrl = `https://nsmrxwnrtsllxvplazmm.supabase.co/storage/v1/object/public/${imageUrl}`;
+      }
+      
+      imageHtml = `<img src="${imageUrl}" alt="${item.product_name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-right: 15px;">`;
+    } else {
+      // Fallback placeholder image
+      imageHtml = `<div style="width: 80px; height: 80px; background: #f3f4f6; border-radius: 8px; margin-right: 15px; display: flex; align-items: center; justify-content: center; color: #9ca3af;">
+        <svg width="32" height="32" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+        </svg>
+      </div>`;
     }
     
     return `
@@ -527,12 +544,44 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
         };
       }
       
+      // Try to look up the correct thumbnail image based on product and color
+      let thumbnailUrl = item.image;
+      if (item.printful_variant_id && item.color) {
+        try {
+          // First try to get product_id from the variant
+          const { data: variant } = await supabase
+            .from('product_variants')
+            .select('product_id')
+            .eq('printful_variant_id', String(item.printful_variant_id))
+            .single();
+          
+          if (variant?.product_id) {
+            // Look up thumbnail image for this product and color
+            const { data: image } = await supabase
+              .from('product_images')
+              .select('image_url')
+              .eq('product_id', variant.product_id)
+              .eq('color', item.color)
+              .eq('is_thumbnail', true)
+              .single();
+            
+            if (image?.image_url) {
+              thumbnailUrl = image.image_url;
+              console.log(`   📷 Found thumbnail for ${item.color}: ${thumbnailUrl}`);
+            }
+          }
+        } catch (error) {
+          console.log(`   ⚠️ Could not find thumbnail image: ${error.message}`);
+        }
+      }
+      
       // If we already have a printful_variant_id from metadata, use it directly
       if (item.printful_variant_id && item.printful_variant_id !== 'null' && item.printful_variant_id !== 'undefined') {
         console.log(`   ✅ Using printful_variant_id from metadata: ${item.printful_variant_id}`);
         return {
           ...item,
-          printful_variant_id: String(item.printful_variant_id)
+          printful_variant_id: String(item.printful_variant_id),
+          image: thumbnailUrl // Use the looked-up thumbnail
         };
       }
       
