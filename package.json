@@ -28,7 +28,10 @@
     "test:custom-images:critical": "tsx tests/playwright/custom-image-test-runner.ts critical",
     "validate:custom-images": "tsx scripts/validate-custom-image-data.ts",
     "test:frontend:all": "tsx tests/playwright/run-all-tests.ts",
-    "test:install": "playwright install"
+    "test:install": "playwright install",
+    "test:variants:comprehensive": "tsx scripts/comprehensive-variant-test.ts",
+    "test:shipping:comparison": "tsx scripts/shipping-quote-comparison.ts",
+    "test:printful:validate": "tsx scripts/validate-printful-integration.ts"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^3.9.2",
@@ -42,6 +45,7 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.3",
     "resend": "^4.6.0",
+    "stripe": "^18.5.0",
     "supabase": "^2.30.4"
   },
   "devDependencies": {

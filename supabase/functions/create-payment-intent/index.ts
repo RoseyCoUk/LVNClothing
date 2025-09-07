@@ -265,17 +265,9 @@ serve(async (req: Request) => {
     const enrichedItems = [];
     
     for (const item of regularItems) {
-      // For bundle items (indicated by id starting with bundle name), use the price from frontend
-      // Otherwise fetch the real price from database
-      const isBundleItem = item.id && (
-        item.id.includes('starter-bundle') || 
-        item.id.includes('champion-bundle') || 
-        item.id.includes('activist-bundle')
-      );
-      
-      const realPrice = isBundleItem 
-        ? item.price // Use price from frontend for bundle items
-        : await getProductPrice(item.printful_variant_id); // Fetch price for regular items
+      // Always trust the price from frontend since it includes any promotions/discounts
+      // The frontend has already validated prices through the product hooks
+      const realPrice = item.price;
         
       const itemTotal = realPrice * item.quantity;
       subtotal += itemTotal;

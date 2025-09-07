@@ -37,6 +37,199 @@ function generateReadableOrderId(): string {
   return `RUK-${timestamp.slice(-6)}${random}`;
 }
 
+// Send order confirmation emails
+async function sendOrderEmails(
+  orderId: string,
+  customerEmail: string,
+  items: any[],
+  shippingAddress: any,
+  orderDetails: {
+    subtotal: number;
+    shipping_cost: number;
+    total_amount: number;
+    readable_order_id: string;
+  }
+): Promise<void> {
+  const resendApiKey = Deno.env.get('RESEND_API_KEY');
+  if (!resendApiKey) {
+    console.error('RESEND_API_KEY not configured - skipping email');
+    return;
+  }
+
+  // Format items for email
+  const itemsHtml = items.map(item => `
+    <tr>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+        <strong>${item.product_name}</strong>
+        ${item.variants ? `<br><small style="color: #6b7280;">${formatVariants(item.variants)}</small>` : ''}
+      </td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">${item.quantity}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">£${(item.unit_price / 100).toFixed(2)}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">£${((item.unit_price * item.quantity) / 100).toFixed(2)}</td>
+    </tr>
+  `).join('');
+
+  // Customer email template
+  const customerEmailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Order Confirmation - Reform UK Store</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(135deg, #009fe3 0%, #0066cc 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+    <h1 style="margin: 0;">Order Confirmation</h1>
+    <p style="margin: 10px 0 0 0;">Thank you for your order!</p>
+  </div>
+  
+  <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
+    <h2>Order #${orderDetails.readable_order_id}</h2>
+    <p>Hi ${shippingAddress.name || customerEmail},</p>
+    <p>We've received your order and it's being processed. You'll receive another email when your items ship.</p>
+    
+    <h3>Order Details:</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background: #f3f4f6;">
+          <th style="padding: 12px; text-align: left;">Item</th>
+          <th style="padding: 12px; text-align: center;">Qty</th>
+          <th style="padding: 12px; text-align: right;">Price</th>
+          <th style="padding: 12px; text-align: right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemsHtml}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" style="padding: 12px; text-align: right;"><strong>Subtotal:</strong></td>
+          <td style="padding: 12px; text-align: right;">£${orderDetails.subtotal.toFixed(2)}</td>
+        </tr>
+        <tr>
+          <td colspan="3" style="padding: 12px; text-align: right;"><strong>Shipping:</strong></td>
+          <td style="padding: 12px; text-align: right;">£${orderDetails.shipping_cost.toFixed(2)}</td>
+        </tr>
+        <tr style="background: #f3f4f6;">
+          <td colspan="3" style="padding: 12px; text-align: right;"><strong>Total:</strong></td>
+          <td style="padding: 12px; text-align: right;"><strong>£${orderDetails.total_amount.toFixed(2)}</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+    
+    <h3>Shipping Address:</h3>
+    <p style="background: white; padding: 15px; border-radius: 5px;">
+      ${shippingAddress.name}<br>
+      ${shippingAddress.address.line1}<br>
+      ${shippingAddress.address.line2 ? shippingAddress.address.line2 + '<br>' : ''}
+      ${shippingAddress.address.city}, ${shippingAddress.address.state || ''} ${shippingAddress.address.postal_code}<br>
+      ${shippingAddress.address.country}
+    </p>
+    
+    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280;">
+      If you have any questions, please contact us at support@backreform.co.uk
+    </p>
+  </div>
+</body>
+</html>
+  `;
+
+  // Admin notification email
+  const adminEmailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>New Order - ${orderDetails.readable_order_id}</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+  <h1>New Order Received</h1>
+  <p><strong>Order ID:</strong> ${orderDetails.readable_order_id}</p>
+  <p><strong>Customer:</strong> ${customerEmail}</p>
+  <p><strong>Total:</strong> £${orderDetails.total_amount.toFixed(2)}</p>
+  
+  <h2>Items Ordered:</h2>
+  <table border="1" cellpadding="10" style="border-collapse: collapse;">
+    <tr>
+      <th>Item</th>
+      <th>Quantity</th>
+      <th>Price</th>
+      <th>Total</th>
+    </tr>
+    ${itemsHtml}
+  </table>
+  
+  <h2>Shipping Details:</h2>
+  <p>
+    ${shippingAddress.name}<br>
+    ${shippingAddress.address.line1}<br>
+    ${shippingAddress.address.line2 ? shippingAddress.address.line2 + '<br>' : ''}
+    ${shippingAddress.address.city}, ${shippingAddress.address.state || ''} ${shippingAddress.address.postal_code}<br>
+    ${shippingAddress.address.country}
+  </p>
+</body>
+</html>
+  `;
+
+  try {
+    // Send customer email
+    const customerEmailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${resendApiKey}`,
+      },
+      body: JSON.stringify({
+        to: customerEmail,
+        from: 'support@backreform.co.uk',
+        subject: `Order Confirmation - ${orderDetails.readable_order_id}`,
+        html: customerEmailHtml,
+      }),
+    });
+
+    if (!customerEmailResponse.ok) {
+      const error = await customerEmailResponse.text();
+      console.error('Failed to send customer email:', error);
+    } else {
+      console.log('Customer order confirmation email sent to:', customerEmail);
+    }
+
+    // Send admin notification
+    const adminEmailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${resendApiKey}`,
+      },
+      body: JSON.stringify({
+        to: 'support@backreform.co.uk',
+        from: 'support@backreform.co.uk',
+        subject: `New Order: ${orderDetails.readable_order_id} - £${orderDetails.total_amount.toFixed(2)}`,
+        html: adminEmailHtml,
+      }),
+    });
+
+    if (!adminEmailResponse.ok) {
+      const error = await adminEmailResponse.text();
+      console.error('Failed to send admin email:', error);
+    } else {
+      console.log('Admin notification email sent to support@backreform.co.uk');
+    }
+  } catch (error) {
+    console.error('Error sending emails:', error);
+    throw error;
+  }
+}
+
+// Format product variants for display
+function formatVariants(variants: any): string {
+  const parts = [];
+  if (variants.color) parts.push(`Color: ${variants.color}`);
+  if (variants.size) parts.push(`Size: ${variants.size}`);
+  if (variants.gender) parts.push(`Gender: ${variants.gender}`);
+  return parts.join(' | ');
+}
+
 const handler = async (req: Request) => {
   // Health-check route
   if (req.method === 'OPTIONS') {
@@ -197,11 +390,13 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     }
     
     // Create the order
+    const readableOrderId = generateReadableOrderId();
     const orderData = {
       stripe_payment_intent_id: paymentIntent.id,
       customer_email: metadata.customer_email,
       user_id: metadata.user_id || null,
-      readable_order_id: generateReadableOrderId(),
+      readable_order_id: readableOrderId,
+      order_number: readableOrderId, // Required field - use same as readable_order_id
       status: 'paid',
       total_amount: paymentIntent.amount / 100, // Convert from cents to pounds
       currency: paymentIntent.currency.toUpperCase(),
@@ -228,6 +423,19 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     }
 
     console.log(`Order created successfully: ${newOrder.readable_order_id} (ID: ${newOrder.id})`);
+    
+    // Send order confirmation emails (non-blocking)
+    sendOrderEmails(newOrder.id, metadata.customer_email, items, shippingAddress, {
+      subtotal: parseFloat(metadata.subtotal || '0'),
+      shipping_cost: parseFloat(metadata.shipping_cost || '0'),
+      total_amount: paymentIntent.amount / 100,
+      readable_order_id: newOrder.readable_order_id
+    }).then(() => {
+      console.log('Order confirmation emails sent successfully');
+    }).catch(error => {
+      console.error('Failed to send order emails:', error);
+      // Don't fail the webhook if email fails - order is already created
+    });
     
     // Queue Printful fulfillment asynchronously (non-blocking)
     const fulfillmentData: OrderData = {
