@@ -5,10 +5,10 @@ const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const heroTestimonial = {
-    name: "Margaret Thompson",
-    location: "Yorkshire",
+    name: "Sarah Mitchell",
+    location: "London",
     rating: 5,
-    text: "I've been wearing my Reform UK hoodie everywhere - to the shops, walking the dog, even to my grandson's football match. People stop me to ask where they can get one. It's more than clothing, it's a conversation starter about the future of our country.",
+    text: "I've been wearing my LVN Clothing hoodie everywhere - to church, coffee shops, even to my daughter's university. People stop me to ask about the beautiful design and the message. It's more than clothing, it's a way to share my faith through fashion.",
     product: "Hoodie",
     verified: true
   };
@@ -16,10 +16,10 @@ const Testimonials = () => {
   const testimonials = [
     {
       id: 1,
-      name: "James Thompson",
+      name: "James Mitchell",
       location: "Birmingham",
       rating: 5,
-      text: "Finally, merchandise I can wear with pride. The t-shirt fits perfectly and the message is clear. Been stopped twice this week by people asking where I got it.",
+      text: "Finally, Christian streetwear I can wear with pride. The t-shirt fits perfectly and the message is powerful. Been stopped twice this week by people asking about the Kingdom message.",
       product: "T-Shirt",
       verified: true
     },
@@ -28,8 +28,8 @@ const Testimonials = () => {
       name: "Emma Collins",
       location: "Leeds",
       rating: 5,
-      text: "Bought the Champion Bundle as a gift for my dad. He loves it and wears something from it every day! The quality is spot on.",
-      product: "Champion Bundle",
+      text: "Bought the Faith Bundle as a gift for my dad. He loves it and wears something from it every day! The quality is exceptional and the message speaks to his heart.",
+      product: "Faith Bundle",
       verified: true
     },
     {
@@ -37,7 +37,7 @@ const Testimonials = () => {
       name: "David Wilson",
       location: "Liverpool",
       rating: 5,
-      text: "Quality merchandise that actually supports something meaningful. The cap fits great and the embroidery is top-notch. Will definitely order again.",
+      text: "Quality clothing that actually represents something eternal. The cap fits great and the embroidery is beautiful. Will definitely order again to share with my small group.",
       product: "Cap",
       verified: true
     },
@@ -46,7 +46,7 @@ const Testimonials = () => {
       name: "Lisa Roberts",
       location: "Newcastle",
       rating: 5,
-      text: "The mug has become my daily coffee companion. Love starting my day with a reminder of what we're fighting for. Perfect size and the print hasn't faded after months of washing.",
+      text: "The mug has become my daily coffee companion. Love starting my day with a reminder of God's Kingdom spreading through everything. Perfect size and the print hasn't faded after months of washing.",
       product: "Mug",
       verified: true
     },
@@ -55,8 +55,8 @@ const Testimonials = () => {
       name: "Robert Clarke",
       location: "Manchester",
       rating: 5,
-      text: "Excellent quality and fast delivery. Proud to support the movement with every purchase. The badge set is brilliant - wear them everywhere.",
-      product: "Badge",
+      text: "Excellent quality and fast delivery. Proud to herald the Kingdom with every purchase. The designs are beautiful and meaningful - wear them everywhere.",
+      product: "Accessories",
       verified: true
     },
     {
@@ -64,7 +64,7 @@ const Testimonials = () => {
       name: "Sarah O'Connor",
       location: "Belfast, Northern Ireland",
       rating: 5,
-      text: "Delighted with my Reform UK gear. The hoodie is warm and comfortable, perfect for our Belfast weather. Great to see the movement growing across the UK.",
+      text: "Delighted with my LVN Clothing gear. The hoodie is warm and comfortable, perfect for our Belfast weather. Great to see faith being shared through fashion across the UK.",
       product: "Hoodie",
       verified: true
     }
@@ -93,8 +93,8 @@ const Testimonials = () => {
       <div className="max-w-7xl mx-auto px-4">
         {/* Hero Testimonial */}
         <div className="mb-16">
-          <div className="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto relative border-l-4 border-[#009fe3]">
-            <Quote className="w-12 h-12 text-[#009fe3] opacity-50 absolute top-6 right-6" />
+          <div className="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto relative border-l-4 border-lvn-maroon">
+            <Quote className="w-12 h-12 text-lvn-maroon opacity-50 absolute top-6 right-6" />
             
             <div className="flex-1">
               <div className="flex items-center mb-4">
@@ -109,7 +109,7 @@ const Testimonials = () => {
                 {heroTestimonial.verified && (
                   <div className="ml-3 flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
                     <Shield className="w-3 h-3 mr-1" />
-                    Verified Supporter
+                    Verified Customer
                   </div>
                 )}
               </div>
@@ -135,10 +135,10 @@ const Testimonials = () => {
 
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            What Our Supporters Say
+            What Our Community Says
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Real people, real stories, real change. Join thousands who are already making their voices heard.
+            Real people, real faith, real impact. Join thousands who are heralding the Kingdom through fashion.
           </p>
         </div>
         
@@ -150,10 +150,10 @@ const Testimonials = () => {
                 <div 
                   key={testimonial.id} 
                   className={`flex-shrink-0 w-80 lg:w-auto bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 relative ${
-                    index === currentIndex ? 'ring-2 ring-[#009fe3] lg:ring-0' : ''
+                    index === currentIndex ? 'ring-2 ring-lvn-maroon lg:ring-0' : ''
                   }`}
                 >
-                  <Quote className="w-8 h-8 text-[#009fe3] opacity-50 absolute top-4 right-4" />
+                  <Quote className="w-8 h-8 text-lvn-maroon opacity-50 absolute top-4 right-4" />
                   
                   <div className="mb-4">
                     <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
@@ -193,7 +193,7 @@ const Testimonials = () => {
           <div className="flex justify-center items-center space-x-4 mt-6 lg:hidden">
             <button
               onClick={prevSlide}
-              className="p-2 rounded-full bg-[#009fe3] text-white hover:bg-blue-600 transition-colors shadow-md"
+              className="p-2 rounded-full bg-lvn-maroon text-white hover:bg-lvn-maroon-dark transition-colors shadow-md"
               aria-label="Previous testimonial"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -205,7 +205,7 @@ const Testimonials = () => {
                   key={index}
                   onClick={() => setCurrentIndex(index)}
                   className={`w-2 h-2 rounded-full transition-colors ${
-                    index === currentIndex ? 'bg-[#009fe3]' : 'bg-gray-300'
+                    index === currentIndex ? 'bg-lvn-maroon' : 'bg-gray-300'
                   }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
@@ -214,7 +214,7 @@ const Testimonials = () => {
             
             <button
               onClick={nextSlide}
-              className="p-2 rounded-full bg-[#009fe3] text-white hover:bg-blue-600 transition-colors shadow-md"
+              className="p-2 rounded-full bg-lvn-maroon text-white hover:bg-lvn-maroon-dark transition-colors shadow-md"
               aria-label="Next testimonial"
             >
               <ChevronRight className="w-5 h-5" />

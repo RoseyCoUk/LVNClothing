@@ -7,9 +7,11 @@ export default {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
-        reform: {
-          blue: '#009fe3',
-          'blue-dark': '#0077b3',
+        lvn: {
+          black: '#000000',
+          'off-white': '#F8F6F1',
+          maroon: '#800000',
+          'maroon-dark': '#600000',
         }
       },
       animation: {

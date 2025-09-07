@@ -74,7 +74,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Link
       to={productUrl}
-      className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col transition-transform hover:-translate-y-1 hover:shadow-2xl duration-200 focus:outline-none focus:ring-2 focus:ring-[#009fe3] group w-full h-full"
+      className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col transition-transform hover:-translate-y-1 hover:shadow-2xl duration-200 focus:outline-none focus:ring-2 focus:ring-lvn-maroon group w-full h-full"
       aria-label={`View details for ${product.name}`}
     >
       {/* Product Image */}
@@ -122,7 +122,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {/* Product Details - Always visible on mobile, positioned below image on desktop */}
       <div className="p-4 md:p-6 flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-[#009fe3] transition-colors">
+          <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-lvn-maroon transition-colors">
             {product.name}
           </h3>
           
@@ -136,7 +136,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </span>
           </div>
           
-          <div className="text-xl font-bold text-[#009fe3] mb-2">
+          <div className="text-xl font-bold text-lvn-maroon mb-2">
             £{(product.price_pence / 100).toFixed(2)}
           </div>
           
@@ -151,7 +151,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {!hasVariants(product.name) && (
             <button 
               onClick={handleAddToCart}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-[#009fe3] hover:bg-blue-600 text-white font-bold rounded-xl text-base transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-lvn-maroon hover:bg-lvn-maroon-dark text-white font-bold rounded-xl text-base transition-colors"
             >
               <ShoppingCart className="w-5 h-5" /> 
               Add to Cart

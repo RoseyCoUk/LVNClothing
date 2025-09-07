@@ -89,7 +89,7 @@ const BundleCard: React.FC<BundleCardProps> = ({
               e.stopPropagation();
               handleClick(); // Always navigate to the bundle page
             }}
-            className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+            className="w-full bg-lvn-maroon hover:bg-lvn-maroon-dark text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
           >
             <ShoppingCart className="w-4 h-4" />
             <span>View Bundle</span>

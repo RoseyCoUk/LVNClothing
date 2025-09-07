@@ -63,7 +63,7 @@ const Hero = ({ onShopClick }: HeroProps) => {
             frameBorder="0"
             allow="autoplay; fullscreen; picture-in-picture"
             allowFullScreen
-            title="Reform UK Hero Video"
+            title="LVN Clothing Hero Video"
             onError={handleVideoError}
             onLoad={() => setVideoLoaded(true)}
           />
@@ -75,28 +75,36 @@ const Hero = ({ onShopClick }: HeroProps) => {
 
       {/* Hero Content */}
       <div className="relative z-40 text-center px-4 max-w-4xl mx-auto">
+        <div className="mb-8">
+          <p className="text-xl md:text-2xl italic text-gray-200 mb-4 max-w-3xl mx-auto drop-shadow-lg leading-relaxed">
+            "The kingdom of heaven is like leaven that a woman took and hid in three measures of flour, till it was all leavened."
+          </p>
+          <p className="text-lg md:text-xl text-lvn-maroon font-semibold drop-shadow-lg">
+            – Matthew 13:33
+          </p>
+        </div>
+
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
-          Wear the Change.<br />
-          <span className="text-[#009fe3]">Stand with Reform UK.</span>
+          <span className="text-lvn-maroon">Faith That Spreads.</span>
         </h1>
 
         <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-2xl mx-auto drop-shadow-lg">
-          Every item supports the movement. Every voice matters.
+          Just as leaven spreads slowly but irresistibly, so Christ's Kingdom expands until it permeates every corner of creation. Through clothing, we herald that Kingdom.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
           <button 
             onClick={onShopClick}
-            className="bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-2xl backdrop-blur-sm"
+            className="bg-lvn-maroon hover:bg-lvn-maroon-dark text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-2xl backdrop-blur-sm"
           >
-            Shop Merch
+            Shop Collection
           </button>
         </div>
 
         {/* Trust Badge */}
         <div className="bg-black/40 backdrop-blur-md border border-white/30 rounded-lg px-6 py-3 inline-flex items-center space-x-3 mb-8 shadow-xl">
           <Heart className="w-5 h-5 text-red-400 fill-current" />
-          <span className="text-white font-semibold">Support the movement. Wear the movement.</span>
+          <span className="text-white font-semibold">Faith That Spreads.</span>
         </div>
         
         <div className="text-gray-200">

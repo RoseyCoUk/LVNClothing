@@ -57,8 +57,8 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
             aria-label="Go to homepage"
           >
             <img
-              src="/BackReformLogo.png"
-              alt="Reform UK Logo"
+              src="/Leaven Logo.png"
+              alt="LVN Clothing Logo"
               className="h-6 w-auto sm:h-8 md:h-10 lg:h-12"
               loading="eager"
               onError={(e) => {
@@ -66,12 +66,12 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                 target.style.display = 'none';
                 // Fallback to text logo if image fails
                 const fallback = document.createElement('span');
-                fallback.className = 'font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#009fe3]';
-                fallback.textContent = 'Reform UK';
+                fallback.className = 'font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl text-lvn-maroon';
+                fallback.textContent = 'LVN Clothing';
                 target.parentNode?.insertBefore(fallback, target);
               }}
             />
-            <span className="font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-900">Back Reform</span>
+            <span className="font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-900">LVN Clothing</span>
           </button>
 
           {/* Desktop Navigation */}
@@ -80,8 +80,8 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
               onClick={() => handleNavigation('shop')}
               className={`font-medium transition-colors ${
                 currentPage === 'shop'
-                  ? 'text-[#009fe3]'
-                  : 'text-gray-700 hover:text-[#009fe3]'
+                  ? 'text-lvn-maroon'
+                  : 'text-gray-700 hover:text-lvn-maroon'
               }`}
               aria-current={currentPage === 'shop' ? 'page' : undefined}
             >
@@ -91,8 +91,8 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
               onClick={() => handleNavigation('about')}
               className={`font-medium transition-colors ${
                 currentPage === 'about'
-                  ? 'text-[#009fe3]'
-                  : 'text-gray-700 hover:text-[#009fe3]'
+                  ? 'text-lvn-maroon'
+                  : 'text-gray-700 hover:text-lvn-maroon'
               }`}
               aria-current={currentPage === 'about' ? 'page' : undefined}
             >
@@ -102,8 +102,8 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
               onClick={() => handleNavigation('contact')}
               className={`font-medium transition-colors ${
                 currentPage === 'contact'
-                  ? 'text-[#009fe3]'
-                  : 'text-gray-700 hover:text-[#009fe3]'
+                  ? 'text-lvn-maroon'
+                  : 'text-gray-700 hover:text-lvn-maroon'
               }`}
               aria-current={currentPage === 'contact' ? 'page' : undefined}
             >
@@ -118,7 +118,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-2 p-2 text-gray-700 hover:text-[#009fe3] transition-colors"
+                  className="flex items-center space-x-2 p-2 text-gray-700 hover:text-lvn-maroon transition-colors"
                   aria-label="User menu"
                   aria-expanded={isUserMenuOpen}
                   aria-haspopup="true"
@@ -177,14 +177,14 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
               <div className="hidden md:flex items-center space-x-2">
                 <button
                   onClick={onLoginClick}
-                  className="text-gray-700 hover:text-[#009fe3] font-medium transition-colors"
+                  className="text-gray-700 hover:text-lvn-maroon font-medium transition-colors"
                 >
                   Sign In
                 </button>
                 <span className="text-gray-300">|</span>
                 <button
                   onClick={onSignupClick}
-                  className="bg-[#009fe3] hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                    className="bg-lvn-maroon hover:bg-lvn-maroon-dark text-white font-medium py-2 px-4 rounded-lg transition-colors"
                 >
                   Sign Up
                 </button>
@@ -194,12 +194,12 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
             {/* Cart Button */}
             <button
               onClick={handleCartClick}
-              className="relative p-2 text-gray-700 hover:text-[#009fe3] transition-colors group"
+              className="relative p-2 text-gray-700 hover:text-lvn-maroon transition-colors group"
               aria-label={`Shopping cart with ${totalItems} items`}
             >
               <ShoppingCart className="w-6 h-6" />
               {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#009fe3] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform" aria-label={`${totalItems} items in cart`}>
+                <span className="absolute -top-1 -right-1 bg-lvn-maroon text-white text-xs rounded-full w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform" aria-label={`${totalItems} items in cart`}>
                   {totalItems}
                 </span>
               )}
@@ -263,7 +263,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                       setIsMenuOpen(false);
                       onLoginClick?.();
                     }}
-                    className="w-full text-left text-gray-700 hover:text-[#009fe3] font-medium py-2"
+                    className="w-full text-left text-gray-700 hover:text-lvn-maroon font-medium py-2"
                   >
                     Sign In
                   </button>
@@ -272,7 +272,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                       setIsMenuOpen(false);
                       onSignupClick?.();
                     }}
-                    className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                    className="w-full bg-lvn-maroon hover:bg-lvn-maroon-dark text-white font-medium py-2 px-4 rounded-lg transition-colors"
                   >
                     Sign Up
                   </button>
@@ -291,7 +291,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                       handleNavigation('orders');
                       setIsMenuOpen(false);
                     }}
-                    className="w-full text-left text-gray-700 hover:text-[#009fe3] font-medium py-2 flex items-center space-x-2"
+                    className="w-full text-left text-gray-700 hover:text-lvn-maroon font-medium py-2 flex items-center space-x-2"
                   >
                     <Package className="w-4 h-4" />
                     <span>My Orders</span>
@@ -301,7 +301,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                       handleSignOut();
                       setIsMenuOpen(false);
                     }}
-                    className="w-full text-left text-gray-700 hover:text-[#009fe3] font-medium py-2 flex items-center space-x-2"
+                    className="w-full text-left text-gray-700 hover:text-lvn-maroon font-medium py-2 flex items-center space-x-2"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Sign Out</span>

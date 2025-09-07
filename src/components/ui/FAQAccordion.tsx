@@ -30,7 +30,7 @@ const FAQAccordion: React.FC<FAQAccordionProps> = ({ faqs, limit, showSearch, sh
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search FAQs..."
-          className="mb-6 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent text-base"
+          className="mb-6 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lvn-maroon focus:border-transparent text-base"
           aria-label="Search FAQs"
         />
       )}
@@ -41,13 +41,13 @@ const FAQAccordion: React.FC<FAQAccordionProps> = ({ faqs, limit, showSearch, sh
           return (
             <div key={faq.question} className="bg-white rounded-lg shadow-sm">
               <button
-                className="w-full flex items-center justify-between px-5 py-4 text-left focus:outline-none focus:ring-2 focus:ring-[#009fe3] rounded-lg"
+                className="w-full flex items-center justify-between px-5 py-4 text-left focus:outline-none focus:ring-2 focus:ring-lvn-maroon rounded-lg"
                 onClick={() => setOpenIndex(isOpen ? null : idx)}
                 aria-expanded={isOpen}
                 aria-controls={`faq-panel-${idx}`}
               >
                 <div className="flex items-center gap-3 text-lg font-medium text-gray-900">
-                  {Icon && <Icon className="w-5 h-5 text-[#009fe3] flex-shrink-0" aria-hidden="true" />}
+                  {Icon && <Icon className="w-5 h-5 text-lvn-maroon flex-shrink-0" aria-hidden="true" />}
                   <span>{faq.question}</span>
                 </div>
                 {isOpen ? (
@@ -72,7 +72,7 @@ const FAQAccordion: React.FC<FAQAccordionProps> = ({ faqs, limit, showSearch, sh
         <div className="text-center mt-6">
           <a
             href={viewAllHref}
-            className="inline-block text-[#009fe3] hover:text-blue-600 font-semibold text-base underline"
+            className="inline-block text-lvn-maroon hover:text-lvn-maroon-dark font-semibold text-base underline"
           >
             View Full FAQ
           </a>

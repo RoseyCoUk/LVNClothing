@@ -16,35 +16,35 @@ const MovementSection = () => {
           {/* Left Content */}
           <div className="mb-12 lg:mb-0">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-              More Than Just Merchandise
+              Faith Woven Into Culture
             </h2>
             <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-              When you wear Reform UK merchandise, you're not just making a fashion statement – 
-              you're joining a movement of people who believe in real change for Britain. Every 
-              purchase directly supports our mission to give voice to the forgotten majority.
+              When you wear LVN Clothing, you're not just making a fashion statement – 
+              you're embodying the Kingdom of Heaven that spreads like leaven through culture. Every 
+              piece carries the message that Christ's Kingdom permeates every corner of creation.
             </p>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Together, we're building a better future for our communities, our economy, and our democracy.
+              Together, we're heralding that Kingdom through premium Christian streetwear.
             </p>
             
             {/* Trust Icons Row */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
               <div className="text-center">
-                <div className="w-12 h-12 bg-[#009fe3] rounded-full flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 bg-lvn-maroon rounded-full flex items-center justify-center mx-auto mb-3">
                   <Flag className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-1">Printed in the UK</h3>
                 <p className="text-sm text-gray-600">Supporting local business</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-[#009fe3] rounded-full flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 bg-lvn-maroon rounded-full flex items-center justify-center mx-auto mb-3">
                   <Users className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">50K+ Supporters</h3>
-                <p className="text-sm text-gray-600">Nationwide movement</p>
+                <h3 className="font-semibold text-gray-900 mb-1">Faith Community</h3>
+                <p className="text-sm text-gray-600">Growing movement</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-[#009fe3] rounded-full flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 bg-lvn-maroon rounded-full flex items-center justify-center mx-auto mb-3">
                   <Shield className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-1">Secure Checkout</h3>
@@ -54,27 +54,26 @@ const MovementSection = () => {
             
             <button 
               onClick={scrollToEmailSignup}
-              className="bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-200"
+              className="bg-lvn-maroon hover:bg-lvn-maroon-dark text-white font-bold py-3 px-8 rounded-lg transition-colors duration-200"
             >
-              Join the Movement
+              Join the Mission
             </button>
           </div>
           
           {/* Right Visual */}
           <div className="relative">
-            <div className="bg-gradient-to-br from-[#009fe3] to-blue-600 rounded-2xl p-8 text-white">
+            <div className="bg-gradient-to-br from-lvn-maroon to-lvn-maroon-dark rounded-2xl p-8 text-white">
               <div className="text-center mb-6">
                 <Flag className="w-16 h-16 mx-auto mb-4 opacity-80" />
-                <h3 className="text-2xl font-bold mb-2">Stand Together</h3>
-                <p className="text-blue-100">Your voice. Your choice. Your Britain.</p>
+                <h3 className="text-2xl font-bold mb-2">Herald the Kingdom</h3>
+                <p className="text-gray-200">Faith that spreads through culture.</p>
               </div>
               
               <div className="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur-sm">
                 <p className="text-sm italic text-center">
-                  "Reform UK merchandise isn't just clothing – it's a badge of hope for everyone 
-                  who believes Britain can do better."
+                  "The kingdom of heaven is like leaven that a woman took and hid in three measures of flour, till it was all leavened."
                 </p>
-                <p className="text-sm font-semibold text-center mt-2">— Nigel Farage, Party Leader</p>
+                <p className="text-sm font-semibold text-center mt-2">— Matthew 13:33</p>
               </div>
             </div>
           </div>
