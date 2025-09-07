@@ -409,35 +409,79 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
       throw new Error('Missing customer_email in payment intent');
     }
     
-    if (!metadata.items) {
+    // Reconstruct items from split metadata fields (items_1, items_2, etc)
+    let items = [];
+    let shippingAddress = {};
+    
+    // Check for new metadata format (items_1, items_2, etc)
+    if (metadata.items_1 || metadata.items_2 || metadata.items_3) {
+      console.log('Using new split metadata format');
+      // Combine all items_N fields
+      for (let i = 1; i <= 10; i++) { // Support up to 10 chunks
+        const itemsKey = `items_${i}`;
+        if (metadata[itemsKey]) {
+          try {
+            const chunk = JSON.parse(metadata[itemsKey]);
+            items = items.concat(chunk);
+          } catch (e) {
+            console.error(`Error parsing ${itemsKey}:`, e);
+          }
+        }
+      }
+      
+      // Reconstruct shipping address from simplified format
+      if (metadata.ship_to && metadata.ship_zip) {
+        const shipToParts = metadata.ship_to.split(', ');
+        shippingAddress = {
+          name: shipToParts[0] || '',
+          city: shipToParts[1] || '',
+          country_code: shipToParts[2] || '',
+          zip: metadata.ship_zip
+        };
+      }
+    } 
+    // Fall back to old format for backward compatibility
+    else if (metadata.items) {
+      console.log('Using legacy single items field');
+      try {
+        items = typeof metadata.items === 'string' ? JSON.parse(metadata.items) : metadata.items;
+        shippingAddress = typeof metadata.shipping_address === 'string' 
+          ? JSON.parse(metadata.shipping_address || '{}') 
+          : (metadata.shipping_address || {});
+      } catch (parseError) {
+        // If direct parsing fails, try to fix malformed JSON
+        console.error('Direct JSON parsing failed, attempting to fix:', parseError);
+        try {
+          const itemsStr = metadata.items.replace(/\\"/g, '"');
+          items = JSON.parse(itemsStr);
+          
+          const addressStr = (metadata.shipping_address || '{}').replace(/\\"/g, '"');
+          shippingAddress = JSON.parse(addressStr);
+        } catch (secondError) {
+          console.error('Error parsing metadata after fix attempt:', secondError);
+          throw new Error(`Invalid JSON in payment intent metadata: ${secondError.message}`);
+        }
+      }
+    } else {
       console.error('No items found in metadata');
       console.error('Metadata:', metadata);
       throw new Error('Missing items in payment intent metadata');
     }
     
-    let items, shippingAddress;
-    try {
-      // Try direct parsing first (for properly formatted JSON)
-      items = typeof metadata.items === 'string' ? JSON.parse(metadata.items) : metadata.items;
-      shippingAddress = typeof metadata.shipping_address === 'string' 
-        ? JSON.parse(metadata.shipping_address || '{}') 
-        : (metadata.shipping_address || {});
-    } catch (parseError) {
-      // If direct parsing fails, try to fix malformed JSON
-      console.error('Direct JSON parsing failed, attempting to fix:', parseError);
-      try {
-        const itemsStr = metadata.items.replace(/\\"/g, '"');
-        items = JSON.parse(itemsStr);
-        
-        const addressStr = (metadata.shipping_address || '{}').replace(/\\"/g, '"');
-        shippingAddress = JSON.parse(addressStr);
-      } catch (secondError) {
-        console.error('Error parsing metadata after fix attempt:', secondError);
-        console.error('Raw items:', metadata.items);
-        console.error('Raw shipping_address:', metadata.shipping_address);
-        throw new Error(`Invalid JSON in payment intent metadata: ${secondError.message}`);
+    // Expand shortened item IDs back to full format if needed
+    items = items.map(item => {
+      // If we have shortened keys from new format, expand them
+      if (item.q !== undefined && item.p !== undefined) {
+        return {
+          id: item.id,
+          quantity: item.q,
+          price: item.p,
+          // Preserve any additional fields
+          ...item
+        };
       }
-    }
+      return item;
+    });
     
     // Ensure items is an array
     if (!Array.isArray(items)) {
