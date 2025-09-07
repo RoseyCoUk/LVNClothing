@@ -446,22 +446,122 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     }
     
     // Look up printful_variant_id for each item from the database
-    // The item.id should be the product_variant ID
+    // The item.id might be a string like "hoodie-2XL-White" or a UUID
     const itemsWithPrintfulIds = await Promise.all(items.map(async (item) => {
       // Skip discount items
-      if (item.id && item.id.includes('discount')) {
+      if (item.id && String(item.id).includes('discount')) {
         return {
           ...item,
           printful_variant_id: null // Discounts don't have Printful IDs
         };
       }
       
-      // Try to look up the variant from the database
-      const { data: variant, error } = await supabase
-        .from('product_variants')
-        .select('printful_variant_id')
-        .eq('id', item.id)
-        .single();
+      // Parse the item ID to extract product type and variant details
+      const itemIdStr = String(item.id);
+      let variant = null;
+      let error = null;
+      
+      // Check if it's a UUID format (36 characters with dashes)
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(itemIdStr);
+      
+      if (isUuid) {
+        // Try direct lookup by UUID
+        const result = await supabase
+          .from('product_variants')
+          .select('printful_variant_id')
+          .eq('id', item.id)
+          .single();
+        variant = result.data;
+        error = result.error;
+      } else {
+        // Parse string format like "hoodie-2XL-White" or "tshirt-M-Black"
+        const parts = itemIdStr.split('-');
+        let productType = '';
+        let size = '';
+        let color = '';
+        
+        if (parts.length >= 2) {
+          // Extract product type (first part)
+          productType = parts[0].toLowerCase();
+          
+          // Map product type to actual product name
+          const productNameMap: Record<string, string> = {
+            'hoodie': 'Reform UK Hoodie',
+            'tshirt': 'Reform UK T-Shirt',
+            't-shirt': 'Reform UK T-Shirt',
+            'cap': 'Reform UK Cap',
+            'mug': 'Reform UK Mug',
+            'totebag': 'Reform UK Tote Bag',
+            'tote': 'Reform UK Tote Bag',
+            'waterbottle': 'Reform UK Water Bottle',
+            'water-bottle': 'Reform UK Water Bottle',
+            'mousepad': 'Reform UK Mouse Pad',
+            'mouse-pad': 'Reform UK Mouse Pad'
+          };
+          
+          const productName = productNameMap[productType];
+          
+          // Extract size and color (remaining parts)
+          if (parts.length === 3) {
+            // Format: product-size-color
+            size = parts[1];
+            color = parts[2];
+          } else if (parts.length === 2) {
+            // Format: product-color (for single-size items)
+            color = parts[1];
+          }
+          
+          if (productName) {
+            // First, get the product ID
+            const { data: product } = await supabase
+              .from('products')
+              .select('id')
+              .eq('name', productName)
+              .single();
+            
+            if (product) {
+              // Look up variant by product ID and attributes
+              const query = supabase
+                .from('product_variants')
+                .select('printful_variant_id')
+                .eq('product_id', product.id);
+              
+              if (size) query.ilike('size', size);
+              if (color) query.ilike('color', color);
+              
+              const result = await query.single();
+              variant = result.data;
+              error = result.error;
+              
+              // If single variant failed, try to find from all variants
+              if (error) {
+                const allResult = await supabase
+                  .from('product_variants')
+                  .select('printful_variant_id, size, color, value')
+                  .eq('product_id', product.id);
+                
+                if (allResult.data && allResult.data.length > 0) {
+                  // Find best match by value field or size/color
+                  variant = allResult.data.find(v => {
+                    // Check if value matches the pattern
+                    if (v.value && v.value.toLowerCase() === `${color}-${size}`.toLowerCase()) {
+                      return true;
+                    }
+                    // Otherwise match by size and color
+                    return (!size || v.size?.toLowerCase() === size.toLowerCase()) &&
+                           (!color || v.color?.toLowerCase() === color.toLowerCase());
+                  });
+                  
+                  // If still no match and it's a single variant product, use the first one
+                  if (!variant && allResult.data.length === 1) {
+                    variant = allResult.data[0];
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
       
       if (error || !variant) {
         console.warn(`Could not find variant for item ${item.id}:`, error);
