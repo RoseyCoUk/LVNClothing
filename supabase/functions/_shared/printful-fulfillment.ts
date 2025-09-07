@@ -3,6 +3,7 @@ import { generateIdempotencyKey } from './idempotency.ts';
 
 export interface OrderData {
   id: string;
+  readable_order_id?: string; // Add readable_order_id for better external_id format
   customer_email: string;
   items: Array<{
     product_id: string;
@@ -62,8 +63,10 @@ export async function createPrintfulFulfillment(orderData: OrderData): Promise<P
     }
 
     // Create Printful order payload with properly formatted external_id
+    // Use readable_order_id if available (already has RUK- prefix), otherwise fallback to UUID with prefix
+    const external_id = orderData.readable_order_id || `RUK-${orderData.id}`;
     const printfulOrder = {
-      external_id: `RUK-${orderData.id}`, // Prefix with RUK for better identification
+      external_id: external_id,
       recipient: {
         name: orderData.shipping_address.name,
         address1: orderData.shipping_address.address1,

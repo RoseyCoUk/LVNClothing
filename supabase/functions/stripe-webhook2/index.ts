@@ -877,6 +877,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     // Queue Printful fulfillment asynchronously (non-blocking)
     const fulfillmentData: OrderData = {
       id: newOrder.id,
+      readable_order_id: newOrder.readable_order_id, // Add readable_order_id for external_id
       customer_email: customerEmail,
       items: itemsWithPrintfulIds, // Use items with Printful IDs for fulfillment
       shipping_address: shippingAddress,
