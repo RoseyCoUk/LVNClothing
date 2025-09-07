@@ -14,6 +14,7 @@ import { WaterbottleVariants } from '../../hooks/waterbottle-variants';
 import { MousepadVariants } from '../../hooks/mousepad-variants';
 import { TotebagVariants } from '../../hooks/totebag-variants';
 import { MugVariants } from '../../hooks/mug-variants';
+import { useAllProductVariants } from '../../hooks/useProductVariantsFromDB';
 import type { PrintfulProduct, PrintfulVariant, BundleProduct, BundleItem } from '../../types/printful';
 import { Toast, useToast } from '../../components/ui/Toast';
 
@@ -64,6 +65,16 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   const [orderToConfirm, setOrderToConfirm] = useState<OrderToConfirm | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
+  
+  // Use real database variants for correct Printful IDs
+  const { 
+    variants: dbVariants, 
+    loading: dbLoading, 
+    findTshirtVariant: findDBTshirtVariant,
+    findHoodieVariant: findDBHoodieVariant,
+    findCapVariant: findDBCapVariant,
+    getSingleVariantItem: getDBSingleVariant 
+  } = useAllProductVariants();
 
   // Bundle products state
   const [bundleProducts, setBundleProducts] = useState<BundleItem[]>([]);
@@ -531,7 +542,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   }, [capColor]); // Removed capProduct to prevent infinite loop
 
   // Loading state
-  if (mergedLoading) {
+  if (mergedLoading || dbLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -746,11 +757,9 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
     const cartItems = bundleProducts.map((item, index) => {
       console.log(`DEBUG: Processing item ${index}:`, item);
       
-      // Get variant ID with proper fallbacks
-      let variantId = item.variant.printful_variant_id || 
-                     item.variant.external_id || 
-                     item.variant.sku ||
-                     item.variant.id;
+      // Get the variant ID from database for correct Printful fulfillment
+      let variantId: string | number | null = null;
+      let dbVariantId: string | null = null; // The actual database UUID
       
       // For each product type, ensure we have the correct variant ID
       if (item.product.category === 'hoodie') {
@@ -758,63 +767,98 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
         // Determine design based on color - DARK design is for darker colors, LIGHT for lighter colors
         const darkColors = ['Black', 'Navy', 'Red', 'Dark Heather', 'Indigo Blue'];
         const design = darkColors.includes(hoodieColor) ? 'DARK' : 'LIGHT';
-        console.log(`🔍 Hoodie lookup - Design: ${design}, Size: ${hoodieSize}, Variant Size: ${variantSize}, Color: ${hoodieColor}`);
-        const hoodieVariant = findHoodieVariant(design, variantSize, hoodieColor);
-        console.log('📦 Hoodie variant found:', hoodieVariant);
-        if (hoodieVariant) {
-          variantId = hoodieVariant.catalogVariantId;
-          console.log('✅ Hoodie variant ID:', variantId);
+        console.log(`🔍 Hoodie lookup - Design: ${design}, Size: ${variantSize}, Color: ${hoodieColor}`);
+        
+        const dbHoodieVariant = findDBHoodieVariant(design, variantSize, hoodieColor);
+        if (dbHoodieVariant) {
+          variantId = dbHoodieVariant.printful_variant_id;
+          dbVariantId = dbHoodieVariant.id; // Store the database UUID
+          console.log(`✅ Hoodie ${hoodieColor} ${variantSize} - DB ID: ${dbVariantId}, Printful: ${variantId}`);
         } else {
-          console.error('❌ No hoodie variant found!');
+          console.error(`❌ No database variant found for Hoodie ${hoodieColor} size ${variantSize}`);
+          showToast(`Error: ${hoodieColor} Hoodie in size ${hoodieSize} is not available`);
+          return null;
         }
       } else if (item.product.category === 'tshirt') {
         const design = colorDesignMapping[tshirtColor] || 'DARK';
         const variantSize = convertSizeForVariant(tshirtSize);
         console.log(`🔍 T-shirt lookup - Design: ${design}, Size: ${tshirtSize}, Variant Size: ${variantSize}, Color: ${tshirtColor}`);
         
-        let tshirtVariant = findTshirtVariant ? findTshirtVariant(design, variantSize, tshirtColor) : null;
+        let dbTshirtVariant = findDBTshirtVariant(design, variantSize, tshirtColor);
         
-        if (!tshirtVariant && design === 'LIGHT' && findTshirtVariant) {
+        if (!dbTshirtVariant && design === 'LIGHT') {
           console.log('⚠️ LIGHT variant not found, trying DARK');
-          tshirtVariant = findTshirtVariant('DARK', variantSize, tshirtColor);
-        } else if (!tshirtVariant && design === 'DARK' && findTshirtVariant) {
+          dbTshirtVariant = findDBTshirtVariant('DARK', variantSize, tshirtColor);
+        } else if (!dbTshirtVariant && design === 'DARK') {
           console.log('⚠️ DARK variant not found, trying LIGHT');
-          tshirtVariant = findTshirtVariant('LIGHT', variantSize, tshirtColor);
+          dbTshirtVariant = findDBTshirtVariant('LIGHT', variantSize, tshirtColor);
         }
         
-        console.log('📦 T-shirt variant found:', tshirtVariant);
-        
-        if (tshirtVariant) {
-          variantId = tshirtVariant.catalogVariantId;
-          console.log('✅ T-shirt variant ID:', variantId);
+        if (dbTshirtVariant) {
+          variantId = dbTshirtVariant.printful_variant_id;
+          dbVariantId = dbTshirtVariant.id; // Store the database UUID
+          console.log(`✅ T-shirt ${tshirtColor} ${variantSize} - DB ID: ${dbVariantId}, Printful: ${variantId}`);
         } else {
-          console.error('❌ No T-shirt variant found!');
+          console.error(`❌ No database variant found for T-shirt ${tshirtColor} size ${variantSize}`);
+          showToast(`Error: ${tshirtColor} T-shirt in size ${tshirtSize} is not available`);
+          return null;
         }
       } else if (item.product.category === 'cap') {
         console.log(`🔍 Cap lookup - Color: ${capColor}`);
-        const capVariant = selectedCapVariant || findCapVariant(capColor);
-        console.log('📦 Cap variant found:', capVariant);
-        if (capVariant) {
-          variantId = capVariant.catalogVariantId;
-          console.log('✅ Cap variant ID:', variantId);
+        const dbCapVariant = findDBCapVariant(capColor);
+        if (dbCapVariant) {
+          variantId = dbCapVariant.printful_variant_id;
+          dbVariantId = dbCapVariant.id; // Store the database UUID
+          console.log(`✅ Cap ${capColor} - DB ID: ${dbVariantId}, Printful: ${variantId}`);
         } else {
-          console.error('❌ No cap variant found!');
+          console.error(`❌ No database variant found for Cap color: ${capColor}`);
+          showToast(`Error: ${capColor} cap is not available`);
+          return null;
         }
       } else if (item.product.category === 'tote') {
-        // Tote bag has only one variant
-        const totebagVariant = findTotebagVariant();
-        if (totebagVariant) {
-          variantId = totebagVariant.catalogVariantId;
+        const dbToteVariant = getDBSingleVariant('tote');
+        if (dbToteVariant) {
+          variantId = dbToteVariant.printful_variant_id;
+          dbVariantId = dbToteVariant.id;
+          console.log(`✅ Tote Bag - DB ID: ${dbVariantId}, Printful: ${variantId}`);
+        } else {
+          console.error(`❌ No database variant found for Tote Bag`);
+          showToast(`Error: Tote Bag is not available`);
+          return null;
         }
       } else if (item.product.category === 'mug') {
-        // Mug has only one variant
-        variantId = MugVariants[0].catalogVariantId;
+        const dbMugVariant = getDBSingleVariant('mug');
+        if (dbMugVariant) {
+          variantId = dbMugVariant.printful_variant_id;
+          dbVariantId = dbMugVariant.id;
+          console.log(`✅ Mug - DB ID: ${dbVariantId}, Printful: ${variantId}`);
+        } else {
+          console.error(`❌ No database variant found for Mug`);
+          showToast(`Error: Mug is not available`);
+          return null;
+        }
       } else if (item.product.category === 'water-bottle') {
-        // Water bottle has only one variant
-        variantId = WaterbottleVariants[0].catalogVariantId;
+        const dbWaterVariant = getDBSingleVariant('water');
+        if (dbWaterVariant) {
+          variantId = dbWaterVariant.printful_variant_id;
+          dbVariantId = dbWaterVariant.id;
+          console.log(`✅ Water Bottle - DB ID: ${dbVariantId}, Printful: ${variantId}`);
+        } else {
+          console.error(`❌ No database variant found for Water Bottle`);
+          showToast(`Error: Water Bottle is not available`);
+          return null;
+        }
       } else if (item.product.category === 'mouse-pad') {
-        // Mouse pad has only one variant
-        variantId = MousepadVariants[0].catalogVariantId;
+        const dbMouseVariant = getDBSingleVariant('mouse');
+        if (dbMouseVariant) {
+          variantId = dbMouseVariant.printful_variant_id;
+          dbVariantId = dbMouseVariant.id;
+          console.log(`✅ Mouse Pad - DB ID: ${dbVariantId}, Printful: ${variantId}`);
+        } else {
+          console.error(`❌ No database variant found for Mouse Pad`);
+          showToast(`Error: Mouse Pad is not available`);
+          return null;
+        }
       }
       
       // Ensure we have a valid variant ID
@@ -875,12 +919,13 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       }
 
       const cartItem = {
-        id: `activist-bundle-${item.product.category}-${index}`,
+        id: dbVariantId || `activist-bundle-${item.product.category}-${index}`, // Use actual DB variant ID
         name: item.product.name,
         price: itemPrice, // Real individual price
         image: itemImage,
-        printful_variant_id: variantId,
-        external_id: variantId, // Use the same valid variant ID
+        printful_variant_id: variantId, // The actual Printful variant ID from database
+        external_id: variantId, // Same Printful ID for consistency
+        variant_id: dbVariantId, // Include the database UUID for backend processing
         sku: (() => {
           // Get SKU from the actual variant object based on the category
           if (item.product.category === 'hoodie') {

@@ -25,6 +25,7 @@ import { useMergedProducts } from '../../hooks/useMergedProducts';
 import { useTshirtVariants, colorDesignMapping } from '../../hooks/tshirt-variants-merged-fixed';
 import { findCapVariantByColor } from '../../hooks/cap-variants';
 import { MugVariants } from '../../hooks/mug-variants';
+import { useAllProductVariants } from '../../hooks/useProductVariantsFromDB';
 import type { PrintfulProduct, PrintfulVariant, BundleProduct, BundleItem } from '../../types/printful';
 import { Toast, useToast } from '../../components/ui/Toast';
 
@@ -58,6 +59,15 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
   const { getProductByCategory, isLoading: mergedLoading, error: mergedError } = useMergedProducts();
   const tshirtVariantsHook = useTshirtVariants();
   const findTshirtVariant = tshirtVariantsHook?.findTshirtVariant;
+  
+  // Use real database variants for correct Printful IDs
+  const { 
+    variants: dbVariants, 
+    loading: dbLoading, 
+    findTshirtVariant: findDBTshirtVariant,
+    findCapVariant: findDBCapVariant,
+    getSingleVariantItem: getDBSingleVariant 
+  } = useAllProductVariants();
   
   console.log('DEBUG: T-shirt variants hook loaded:', {
     hookExists: !!tshirtVariantsHook,
@@ -230,7 +240,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
   }, [capColor]);
 
   // Loading state
-  if (mergedLoading) {
+  if (mergedLoading || dbLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -476,62 +486,67 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
     const cartItems = bundleProducts.map((item, index) => {
       console.log(`DEBUG: Processing item ${index}:`, item);
       
-      // Get the variant ID - use catalog variant ID for Printful fulfillment
-      let variantId: string | number = item.variant.printful_variant_id || 
-                     item.variant.external_id || 
-                     item.variant.id;
+      // Get the variant ID from database for correct Printful fulfillment
+      let variantId: string | number | null = null;
+      let dbVariantId: string | null = null; // The actual database UUID
       
       // Get the correct image for each item based on selected variants
       let itemImage = '/BackReformLogo.png'; // Default fallback
       
-      // For cap, use the specific cap variant
+      // For cap, use the database variant
       if (item.product.category === 'cap') {
-        const capVariant = selectedCapVariant || findCapVariantByColor(capColor);
-        if (capVariant) {
-          // Use catalogVariantId as the primary Printful variant ID
-          variantId = capVariant.catalogVariantId;
-          console.log(`DEBUG: Cap ${capColor} - Using catalogVariantId: ${variantId}`);
-          // Use the correct cap image for the selected color
+        const dbCapVariant = findDBCapVariant(capColor);
+        if (dbCapVariant) {
+          variantId = dbCapVariant.printful_variant_id;
+          dbVariantId = dbCapVariant.id; // Store the database UUID
+          console.log(`DEBUG: Cap ${capColor} - Using DB variant ID: ${dbVariantId}, Printful ID: ${variantId}`);
           itemImage = getCapImages()[0] || '/BackReformLogo.png';
+        } else {
+          console.error(`ERROR: No database variant found for Cap color: ${capColor}`);
+          showToast(`Error: ${capColor} cap is not available`);
+          return null;
         }
       }
       
-      // For t-shirt, use the specific t-shirt variant with correct design
+      // For t-shirt, use the database variant
       if (item.product.category === 'tshirt') {
         // Convert UI size to variant size (XXL -> 2XL)
         const variantSize = convertSizeForVariant(tshirtSize);
         const design = colorDesignMapping[tshirtColor] || 'DARK';
-        console.log(`DEBUG: T-shirt variant lookup starting - Color: ${tshirtColor}, UI Size: ${tshirtSize}, Variant Size: ${variantSize}, Design: ${design}`);
+        console.log(`DEBUG: T-shirt lookup - Color: ${tshirtColor}, Size: ${variantSize}, Design: ${design}`);
         
-        let tshirtVariant = selectedTshirtVariant || findTshirtVariant(design, variantSize, tshirtColor);
-        console.log(`DEBUG: First attempt - Found variant:`, tshirtVariant);
+        let dbTshirtVariant = findDBTshirtVariant(design, variantSize, tshirtColor);
         
-        // If not found with the mapped design, try the opposite design as fallback
-        if (!tshirtVariant) {
+        // If not found with the mapped design, try the opposite design
+        if (!dbTshirtVariant) {
           const fallbackDesign = design === 'DARK' ? 'LIGHT' : 'DARK';
           console.log(`DEBUG: Trying fallback design: ${fallbackDesign}`);
-          tshirtVariant = findTshirtVariant(fallbackDesign, variantSize, tshirtColor);
-          console.log(`DEBUG: Fallback attempt - Found variant:`, tshirtVariant);
+          dbTshirtVariant = findDBTshirtVariant(fallbackDesign, variantSize, tshirtColor);
         }
         
-        if (tshirtVariant) {
-          // Use catalogVariantId as the primary Printful variant ID
-          variantId = tshirtVariant.catalogVariantId;
-          console.log(`DEBUG: T-shirt variant ID set to catalogVariantId: ${variantId}`);
-          // Use the correct T-shirt image for the selected color
+        if (dbTshirtVariant) {
+          variantId = dbTshirtVariant.printful_variant_id;
+          dbVariantId = dbTshirtVariant.id; // Store the database UUID
+          console.log(`DEBUG: T-shirt ${tshirtColor} ${variantSize} - Using DB variant ID: ${dbVariantId}, Printful ID: ${variantId}`);
           itemImage = getTshirtImages()[0] || '/BackReformLogo.png';
         } else {
-          console.error(`ERROR: No T-shirt variant found for ${tshirtColor}, UI size ${tshirtSize}, variant size ${variantSize}, tried both DARK and LIGHT designs`);
+          console.error(`ERROR: No database variant found for T-shirt ${tshirtColor} size ${variantSize}`);
+          showToast(`Error: ${tshirtColor} T-shirt in size ${tshirtSize} is not available`);
+          return null;
         }
       }
       
-      // For mug, get the mug image and correct variant ID
+      // For mug, use the database variant
       if (item.product.category === 'mug') {
-        // Use the single mug variant (White 11oz mug)
-        const mugVariant = MugVariants[0]; // There's only one mug variant
-        if (mugVariant) {
-          variantId = mugVariant.catalogVariantId; // Use catalog variant ID for Printful
-          console.log(`DEBUG: Mug - Using catalogVariantId: ${variantId}`);
+        const dbMugVariant = getDBSingleVariant('mug');
+        if (dbMugVariant) {
+          variantId = dbMugVariant.printful_variant_id;
+          dbVariantId = dbMugVariant.id; // Store the database UUID
+          console.log(`DEBUG: Mug - Using DB variant ID: ${dbVariantId}, Printful ID: ${variantId}`);
+        } else {
+          console.error(`ERROR: No database variant found for Mug`);
+          showToast(`Error: Mug is not available`);
+          return null;
         }
         itemImage = getMugImages()[0] || '/BackReformLogo.png';
       }
@@ -570,12 +585,13 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
       }
       
       const cartItem = {
-        id: `starter-bundle-${item.product.category}-${index}`,
+        id: dbVariantId || `starter-bundle-${item.product.category}-${index}`, // Use actual DB variant ID
         name: item.product.name,
         price: itemPrice, // Individual price for each item
         image: itemImage, // Use the correct variant-specific image
-        printful_variant_id: variantId, // Now using catalogVariantId for proper Printful fulfillment
-        external_id: variantId, // Use the same valid catalog variant ID
+        printful_variant_id: variantId, // The actual Printful variant ID from database
+        external_id: variantId, // Same Printful ID for consistency
+        variant_id: dbVariantId, // Include the database UUID for backend processing
         // Only set size for items that actually have sizes (t-shirts, not caps or mugs)
         size: item.product.category === 'tshirt' ? convertSizeForVariant(tshirtSize) : undefined,
         color: item.product.category === 'tshirt' ? tshirtColor : 

@@ -473,8 +473,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
           console.log(`Bundle item detected: ${item.id} -> ${bundleType} bundle ${productType}`);
           console.log(`Bundle item details: color=${item.color}, size=${item.size}, printful_variant_id=${item.printful_variant_id}`);
           
-          // CRITICAL FIX: Use the actual variant ID sent from the frontend
-          // The frontend has already resolved the correct variant based on user's color/size selection
+          // The frontend MUST send the variant ID - no more fallbacks
           if (item.printful_variant_id) {
             console.log(`Using customer-selected variant ID: ${item.printful_variant_id} (${item.color} ${item.size || ''})`);
             return {
@@ -483,77 +482,10 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
             };
           }
           
-          // Only use hardcoded defaults as absolute last resort if frontend didn't send variant ID
-          console.warn(`WARNING: No variant ID from frontend for ${productType}, using fallback defaults`);
-          const BUNDLE_VARIANT_IDS: Record<string, number> = {
-            'tshirt': 4938821288,  // FALLBACK ONLY: Black, Size M
-            't-shirt': 4938821288, 
-            'hoodie': 4938800535,  // FALLBACK ONLY: Black, Size L
-            'cap': 4938937571,     // FALLBACK ONLY: Black
-            'mug': 4938946337,     // Mug variant ID
-            'totebag': 4937855201, // Tote bag variant ID
-            'tote': 4937855201,
-            'waterbottle': 4938941055, // Water bottle variant ID
-            'water-bottle': 4938941055,
-            'water': 4938941055,
-            'mousepad': 4938942751, // Mouse pad variant ID
-            'mouse-pad': 4938942751,
-            'mouse': 4938942751
-          };
-          
-          const printfulVariantId = BUNDLE_VARIANT_IDS[productType];
-          
-          if (printfulVariantId) {
-            console.log(`Using fallback variant: ${productType} -> Printful ID ${printfulVariantId}`);
-            return {
-              ...item,
-              printful_variant_id: printfulVariantId
-            };
-          } else {
-            console.warn(`No variant mapping for bundle product type: ${productType}`);
-            // Try to resolve from database as fallback
-            const bundleProductMap: Record<string, string> = {
-              'tshirt': 'Reform UK T-Shirt',
-              't-shirt': 'Reform UK T-Shirt',
-              'hoodie': 'Reform UK Hoodie', 
-              'cap': 'Reform UK Cap',
-              'mug': 'Reform UK Mug',
-              'totebag': 'Reform UK Tote Bag',
-              'tote': 'Reform UK Tote Bag',
-              'waterbottle': 'Reform UK Water Bottle',
-              'water-bottle': 'Reform UK Water Bottle',
-              'mousepad': 'Reform UK Mouse Pad',
-              'mouse-pad': 'Reform UK Mouse Pad'
-            };
-            
-            const productName = bundleProductMap[productType];
-            if (productName) {
-              // Try database lookup as fallback
-              const { data: product } = await supabase
-                .from('products')
-                .select('id')
-                .ilike('name', `%${productName}%`)
-                .limit(1)
-                .single();
-              
-              if (product) {
-                const { data: variant } = await supabase
-                  .from('product_variants')
-                  .select('printful_variant_id')
-                  .eq('product_id', product.id)
-                  .limit(1)
-                  .single();
-                
-                if (variant) {
-                  console.log(`Found fallback variant for ${productType}: ${variant.printful_variant_id}`);
-                  return {
-                    ...item,
-                    printful_variant_id: variant.printful_variant_id
-                  };
-                }
-              }
-            }
-          }
+          // NO FALLBACKS - The frontend must provide the variant ID
+          console.error(`ERROR: No variant ID from frontend for ${productType} - THIS SHOULD NOT HAPPEN`);
+          console.error(`Item details: color=${item.color}, size=${item.size}`);
+          throw new Error(`Missing printful_variant_id for ${item.name || productType}. Frontend must provide variant selection.`);
         }
       }
       
