@@ -1,11 +1,9 @@
-export const config = {
-  auth: false,
-};
+// No auth required for Stripe webhooks
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import Stripe from "npm:stripe@17.7.0";
 import { createClient } from "npm:@supabase/supabase-js@2.49.1";
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+// Remove old serve import - using Deno.serve instead
 import { createPrintfulFulfillment, type OrderData } from '../_shared/printful-fulfillment.ts';
 
 // Environment variables
@@ -231,13 +229,31 @@ function formatVariants(variants: any): string {
 }
 
 const handler = async (req: Request) => {
-  // Health-check route
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response(null, { 
+      status: 200,
+      headers: corsHeaders 
+    });
+  }
+
+  // Only process POST requests
+  if (req.method !== 'POST') {
+    return new Response('Method not allowed', { 
+      status: 405,
+      headers: corsHeaders 
+    });
   }
 
   console.log('Stripe webhook received');
-  const body = await req.text();
+  
+  let body: string;
+  try {
+    body = await req.text();
+  } catch (err) {
+    console.error('Failed to read request body:', err);
+    return new Response('Invalid request body', { status: 400 });
+  }
 
   // Stripe signature verification
   let event: Stripe.Event;
@@ -338,10 +354,18 @@ const handler = async (req: Request) => {
 };
 
 async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Response> {
-  const paymentIntent = event.data.object as Stripe.PaymentIntent;
-  console.log(`Processing payment_intent.succeeded: ${paymentIntent.id}`);
+  const webhookPaymentIntent = event.data.object as Stripe.PaymentIntent;
+  console.log(`Processing payment_intent.succeeded: ${webhookPaymentIntent.id}`);
   
   try {
+    // Retrieve the full payment intent from Stripe to ensure we have all metadata
+    // Webhook payloads sometimes don't include all fields
+    const paymentIntent = await stripe.paymentIntents.retrieve(webhookPaymentIntent.id, {
+      expand: ['customer'] // Expand customer if needed
+    });
+    
+    console.log('Retrieved full payment intent from Stripe');
+    
     // Check if order already exists to prevent duplicates (idempotency)
     const { data: existingOrder } = await supabase
       .from('orders')
@@ -372,28 +396,60 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     }
     
     // Extract data from payment intent metadata
-    const metadata = paymentIntent.metadata;
-    if (!metadata.customer_email) {
-      throw new Error('Missing customer_email in payment intent metadata');
+    const metadata = paymentIntent.metadata || {};
+    console.log('Payment intent metadata:', JSON.stringify(metadata));
+    console.log('Payment intent receipt_email:', paymentIntent.receipt_email);
+    
+    // Get customer email from metadata or receipt_email
+    const customerEmail = metadata.customer_email || paymentIntent.receipt_email;
+    if (!customerEmail) {
+      console.error('No customer email found in metadata or receipt_email');
+      console.error('Metadata:', metadata);
+      console.error('Receipt email:', paymentIntent.receipt_email);
+      throw new Error('Missing customer_email in payment intent');
     }
     
     if (!metadata.items) {
+      console.error('No items found in metadata');
+      console.error('Metadata:', metadata);
       throw new Error('Missing items in payment intent metadata');
     }
     
     let items, shippingAddress;
     try {
-      items = JSON.parse(metadata.items);
-      shippingAddress = JSON.parse(metadata.shipping_address || '{}');
+      // Try direct parsing first (for properly formatted JSON)
+      items = typeof metadata.items === 'string' ? JSON.parse(metadata.items) : metadata.items;
+      shippingAddress = typeof metadata.shipping_address === 'string' 
+        ? JSON.parse(metadata.shipping_address || '{}') 
+        : (metadata.shipping_address || {});
     } catch (parseError) {
-      throw new Error('Invalid JSON in payment intent metadata');
+      // If direct parsing fails, try to fix malformed JSON
+      console.error('Direct JSON parsing failed, attempting to fix:', parseError);
+      try {
+        const itemsStr = metadata.items.replace(/\\"/g, '"');
+        items = JSON.parse(itemsStr);
+        
+        const addressStr = (metadata.shipping_address || '{}').replace(/\\"/g, '"');
+        shippingAddress = JSON.parse(addressStr);
+      } catch (secondError) {
+        console.error('Error parsing metadata after fix attempt:', secondError);
+        console.error('Raw items:', metadata.items);
+        console.error('Raw shipping_address:', metadata.shipping_address);
+        throw new Error(`Invalid JSON in payment intent metadata: ${secondError.message}`);
+      }
+    }
+    
+    // Ensure items is an array
+    if (!Array.isArray(items)) {
+      console.error('Items is not an array:', items);
+      throw new Error('Items must be an array');
     }
     
     // Create the order
     const readableOrderId = generateReadableOrderId();
     const orderData = {
       stripe_payment_intent_id: paymentIntent.id,
-      customer_email: metadata.customer_email,
+      customer_email: customerEmail, // Use the variable we defined above
       user_id: metadata.user_id || null,
       readable_order_id: readableOrderId,
       order_number: readableOrderId, // Required field - use same as readable_order_id
@@ -425,7 +481,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     console.log(`Order created successfully: ${newOrder.readable_order_id} (ID: ${newOrder.id})`);
     
     // Send order confirmation emails (non-blocking)
-    sendOrderEmails(newOrder.id, metadata.customer_email, items, shippingAddress, {
+    sendOrderEmails(newOrder.id, customerEmail, items, shippingAddress, {
       subtotal: parseFloat(metadata.subtotal || '0'),
       shipping_cost: parseFloat(metadata.shipping_cost || '0'),
       total_amount: paymentIntent.amount / 100,
@@ -440,7 +496,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     // Queue Printful fulfillment asynchronously (non-blocking)
     const fulfillmentData: OrderData = {
       id: newOrder.id,
-      customer_email: metadata.customer_email,
+      customer_email: customerEmail,
       items: items,
       shipping_address: shippingAddress,
       shipping_cost: parseFloat(metadata.shipping_cost || '0'),
@@ -517,4 +573,18 @@ async function handleLegacyCheckoutSession(event: Stripe.Event): Promise<Respons
   });
 }
 
-serve(handler);
+// Serve the webhook handler without authentication
+Deno.serve(async (req: Request) => {
+  try {
+    return await handler(req);
+  } catch (error) {
+    console.error('Unhandled error in webhook:', error);
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }), 
+      { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+});
