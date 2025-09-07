@@ -48,9 +48,13 @@ const createCapVariants = () => {
   CapVariants.forEach((variant) => {
     variantId++;
     
+    // Find the color for this variant
+    const colorMapping = capColors.find(c => c.catalogVariantId === variant.catalogVariantId);
+    const color = colorMapping?.value || 'Black'; // Default to Black if not found
+    
     variants[variantId] = {
       id: variantId,
-      color: variant.color,
+      color: color,
       price: parseFloat(variant.price || '19.99'),
       inStock: true,
       stockCount: 18,
@@ -58,7 +62,7 @@ const createCapVariants = () => {
       reviews: 92,
       printful_variant_id: variant.catalogVariantId, // Real Printful external ID for ordering
       external_id: variant.externalId,
-      images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCap${variant.color.replace(/\s+/g, '')}${i + 1}.webp`)
+      images: Array.from({ length: 7 }, (_, i) => `/Cap/ReformCap${color.replace(/\s+/g, '')}${i + 1}.webp`)
     };
   });
   
