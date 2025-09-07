@@ -1,7 +1,7 @@
 ---
 name: backend-reform-agent
 description: Use this agent when you need to implement backend changes for the Reform UK e-commerce system, particularly for order processing, payment handling, webhook integration, and fulfillment workflows. This includes database schema modifications, Supabase edge functions, Stripe/Printful integrations, and email notifications. Examples:\n\n<example>\nContext: The user needs to refactor the order creation flow to prevent duplicates and move fulfillment to webhook handlers.\nuser: "We need to fix the duplicate order issue and move fulfillment to the Stripe webhook"\nassistant: "I'll use the backend-reform-agent to handle this comprehensive backend refactoring"\n<commentary>\nSince this involves backend order processing, webhooks, and fulfillment logic, use the backend-reform-agent.\n</commentary>\n</example>\n\n<example>\nContext: The user needs to implement a new pricing endpoint and payment intent management.\nuser: "Create the /api/cart/price endpoint and handle PaymentIntent creation/updates"\nassistant: "Let me launch the backend-reform-agent to implement these pricing and payment features"\n<commentary>\nThe backend-reform-agent specializes in API endpoints, Stripe integration, and payment processing.\n</commentary>\n</example>\n\n<example>\nContext: The user needs database schema changes and migration files.\nuser: "Add constraints to the orders table and create new webhook_events and fulfillments tables"\nassistant: "I'll use the backend-reform-agent to create the necessary migrations and schema updates"\n<commentary>\nDatabase schema modifications and migrations are core responsibilities of the backend-reform-agent.\n</commentary>\n</example>
-model: sonnet
+model: opus
 color: blue
 ---
 

@@ -586,9 +586,9 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
           
           // Map product type to actual product name
           const productNameMap: Record<string, string> = {
-            'hoodie': 'Reform UK Hoodie',
-            'tshirt': 'Reform UK T-Shirt',
-            't-shirt': 'Reform UK T-Shirt',
+            'hoodie': 'Unisex Hoodie DARK', // Default to DARK, will try LIGHT as fallback
+            'tshirt': 'Unisex t-shirt DARK', // Default to DARK, will try LIGHT as fallback  
+            't-shirt': 'Unisex t-shirt DARK',
             'cap': 'Reform UK Cap',
             'mug': 'Reform UK Mug',
             'totebag': 'Reform UK Tote Bag',
@@ -599,8 +599,8 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
             'mouse-pad': 'Reform UK Mouse Pad',
             // Also try to map numeric patterns
             '301': 'Reform UK Cap',  // Common cap product ID
-            '302': 'Reform UK T-Shirt',
-            '303': 'Reform UK Hoodie'
+            '302': 'Unisex t-shirt DARK',
+            '303': 'Unisex Hoodie DARK'
           };
           
           const productName = productNameMap[productType];
@@ -616,18 +616,34 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
           }
           
           if (productName) {
-            // First, get the product ID
-            const { data: product } = await supabase
+            // First, try to find the product (DARK variant first for t-shirts and hoodies)
+            let product = null;
+            const { data: darkProduct } = await supabase
               .from('products')
               .select('id')
               .eq('name', productName)
               .single();
             
+            product = darkProduct;
+            
+            // If DARK variant not found and this is a t-shirt or hoodie, try LIGHT variant
+            if (!product && (productType === 'tshirt' || productType === 't-shirt' || productType === 'hoodie')) {
+              const lightProductName = productName.replace('DARK', 'LIGHT');
+              const { data: lightProduct } = await supabase
+                .from('products')
+                .select('id')
+                .eq('name', lightProductName)
+                .single();
+              product = lightProduct;
+            }
+            
             if (product) {
+              console.log(`Found product: ${productName}, attempting variant lookup for size=${size}, color=${color}`);
+              
               // Look up variant by product ID and attributes
               const query = supabase
                 .from('product_variants')
-                .select('printful_variant_id')
+                .select('printful_variant_id, size, color, value')
                 .eq('product_id', product.id);
               
               if (size) query.ilike('size', size);
@@ -637,31 +653,87 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
               variant = result.data;
               error = result.error;
               
-              // If single variant failed, try to find from all variants
-              if (error) {
+              console.log(`Direct variant query result: ${variant?.printful_variant_id || 'null'}, error: ${error?.message || 'none'}`);
+              
+              // If direct match failed, try fuzzy matching from all variants
+              if (error || !variant) {
                 const allResult = await supabase
                   .from('product_variants')
                   .select('printful_variant_id, size, color, value')
                   .eq('product_id', product.id);
                 
+                console.log(`All variants for product: ${allResult.data?.length || 0} variants found`);
+                
                 if (allResult.data && allResult.data.length > 0) {
-                  // Find best match by value field or size/color
+                  // Create a color mapping for common frontend->database color translations
+                  const colorMapping: Record<string, string[]> = {
+                    'autumn': ['Autumn', 'Orange', 'Brown', 'Rust', 'Burnt Orange'],
+                    'black': ['Black', 'Charcoal', 'Dark Grey'],
+                    'white': ['White', 'Off White', 'Ivory', 'Natural'],
+                    'blue': ['Blue', 'Navy', 'Light Blue', 'Royal Blue'],
+                    'grey': ['Grey', 'Gray', 'Sport Grey', 'Ash'],
+                    'gray': ['Grey', 'Gray', 'Sport Grey', 'Ash'],
+                    'green': ['Green', 'Forest Green', 'Olive'],
+                    'red': ['Red', 'Crimson', 'Burgundy'],
+                    'pink': ['Pink', 'Light Pink', 'Hot Pink']
+                  };
+                  
+                  // Try to find variant by exact match first
                   variant = allResult.data.find(v => {
-                    // Check if value matches the pattern
-                    if (v.value && v.value.toLowerCase() === `${color}-${size}`.toLowerCase()) {
-                      return true;
-                    }
-                    // Otherwise match by size and color
-                    return (!size || v.size?.toLowerCase() === size.toLowerCase()) &&
-                           (!color || v.color?.toLowerCase() === color.toLowerCase());
+                    const sizeMatch = !size || v.size?.toLowerCase() === size.toLowerCase();
+                    const colorMatch = !color || v.color?.toLowerCase() === color.toLowerCase();
+                    return sizeMatch && colorMatch;
                   });
+                  
+                  // If exact match failed, try color mapping
+                  if (!variant && color) {
+                    const possibleColors = colorMapping[color.toLowerCase()] || [color];
+                    variant = allResult.data.find(v => {
+                      const sizeMatch = !size || v.size?.toLowerCase() === size.toLowerCase();
+                      const colorMatch = possibleColors.some(pc => 
+                        v.color?.toLowerCase().includes(pc.toLowerCase()) ||
+                        pc.toLowerCase().includes(v.color?.toLowerCase() || '')
+                      );
+                      return sizeMatch && colorMatch;
+                    });
+                    
+                    if (variant) {
+                      console.log(`Found variant using color mapping: ${color} -> ${variant.color}`);
+                    }
+                  }
+                  
+                  // If still no match, try value field pattern matching
+                  if (!variant) {
+                    variant = allResult.data.find(v => {
+                      if (v.value) {
+                        const valueLower = v.value.toLowerCase();
+                        const sizeMatch = !size || valueLower.includes(size.toLowerCase());
+                        const colorMatch = !color || valueLower.includes(color.toLowerCase());
+                        return sizeMatch && colorMatch;
+                      }
+                      return false;
+                    });
+                    
+                    if (variant) {
+                      console.log(`Found variant using value field: ${variant.value}`);
+                    }
+                  }
                   
                   // If still no match and it's a single variant product, use the first one
                   if (!variant && allResult.data.length === 1) {
                     variant = allResult.data[0];
+                    console.log(`Using single available variant: ${variant.printful_variant_id}`);
+                  }
+                  
+                  // Log all available variants for debugging
+                  if (!variant) {
+                    console.log(`No variant found for ${productName}. Available variants:`);
+                    allResult.data.forEach(v => console.log(`  - Size: ${v.size}, Color: ${v.color}, Value: ${v.value}, Printful ID: ${v.printful_variant_id}`));
                   }
                 }
               }
+            } else {
+              console.log(`No product found for name: ${productName}`);
             }
           }
         }
