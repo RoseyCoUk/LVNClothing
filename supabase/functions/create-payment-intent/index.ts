@@ -240,6 +240,12 @@ serve(async (req: Request) => {
     const { items, shipping_address, customer_email, currency = 'gbp', metadata = {}, guest_checkout = false } = requestBody;
 
     console.log('Creating payment intent for items:', items.length);
+    console.log('Items received:', items.map(item => ({
+      id: item.id,
+      name: item.name,
+      printful_variant_id: item.printful_variant_id,
+      isDiscount: item.isDiscount
+    })));
 
     // Validate required parameters
     if (!items || items.length === 0) {
@@ -308,10 +314,18 @@ serve(async (req: Request) => {
     }
 
     // Get shipping cost from Printful (regular items only, not discounts)
-    const shippingCost = await measureAsyncOperation(
-      () => getShippingCost(regularItems, shipping_address),
-      'Printful shipping cost calculation'
-    );
+    console.log('Getting shipping cost for items:', regularItems.length, 'regular items');
+    let shippingCost = 4.99; // Default fallback
+    try {
+      shippingCost = await measureAsyncOperation(
+        () => getShippingCost(regularItems, shipping_address),
+        'Printful shipping cost calculation'
+      );
+    } catch (shippingError) {
+      console.error('Error calculating shipping cost:', shippingError);
+      // Use default shipping cost if calculation fails
+      shippingCost = 4.99;
+    }
 
     // Calculate total
     const total = subtotal + shippingCost;
@@ -402,12 +416,20 @@ serve(async (req: Request) => {
 
   } catch (error) {
     console.error('Payment intent creation error:', error);
+    console.error('Error stack:', error.stack);
     performanceMonitor.incrementErrorCount();
     
-    return new Response(JSON.stringify({ 
+    // Include more error details for debugging
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorDetails = {
       error: 'Failed to create payment intent',
-      details: error.message || 'Unknown error'
-    }), {
+      details: errorMessage,
+      type: error?.constructor?.name || 'Unknown',
+      // Include partial stack trace for debugging
+      stack: error?.stack?.split('\n').slice(0, 3).join('\n')
+    };
+    
+    return new Response(JSON.stringify(errorDetails), {
       status: 500,
       headers: { ...headers, "Content-Type": "application/json" },
     });
