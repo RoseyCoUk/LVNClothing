@@ -448,6 +448,8 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     // Look up printful_variant_id for each item from the database
     // The item.id might be a string like "hoodie-2XL-White" or a UUID
     const itemsWithPrintfulIds = await Promise.all(items.map(async (item) => {
+      console.log(`Processing item: ${JSON.stringify(item)}`);
+      
       // Skip discount items
       if (item.id && String(item.id).includes('discount')) {
         return {
@@ -474,13 +476,42 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
         variant = result.data;
         error = result.error;
       } else {
-        // Parse string format like "hoodie-2XL-White" or "tshirt-M-Black"
+        // Parse string format like "hoodie-2XL-White", "tshirt-M-Black", or "301-Black"
         const parts = itemIdStr.split('-');
         let productType = '';
         let size = '';
         let color = '';
         
-        if (parts.length >= 2) {
+        // Check if first part is a number (like "301-Black")
+        if (parts.length >= 2 && /^\d+$/.test(parts[0])) {
+          // This might be a Printful catalog variant ID or sync variant ID
+          // Try to look up by the numeric ID directly
+          const numericId = parseInt(parts[0]);
+          console.log(`Trying to find variant with Printful ID: ${numericId}`);
+          
+          const { data: variantByPrintfulId } = await supabase
+            .from('product_variants')
+            .select('printful_variant_id')
+            .eq('printful_variant_id', numericId)
+            .single();
+          
+          if (variantByPrintfulId) {
+            variant = variantByPrintfulId;
+          } else {
+            // If not found, try parsing as color variant
+            // Format: number-color (e.g., "301-Black" might mean product 301 in Black)
+            color = parts[1];
+            // Try to find by color alone across all products
+            const { data: variantsByColor } = await supabase
+              .from('product_variants')
+              .select('printful_variant_id')
+              .ilike('color', color);
+            
+            if (variantsByColor && variantsByColor.length === 1) {
+              variant = variantsByColor[0];
+            }
+          }
+        } else if (parts.length >= 2) {
           // Extract product type (first part)
           productType = parts[0].toLowerCase();
           
@@ -496,7 +527,11 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
             'waterbottle': 'Reform UK Water Bottle',
             'water-bottle': 'Reform UK Water Bottle',
             'mousepad': 'Reform UK Mouse Pad',
-            'mouse-pad': 'Reform UK Mouse Pad'
+            'mouse-pad': 'Reform UK Mouse Pad',
+            // Also try to map numeric patterns
+            '301': 'Reform UK Cap',  // Common cap product ID
+            '302': 'Reform UK T-Shirt',
+            '303': 'Reform UK Hoodie'
           };
           
           const productName = productNameMap[productType];
@@ -563,8 +598,23 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
         }
       }
       
+      // Final fallback: try to find by value field matching the item ID
+      if (!variant) {
+        const { data: variantByValue } = await supabase
+          .from('product_variants')
+          .select('printful_variant_id')
+          .eq('value', itemIdStr)
+          .single();
+        
+        if (variantByValue) {
+          variant = variantByValue;
+          console.log(`Found variant by value field: ${itemIdStr}`);
+        }
+      }
+      
       if (error || !variant) {
         console.warn(`Could not find variant for item ${item.id}:`, error);
+        console.warn(`Tried: UUID lookup, string parsing, numeric ID, value field`);
         return {
           ...item,
           printful_variant_id: null
