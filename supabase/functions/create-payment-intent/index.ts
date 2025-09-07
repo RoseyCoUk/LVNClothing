@@ -165,11 +165,22 @@ async function getShippingCost(items: CartItem[], shippingAddress: ShippingAddre
         country_code: shippingAddress.country_code,
         zip: shippingAddress.zip,
       },
-      items: items.map(item => ({
-        printful_variant_id: typeof item.printful_variant_id === 'string' ? 
-          parseInt(item.printful_variant_id) : item.printful_variant_id,
-        quantity: item.quantity
-      }))
+      items: items
+        .filter(item => !item.isDiscount) // Skip discount items for shipping
+        .map(item => {
+          // Parse the variant ID, handling non-numeric strings
+          let variantId = item.printful_variant_id;
+          if (typeof variantId === 'string') {
+            const parsed = parseInt(variantId);
+            // Only use parsed value if it's a valid number
+            variantId = isNaN(parsed) ? 0 : parsed;
+          }
+          return {
+            printful_variant_id: variantId,
+            quantity: item.quantity
+          };
+        })
+        .filter(item => item.printful_variant_id > 0) // Remove any invalid variant IDs
     };
     
     // Call our shipping-quotes function
