@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
-import { createPerformanceMonitor, measureAsyncOperation } from '../_shared/performance.ts';
+// Temporarily removed performance monitoring to debug 500 error
+// import { createPerformanceMonitor, measureAsyncOperation } from '../_shared/performance.ts';
 import { generateCartIdempotencyKey } from '../_shared/idempotency.ts';
 import { getFallbackPrice, isVariantSupported } from '../_shared/variant-fallback.ts';
 
@@ -207,7 +208,7 @@ async function getShippingCost(items: CartItem[], shippingAddress: ShippingAddre
 }
 
 serve(async (req: Request) => {
-  const performanceMonitor = createPerformanceMonitor('create-payment-intent', req);
+  // const performanceMonitor = createPerformanceMonitor('create-payment-intent', req);
   const origin = req.headers.get("origin");
   const headers = cors(origin);
 
@@ -317,10 +318,7 @@ serve(async (req: Request) => {
     console.log('Getting shipping cost for items:', regularItems.length, 'regular items');
     let shippingCost = 4.99; // Default fallback
     try {
-      shippingCost = await measureAsyncOperation(
-        () => getShippingCost(regularItems, shipping_address),
-        'Printful shipping cost calculation'
-      );
+      shippingCost = await getShippingCost(regularItems, shipping_address);
     } catch (shippingError) {
       console.error('Error calculating shipping cost:', shippingError);
       // Use default shipping cost if calculation fails
@@ -371,8 +369,7 @@ serve(async (req: Request) => {
     console.log(`Generated idempotency key: ${idempotencyKey}`);
 
     // Create the payment intent with idempotency key
-    const paymentIntent = await measureAsyncOperation(
-      () => stripe!.paymentIntents.create({
+    const paymentIntent = await stripe!.paymentIntents.create({
         amount: totalPence,
         currency: currency,
         metadata: paymentMetadata,
@@ -394,9 +391,7 @@ serve(async (req: Request) => {
         receipt_email: customer_email,
       }, {
         idempotencyKey: idempotencyKey
-      }),
-      'Stripe payment intent creation'
-    );
+      });
 
     console.log(`Created payment intent ${paymentIntent.id} for ${customer_email}`);
 
@@ -417,7 +412,7 @@ serve(async (req: Request) => {
   } catch (error) {
     console.error('Payment intent creation error:', error);
     console.error('Error stack:', error.stack);
-    performanceMonitor.incrementErrorCount();
+    // performanceMonitor.incrementErrorCount();
     
     // Include more error details for debugging
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -434,6 +429,6 @@ serve(async (req: Request) => {
       headers: { ...headers, "Content-Type": "application/json" },
     });
   } finally {
-    performanceMonitor.end(200);
+    // performanceMonitor.end(200);
   }
 });
