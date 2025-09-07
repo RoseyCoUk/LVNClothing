@@ -458,69 +458,80 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
         };
       }
       
-      // Handle bundle items (e.g., starter-bundle-tshirt-0, champion-bundle-cap-1)
+      // Handle bundle items (e.g., starter-bundle-tshirt-0, activist-bundle-hoodie-1)
       if (item.id && String(item.id).includes('bundle')) {
         const bundleMatch = String(item.id).match(/^(.*?)-bundle-(.*?)(?:-(\d+))?$/);
         if (bundleMatch) {
           const bundleType = bundleMatch[1]; // 'starter', 'champion', 'activist'
-          const productType = bundleMatch[2]; // 'tshirt', 'cap', 'mug', etc.
+          const productType = bundleMatch[2]; // 'tshirt', 'hoodie', 'cap', etc.
           
-          // Map bundle product type to actual product
-          const bundleProductMap: Record<string, string> = {
-            'tshirt': 'Reform UK T-Shirt',
-            't-shirt': 'Reform UK T-Shirt',
-            'hoodie': 'Reform UK Hoodie',
-            'cap': 'Reform UK Cap',
-            'mug': 'Reform UK Mug',
-            'totebag': 'Reform UK Tote Bag',
-            'tote': 'Reform UK Tote Bag',
-            'waterbottle': 'Reform UK Water Bottle',
-            'water-bottle': 'Reform UK Water Bottle',
-            'mousepad': 'Reform UK Mouse Pad',
-            'mouse-pad': 'Reform UK Mouse Pad'
+          console.log(`Bundle item detected: ${item.id} -> ${bundleType} bundle ${productType}`);
+          
+          // Use hardcoded Printful variant IDs that match bundle-utils.ts
+          const BUNDLE_VARIANT_IDS: Record<string, number> = {
+            'tshirt': 15451,  // Default t-shirt variant ID
+            't-shirt': 15451, 
+            'hoodie': 15463,  // Default hoodie variant ID
+            'cap': 301,       // Cap variant ID
+            'mug': 601,       // Mug variant ID
+            'totebag': 15451, // Fallback to t-shirt variant
+            'tote': 15451,
+            'waterbottle': 15451, // Fallback to t-shirt variant
+            'water-bottle': 15451,
+            'mousepad': 15451, // Fallback to t-shirt variant
+            'mouse-pad': 15451
           };
           
-          const productName = bundleProductMap[productType];
+          const printfulVariantId = BUNDLE_VARIANT_IDS[productType];
           
-          if (productName) {
-            console.log(`Bundle item detected: ${item.id} -> ${productName}`);
+          if (printfulVariantId) {
+            console.log(`Found bundle variant: ${productType} -> Printful ID ${printfulVariantId}`);
+            return {
+              ...item,
+              printful_variant_id: printfulVariantId
+            };
+          } else {
+            console.warn(`No variant mapping for bundle product type: ${productType}`);
+            // Try to resolve from database as fallback
+            const bundleProductMap: Record<string, string> = {
+              'tshirt': 'Reform UK T-Shirt',
+              't-shirt': 'Reform UK T-Shirt',
+              'hoodie': 'Reform UK Hoodie', 
+              'cap': 'Reform UK Cap',
+              'mug': 'Reform UK Mug',
+              'totebag': 'Reform UK Tote Bag',
+              'tote': 'Reform UK Tote Bag',
+              'waterbottle': 'Reform UK Water Bottle',
+              'water-bottle': 'Reform UK Water Bottle',
+              'mousepad': 'Reform UK Mouse Pad',
+              'mouse-pad': 'Reform UK Mouse Pad'
+            };
             
-            // Get the product
-            const { data: product } = await supabase
-              .from('products')
-              .select('id')
-              .eq('name', productName)
-              .single();
-            
-            if (product) {
-              // For bundle items, we need to determine the variant
-              // Bundles usually have default variants (e.g., Black color, M size for t-shirts)
-              let defaultQuery = supabase
-                .from('product_variants')
-                .select('printful_variant_id')
-                .eq('product_id', product.id);
+            const productName = bundleProductMap[productType];
+            if (productName) {
+              // Try database lookup as fallback
+              const { data: product } = await supabase
+                .from('products')
+                .select('id')
+                .ilike('name', `%${productName}%`)
+                .limit(1)
+                .single();
               
-              // Apply default selections based on product type
-              if (productType === 'tshirt' || productType === 't-shirt') {
-                // Default to Black color and M size for t-shirts
-                defaultQuery = defaultQuery.ilike('color', 'Black').ilike('size', 'M');
-              } else if (productType === 'hoodie') {
-                // Default to Black color and L size for hoodies
-                defaultQuery = defaultQuery.ilike('color', 'Black').ilike('size', 'L');
-              } else if (productType === 'cap') {
-                // Default to Black for caps
-                defaultQuery = defaultQuery.ilike('color', 'Black');
-              }
-              // Single variant products (mug, mousepad, etc.) will just get the first/only variant
-              
-              const { data: bundleVariant } = await defaultQuery.limit(1).single();
-              
-              if (bundleVariant) {
-                console.log(`Found variant for bundle item: ${productName}`);
-                return {
-                  ...item,
-                  printful_variant_id: bundleVariant.printful_variant_id
-                };
+              if (product) {
+                const { data: variant } = await supabase
+                  .from('product_variants')
+                  .select('printful_variant_id')
+                  .eq('product_id', product.id)
+                  .limit(1)
+                  .single();
+                
+                if (variant) {
+                  console.log(`Found fallback variant for ${productType}: ${variant.printful_variant_id}`);
+                  return {
+                    ...item,
+                    printful_variant_id: variant.printful_variant_id
+                  };
+                }
               }
             }
           }

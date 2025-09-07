@@ -61,9 +61,9 @@ export async function createPrintfulFulfillment(orderData: OrderData): Promise<P
       return { success: false, error: 'No fulfillable items found' };
     }
 
-    // Create Printful order payload
+    // Create Printful order payload with properly formatted external_id
     const printfulOrder = {
-      external_id: orderData.id,
+      external_id: `RUK-${orderData.id}`, // Prefix with RUK for better identification
       recipient: {
         name: orderData.shipping_address.name,
         address1: orderData.shipping_address.address1,
@@ -86,6 +86,7 @@ export async function createPrintfulFulfillment(orderData: OrderData): Promise<P
     console.log('Creating Printful order:', {
       external_id: printfulOrder.external_id,
       item_count: printfulItems.length,
+      items: printfulItems.map(item => ({ sync_variant_id: item.sync_variant_id, quantity: item.quantity })),
       total: printfulOrder.retail_costs.total
     });
 
