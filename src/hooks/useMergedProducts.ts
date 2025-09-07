@@ -434,14 +434,14 @@ function createFallbackProducts(): MergedProduct[] {
     },
     variants: [],
     colorOptions: [
-      { name: 'Black', hex: '#000000' },
-      { name: 'Navy', hex: '#001F3F' },
-      { name: 'White', hex: '#FFFFFF', border: true },
-      { name: 'Red', hex: '#DC143C' },
-      { name: 'Grey', hex: '#808080' },
-      { name: 'Khaki', hex: '#C3B091' },
-      { name: 'Green', hex: '#228B22' },
-      { name: 'Blue', hex: '#0000FF' }
+      { name: 'Black', hex: '#181717' },
+      { name: 'Navy', hex: '#182031' },
+      { name: 'Dark Grey', hex: '#39353a' },
+      { name: 'Khaki', hex: '#b49771' },
+      { name: 'Stone', hex: '#d6bdad' },
+      { name: 'Pink', hex: '#fab2ba' },
+      { name: 'Light Blue', hex: '#b5cbda' },
+      { name: 'White', hex: '#ffffff', border: true }
     ],
     sizeOptions: ['One Size'],
     priceRange: { min: 19.99, max: 19.99 },

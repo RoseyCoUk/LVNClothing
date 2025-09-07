@@ -97,21 +97,24 @@ export function findCapVariantByCatalogId(catalogVariantId: number): CapVariant 
   return CapVariants.find(v => v.catalogVariantId === catalogVariantId);
 }
 
-// Color mapping for caps based on catalog variant IDs
+// Color mapping for caps based on catalog variant IDs (matching database)
 export const capColors = [
-  { value: 'Black', catalogVariantId: 7854, hex: '#000000' },
-  { value: 'Navy', catalogVariantId: 7857, hex: '#001F3F' },
-  { value: 'White', catalogVariantId: 12736, hex: '#FFFFFF' },
-  { value: 'Red', catalogVariantId: 7855, hex: '#DC143C' },
-  { value: 'Grey', catalogVariantId: 7859, hex: '#808080' },
-  { value: 'Khaki', catalogVariantId: 7858, hex: '#C3B091' },
-  { value: 'Green', catalogVariantId: 7856, hex: '#228B22' },
-  { value: 'Blue', catalogVariantId: 7853, hex: '#0000FF' }
+  { value: 'Black', catalogVariantId: 7854, syncVariantId: 4938937571, hex: '#181717' },
+  { value: 'Navy', catalogVariantId: 7857, syncVariantId: 4938937572, hex: '#182031' },
+  { value: 'Dark Grey', catalogVariantId: 7859, syncVariantId: 4938937573, hex: '#39353a' },
+  { value: 'Khaki', catalogVariantId: 7858, syncVariantId: 4938937574, hex: '#b49771' },
+  { value: 'Stone', catalogVariantId: 7855, syncVariantId: 4938937575, hex: '#d6bdad' },
+  { value: 'Pink', catalogVariantId: 7856, syncVariantId: 4938937576, hex: '#fab2ba' },
+  { value: 'Light Blue', catalogVariantId: 7853, syncVariantId: 4938937577, hex: '#b5cbda' },
+  { value: 'White', catalogVariantId: 12736, syncVariantId: 4938937578, hex: '#ffffff' }
 ];
 
 // Helper function to find variant by color
-export function findCapVariantByColor(color: string): CapVariant | undefined {
+export function findCapVariantByColor(color: string): { syncVariantId: number, catalogVariantId: number } | undefined {
   const colorMapping = capColors.find(c => c.value === color);
   if (!colorMapping) return undefined;
-  return findCapVariantByCatalogId(colorMapping.catalogVariantId);
+  return { 
+    syncVariantId: colorMapping.syncVariantId, 
+    catalogVariantId: colorMapping.catalogVariantId 
+  };
 }
