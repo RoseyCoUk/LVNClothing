@@ -61,7 +61,7 @@ interface CartItem {
   name: string;
   price: number;
   quantity: number;
-  printful_variant_id: string;
+  printful_variant_id: string | number; // Can be string or number from frontend
   product_type?: string;
   isDiscount?: boolean; // Whether this item is a discount (not to be sent to Printful)
 }
@@ -95,30 +95,33 @@ interface PaymentIntentResponse {
 }
 
 // Function to get product prices from our database/variant system
-async function getProductPrice(printfulVariantId: string): Promise<number> {
+async function getProductPrice(printfulVariantId: string | number): Promise<number> {
   try {
+    // Convert to string for database lookup (database stores as string)
+    const variantIdStr = String(printfulVariantId);
+    
     // First try to get price from product_variants table
     const { data: variant, error } = await supabase
       .from('product_variants')
       .select('price')
-      .eq('printful_variant_id', printfulVariantId)
+      .eq('printful_variant_id', variantIdStr)
       .single();
     
     if (!error && variant?.price) {
-      console.log(`✅ Found price in database: ${printfulVariantId} = £${variant.price}`);
+      console.log(`✅ Found price in database: ${variantIdStr} = £${variant.price}`);
       return parseFloat(variant.price);
     }
     
-    console.log(`⚠️ Database lookup failed for variant ${printfulVariantId}, trying fallback...`);
+    console.log(`⚠️ Database lookup failed for variant ${variantIdStr}, trying fallback...`);
     
     // Try fallback pricing system
-    const fallbackPrice = getFallbackPrice(printfulVariantId);
+    const fallbackPrice = getFallbackPrice(variantIdStr);
     if (fallbackPrice) {
-      console.log(`✅ Found fallback price: ${printfulVariantId} = £${fallbackPrice}`);
+      console.log(`✅ Found fallback price: ${variantIdStr} = £${fallbackPrice}`);
       return fallbackPrice;
     }
     
-    console.log(`❌ No fallback price found for variant ${printfulVariantId}`);
+    console.log(`❌ No fallback price found for variant ${variantIdStr}`);
     
     // Last resort: Return default prices based on product type
     // This is a temporary fallback - in production you should have all prices in DB
@@ -163,7 +166,8 @@ async function getShippingCost(items: CartItem[], shippingAddress: ShippingAddre
         zip: shippingAddress.zip,
       },
       items: items.map(item => ({
-        printful_variant_id: parseInt(item.printful_variant_id),
+        printful_variant_id: typeof item.printful_variant_id === 'string' ? 
+          parseInt(item.printful_variant_id) : item.printful_variant_id,
         quantity: item.quantity
       }))
     };
