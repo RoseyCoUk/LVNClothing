@@ -213,7 +213,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
       price: currentVariant.price,
       image: getProductImages()[0] || '/BackReformLogo.png',
       quantity: quantity,
-      printful_variant_id: selectedVariant.catalogVariantId
+      printful_variant_id: selectedVariant.syncVariantId
     };
     addToCart(itemToAdd);
     
@@ -242,7 +242,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
       image: getProductImages()[0] || '/BackReformLogo.png',
       color: selectedColor,
       quantity: quantity,
-      printful_variant_id: selectedVariant.catalogVariantId
+      printful_variant_id: selectedVariant.syncVariantId
     };
     
     const updatedCartItems = addToCartAndGetUpdated(itemToAdd);
