@@ -450,12 +450,81 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     const itemsWithPrintfulIds = await Promise.all(items.map(async (item) => {
       console.log(`Processing item: ${JSON.stringify(item)}`);
       
-      // Skip discount items
-      if (item.id && String(item.id).includes('discount')) {
+      // Skip discount items and bundle discounts
+      if (item.id && (String(item.id).includes('discount') || String(item.id).includes('-discount'))) {
         return {
           ...item,
           printful_variant_id: null // Discounts don't have Printful IDs
         };
+      }
+      
+      // Handle bundle items (e.g., starter-bundle-tshirt-0, champion-bundle-cap-1)
+      if (item.id && String(item.id).includes('bundle')) {
+        const bundleMatch = String(item.id).match(/^(.*?)-bundle-(.*?)(?:-(\d+))?$/);
+        if (bundleMatch) {
+          const bundleType = bundleMatch[1]; // 'starter', 'champion', 'activist'
+          const productType = bundleMatch[2]; // 'tshirt', 'cap', 'mug', etc.
+          
+          // Map bundle product type to actual product
+          const bundleProductMap: Record<string, string> = {
+            'tshirt': 'Reform UK T-Shirt',
+            't-shirt': 'Reform UK T-Shirt',
+            'hoodie': 'Reform UK Hoodie',
+            'cap': 'Reform UK Cap',
+            'mug': 'Reform UK Mug',
+            'totebag': 'Reform UK Tote Bag',
+            'tote': 'Reform UK Tote Bag',
+            'waterbottle': 'Reform UK Water Bottle',
+            'water-bottle': 'Reform UK Water Bottle',
+            'mousepad': 'Reform UK Mouse Pad',
+            'mouse-pad': 'Reform UK Mouse Pad'
+          };
+          
+          const productName = bundleProductMap[productType];
+          
+          if (productName) {
+            console.log(`Bundle item detected: ${item.id} -> ${productName}`);
+            
+            // Get the product
+            const { data: product } = await supabase
+              .from('products')
+              .select('id')
+              .eq('name', productName)
+              .single();
+            
+            if (product) {
+              // For bundle items, we need to determine the variant
+              // Bundles usually have default variants (e.g., Black color, M size for t-shirts)
+              let defaultQuery = supabase
+                .from('product_variants')
+                .select('printful_variant_id')
+                .eq('product_id', product.id);
+              
+              // Apply default selections based on product type
+              if (productType === 'tshirt' || productType === 't-shirt') {
+                // Default to Black color and M size for t-shirts
+                defaultQuery = defaultQuery.ilike('color', 'Black').ilike('size', 'M');
+              } else if (productType === 'hoodie') {
+                // Default to Black color and L size for hoodies
+                defaultQuery = defaultQuery.ilike('color', 'Black').ilike('size', 'L');
+              } else if (productType === 'cap') {
+                // Default to Black for caps
+                defaultQuery = defaultQuery.ilike('color', 'Black');
+              }
+              // Single variant products (mug, mousepad, etc.) will just get the first/only variant
+              
+              const { data: bundleVariant } = await defaultQuery.limit(1).single();
+              
+              if (bundleVariant) {
+                console.log(`Found variant for bundle item: ${productName}`);
+                return {
+                  ...item,
+                  printful_variant_id: bundleVariant.printful_variant_id
+                };
+              }
+            }
+          }
+        }
       }
       
       // Parse the item ID to extract product type and variant details
