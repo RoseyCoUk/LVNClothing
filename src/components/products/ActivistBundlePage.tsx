@@ -7,7 +7,7 @@ import OrderOverviewModal from '../OrderOverviewModal';
 import { useBundleCalculation } from '../../hooks/useBundleCalculation';
 import { useBundlePricing } from '../../hooks/useBundlePricing';
 import { useMergedProducts } from '../../hooks/useMergedProducts';
-import { useHoodieVariants } from '../../hooks/hoodie-variants-merged-fixed';
+import { findHoodieVariant } from '../../hooks/hoodie-variants-merged-fixed';
 import { useTshirtVariants, colorDesignMapping } from '../../hooks/tshirt-variants-merged-fixed';
 import { findCapVariantByColor } from '../../hooks/cap-variants';
 import { WaterbottleVariants } from '../../hooks/waterbottle-variants';
@@ -74,9 +74,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
 
   // Use the same merged products system as individual product pages
   const { getProductByCategory, isLoading: mergedLoading, error: mergedError } = useMergedProducts();
-  const hoodieVariantsHook = useHoodieVariants();
   const tshirtVariantsHook = useTshirtVariants();
-  const findHoodieVariant = hoodieVariantsHook?.findHoodieVariant;
   const findTshirtVariant = tshirtVariantsHook?.findTshirtVariant;
   
   // Helper functions to find variants for each product type
@@ -757,8 +755,11 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       // For each product type, ensure we have the correct variant ID
       if (item.product.category === 'hoodie') {
         const variantSize = convertSizeForVariant(hoodieSize);
-        console.log(`🔍 Hoodie lookup - Size: ${hoodieSize}, Variant Size: ${variantSize}, Color: ${hoodieColor}`);
-        const hoodieVariant = findHoodieVariant ? findHoodieVariant(variantSize, hoodieColor) : null;
+        // Determine design based on color - DARK design is for darker colors, LIGHT for lighter colors
+        const darkColors = ['Black', 'Navy', 'Red', 'Dark Heather', 'Indigo Blue'];
+        const design = darkColors.includes(hoodieColor) ? 'DARK' : 'LIGHT';
+        console.log(`🔍 Hoodie lookup - Design: ${design}, Size: ${hoodieSize}, Variant Size: ${variantSize}, Color: ${hoodieColor}`);
+        const hoodieVariant = findHoodieVariant(design, variantSize, hoodieColor);
         console.log('📦 Hoodie variant found:', hoodieVariant);
         if (hoodieVariant) {
           variantId = hoodieVariant.catalogVariantId;
@@ -882,9 +883,11 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
         external_id: variantId, // Use the same valid variant ID
         sku: (() => {
           // Get SKU from the actual variant object based on the category
-          if (item.product.category === 'hoodie' && findHoodieVariant) {
+          if (item.product.category === 'hoodie') {
             const variantSize = convertSizeForVariant(hoodieSize);
-            const hoodieVariant = findHoodieVariant(variantSize, hoodieColor);
+            const darkColors = ['Black', 'Navy', 'Red', 'Dark Heather', 'Indigo Blue'];
+            const design = darkColors.includes(hoodieColor) ? 'DARK' : 'LIGHT';
+            const hoodieVariant = findHoodieVariant(design, variantSize, hoodieColor);
             return hoodieVariant?.sku || hoodieVariant?.externalId || `hoodie-${hoodieColor}-${hoodieSize}`.toLowerCase();
           } else if (item.product.category === 'tshirt' && findTshirtVariant) {
             const design = colorDesignMapping[tshirtColor] || 'DARK';

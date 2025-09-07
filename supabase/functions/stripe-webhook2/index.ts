@@ -448,10 +448,15 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     // Look up printful_variant_id for each item from the database
     // The item.id might be a string like "hoodie-2XL-White" or a UUID
     const itemsWithPrintfulIds = await Promise.all(items.map(async (item) => {
-      console.log(`Processing item: ${JSON.stringify(item)}`);
+      console.log(`\n🔍 Processing item: ${item.name || item.id}`);
+      console.log(`   ID: ${item.id}`);
+      console.log(`   Color: ${item.color || 'not specified'}`);
+      console.log(`   Size: ${item.size || 'not specified'}`);
+      console.log(`   Printful Variant ID from frontend: ${item.printful_variant_id || 'not provided'}`);
       
       // Skip discount items and bundle discounts
       if (item.id && (String(item.id).includes('discount') || String(item.id).includes('-discount'))) {
+        console.log(`   ➡️ Skipping discount item`);
         return {
           ...item,
           printful_variant_id: null // Discounts don't have Printful IDs
@@ -466,13 +471,25 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
           const productType = bundleMatch[2]; // 'tshirt', 'hoodie', 'cap', etc.
           
           console.log(`Bundle item detected: ${item.id} -> ${bundleType} bundle ${productType}`);
+          console.log(`Bundle item details: color=${item.color}, size=${item.size}, printful_variant_id=${item.printful_variant_id}`);
           
-          // Use correct Printful sync variant IDs from database
+          // CRITICAL FIX: Use the actual variant ID sent from the frontend
+          // The frontend has already resolved the correct variant based on user's color/size selection
+          if (item.printful_variant_id) {
+            console.log(`Using customer-selected variant ID: ${item.printful_variant_id} (${item.color} ${item.size || ''})`);
+            return {
+              ...item,
+              printful_variant_id: item.printful_variant_id // Use the actual variant from frontend
+            };
+          }
+          
+          // Only use hardcoded defaults as absolute last resort if frontend didn't send variant ID
+          console.warn(`WARNING: No variant ID from frontend for ${productType}, using fallback defaults`);
           const BUNDLE_VARIANT_IDS: Record<string, number> = {
-            'tshirt': 4938821288,  // Default t-shirt variant ID (Black, Size M)
+            'tshirt': 4938821288,  // FALLBACK ONLY: Black, Size M
             't-shirt': 4938821288, 
-            'hoodie': 4938800535,  // Default hoodie variant ID (Black, Size L)
-            'cap': 4938937571,     // Cap variant ID (Black)
+            'hoodie': 4938800535,  // FALLBACK ONLY: Black, Size L
+            'cap': 4938937571,     // FALLBACK ONLY: Black
             'mug': 4938946337,     // Mug variant ID
             'totebag': 4937855201, // Tote bag variant ID
             'tote': 4937855201,
@@ -487,7 +504,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
           const printfulVariantId = BUNDLE_VARIANT_IDS[productType];
           
           if (printfulVariantId) {
-            console.log(`Found bundle variant: ${productType} -> Printful ID ${printfulVariantId}`);
+            console.log(`Using fallback variant: ${productType} -> Printful ID ${printfulVariantId}`);
             return {
               ...item,
               printful_variant_id: printfulVariantId
@@ -805,7 +822,21 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
       created_at: new Date().toISOString()
     };
 
-    console.log(`Creating order for payment intent ${paymentIntent.id}`);
+    // Log summary of items being processed
+    console.log('\n📦 Order Summary:');
+    console.log(`   Customer: ${customerEmail}`);
+    console.log(`   Order ID: ${readableOrderId}`);
+    console.log(`   Items to fulfill:`);
+    itemsWithPrintfulIds.forEach((item, index) => {
+      if (item.printful_variant_id) {
+        console.log(`   ${index + 1}. ${item.name || item.id}`);
+        console.log(`      - Variant ID: ${item.printful_variant_id}`);
+        console.log(`      - Color: ${item.color || 'N/A'}, Size: ${item.size || 'N/A'}`);
+        console.log(`      - Quantity: ${item.quantity}`);
+      }
+    });
+    
+    console.log(`\nCreating order for payment intent ${paymentIntent.id}`);
     
     // Insert order into database
     const { data: newOrder, error: orderError } = await supabase
