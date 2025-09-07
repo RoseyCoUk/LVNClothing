@@ -383,7 +383,10 @@ Deno.serve(async (req: Request) => {
       ...(itemChunks[1] ? { items_2: itemChunks[1] } : {}),
       ...(itemChunks[2] ? { items_3: itemChunks[2] } : {}),
       // Simplified shipping address to save space
-      ship_to: `${shipping_address.name}, ${shipping_address.city}, ${shipping_address.country_code}`,
+      ship_name: shipping_address.name,
+      ship_addr1: shipping_address.address1,
+      ship_city: shipping_address.city,
+      ship_country: shipping_address.country_code,
       ship_zip: shipping_address.zip,
       ...(userId ? { user_id: userId } : {}),
       guest_checkout: guest_checkout.toString(),

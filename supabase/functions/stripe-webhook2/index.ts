@@ -430,13 +430,13 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
       }
       
       // Reconstruct shipping address from simplified format
-      if (metadata.ship_to && metadata.ship_zip) {
-        const shipToParts = metadata.ship_to.split(', ');
+      if (metadata.ship_name || metadata.ship_addr1) {
         shippingAddress = {
-          name: shipToParts[0] || '',
-          city: shipToParts[1] || '',
-          country_code: shipToParts[2] || '',
-          zip: metadata.ship_zip
+          name: metadata.ship_name || '',
+          address1: metadata.ship_addr1 || '',
+          city: metadata.ship_city || '',
+          country_code: metadata.ship_country || '',
+          zip: metadata.ship_zip || ''
         };
       }
     } 
