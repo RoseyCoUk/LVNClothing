@@ -338,21 +338,51 @@ Deno.serve(async (req: Request) => {
     });
 
     // Prepare metadata for the payment intent
-    // Create simplified items for metadata (Stripe has 500 char limit per value)
+    // Split items across multiple metadata fields to avoid 500 char limit
     const simplifiedItems = enrichedItems.map(item => ({
-      id: item.id,
-      qty: item.quantity,
-      price: item.real_price || item.price
+      // Use last 8 chars of ID to save space
+      id: item.id.slice(-8),
+      q: item.quantity,
+      p: item.real_price || item.price
     }));
     
-    const paymentMetadata = {
+    // Split items into chunks that fit within 500 chars
+    const itemChunks: string[] = [];
+    let currentChunk: any[] = [];
+    let currentChunkStr = '';
+    
+    for (const item of simplifiedItems) {
+      const itemStr = JSON.stringify(item);
+      const testChunk = [...currentChunk, item];
+      const testChunkStr = JSON.stringify(testChunk);
+      
+      if (testChunkStr.length > 490) { // Leave some margin
+        // Current chunk is full, save it and start new one
+        itemChunks.push(JSON.stringify(currentChunk));
+        currentChunk = [item];
+      } else {
+        currentChunk.push(item);
+      }
+    }
+    
+    // Don't forget the last chunk
+    if (currentChunk.length > 0) {
+      itemChunks.push(JSON.stringify(currentChunk));
+    }
+    
+    const paymentMetadata: Record<string, string> = {
       customer_email,
       subtotal: subtotal.toString(),
       shipping_cost: shippingCost.toString(),
       total: total.toString(),
       item_count: items.length.toString(),
-      items: JSON.stringify(simplifiedItems), // Simplified to stay under 500 chars
-      shipping_address: JSON.stringify(shipping_address),
+      // Split items across multiple fields if needed
+      ...(itemChunks[0] ? { items_1: itemChunks[0] } : {}),
+      ...(itemChunks[1] ? { items_2: itemChunks[1] } : {}),
+      ...(itemChunks[2] ? { items_3: itemChunks[2] } : {}),
+      // Simplified shipping address to save space
+      ship_to: `${shipping_address.name}, ${shipping_address.city}, ${shipping_address.country_code}`,
+      ship_zip: shipping_address.zip,
       ...(userId ? { user_id: userId } : {}),
       guest_checkout: guest_checkout.toString(),
       ...metadata
