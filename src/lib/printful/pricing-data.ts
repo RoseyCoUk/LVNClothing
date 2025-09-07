@@ -1,5 +1,5 @@
 // AUTO-GENERATED pricing data by scripts/printful-sync.ts
-// Generated on: 2025-08-26T14:38:57.277Z
+// Generated on: 2025-09-07T12:23:03.194Z
 // Total variants with pricing: 158
 
 export const variantPricing: Record<number, string> = {
