@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cart Test</title>
+    <script>
+        // Simulate the bundle cart addition logic
+        function simulateBundleAddition() {
+            const bundleProducts = [
+                {
+                    product: { category: 'tshirt', name: 'Reform UK T-shirt', id: 'tshirt-1' },
+                    variant: { id: 'tshirt-variant', color: 'Black', size: 'M', price: '14.99' }
+                },
+                {
+                    product: { category: 'cap', name: 'Reform UK Cap', id: 'cap-1' },
+                    variant: { id: 'cap-variant', color: 'Black', price: '12.99' }
+                },
+                {
+                    product: { category: 'mug', name: 'Reform UK Mug', id: 'mug-1' },
+                    variant: { id: 'mug-variant', color: 'White', price: '9.99' }
+                }
+            ];
+            
+            const bundlePrice = 49.99;
+            const quantity = 1;
+            const cartItems = [];
+            
+            console.log('Starting bundle addition simulation');
+            console.log('Bundle products:', bundleProducts);
+            
+            bundleProducts.forEach((item, index) => {
+                const cartItem = {
+                    id: `starter-bundle-${item.product.category}-${index}`,
+                    name: item.product.name,
+                    price: index === 0 ? bundlePrice : 0, // Only charge for the first item
+                    image: '/BackReformLogo.png',
+                    quantity: quantity,
+                    printful_variant_id: item.variant.id,
+                    size: item.variant.size,
+                    color: item.variant.color,
+                    isPartOfBundle: true,
+                    bundleName: 'Starter Bundle',
+                    bundleId: 'starter-bundle'
+                };
+                
+                console.log(`Adding item ${index}:`, cartItem);
+                cartItems.push(cartItem);
+            });
+            
+            console.log('Final cart items:', cartItems);
+            console.log('Cart items count:', cartItems.length);
+            
+            return cartItems;
+        }
+        
+        window.onload = function() {
+            const result = simulateBundleAddition();
+            document.getElementById('result').innerHTML = `
+                <h3>Simulation Result:</h3>
+                <p>Items added: ${result.length}</p>
+                <pre>${JSON.stringify(result, null, 2)}</pre>
+            `;
+        }
+    </script>
+</head>
+<body>
+    <h1>Cart Addition Test</h1>
+    <p>This simulates the bundle cart addition logic outside of React.</p>
+    <div id="result"></div>
+    
+    <h2>Analysis:</h2>
+    <p>This test shows what the forEach loop SHOULD produce. If it produces 3 items here but only 1 in the React app, then the issue is likely:</p>
+    <ol>
+        <li>bundleProducts array is not populated correctly</li>
+        <li>The forEach loop is being interrupted</li>
+        <li>The addToCart function is not working correctly</li>
+        <li>There's a state update issue</li>
+    </ol>
+</body>
+</html>

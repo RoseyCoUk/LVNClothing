@@ -66,7 +66,7 @@ const productData = {
   careInstructions: "Dishwasher and microwave safe.",
   materials: "High-grade ceramic",
   category: 'gear',
-  shipping: "Ships in 48H",
+  shipping: "Fast UK Delivery",
   defaultVariant: 601, // The ID of the single, default variant
   variantDetails: {
     // No selectable options for this product
@@ -379,7 +379,7 @@ const MugPage = ({ onBack }: MugPageProps) => {
 
             {/* Trust Badges */}
             <div className="grid grid-cols-3 gap-4 pt-6 border-t">
-              <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Free UK Shipping Over £30</p></div>
+              <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Fast UK Shipping</p></div>
               <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
               <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
             </div>

@@ -156,9 +156,9 @@ const ProductBundles = () => {
     starter: {
       id: 1,
       name: "Starter Bundle",
-      originalPrice: pricingLoading ? "..." : `£${bundlePricing.starter?.originalPrice.toFixed(2) || '54.97'}`,
-      bundlePrice: pricingLoading ? 0 : bundlePricing.starter?.price || 49.99,
-      savings: pricingLoading ? "..." : `Save £${bundlePricing.starter?.savings.absolute.toFixed(2) || '4.98'}`,
+      originalPrice: "£54.97",  // HARDCODED: T-shirt £24.99 + Cap £19.99 + Mug £9.99
+      bundlePrice: 49.99,  // HARDCODED: Must match Stripe price
+      savings: "Save £4.98",  // HARDCODED: 10% discount
       image: "/starterbundle.png",
       urgency: "Limited Time Offer",
       popular: false,

@@ -88,7 +88,18 @@ export default function DynamicCheckoutPage({ onBack }: DynamicCheckoutPageProps
       });
 
       // Validate printful_variant_id format - accept both numeric and alphanumeric formats
+      // Special handling for discount items which don't need valid Printful variant IDs
       const validItems = cartItems.filter(item => {
+        // Allow discount items through validation regardless of variant ID
+        if (item.isDiscount) {
+          console.log('Allowing discount item through validation:', {
+            id: item.id,
+            name: item.name,
+            isDiscount: item.isDiscount
+          });
+          return true;
+        }
+        
         const variantId = item.printful_variant_id?.toString();
         if (!variantId) {
           console.warn(`Filtering out cart item with missing variant ID:`, {
@@ -127,7 +138,8 @@ export default function DynamicCheckoutPage({ onBack }: DynamicCheckoutPageProps
         product_type: item.isBundle ? 'bundle' : 'single',
         image: item.image, // Preserve the image URL for display in checkout
         color: item.color, // Preserve color variant
-        size: item.size    // Preserve size variant
+        size: item.size,   // Preserve size variant
+        isDiscount: item.isDiscount // Preserve discount flag for shipping exclusion
       }));
 
       try {
@@ -174,13 +186,16 @@ export default function DynamicCheckoutPage({ onBack }: DynamicCheckoutPageProps
         console.log('🚚 Fetching shipping rates for:', { enrichedCartItems, shippingAddress });
         const rates = await getShippingRates(enrichedCartItems, shippingAddress);
         console.log('🚚 Shipping rates response:', rates);
+        console.log('🚚 Raw API response options:', JSON.stringify(rates.options, null, 2));
         console.log('🚚 Individual shipping options:', rates.options?.map((opt, i) => ({
           index: i,
           id: opt.id,
           name: opt.name,
           rate: opt.rate,
           currency: opt.currency,
-          deliveryDays: opt.minDeliveryDays + '-' + opt.maxDeliveryDays + ' days'
+          minDeliveryDays: opt.minDeliveryDays,
+          maxDeliveryDays: opt.maxDeliveryDays,
+          deliveryDays: `${opt.minDeliveryDays}-${opt.maxDeliveryDays} days`
         })));
         
         if (rates.options && rates.options.length > 0) {
@@ -368,10 +383,23 @@ export default function DynamicCheckoutPage({ onBack }: DynamicCheckoutPageProps
                 <span>{formatPrice(calculateSubtotal())}</span>
               </div>
               {selectedShipping && (
-                <div className="flex justify-between text-sm">
-                  <span>Shipping ({selectedShipping.name}):</span>
-                  <span>{formatPrice(parseFloat(selectedShipping.rate))}</span>
-                </div>
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span>Shipping ({selectedShipping.name}):</span>
+                    <span>{formatPrice(parseFloat(selectedShipping.rate))}</span>
+                  </div>
+                  {selectedShipping.minDeliveryDays && selectedShipping.maxDeliveryDays && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Estimated delivery: {selectedShipping.minDeliveryDays}-{selectedShipping.maxDeliveryDays} business days
+                    </div>
+                  )}
+                  {/* Movement momentum notice */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-md p-2 mt-2">
+                    <p className="text-xs text-amber-800">
+                      🔥 <strong>The movement is growing!</strong> Due to unprecedented demand from supporters across the UK, items may ship separately and delivery times are currently 3-7 business days. Thank you for joining thousands in showing your support!
+                    </p>
+                  </div>
+                </>
               )}
               <div className="flex justify-between font-semibold text-lg border-t pt-2">
                 <span>Total:</span>
@@ -532,11 +560,65 @@ export default function DynamicCheckoutPage({ onBack }: DynamicCheckoutPageProps
                             />
                             <Truck className="w-5 h-5 text-gray-400 mr-3" />
                             <div className="flex-1">
-                              <div className="font-medium">{rate.name}</div>
+                              <div className="font-medium">
+                                {rate.name}
+                                {rate.minDeliveryDays && rate.maxDeliveryDays && (
+                                  <span className="ml-2 text-sm text-gray-500 font-normal">
+                                    (Est. {rate.minDeliveryDays}-{rate.maxDeliveryDays} business days)
+                                  </span>
+                                )}
+                              </div>
+                              {rate.minDeliveryDays && rate.maxDeliveryDays && (
+                                <div className="text-xs text-gray-500 mt-1">
+                                  Estimated delivery: {(() => {
+                                    const today = new Date();
+                                    const minDate = new Date(today);
+                                    const maxDate = new Date(today);
+                                    
+                                    // Add business days
+                                    let daysToAdd = rate.minDeliveryDays;
+                                    let daysAdded = 0;
+                                    while (daysAdded < daysToAdd) {
+                                      minDate.setDate(minDate.getDate() + 1);
+                                      if (minDate.getDay() !== 0 && minDate.getDay() !== 6) {
+                                        daysAdded++;
+                                      }
+                                    }
+                                    
+                                    daysToAdd = rate.maxDeliveryDays;
+                                    daysAdded = 0;
+                                    while (daysAdded < daysToAdd) {
+                                      maxDate.setDate(maxDate.getDate() + 1);
+                                      if (maxDate.getDay() !== 0 && maxDate.getDay() !== 6) {
+                                        daysAdded++;
+                                      }
+                                    }
+                                    
+                                    const formatDate = (date: Date) => {
+                                      return date.toLocaleDateString('en-GB', { 
+                                        month: 'short', 
+                                        day: 'numeric' 
+                                      });
+                                    };
+                                    
+                                    if (minDate.getMonth() === maxDate.getMonth()) {
+                                      return `${formatDate(minDate)}–${maxDate.getDate()}`;
+                                    } else {
+                                      return `${formatDate(minDate)}–${formatDate(maxDate)}`;
+                                    }
+                                  })()}
+                                </div>
+                              )}
                             </div>
                             <div className="font-medium">{formatPrice(parseFloat(rate.rate))}</div>
                           </label>
                         ))}
+                      </div>
+                      {/* Movement momentum notice for shipping selection */}
+                      <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mt-3">
+                        <p className="text-sm text-amber-800">
+                          🔥 <strong>The movement is growing!</strong> Due to unprecedented demand from supporters across the UK, items may ship separately and delivery times are currently 3-7 business days. Thank you for joining thousands in showing your support!
+                        </p>
                       </div>
                     </div>
                   )}

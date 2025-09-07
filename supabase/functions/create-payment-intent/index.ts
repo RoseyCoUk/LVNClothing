@@ -63,6 +63,7 @@ interface CartItem {
   quantity: number;
   printful_variant_id: string;
   product_type?: string;
+  isDiscount?: boolean; // Whether this item is a discount (not to be sent to Printful)
 }
 
 interface ShippingAddress {
@@ -255,12 +256,27 @@ serve(async (req: Request) => {
       }
     }
 
-    // Calculate subtotal with real-time pricing
+    // Separate discount items from regular items
+    const regularItems = items.filter(item => !item.isDiscount);
+    const discountItems = items.filter(item => item.isDiscount);
+    
+    // Calculate subtotal with real-time pricing (regular items only)
     let subtotal = 0;
     const enrichedItems = [];
     
-    for (const item of items) {
-      const realPrice = await getProductPrice(item.printful_variant_id);
+    for (const item of regularItems) {
+      // For bundle items (indicated by id starting with bundle name), use the price from frontend
+      // Otherwise fetch the real price from database
+      const isBundleItem = item.id && (
+        item.id.includes('starter-bundle') || 
+        item.id.includes('champion-bundle') || 
+        item.id.includes('activist-bundle')
+      );
+      
+      const realPrice = isBundleItem 
+        ? item.price // Use price from frontend for bundle items
+        : await getProductPrice(item.printful_variant_id); // Fetch price for regular items
+        
       const itemTotal = realPrice * item.quantity;
       subtotal += itemTotal;
       
@@ -270,10 +286,23 @@ serve(async (req: Request) => {
         item_total: itemTotal
       });
     }
+    
+    // Add discount items to enriched items (they already have their prices)
+    for (const discountItem of discountItems) {
+      const itemTotal = discountItem.price * discountItem.quantity;
+      subtotal += itemTotal; // This will reduce the subtotal since price is negative
+      
+      enrichedItems.push({
+        ...discountItem,
+        real_price: discountItem.price,
+        item_total: itemTotal,
+        is_discount: true
+      });
+    }
 
-    // Get shipping cost from Printful
+    // Get shipping cost from Printful (regular items only, not discounts)
     const shippingCost = await measureAsyncOperation(
-      () => getShippingCost(items, shipping_address),
+      () => getShippingCost(regularItems, shipping_address),
       'Printful shipping cost calculation'
     );
 
@@ -290,13 +319,20 @@ serve(async (req: Request) => {
     });
 
     // Prepare metadata for the payment intent
+    // Create simplified items for metadata (Stripe has 500 char limit per value)
+    const simplifiedItems = enrichedItems.map(item => ({
+      id: item.id,
+      qty: item.quantity,
+      price: item.real_price || item.price
+    }));
+    
     const paymentMetadata = {
       customer_email,
       subtotal: subtotal.toString(),
       shipping_cost: shippingCost.toString(),
       total: total.toString(),
       item_count: items.length.toString(),
-      items: JSON.stringify(enrichedItems),
+      items: JSON.stringify(simplifiedItems), // Simplified to stay under 500 chars
       shipping_address: JSON.stringify(shipping_address),
       ...(userId ? { user_id: userId } : {}),
       guest_checkout: guest_checkout.toString(),

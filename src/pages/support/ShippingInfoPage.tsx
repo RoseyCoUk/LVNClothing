@@ -44,8 +44,8 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Truck className="w-8 h-8 text-green-600" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Free UK Shipping</h3>
-              <p className="text-sm text-gray-600">On orders over £50</p>
+              <h3 className="font-semibold text-gray-900 mb-2">UK Shipping</h3>
+              <p className="text-sm text-gray-600">Calculated at checkout</p>
             </div>
 
             <div className="text-center">
@@ -82,8 +82,8 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
                   <p className="text-sm text-gray-600">3-5 business days</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-gray-900">From £3.99</p>
-                  <p className="text-xs text-blue-600">Best rates for multiple items</p>
+                  <p className="font-semibold text-gray-900">Calculated at checkout</p>
+                  <p className="text-xs text-blue-600">Based on location and items</p>
                 </div>
               </div>
               
@@ -93,8 +93,8 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
                   <p className="text-sm text-gray-600">2-3 business days</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-gray-900">£5.99</p>
-                  <p className="text-xs text-blue-600">Priority shipping</p>
+                  <p className="font-semibold text-gray-900">Calculated at checkout</p>
+                  <p className="text-xs text-blue-600">Priority shipping available</p>
                 </div>
               </div>
               

@@ -17,6 +17,21 @@ export type TshirtVariant = {
   sku: string;
 };
 
+export function useTshirtVariants() {
+  const findTshirtVariant = (design: 'DARK' | 'LIGHT', size: string, color: string) => {
+    return TshirtVariants.find(v => 
+      v.design === design && 
+      v.size === size && 
+      v.color === color
+    );
+  };
+
+  return {
+    variants: TshirtVariants,
+    findTshirtVariant
+  };
+}
+
 export const TshirtVariants: TshirtVariant[] = [
   {
     key: "DARK-Army-S",

@@ -69,6 +69,12 @@ export function useShippingQuotes() {
       }
 
       const data = await res.json()
+      console.log('🔍 Shipping quotes from API:', data.options?.map(o => ({
+        name: o.name,
+        minDays: o.minDeliveryDays,
+        maxDays: o.maxDeliveryDays,
+        rate: o.rate
+      })));
       setOptions(data.options ?? [])
       
     } catch (e: any) {

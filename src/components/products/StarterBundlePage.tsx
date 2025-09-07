@@ -24,6 +24,7 @@ import { useBundlePricing } from '../../hooks/useBundlePricing';
 import { useMergedProducts } from '../../hooks/useMergedProducts';
 import { useTshirtVariants, colorDesignMapping } from '../../hooks/tshirt-variants-merged-fixed';
 import { findCapVariantByColor } from '../../hooks/cap-variants';
+import { MugVariants } from '../../hooks/mug-variants';
 import type { PrintfulProduct, PrintfulVariant, BundleProduct, BundleItem } from '../../types/printful';
 import { Toast, useToast } from '../../components/ui/Toast';
 
@@ -471,20 +472,27 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
       { productId: 4, name: 'Mug', price: 9.99 }
     ];
     
-    // Build array of all bundle items with real individual prices
+    // Build array of all bundle items with individual prices
     const cartItems = bundleProducts.map((item, index) => {
       console.log(`DEBUG: Processing item ${index}:`, item);
       
-      // Get the variant ID - check multiple possible fields
-      let variantId = item.variant.printful_variant_id || 
+      // Get the variant ID - use catalog variant ID for Printful fulfillment
+      let variantId: string | number = item.variant.printful_variant_id || 
                      item.variant.external_id || 
                      item.variant.id;
+      
+      // Get the correct image for each item based on selected variants
+      let itemImage = '/BackReformLogo.png'; // Default fallback
       
       // For cap, use the specific cap variant
       if (item.product.category === 'cap') {
         const capVariant = selectedCapVariant || findCapVariantByColor(capColor);
         if (capVariant) {
-          variantId = capVariant.externalId || capVariant.catalogVariantId;
+          // Use catalogVariantId as the primary Printful variant ID
+          variantId = capVariant.catalogVariantId;
+          console.log(`DEBUG: Cap ${capColor} - Using catalogVariantId: ${variantId}`);
+          // Use the correct cap image for the selected color
+          itemImage = getCapImages()[0] || '/BackReformLogo.png';
         }
       }
       
@@ -507,11 +515,25 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
         }
         
         if (tshirtVariant) {
-          variantId = tshirtVariant.externalId || tshirtVariant.catalogVariantId;
-          console.log(`DEBUG: T-shirt variant ID set to: ${variantId} (from ${tshirtVariant.externalId ? 'externalId' : 'catalogVariantId'})`);
+          // Use catalogVariantId as the primary Printful variant ID
+          variantId = tshirtVariant.catalogVariantId;
+          console.log(`DEBUG: T-shirt variant ID set to catalogVariantId: ${variantId}`);
+          // Use the correct T-shirt image for the selected color
+          itemImage = getTshirtImages()[0] || '/BackReformLogo.png';
         } else {
           console.error(`ERROR: No T-shirt variant found for ${tshirtColor}, UI size ${tshirtSize}, variant size ${variantSize}, tried both DARK and LIGHT designs`);
         }
+      }
+      
+      // For mug, get the mug image and correct variant ID
+      if (item.product.category === 'mug') {
+        // Use the single mug variant (White 11oz mug)
+        const mugVariant = MugVariants[0]; // There's only one mug variant
+        if (mugVariant) {
+          variantId = mugVariant.catalogVariantId; // Use catalog variant ID for Printful
+          console.log(`DEBUG: Mug - Using catalogVariantId: ${variantId}`);
+        }
+        itemImage = getMugImages()[0] || '/BackReformLogo.png';
       }
       
       // Ensure we have a valid variant ID
@@ -529,23 +551,31 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
         return null;
       }
 
-      // Get the real individual price for this component
-      let individualPrice = 0;
-      if (item.product.category === 'tshirt') {
-        individualPrice = starterComponents.find(c => c.name === 'T-Shirt')?.price || 24.99;
-      } else if (item.product.category === 'cap') {
-        individualPrice = starterComponents.find(c => c.name === 'Cap')?.price || 19.99;
-      } else if (item.product.category === 'mug') {
-        individualPrice = starterComponents.find(c => c.name === 'Mug')?.price || 9.99;
+      // Get individual price for each item based on bundle configuration
+      let itemPrice = 0;
+      const componentMatch = starterComponents.find(comp => {
+        if (item.product.category === 'tshirt' && comp.name === 'T-Shirt') return true;
+        if (item.product.category === 'cap' && comp.name === 'Cap') return true;
+        if (item.product.category === 'mug' && comp.name === 'Mug') return true;
+        return false;
+      });
+      
+      if (componentMatch) {
+        itemPrice = componentMatch.price;
+      } else {
+        // Fallback individual prices if no match found
+        if (item.product.category === 'tshirt') itemPrice = 24.99;
+        else if (item.product.category === 'cap') itemPrice = 19.99;
+        else if (item.product.category === 'mug') itemPrice = 9.99;
       }
       
       const cartItem = {
         id: `starter-bundle-${item.product.category}-${index}`,
         name: item.product.name,
-        price: individualPrice, // Show real individual price
-        image: item.variant.image || item.product.image || '/BackReformLogo.png',
-        printful_variant_id: variantId,
-        external_id: variantId, // Use the same valid variant ID
+        price: itemPrice, // Individual price for each item
+        image: itemImage, // Use the correct variant-specific image
+        printful_variant_id: variantId, // Now using catalogVariantId for proper Printful fulfillment
+        external_id: variantId, // Use the same valid catalog variant ID
         // Only set size for items that actually have sizes (t-shirts, not caps or mugs)
         size: item.product.category === 'tshirt' ? convertSizeForVariant(tshirtSize) : undefined,
         color: item.product.category === 'tshirt' ? tshirtColor : 
@@ -559,13 +589,29 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
       
       console.log(`DEBUG: Prepared cart item ${index}:`, cartItem);
       console.log(`DEBUG: Variant ID for ${item.product.name}:`, variantId);
+      console.log(`DEBUG: Item price for ${item.product.name}:`, itemPrice);
       return cartItem;
     }).filter(item => item !== null); // Remove any items with missing variant IDs
     
     console.log(`DEBUG: After filtering, ${cartItems.length} out of ${bundleProducts.length} items remain:`, cartItems);
     
-    // Don't add discount item - instead apply bundle pricing to first item and make others £0
-    // The first item gets the full bundle price, others get £0 to show the bundle savings
+    // Add discount item as the 4th item with negative price
+    const discountAmount = bundleSavings; // This is the savings amount (4.98)
+    const discountItem = {
+      id: `starter-bundle-discount`,
+      name: 'Starter Bundle Discount (10%)',
+      price: -discountAmount, // Negative price for discount
+      image: '/BackReformLogo.png', // Use logo for discount item
+      printful_variant_id: 'BUNDLE_DISCOUNT_STARTER', // Placeholder that won't break checkout
+      external_id: 'BUNDLE_DISCOUNT_STARTER',
+      isPartOfBundle: true,
+      bundleName: 'Starter Bundle',
+      bundleId: 'starter-bundle',
+      isDiscount: true // Special flag to identify as discount
+    };
+    
+    // Add the discount item to the cart items
+    cartItems.push(discountItem);
     
     if (cartItems.length === 0) {
       console.error('ERROR: No valid items to add to cart');
@@ -578,7 +624,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
     
     console.log('DEBUG: Finished adding to cart');
     // Show success message - don't redirect to checkout
-    showToast(`Starter Bundle (${bundleProducts.length} items) added to cart!`);
+    showToast(`Starter Bundle (3 items + discount) added to cart!`);
   };
 
   const handleBuyNow = () => {

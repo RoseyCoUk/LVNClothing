@@ -48,7 +48,7 @@ export async function getShippingRates(
 
     const result: ShippingQuoteResponse = {
       options: data.options,
-      ttlSeconds: data.ttlSeconds || 300
+      ttlSeconds: 30 // Reduced cache to 30 seconds for testing
     }
 
     // Cache the result
@@ -80,10 +80,12 @@ export async function getShippingRates(
 function createCacheKey(request: ShippingQuoteRequest): string {
   const { recipient, items } = request
   
-  // Sort items for consistent cache keys
-  const sortedItems = [...items].sort((a, b) => 
-    a.printful_variant_id - b.printful_variant_id
-  )
+  // Sort items for consistent cache keys (handle both string and numeric variant IDs)
+  const sortedItems = [...items].sort((a, b) => {
+    const aId = a.printful_variant_id.toString()
+    const bId = b.printful_variant_id.toString()
+    return aId.localeCompare(bId)
+  })
   
   const itemsKey = sortedItems
     .map(item => `${item.printful_variant_id}:${item.quantity}`)

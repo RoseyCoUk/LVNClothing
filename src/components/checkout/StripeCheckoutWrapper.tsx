@@ -48,26 +48,63 @@ export default function StripeCheckoutWrapper(props: StripeCheckoutWrapperProps)
     const baseAppearance = {
       theme: 'stripe' as const,
       variables: {
-        colorPrimary: '#2563eb',
+        colorPrimary: '#009fe3', // Reform UK blue
         colorBackground: '#ffffff',
         colorText: '#1f2937',
         colorDanger: '#dc2626',
-        fontFamily: 'system-ui, sans-serif',
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         spacingUnit: '4px',
         borderRadius: '8px',
+        fontSizeBase: '16px',
+        fontWeightNormal: '400',
+        fontWeightMedium: '500',
+        fontWeightBold: '600',
       },
       rules: {
         '.Input': {
           borderColor: '#d1d5db',
+          borderWidth: '1px',
+          padding: '12px',
+          fontSize: '16px',
+          transition: 'border-color 0.15s, box-shadow 0.15s',
+        },
+        '.Input:hover': {
+          borderColor: '#9ca3af',
         },
         '.Input:focus': {
-          borderColor: '#2563eb',
-          boxShadow: '0 0 0 2px rgba(37, 99, 235, 0.1)',
+          borderColor: '#009fe3',
+          boxShadow: '0 0 0 3px rgba(0, 159, 227, 0.1)',
+        },
+        '.Input--invalid': {
+          borderColor: '#dc2626',
+          boxShadow: '0 0 0 3px rgba(220, 38, 38, 0.1)',
         },
         '.Label': {
           color: '#374151',
           fontSize: '14px',
           fontWeight: '500',
+          marginBottom: '6px',
+        },
+        '.Tab': {
+          borderColor: '#e5e7eb',
+          borderRadius: '8px',
+          transition: 'all 0.15s',
+        },
+        '.Tab:hover': {
+          borderColor: '#009fe3',
+          backgroundColor: '#f0f9ff',
+        },
+        '.Tab--selected': {
+          borderColor: '#009fe3',
+          backgroundColor: '#f0f9ff',
+          boxShadow: '0 0 0 2px rgba(0, 159, 227, 0.1)',
+        },
+        '.TabLabel': {
+          color: '#374151',
+          fontWeight: '500',
+        },
+        '.TabIcon': {
+          color: '#009fe3',
         },
       },
     };

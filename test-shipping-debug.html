@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shipping Debug Test</title>
+</head>
+<body>
+    <h1>Testing Shipping API</h1>
+    <div id="result"></div>
+    
+    <script>
+        async function testShipping() {
+            const supabaseUrl = 'https://nsmrxwnrtsllxvplazmm.supabase.co';
+            const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhem1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0OTY0NTIsImV4cCI6MjA2NzA3MjQ1Mn0.XyHiuQHXW_laGE4Caond1-8xK-2B4NzDzIOX8baD4UM';
+            
+            const request = {
+                recipient: {
+                    address1: "75 Forest Hills",
+                    city: "newry",
+                    country_code: "GB",
+                    zip: "bt34 2fl"
+                },
+                items: [{
+                    printful_variant_id: "4938821287", // White M T-shirt
+                    quantity: 1
+                }]
+            };
+            
+            console.log('Request:', request);
+            
+            try {
+                const response = await fetch(`${supabaseUrl}/functions/v1/shipping-quotes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${anonKey}`,
+                    },
+                    body: JSON.stringify(request)
+                });
+                
+                const data = await response.json();
+                console.log('Response:', data);
+                
+                document.getElementById('result').innerHTML = `
+                    <h2>API Response:</h2>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                    ${data.options && data.options[0] ? `
+                        <h3>First Option:</h3>
+                        <p>Name: ${data.options[0].name}</p>
+                        <p>Rate: ${data.options[0].currency} ${data.options[0].rate}</p>
+                        <p>Delivery: ${data.options[0].minDeliveryDays}-${data.options[0].maxDeliveryDays} business days</p>
+                        <p>Estimated dates: ${calculateDates(data.options[0].minDeliveryDays, data.options[0].maxDeliveryDays)}</p>
+                    ` : ''}
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        function calculateDates(minDays, maxDays) {
+            const today = new Date();
+            const minDate = new Date(today);
+            const maxDate = new Date(today);
+            
+            // Add business days for min
+            let daysToAdd = minDays;
+            let daysAdded = 0;
+            while (daysAdded < daysToAdd) {
+                minDate.setDate(minDate.getDate() + 1);
+                if (minDate.getDay() !== 0 && minDate.getDay() !== 6) {
+                    daysAdded++;
+                }
+            }
+            
+            // Add business days for max
+            daysToAdd = maxDays;
+            daysAdded = 0;
+            while (daysAdded < daysToAdd) {
+                maxDate.setDate(maxDate.getDate() + 1);
+                if (maxDate.getDay() !== 0 && maxDate.getDay() !== 6) {
+                    daysAdded++;
+                }
+            }
+            
+            const options = { month: 'short', day: 'numeric' };
+            return `${minDate.toLocaleDateString('en-GB', options)}-${maxDate.toLocaleDateString('en-GB', options)}`;
+        }
+        
+        testShipping();
+    </script>
+</body>
+</html>

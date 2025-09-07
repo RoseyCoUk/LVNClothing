@@ -1,0 +1,101 @@
+{
+  "code": 200,
+  "result": [
+    {
+      "id": 390637627,
+      "external_id": "68a9f9b78dd634",
+      "name": "Reform UK Sticker",
+      "variants": 1,
+      "synced": 1,
+      "thumbnail_url": "https://files.cdn.printful.com/files/0c1/0c1f25b661edfe4404afa3bd271e2039_preview.png",
+      "is_ignored": false
+    },
+    {
+      "id": 390637302,
+      "external_id": "68a9f81d60c1c4",
+      "name": "Reform UK Mug",
+      "variants": 1,
+      "synced": 1,
+      "thumbnail_url": "https://files.cdn.printful.com/files/f75/f75fb5d7303c416ff7380d21521a17ff_preview.png",
+      "is_ignored": false
+    },
+    {
+      "id": 390637071,
+      "external_id": "68a9f6e8eeb5e4",
+      "name": "Reform UK Mouse Pad",
+      "variants": 1,
+      "synced": 1,
+      "thumbnail_url": "https://files.cdn.printful.com/files/63d/63d3c45cc5ba90f926058c05d2da508a_preview.png",
+      "is_ignored": false
+    },
+    {
+      "id": 390636972,
+      "external_id": "68a9f6414ae524",
+      "name": "Reform UK Water Bottle",
+      "variants": 1,
+      "synced": 1,
+      "thumbnail_url": "https://files.cdn.printful.com/files/866/866913ca1181972d5566d1165a7aebfc_preview.png",
+      "is_ignored": false
+    },
+    {
+      "id": 390636644,
+      "external_id": "68a9f52cc3d797",
+      "name": "Reform UK Cap",
+      "variants": 8,
+      "synced": 8,
+      "thumbnail_url": "https://files.cdn.printful.com/files/983/983b0d95025a16bf8c94ab6cf4383182_preview.png",
+      "is_ignored": false
+    },
+    {
+      "id": 390630122,
+      "external_id": "68a9daac4dc0e6",
+      "name": "Unisex t-shirt DARK",
+      "variants": 60,
+      "synced": 60,
+      "thumbnail_url": "https://files.cdn.printful.com/files/bb3/bb3f446f5bd841650f946dda2bbe42ed_preview.png",
+      "is_ignored": false
+    },
+    {
+      "id": 390629811,
+      "external_id": "68a9d8c287b938",
+      "name": "Unisex t-shirt LIGHT",
+      "variants": 40,
+      "synced": 40,
+      "thumbnail_url": "https://files.cdn.printful.com/files/f4b/f4b8fc157ba42d2ee5b63929c36d3c3b_preview.png",
+      "is_ignored": false
+    },
+    {
+      "id": 390628740,
+      "external_id": "68a9d381e56565",
+      "name": "Unisex Hoodie DARK",
+      "variants": 25,
+      "synced": 25,
+      "thumbnail_url": "https://files.cdn.printful.com/files/f9a/f9a37c33793e3b17481a8409bad3ea38_preview.png",
+      "is_ignored": false
+    },
+    {
+      "id": 390628620,
+      "external_id": "68a9d27b158207",
+      "name": "Unisex Hoodie LIGHT",
+      "variants": 20,
+      "synced": 20,
+      "thumbnail_url": "https://files.cdn.printful.com/files/81a/81a06c2597ac2c9cb1e3f46ac21313cf_preview.png",
+      "is_ignored": false
+    },
+    {
+      "id": 390552402,
+      "external_id": "68a8a3b526d263",
+      "name": "Reform UK Tote Bag",
+      "variants": 1,
+      "synced": 1,
+      "thumbnail_url": "https://files.cdn.printful.com/files/5ad/5adccab8544a127ddcab25ce574ffc9a_preview.png",
+      "is_ignored": false
+    }
+  ],
+  "extra": [],
+  "paging": {
+    "total": 10,
+    "limit": 20,
+    "offset": 0
+  }
+}

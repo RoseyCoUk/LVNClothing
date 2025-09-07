@@ -1,210 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CORS Test for Stripe Checkout Function</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .test-section {
-            margin: 20px 0;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .success { background-color: #d4edda; border-color: #c3e6cb; }
-        .error { background-color: #f8d7da; border-color: #f5c6cb; }
-        .info { background-color: #d1ecf1; border-color: #bee5eb; }
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        pre {
-            background-color: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-    </style>
-</head>
+<html>
+<head><title>CORS Test</title></head>
 <body>
-    <h1>CORS Test for Stripe Checkout Edge Function</h1>
+<h1>Testing Shipping Quotes CORS</h1>
+<button onclick="testShipping()">Test Shipping Quote</button>
+<pre id="result"></pre>
+<script>
+async function testShipping() {
+  const result = document.getElementById('result');
+  result.textContent = 'Testing...';
+  
+  try {
+    const response = await fetch('https://nsmrxwnrtsllxvplazmm.supabase.co/functions/v1/shipping-quotes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbXJ4d25ydHNsbHh2cGxhem1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0OTY0NTIsImV4cCI6MjA2NzA3MjQ1Mn0.XyHiuQHXW_laGE4Caond1-8xK-2B4NzDzIOX8baD4UM'
+      },
+      body: JSON.stringify({
+        recipient: {
+          name: "Test",
+          address1: "75 Forest Hills",
+          city: "Newry",
+          country_code: "GB",
+          zip: "BT34 2FL"
+        },
+        items: [{
+          printful_variant_id: "4938821287",
+          quantity: 1
+        }]
+      })
+    });
     
-    <div class="test-section info">
-        <h3>Test Configuration</h3>
-        <p>This page tests the CORS configuration of your Stripe Checkout Edge Function.</p>
-        <p><strong>Current Origin:</strong> <span id="current-origin"></span></p>
-        <p><strong>Target Function:</strong> <span id="target-function"></span></p>
-    </div>
-
-    <div class="test-section">
-        <h3>Test 1: OPTIONS Request (CORS Preflight)</h3>
-        <p>Tests if the Edge Function properly handles CORS preflight requests.</p>
-        <button onclick="testOptionsRequest()">Test OPTIONS Request</button>
-        <div id="options-result"></div>
-    </div>
-
-    <div class="test-section">
-        <h3>Test 2: POST Request (Actual Function Call)</h3>
-        <p>Tests if the Edge Function accepts POST requests with proper CORS headers.</p>
-        <button onclick="testPostRequest()">Test POST Request</button>
-        <div id="post-result"></div>
-    </div>
-
-    <div class="test-section">
-        <h3>Test 3: Check Response Headers</h3>
-        <p>Examines the CORS headers returned by the Edge Function.</p>
-        <button onclick="checkResponseHeaders()">Check Headers</button>
-        <div id="headers-result"></div>
-    </div>
-
-    <script>
-        // Display current origin and target function
-        document.getElementById('current-origin').textContent = window.location.origin;
-        
-        // You'll need to update this URL to match your Supabase project
-        const SUPABASE_URL = 'https://nsmrxwnrtsllxvplazmm.supabase.co';
-        const FUNCTION_NAME = 'stripe-checkout';
-        const FUNCTION_URL = `${SUPABASE_URL}/functions/v1/${FUNCTION_NAME}`;
-        
-        document.getElementById('target-function').textContent = FUNCTION_URL;
-
-        function showResult(elementId, message, isSuccess = true) {
-            const element = document.getElementById(elementId);
-            element.className = `test-section ${isSuccess ? 'success' : 'error'}`;
-            element.innerHTML = `<h3>${element.querySelector('h3').textContent}</h3><p>${message}</p>`;
-        }
-
-        function showResultWithData(elementId, message, data, isSuccess = true) {
-            const element = document.getElementById(elementId);
-            element.className = `test-section ${isSuccess ? 'success' : 'error'}`;
-            element.innerHTML = `
-                <h3>${element.querySelector('h3').textContent}</h3>
-                <p>${message}</p>
-                <pre>${JSON.stringify(data, null, 2)}</pre>
-            `;
-        }
-
-        async function testOptionsRequest() {
-            try {
-                const response = await fetch(FUNCTION_URL, {
-                    method: 'OPTIONS',
-                    headers: {
-                        'Origin': window.location.origin,
-                        'Access-Control-Request-Method': 'POST',
-                        'Access-Control-Request-Headers': 'Content-Type'
-                    }
-                });
-
-                const corsHeaders = {
-                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
-                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
-                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
-                    'Access-Control-Max-Age': response.headers.get('Access-Control-Max-Age')
-                };
-
-                if (response.status === 204) {
-                    showResultWithData('options-result', 'OPTIONS request successful! CORS preflight handled correctly.', {
-                        status: response.status,
-                        corsHeaders: corsHeaders
-                    }, true);
-                } else {
-                    showResultWithData('options-result', `OPTIONS request failed with status ${response.status}`, {
-                        status: response.status,
-                        corsHeaders: corsHeaders
-                    }, false);
-                }
-            } catch (error) {
-                showResult('options-result', `Error testing OPTIONS request: ${error.message}`, false);
-            }
-        }
-
-        async function testPostRequest() {
-            try {
-                const testData = {
-                    line_items: [{
-                        price_data: {
-                            currency: 'gbp',
-                            product_data: {
-                                name: 'Test Product'
-                            },
-                            unit_amount: 1000
-                        },
-                        quantity: 1
-                    }],
-                    success_url: `${window.location.origin}/success`,
-                    cancel_url: window.location.href,
-                    mode: 'payment',
-                    customer_email: 'test@example.com'
-                };
-
-                const response = await fetch(FUNCTION_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Origin': window.location.origin
-                    },
-                    body: JSON.stringify(testData)
-                });
-
-                const corsHeaders = {
-                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
-                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
-                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers')
-                };
-
-                if (response.ok) {
-                    const data = await response.json();
-                    showResultWithData('post-result', 'POST request successful! Function executed correctly.', {
-                        status: response.status,
-                        corsHeaders: corsHeaders,
-                        responseData: data
-                    }, true);
-                } else {
-                    const errorData = await response.text();
-                    showResultWithData('post-result', `POST request failed with status ${response.status}`, {
-                        status: response.status,
-                        corsHeaders: corsHeaders,
-                        errorResponse: errorData
-                    }, false);
-                }
-            } catch (error) {
-                showResult('post-result', `Error testing POST request: ${error.message}`, false);
-            }
-        }
-
-        async function checkResponseHeaders() {
-            try {
-                const response = await fetch(FUNCTION_URL, {
-                    method: 'OPTIONS'
-                });
-
-                const allHeaders = {};
-                response.headers.forEach((value, key) => {
-                    allHeaders[key] = value;
-                });
-
-                showResultWithData('headers-result', 'Response headers retrieved successfully', {
-                    status: response.status,
-                    allHeaders: allHeaders
-                }, true);
-            } catch (error) {
-                showResult('headers-result', `Error checking headers: ${error.message}`, false);
-            }
-        }
-    </script>
+    const data = await response.json();
+    result.textContent = 'SUCCESS!\n' + JSON.stringify(data, null, 2);
+  } catch (error) {
+    result.textContent = 'ERROR: ' + error.message;
+  }
+}
+</script>
 </body>
 </html>

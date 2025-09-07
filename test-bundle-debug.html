@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bundle Debug Test</title>
+</head>
+<body>
+    <h1>Bundle Debug Test</h1>
+    <p>Open the browser console and go to <a href="http://localhost:5174/product/starter-bundle" target="_blank">http://localhost:5174/product/starter-bundle</a></p>
+    <p>Then try clicking "Add to Cart" to see the debug output in the console.</p>
+    <p>Look for logs starting with "DEBUG:" to see what's happening.</p>
+    
+    <h2>Expected Debug Output:</h2>
+    <pre>
+DEBUG: Starting handleAddToCart
+DEBUG: bundleProducts.length: 3
+DEBUG: bundleProducts: [array of 3 items]
+DEBUG: Processing item 0: [t-shirt item]
+DEBUG: Adding cart item 0: [cart item object]
+DEBUG CartContext: Adding product to cart: [product object]
+DEBUG CartContext: Current cart before adding: [current cart]
+DEBUG CartContext: Adding new item to cart
+DEBUG CartContext: New cart: [updated cart with 1 item]
+DEBUG: Processing item 1: [cap item]
+... (repeat for all 3 items)
+DEBUG: Finished forEach loop
+    </pre>
+    
+    <h2>Instructions:</h2>
+    <ol>
+        <li>Open the React app in another tab</li>
+        <li>Navigate to the Starter Bundle page</li>
+        <li>Open browser console (F12)</li>
+        <li>Click "Add to Cart" button</li>
+        <li>Check console for DEBUG logs</li>
+        <li>Check cart drawer to see how many items were added</li>
+    </ol>
+</body>
+</html>

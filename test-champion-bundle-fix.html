@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Champion Bundle Variant Fix Test</title>
+</head>
+<body>
+    <h1>Champion Bundle Variant Fix Test</h1>
+    <p>Navigate to the Champion Bundle page and try adding items to cart.</p>
+    <p>Check the browser console for DEBUG messages showing variant IDs.</p>
+    
+    <h2>Expected Behavior:</h2>
+    <ul>
+        <li>✅ All items should have valid variant IDs when added to cart</li>
+        <li>✅ Debug messages should show proper variant resolution for each product type</li>
+        <li>✅ No "missing variant information" errors should occur</li>
+        <li>✅ Cart should accept all 4 bundle items successfully</li>
+    </ul>
+    
+    <h2>What was fixed:</h2>
+    <ul>
+        <li>Added proper variant resolution for hoodie using findHoodieVariant</li>
+        <li>Added proper variant resolution for t-shirt using findTshirtVariant</li>
+        <li>Added proper variant resolution for cap using findCapVariantByColor</li>
+        <li>Added proper variant resolution for tote bag using TotebagVariants</li>
+        <li>Added error handling to skip items without valid variant IDs</li>
+        <li>Added better logging to track variant ID resolution</li>
+        <li>Used same pattern as working StarterBundlePage</li>
+    </ul>
+    
+    <script>
+        console.log('Champion Bundle Fix Test: Ready to test variant ID resolution');
+    </script>
+</body>
+</html>

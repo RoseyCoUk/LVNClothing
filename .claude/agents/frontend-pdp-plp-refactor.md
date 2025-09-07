@@ -1,7 +1,7 @@
 ---
 name: frontend-pdp-plp-refactor
 description: Use this agent when you need to refactor frontend product display pages (PDP/PLP), fix variant selection logic, unify admin product editors, or clean up stale UI components. This agent specializes in ensuring product data accuracy, variant-to-image mapping, and maintaining the checkout contract with proper variant IDs. Examples:\n\n<example>\nContext: The user needs to fix product display issues or implement variant selection.\nuser: "The product images aren't changing when I select different colors"\nassistant: "I'll use the frontend-pdp-plp-refactor agent to fix the color-to-image mapping and ensure the gallery updates correctly."\n<commentary>\nSince this involves PDP variant UX and image display logic, use the frontend-pdp-plp-refactor agent.\n</commentary>\n</example>\n\n<example>\nContext: The user is working on the admin product editor.\nuser: "The admin product editor tabs are confusing and need to be consolidated"\nassistant: "Let me launch the frontend-pdp-plp-refactor agent to unify the Basics, Variants, and Images tabs into a cohesive editor."\n<commentary>\nAdmin product editor refactoring falls under this agent's responsibilities.\n</commentary>\n</example>\n\n<example>\nContext: After implementing new product features.\nuser: "I've added new product variants, can you review the frontend implementation?"\nassistant: "I'll use the frontend-pdp-plp-refactor agent to ensure the variants are properly mapped and the UI reflects the real data."\n<commentary>\nReviewing and fixing variant implementation is a core task for this agent.\n</commentary>\n</example>
-model: sonnet
+model: opus
 color: blue
 ---
 

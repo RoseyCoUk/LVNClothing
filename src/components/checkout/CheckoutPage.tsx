@@ -23,6 +23,7 @@ import ShippingOptions from '../ShippingOptions';
 import { useShippingQuotes } from '../../hooks/useShippingQuotes';
 import ShippingMethods from './ShippingMethods';
 import type { ShippingOption } from '../../lib/shipping/types';
+import { expandBundlesForShipping } from '../../lib/bundle-utils';
 
 interface CheckoutPageProps {
   onBack: () => void;
@@ -152,12 +153,12 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
     const recipient = convertToRecipient(shippingInfo);
     if (isAddressComplete(recipient) && cartItems.length > 0) {
       // Use the new shipping quotes hook
+      // Expand bundles into individual items for accurate shipping calculation
+      const expandedItems = expandBundlesForShipping(cartItems);
+      
       const request = {
         recipient,
-        items: cartItems.map(item => ({
-          printful_variant_id: item.printful_variant_id || parseInt(item.id.toString()),
-          quantity: item.quantity
-        }))
+        items: expandedItems
       };
       
       fetchQuotes(request).catch(error => {
@@ -1160,9 +1161,20 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                   <span className="text-gray-900">£{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Shipping</span>
+                  <span className="text-gray-600">
+                    Shipping
+                    {selectedShipping && selectedShipping.name && (
+                      <span className="ml-1 text-xs">({selectedShipping.name})</span>
+                    )}
+                  </span>
                   <span className="text-gray-900">{shipping === 0 ? 'FREE' : `£${shipping.toFixed(2)}`}</span>
                 </div>
+                {selectedShipping && selectedShipping.minDeliveryDays && selectedShipping.maxDeliveryDays && (
+                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>Estimated delivery</span>
+                    <span>{selectedShipping.minDeliveryDays}-{selectedShipping.maxDeliveryDays} business days</span>
+                  </div>
+                )}
                 {promoDiscount > 0 && (
                   <div className="flex justify-between text-sm text-green-600">
                     <span>Discount ({appliedPromo})</span>

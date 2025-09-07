@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Starter Bundle Pricing Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+            padding: 15px;
+        }
+        .expected {
+            background-color: #e8f5e8;
+        }
+        .previous {
+            background-color: #ffe8e8;
+        }
+        .price {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .savings {
+            color: #28a745;
+        }
+        .total {
+            color: #007bff;
+            font-size: 1.2em;
+        }
+        .instructions {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .link {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .link:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Starter Bundle Pricing Fix Test</h1>
+    
+    <div class="instructions">
+        <h3>Test Instructions:</h3>
+        <ol>
+            <li>Click the link below to open the Starter Bundle page</li>
+            <li>Add the bundle to cart with any color/size selection</li>
+            <li>Open the cart to verify the pricing matches the "Expected Behavior" below</li>
+            <li>Check that the total equals £49.99</li>
+        </ol>
+        <a href="http://localhost:5174/#/bundles/starter" class="link" target="_blank">
+            Open Starter Bundle Page
+        </a>
+    </div>
+
+    <div class="test-section expected">
+        <h3>✅ Expected Behavior (FIXED)</h3>
+        <p>Cart should show:</p>
+        <ul>
+            <li>T-shirt: <span class="price">£24.99</span></li>
+            <li>Cap: <span class="price">£19.99</span></li>
+            <li>Mug: <span class="price">£9.99</span></li>
+            <li>Starter Bundle Discount (10%): <span class="price savings">-£4.98</span></li>
+            <li><strong>Total: <span class="price total">£49.99</span></strong></li>
+        </ul>
+        <p>Total items in cart: 4 (3 products + 1 discount line)</p>
+    </div>
+
+    <div class="test-section previous">
+        <h3>❌ Previous Behavior (WRONG)</h3>
+        <p>Cart was showing:</p>
+        <ul>
+            <li>T-shirt: <span class="price">£49.99</span></li>
+            <li>Cap: <span class="price">£0.00</span></li>
+            <li>Mug: <span class="price">£0.00</span></li>
+            <li><strong>Total: <span class="price">£49.99</span></strong></li>
+        </ul>
+        <p>This was confusing because individual items showed wrong prices.</p>
+    </div>
+
+    <div class="test-section">
+        <h3>🔧 Technical Changes Made</h3>
+        <ul>
+            <li>Modified <code>handleAddToCart</code> function in <code>StarterBundlePage.tsx</code></li>
+            <li>Each item now shows its real individual price from bundle configuration</li>
+            <li>Added a 4th cart item: "Starter Bundle Discount (10%)" with -£4.98 price</li>
+            <li>Discount item has special properties:
+                <ul>
+                    <li><code>isDiscount: true</code> flag</li>
+                    <li><code>printful_variant_id: 'BUNDLE_DISCOUNT_STARTER'</code> (placeholder)</li>
+                    <li>Negative price to reduce total</li>
+                </ul>
+            </li>
+            <li>Individual prices: T-Shirt (£24.99) + Cap (£19.99) + Mug (£9.99) = £54.97</li>
+            <li>Discount: -£4.98 (10% savings)</li>
+            <li>Final total: £49.99</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>🧪 Test Checklist</h3>
+        <p>Verify the following:</p>
+        <ul>
+            <li>☐ T-shirt shows £24.99 in cart</li>
+            <li>☐ Cap shows £19.99 in cart</li>
+            <li>☐ Mug shows £9.99 in cart</li>
+            <li>☐ Discount line appears with -£4.98</li>
+            <li>☐ Total is exactly £49.99</li>
+            <li>☐ Cart shows 4 items total</li>
+            <li>☐ All items have proper variant IDs</li>
+            <li>☐ Checkout process still works</li>
+        </ul>
+    </div>
+
+    <script>
+        console.log('Starter Bundle Pricing Fix Test Page Loaded');
+        console.log('Expected behavior: Individual prices with discount line');
+        console.log('T-Shirt: £24.99, Cap: £19.99, Mug: £9.99, Discount: -£4.98, Total: £49.99');
+    </script>
+</body>
+</html>

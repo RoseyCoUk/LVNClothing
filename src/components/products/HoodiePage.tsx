@@ -63,12 +63,22 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
   const productData = hoodieProduct ? {
     id: hoodieProduct.id,
     name: hoodieProduct.name,
-    description: hoodieProduct.description || "Premium cotton blend hoodie featuring the Reform UK logo. Available in multiple beautiful colors and sizes. Made from high-quality materials for comfort and durability. Perfect for casual wear and outdoor activities.",
-    features: ["Premium cotton blend", "Classic fit", "Reinforced seams", "Pre-shrunk fabric", "Kangaroo pocket", "Screen-printed logo", `${hoodieProduct.colorOptions.length} color options`],
+    description: hoodieProduct.description || "With a large front pouch pocket and drawstrings in a matching color, this Unisex Heavy Blend Hoodie is a sure crowd-favorite. It's soft, stylish, and perfect for cooler evenings.",
+    features: [
+      "50% pre-shrunk cotton, 50% polyester",
+      "Fabric weight: 8.0 oz./yd.² (271.25 g/m²)",
+      "Air-jet spun yarn with soft feel and reduced pilling",
+      "Double-lined hood with matching drawcord",
+      "Quarter-turned body to avoid crease down middle",
+      "1 × 1 athletic rib-knit cuffs and waistband with spandex",
+      "Front pouch pocket",
+      "Double-needle stitched collar, shoulders, armholes, cuffs, and hem",
+      `${hoodieProduct.colorOptions.length} color options`
+    ],
     careInstructions: "Machine wash cold. Tumble dry low. Do not bleach.",
-    materials: "80% cotton, 20% polyester",
+    materials: "50% pre-shrunk cotton, 50% polyester\nHeather Sport Dark Navy: 40% cotton, 60% polyester\nNote: White color variant may appear off-white due to fabric properties",
     category: hoodieProduct.category || 'apparel',
-    shipping: "Ships in 48H",
+    shipping: "Fast UK Delivery",
     priceRange: hoodieProduct.priceRange,
     variantDetails: {
       sizes: hoodieProduct.sizeOptions,
@@ -414,8 +424,8 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                   </span>
                 </div>
                 <div className="flex items-center space-x-2 text-green-600 mb-6">
-                  <Clock className="w-4 h-4" />
-                  <span className="font-semibold">Ships in 48H</span>
+                  <Truck className="w-4 h-4" />
+                  <span className="font-semibold">Fast UK Delivery • 3-5 Business Days</span>
                 </div>
               </div>
 
@@ -462,6 +472,11 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                   >
                     Size Guide
                   </button>
+                </div>
+                <div className="bg-pink-50 border border-pink-200 rounded-lg p-3 mb-3">
+                  <p className="text-sm text-pink-800">
+                    <strong>Women's Fit Recommendation:</strong> It is recommended women size down one size for a better fit.
+                  </p>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
                   {hoodieProduct.sizeOptions.map((size) => (
@@ -540,7 +555,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
               <div className="grid grid-cols-3 gap-4 pt-6 border-t">
                 <div className="text-center">
                   <Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
-                  <p className="text-xs text-gray-600">Free UK Shipping Over £30</p>
+                  <p className="text-xs text-gray-600">Fast UK Shipping</p>
                 </div>
                 <div className="text-center">
                   <Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />

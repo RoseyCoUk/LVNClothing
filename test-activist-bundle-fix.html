@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Activist Bundle Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-info {
+            background-color: #e8f4f8;
+            border: 1px solid #bee5eb;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .test-step {
+            background-color: #f8f9fa;
+            border-left: 4px solid #009fe3;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        .expected-result {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        a {
+            color: #009fe3;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        ul {
+            line-height: 1.6;
+        }
+        .code {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Activist Bundle Page - Variant Lookup Fix Test</h1>
+        
+        <div class="test-info">
+            <h3>🎯 Test Objective</h3>
+            <p>Verify that the ActivistBundlePage now has proper helper functions for variant lookups and can successfully add all 7 items to cart with correct variant IDs.</p>
+        </div>
+
+        <div class="success">
+            <h3>✅ Fixes Applied</h3>
+            <ul>
+                <li><strong>Added missing helper functions:</strong>
+                    <ul>
+                        <li><code>findHoodieVariant</code> - from useHoodieVariants hook</li>
+                        <li><code>findTshirtVariant</code> - from useTshirtVariants hook</li>
+                        <li><code>findCapVariant</code> - wrapper for findCapVariantByColor</li>
+                        <li><code>findTotebagVariant</code> - returns TotebagVariants[0]</li>
+                    </ul>
+                </li>
+                <li><strong>Fixed handleAddToCart function:</strong>
+                    <ul>
+                        <li>Added proper null checks for all variant lookup functions</li>
+                        <li>Added fallback design lookup for T-shirts (DARK/LIGHT)</li>
+                        <li>Fixed size conversion (XXL → 2XL) consistently</li>
+                        <li>Improved SKU generation from actual variant objects</li>
+                    </ul>
+                </li>
+                <li><strong>Updated variant state management:</strong>
+                    <ul>
+                        <li>Fixed useEffect dependencies</li>
+                        <li>Added fallback design logic in T-shirt variant selection</li>
+                        <li>Updated handleCapColorChange to use findCapVariant</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h3>📋 Manual Testing Steps</h3>
+        
+        <div class="test-step">
+            <strong>Step 1: Navigate to Activist Bundle Page</strong>
+            <p>Go to: <a href="http://localhost:5174">http://localhost:5174</a> → Shop → Bundles → Activist Bundle</p>
+            <div class="expected-result">
+                <strong>Expected:</strong> Page loads without errors, all product images display correctly
+            </div>
+        </div>
+
+        <div class="test-step">
+            <strong>Step 2: Customize Bundle Items</strong>
+            <ul>
+                <li><strong>Hoodie:</strong> Try different colors (Black, Navy, Red) and sizes (M, L, XL, XXL)</li>
+                <li><strong>T-shirt:</strong> Try different colors (Pink, White, Navy, Black) and sizes (M, L, XL, XXL)</li>
+                <li><strong>Cap:</strong> Try different colors (Black, White, Navy, Pink)</li>
+                <li><strong>Other items:</strong> Tote Bag, Water Bottle, Mug, Mouse Pad (fixed variants)</li>
+            </ul>
+            <div class="expected-result">
+                <strong>Expected:</strong> All customization options work, images update correctly, no console errors
+            </div>
+        </div>
+
+        <div class="test-step">
+            <strong>Step 3: Test Size Conversion</strong>
+            <p>Select XXL size for both Hoodie and T-shirt, then check browser console for variant lookup logs</p>
+            <div class="expected-result">
+                <strong>Expected:</strong> Console shows "Variant Size: 2XL" for XXL selections
+            </div>
+        </div>
+
+        <div class="test-step">
+            <strong>Step 4: Add Bundle to Cart</strong>
+            <p>Click "Add to Cart" button and monitor browser console for detailed logs</p>
+            <div class="expected-result">
+                <strong>Expected:</strong>
+                <ul>
+                    <li>Console shows variant lookups for all 7 items</li>
+                    <li>Each item gets a valid <code>catalogVariantId</code></li>
+                    <li>Success toast: "Activist Bundle (7 items) added to cart!"</li>
+                    <li>No error messages about missing variant IDs</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-step">
+            <strong>Step 5: Verify Cart Contents</strong>
+            <p>Check cart to ensure all 7 items + 1 discount item (8 total) are present</p>
+            <div class="expected-result">
+                <strong>Expected Cart Items:</strong>
+                <ul>
+                    <li>Reform UK Hoodie - {selected color & size} - £39.99</li>
+                    <li>Reform UK T-shirt - {selected color & size} - £24.99</li>
+                    <li>Reform UK Cap - {selected color} - £19.99</li>
+                    <li>Reform UK Tote Bag - Black - £24.99</li>
+                    <li>Reform UK Water Bottle - White - £24.99</li>
+                    <li>Reform UK Mug - White - £9.99</li>
+                    <li>Reform UK Mouse Pad - White - £14.99</li>
+                    <li>Activist Bundle Discount (20%) - -£31.94</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-step">
+            <strong>Step 6: Test Checkout Flow</strong>
+            <p>Proceed to checkout to ensure all items have valid variant IDs</p>
+            <div class="expected-result">
+                <strong>Expected:</strong> Checkout loads successfully, all items display with correct details and prices
+            </div>
+        </div>
+
+        <div class="warning">
+            <h4>⚠️ Key Areas to Monitor</h4>
+            <ul>
+                <li><strong>Browser Console:</strong> Watch for variant lookup debug messages</li>
+                <li><strong>Error Handling:</strong> Any "No variant ID found" errors should be resolved</li>
+                <li><strong>Size Conversion:</strong> XXL should convert to 2XL in variant lookups</li>
+                <li><strong>T-shirt Design Fallback:</strong> If LIGHT design fails, should try DARK (and vice versa)</li>
+                <li><strong>SKU Generation:</strong> Each item should have proper SKU from variant objects</li>
+            </ul>
+        </div>
+
+        <div class="code">
+            <strong>Console Debug Pattern to Look For:</strong><br>
+            🔍 Hoodie lookup - Size: M, Variant Size: M, Color: Black<br>
+            📦 Hoodie variant found: {catalogVariantId: "12345", ...}<br>
+            ✅ Hoodie variant ID: 12345<br>
+            <br>
+            🔍 T-shirt lookup - Design: LIGHT, Size: M, Variant Size: M, Color: Pink<br>
+            📦 T-shirt variant found: {catalogVariantId: "67890", ...}<br>
+            ✅ T-shirt variant ID: 67890<br>
+        </div>
+
+        <div class="success">
+            <h4>🎉 Success Criteria</h4>
+            <p>The fix is successful if:</p>
+            <ul>
+                <li>All 7 bundle items can be added to cart without errors</li>
+                <li>Each item has a valid <code>printful_variant_id</code> and <code>sku</code></li>
+                <li>Size conversion (XXL → 2XL) works correctly</li>
+                <li>T-shirt design fallback logic works (DARK/LIGHT)</li>
+                <li>Cart total shows correct discount applied (£127.99 final price)</li>
+            </ul>
+        </div>
+
+        <p><strong>Direct Link:</strong> <a href="http://localhost:5174">🚀 Test Activist Bundle Now</a></p>
+    </div>
+</body>
+</html>

@@ -17,6 +17,10 @@ export type HoodieVariant = {
   sku: string;
 };
 
+export function useHoodieVariants() {
+  return HoodieVariants;
+}
+
 export const HoodieVariants: HoodieVariant[] = [
   {
     key: "DARK-Black-S",

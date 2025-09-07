@@ -456,8 +456,8 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
                   </div>
                 )}
                 <div className="flex items-center space-x-2 text-green-600 mb-6">
-                  <Clock className="w-4 h-4" />
-                  <span className="font-semibold">Ships in 48H</span>
+                  <Truck className="w-4 h-4" />
+                  <span className="font-semibold">Fast UK Delivery • 3-5 Business Days</span>
                 </div>
               </div>
 

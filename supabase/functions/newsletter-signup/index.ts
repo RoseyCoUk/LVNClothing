@@ -48,12 +48,11 @@ serve(async (req) => {
     console.log('Supabase Service Key:', supabaseServiceKey ? 'Set' : 'Not set')
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Check for existing subscription
+    // Check for existing subscription (including inactive ones)
     const { data: existingSubscriber, error: checkError } = await supabase
       .from('newsletter_subscribers')
-      .select('email, subscribed_at')
+      .select('email, subscribed_at, is_active, discount_code')
       .eq('email', email.toLowerCase().trim())
-      .eq('is_active', true)
       .single()
 
     if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows returned
@@ -68,35 +67,80 @@ serve(async (req) => {
     }
 
     if (existingSubscriber) {
-      console.log('Email already subscribed:', email)
+      // If they're already active, they're already subscribed
+      if (existingSubscriber.is_active) {
+        console.log('Email already subscribed:', email)
+        return new Response(
+          JSON.stringify({ 
+            error: 'already subscribed',
+            message: 'This email is already subscribed to our newsletter' 
+          }),
+          { 
+            status: 409, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        )
+      }
+      
+      // If they were unsubscribed, reactivate them
+      console.log('Reactivating unsubscribed user:', email)
+      const { error: updateError } = await supabase
+        .from('newsletter_subscribers')
+        .update({
+          is_active: true,
+          unsubscribed_at: null,
+          subscribed_at: new Date().toISOString()
+        })
+        .eq('email', email.toLowerCase().trim())
+      
+      if (updateError) {
+        console.error('Error reactivating subscriber:', updateError)
+        return new Response(
+          JSON.stringify({ error: 'Failed to reactivate subscription' }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        )
+      }
+      
+      // Return their existing discount code
       return new Response(
         JSON.stringify({ 
-          error: 'already subscribed',
-          message: 'This email is already subscribed to our newsletter' 
+          success: true, 
+          message: 'Successfully re-subscribed to newsletter',
+          discountCode: existingSubscriber.discount_code,
+          reactivated: true
         }),
         { 
-          status: 409, 
+          status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       )
     }
 
-    // Generate a unique discount code
-    const discountCode = `NEWSLETTER10-${Date.now().toString(36).toUpperCase()}`
+    // Generate a unique and readable discount code
+    const timestamp = Date.now().toString(36).toUpperCase().slice(-6)
+    const randomStr = Math.random().toString(36).toUpperCase().slice(2, 6)
+    const discountCode = `WELCOME10-${randomStr}-${timestamp}`
     console.log('Generated discount code:', discountCode)
 
     // Store the email and discount code in the database
     console.log('Attempting to insert subscriber into database...')
-    const { error: insertError } = await supabase
+    const { data: insertedData, error: insertError } = await supabase
       .from('newsletter_subscribers')
       .insert([
         {
           email: email.toLowerCase().trim(),
           discount_code: discountCode,
+          discount_amount: 10,
           subscribed_at: new Date().toISOString(),
-          is_active: true
+          is_active: true,
+          welcome_email_sent: false
         }
       ])
+      .select('unsubscribe_token')
+      .single()
 
     if (insertError) {
       console.error('Error inserting subscriber:', insertError)
@@ -128,6 +172,11 @@ serve(async (req) => {
     }
     
     console.log('Successfully inserted subscriber into database')
+    
+    const unsubscribeToken = insertedData?.unsubscribe_token || ''
+    // Use localhost for development, production URL for production
+    const baseUrl = Deno.env.get('APP_URL') || 'http://localhost:5175'
+    const unsubscribeUrl = `${baseUrl}/unsubscribe?token=${unsubscribeToken}`
 
     // Send welcome email with discount code
     const emailContent = `
@@ -208,10 +257,13 @@ serve(async (req) => {
         <p>Welcome to the Reform UK community! We're excited to have you join thousands of supporters who are committed to real change.</p>
         
         <div class="discount-box">
-            <h3>Your Exclusive Discount Code</h3>
+            <h3>Your Exclusive Welcome Discount</h3>
             <div class="discount-code">${discountCode}</div>
             <p><strong>Save 10% on your first order!</strong></p>
-            <p>Use this code at checkout to get 10% off any order over £30</p>
+            <p>Use this code at checkout to get 10% off any order</p>
+            <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                ⚠️ This is a single-use code exclusively for ${email}
+            </p>
         </div>
         
         <h3>What's Next?</h3>
@@ -240,7 +292,15 @@ serve(async (req) => {
     <div class="footer">
         <p>This email was sent to ${email}</p>
         <p>Reform UK | Building a Better Britain</p>
-        <p>You can unsubscribe at any time by clicking the link in our emails.</p>
+        <p>
+            <a href="${unsubscribeUrl}" style="color: #666; text-decoration: underline;">
+                Unsubscribe from newsletter
+            </a>
+        </p>
+        <p style="font-size: 11px; color: #999;">
+            If you're having trouble clicking the unsubscribe link, copy and paste this URL into your browser:<br>
+            ${unsubscribeUrl}
+        </p>
     </div>
 </body>
 </html>
@@ -277,6 +337,15 @@ serve(async (req) => {
         } else {
           console.log('Email sent successfully with Resend');
           emailSent = true;
+          
+          // Mark email as sent in database
+          await supabase
+            .from('newsletter_subscribers')
+            .update({
+              welcome_email_sent: true,
+              welcome_email_sent_at: new Date().toISOString()
+            })
+            .eq('email', email.toLowerCase().trim())
         }
       } catch (emailError) {
         console.error('Exception while sending email:', emailError);

@@ -51,13 +51,18 @@ const EmailSignup = () => {
       if (error) {
         console.error('Newsletter signup error:', error);
         
+        // Check the response context for specific status codes
+        const status = error.context?.status;
+        
         // Handle specific error types
-        if (error.message?.includes('already subscribed')) {
+        if (status === 409 || error.message?.includes('already subscribed')) {
           setError('This email is already subscribed to our newsletter');
         } else if (error.message?.includes('rate limit')) {
           setError('Too many signup attempts. Please wait a moment before trying again.');
         } else if (error.message?.includes('invalid email')) {
           setError('Please enter a valid email address');
+        } else if (status === 500) {
+          setError('Server error. Please try again in a moment.');
         } else {
           setError('Failed to subscribe. Please try again later.');
         }

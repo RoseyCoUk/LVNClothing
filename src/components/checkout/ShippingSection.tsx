@@ -5,6 +5,7 @@ import ShippingMethods from './ShippingMethods'
 import type { ShippingOption, Recipient } from '../../lib/shipping/types'
 import { getCountryCode } from '../../lib/shipping/printful'
 import { useCart } from '../../contexts/CartContext'
+import { expandBundlesForShipping } from '../../lib/bundle-utils'
 
 interface ShippingSectionProps {
   onShippingSelect?: (option: ShippingOption) => void
@@ -50,12 +51,12 @@ export default function ShippingSection({
         zip: address.postcode
       }
 
+      // Expand bundles into individual items for accurate shipping calculation
+      const expandedItems = expandBundlesForShipping(cartItems);
+      
       const request = {
         recipient,
-        items: cartItems.map(item => ({
-          printful_variant_id: item.printful_variant_id || parseInt(item.id.toString()),
-          quantity: item.quantity
-        }))
+        items: expandedItems
       }
 
       fetchQuotes(request)

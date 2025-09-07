@@ -32,7 +32,7 @@ const getCapProductData = (mergedProduct: any) => ({
   careInstructions: "Spot clean only. Air dry.",
   materials: "100% cotton twill",
   category: mergedProduct?.category || 'apparel',
-  shipping: "Ships in 48H",
+  shipping: "Fast UK Delivery",
   defaultVariant: 301, // Default to first variant
   variantDetails: {
     // Use database colors if available, fallback to static colors
@@ -495,7 +495,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
 
             {/* Trust Badges */}
             <div className="grid grid-cols-3 gap-4 pt-6 border-t">
-              <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Free UK Shipping Over £30</p></div>
+              <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Fast UK Shipping</p></div>
               <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
               <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
             </div>

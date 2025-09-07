@@ -25,12 +25,14 @@ export interface CartItem {
   isPartOfBundle?: boolean; // Whether this item is part of a bundle
   bundleName?: string; // Name of the bundle this item belongs to
   bundleId?: string; // ID of the bundle this item belongs to
+  isDiscount?: boolean; // Whether this item is a discount (not to be sent to Printful)
 }
 
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (product: Omit<CartItem, 'quantity'>) => void;
   addToCartAndGetUpdated: (product: Omit<CartItem, 'quantity'>) => CartItem[];
+  addMultipleToCart: (products: Omit<CartItem, 'quantity'>[]) => void;
   removeFromCart: (productId: number | string) => void;
   updateQuantity: (productId: number | string, quantity: number) => void;
   clearCart: () => void;
@@ -98,8 +100,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     try {
       console.log('DEBUG CartContext: Adding product to cart:', product);
       
-      // Validate product data
-      if (!product.id || !product.name || typeof product.price !== 'number' || product.price < 0) {
+      // Validate product data (allow negative prices for discount items)
+      if (!product.id || !product.name || typeof product.price !== 'number' || (product.price < 0 && !product.isDiscount)) {
         console.error('DEBUG CartContext: Invalid product data:', product)
         return
       }
@@ -146,6 +148,53 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     
     setCartItems(updatedItems);
     return updatedItems;
+  };
+  
+  const addMultipleToCart = (products: Omit<CartItem, 'quantity'>[]) => {
+    try {
+      console.log('DEBUG CartContext: Adding multiple products to cart:', products);
+      
+      // Validate all products first (allow negative prices for discount items)
+      const validProducts = products.filter(product => {
+        if (!product.id || !product.name || typeof product.price !== 'number' || (product.price < 0 && !product.isDiscount)) {
+          console.error('DEBUG CartContext: Invalid product data:', product);
+          return false;
+        }
+        return true;
+      });
+      
+      if (validProducts.length === 0) {
+        console.error('DEBUG CartContext: No valid products to add');
+        return;
+      }
+      
+      setCartItems(prev => {
+        console.log('DEBUG CartContext: Current cart before adding multiple:', prev);
+        
+        // Create a new cart array starting with existing items
+        const newCart = [...prev];
+        
+        // Add each valid product
+        validProducts.forEach(product => {
+          const existingIndex = newCart.findIndex(item => item.id === product.id);
+          if (existingIndex !== -1) {
+            // Update quantity if item exists
+            newCart[existingIndex] = {
+              ...newCart[existingIndex],
+              quantity: newCart[existingIndex].quantity + 1
+            };
+          } else {
+            // Add new item
+            newCart.push({ ...product, quantity: 1 });
+          }
+        });
+        
+        console.log('DEBUG CartContext: New cart after adding multiple:', newCart);
+        return newCart;
+      });
+    } catch (error) {
+      console.error('Error adding multiple items to cart:', error);
+    }
   };
 
   const removeFromCart = (productId: number | string) => {
@@ -247,6 +296,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     cartItems,
     addToCart,
     addToCartAndGetUpdated,
+    addMultipleToCart,
     removeFromCart,
     updateQuantity,
     clearCart,

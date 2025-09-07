@@ -79,6 +79,15 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   const findHoodieVariant = hoodieVariantsHook?.findHoodieVariant;
   const findTshirtVariant = tshirtVariantsHook?.findTshirtVariant;
   
+  // Helper functions to find variants for each product type
+  const findCapVariant = (color: string) => {
+    return findCapVariantByColor(color);
+  };
+  
+  const findTotebagVariant = () => {
+    return TotebagVariants[0]; // Only one tote bag variant available
+  };
+  
   // Get products using the same method as individual pages
   const hoodieProduct = getProductByCategory('hoodie');
   const tshirtProduct = getProductByCategory('tshirt');
@@ -445,7 +454,15 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       // Determine the correct design based on color
       const design = colorDesignMapping[tshirtColor] || 'DARK';
       const variantSize = convertSizeForVariant(tshirtSize);
-      const variant = findTshirtVariant(design, variantSize, tshirtColor);
+      let variant = findTshirtVariant(design, variantSize, tshirtColor);
+      
+      // Try fallback design if first attempt fails
+      if (!variant) {
+        const fallbackDesign = design === 'DARK' ? 'LIGHT' : 'DARK';
+        console.log(`DEBUG: Trying fallback design: ${fallbackDesign}`);
+        variant = findTshirtVariant(fallbackDesign, variantSize, tshirtColor);
+      }
+      
       setSelectedTshirtVariant(variant);
       console.log(`DEBUG: T-shirt variant lookup - Color: ${tshirtColor}, Design: ${design}, Size: ${tshirtSize}, Variant Size: ${variantSize}, Found variant:`, variant);
     }
@@ -454,12 +471,12 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   // Update cap variant when color changes
   useEffect(() => {
     if (capColor) {
-      const variant = findCapVariantByColor(capColor);
+      const variant = findCapVariant(capColor);
       if (variant) {
         setSelectedCapVariant(variant);
       }
     }
-  }, [capColor]);
+  }, [capColor, findCapVariant]);
 
   // Update hoodie in bundle when variant changes
   useEffect(() => {
@@ -707,9 +724,9 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   const handleCapColorChange = (color: string) => {
     setCapColor(color);
     // Use the cap variants hook to find the correct variant
-    const capVariant = findCapVariantByColor(color);
+    const capVariant = findCapVariant(color);
     if (capVariant) {
-      // Handle cap variant change if needed
+      setSelectedCapVariant(capVariant);
     }
     setCurrentImageIndex(0);
   };
@@ -741,10 +758,10 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       if (item.product.category === 'hoodie') {
         const variantSize = convertSizeForVariant(hoodieSize);
         console.log(`🔍 Hoodie lookup - Size: ${hoodieSize}, Variant Size: ${variantSize}, Color: ${hoodieColor}`);
-        const hoodieVariant = findHoodieVariant(variantSize, hoodieColor);
+        const hoodieVariant = findHoodieVariant ? findHoodieVariant(variantSize, hoodieColor) : null;
         console.log('📦 Hoodie variant found:', hoodieVariant);
         if (hoodieVariant) {
-          variantId = hoodieVariant.externalId || hoodieVariant.catalogVariantId;
+          variantId = hoodieVariant.catalogVariantId;
           console.log('✅ Hoodie variant ID:', variantId);
         } else {
           console.error('❌ No hoodie variant found!');
@@ -754,12 +771,12 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
         const variantSize = convertSizeForVariant(tshirtSize);
         console.log(`🔍 T-shirt lookup - Design: ${design}, Size: ${tshirtSize}, Variant Size: ${variantSize}, Color: ${tshirtColor}`);
         
-        let tshirtVariant = findTshirtVariant(design, variantSize, tshirtColor);
+        let tshirtVariant = findTshirtVariant ? findTshirtVariant(design, variantSize, tshirtColor) : null;
         
-        if (!tshirtVariant && design === 'LIGHT') {
+        if (!tshirtVariant && design === 'LIGHT' && findTshirtVariant) {
           console.log('⚠️ LIGHT variant not found, trying DARK');
           tshirtVariant = findTshirtVariant('DARK', variantSize, tshirtColor);
-        } else if (!tshirtVariant && design === 'DARK') {
+        } else if (!tshirtVariant && design === 'DARK' && findTshirtVariant) {
           console.log('⚠️ DARK variant not found, trying LIGHT');
           tshirtVariant = findTshirtVariant('LIGHT', variantSize, tshirtColor);
         }
@@ -767,33 +784,36 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
         console.log('📦 T-shirt variant found:', tshirtVariant);
         
         if (tshirtVariant) {
-          variantId = tshirtVariant.externalId || tshirtVariant.catalogVariantId;
+          variantId = tshirtVariant.catalogVariantId;
           console.log('✅ T-shirt variant ID:', variantId);
         } else {
           console.error('❌ No T-shirt variant found!');
         }
       } else if (item.product.category === 'cap') {
         console.log(`🔍 Cap lookup - Color: ${capColor}`);
-        const capVariant = selectedCapVariant || findCapVariantByColor(capColor);
+        const capVariant = selectedCapVariant || findCapVariant(capColor);
         console.log('📦 Cap variant found:', capVariant);
         if (capVariant) {
-          variantId = capVariant.externalId || capVariant.catalogVariantId;
+          variantId = capVariant.catalogVariantId;
           console.log('✅ Cap variant ID:', variantId);
         } else {
           console.error('❌ No cap variant found!');
         }
       } else if (item.product.category === 'tote') {
         // Tote bag has only one variant
-        variantId = TotebagVariants[0].externalId || TotebagVariants[0].catalogVariantId;
+        const totebagVariant = findTotebagVariant();
+        if (totebagVariant) {
+          variantId = totebagVariant.catalogVariantId;
+        }
       } else if (item.product.category === 'mug') {
         // Mug has only one variant
-        variantId = MugVariants[0].externalId || MugVariants[0].catalogVariantId;
+        variantId = MugVariants[0].catalogVariantId;
       } else if (item.product.category === 'water-bottle') {
         // Water bottle has only one variant
-        variantId = WaterbottleVariants[0].externalId || WaterbottleVariants[0].catalogVariantId;
+        variantId = WaterbottleVariants[0].catalogVariantId;
       } else if (item.product.category === 'mouse-pad') {
         // Mouse pad has only one variant
-        variantId = MousepadVariants[0].externalId || MousepadVariants[0].catalogVariantId;
+        variantId = MousepadVariants[0].catalogVariantId;
       }
       
       // Ensure we have a valid variant ID
@@ -860,7 +880,36 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
         image: itemImage,
         printful_variant_id: variantId,
         external_id: variantId, // Use the same valid variant ID
-        sku: item.variant.sku || item.variant.external_id || `${item.product.category}-${item.variant.color}-${item.variant.size}`.toLowerCase(),
+        sku: (() => {
+          // Get SKU from the actual variant object based on the category
+          if (item.product.category === 'hoodie' && findHoodieVariant) {
+            const variantSize = convertSizeForVariant(hoodieSize);
+            const hoodieVariant = findHoodieVariant(variantSize, hoodieColor);
+            return hoodieVariant?.sku || hoodieVariant?.externalId || `hoodie-${hoodieColor}-${hoodieSize}`.toLowerCase();
+          } else if (item.product.category === 'tshirt' && findTshirtVariant) {
+            const design = colorDesignMapping[tshirtColor] || 'DARK';
+            const variantSize = convertSizeForVariant(tshirtSize);
+            let tshirtVariant = findTshirtVariant(design, variantSize, tshirtColor);
+            if (!tshirtVariant) {
+              const fallbackDesign = design === 'DARK' ? 'LIGHT' : 'DARK';
+              tshirtVariant = findTshirtVariant(fallbackDesign, variantSize, tshirtColor);
+            }
+            return tshirtVariant?.sku || tshirtVariant?.externalId || `tshirt-${tshirtColor}-${tshirtSize}`.toLowerCase();
+          } else if (item.product.category === 'cap') {
+            const capVariant = selectedCapVariant || findCapVariant(capColor);
+            return capVariant?.sku || capVariant?.externalId || `cap-${capColor}`.toLowerCase();
+          } else if (item.product.category === 'tote') {
+            const totebagVariant = findTotebagVariant();
+            return totebagVariant?.sku || totebagVariant?.externalId || 'tote-black';
+          } else if (item.product.category === 'water-bottle') {
+            return WaterbottleVariants[0]?.sku || WaterbottleVariants[0]?.externalId || 'waterbottle-white';
+          } else if (item.product.category === 'mug') {
+            return MugVariants[0]?.sku || MugVariants[0]?.externalId || 'mug-white-11oz';
+          } else if (item.product.category === 'mouse-pad') {
+            return MousepadVariants[0]?.sku || MousepadVariants[0]?.externalId || 'mousepad-white';
+          }
+          return item.variant.sku || item.variant.external_id || `${item.product.category}-default`;
+        })(),
         // Only set size for items that actually have sizes (t-shirts and hoodies, not caps, mugs, etc.)
         size: (item.product.category === 'hoodie' || item.product.category === 'tshirt') ? 
               (item.product.category === 'hoodie' ? hoodieSize : tshirtSize) : undefined,

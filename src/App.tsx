@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Header from './components/Header';
+import AnnouncementBanner from './components/AnnouncementBanner';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
 import MovementSection from './components/MovementSection';
@@ -15,8 +16,8 @@ import { SuccessPage, OrdersPage, TrackOrderPage } from '@/pages/shop';
 import { FAQPage } from '@/pages/support';
 import { PrivacyPolicyPage, CookiePolicyPage, TermsOfServicePage } from '@/pages/legal';
 import { ReturnsExchangesPage, ShippingInfoPage, SizeGuidePage, AccessibilityPage } from '@/pages/support';
+import UnsubscribePage from '@/pages/UnsubscribePage';
 import TestPaymentFlow from './components/TestPaymentFlow';
-import UrgencyBar from './components/UrgencyBar';
 import ProductBundles from './components/ProductBundles';
 import CartDrawer from './components/CartDrawer';
 import CartPopup from './components/CartPopup';
@@ -198,15 +199,14 @@ const App = () => {
           {!location.pathname.startsWith('/admin') && (
             <Header currentPage={currentPage} setCurrentPage={handleNavigation} onLoginClick={handleLoginClick} onSignupClick={handleSignupClick} />
           )}
+          <AnnouncementBanner />
           <main role="main" id="main-content">
           <Routes>
             <Route path="/" element={
               <>
-                <UrgencyBar />
                 <Hero onShopClick={handleShopClick} />
                 <TopSellers onViewAllClick={handleShopClick} />
                 <MovementSection />
-                <ProductBundles />
                 <Testimonials />
                 <EmailSignup />
               </>
@@ -235,6 +235,7 @@ const App = () => {
             <Route path="/shipping-info" element={<ShippingInfoPage onBack={handleBackToHome} />} />
             <Route path="/size-guide" element={<SizeGuidePage onBack={handleBackToHome} />} />
             <Route path="/accessibility" element={<AccessibilityPage onBack={handleBackToHome} />} />
+            <Route path="/unsubscribe" element={<UnsubscribePage />} />
             <Route path="/test-payment" element={<TestPaymentFlow />} />
             <Route path="/printful-test" element={<PrintfulTest />} />
             <Route path="/shipping-test" element={<ShippingTest />} />

@@ -2,7 +2,7 @@
 // Created for PR-08: Frontend Color Hex Display & Product Merging
 // Implements client-side product merging without backend changes
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getProducts, getProductVariants } from '../lib/api';
 import { hoodieColors, hoodieSizes } from './hoodie-variants-merged-fixed';
 import { tshirtColors, tshirtSizes } from './tshirt-variants-merged-fixed';
@@ -66,12 +66,28 @@ const MERGE_RULES = {
   }
 } as const;
 
+// Cache for merged products to avoid re-fetching
+const mergedProductsCache = new Map<string, MergedProduct>();
+const variantsCache = new Map<string, ProductVariant[]>();
+
 export function useMergedProducts(): UseMergedProductsReturn {
   const [mergedProducts, setMergedProducts] = useState<MergedProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const fetchStarted = useRef(false);
 
   useEffect(() => {
+    // Check if we already have cached data
+    if (mergedProductsCache.size > 0) {
+      setMergedProducts(Array.from(mergedProductsCache.values()));
+      setIsLoading(false);
+      return;
+    }
+    
+    // Prevent duplicate fetches
+    if (fetchStarted.current) return;
+    fetchStarted.current = true;
+    
     const fetchAndMergeProducts = async () => {
       try {
         setIsLoading(true);
@@ -131,8 +147,16 @@ export function useMergedProducts(): UseMergedProductsReturn {
         // If no merged products found, create fallback products with static data
         if (merged.length === 0) {
           const fallbackProducts = createFallbackProducts();
+          // Cache fallback products
+          fallbackProducts.forEach(product => {
+            mergedProductsCache.set(product.id, product);
+          });
           setMergedProducts(fallbackProducts);
         } else {
+          // Cache merged products
+          merged.forEach(product => {
+            mergedProductsCache.set(product.id, product);
+          });
           setMergedProducts(merged);
         }
 
@@ -219,10 +243,17 @@ async function createMergedProduct(
   
   for (const product of products) {
     try {
-      const variants = await getProductVariants(product.id);
+      // Check cache first
+      let variants = variantsCache.get(product.id);
+      if (!variants) {
+        const fetchedVariants = await getProductVariants(product.id);
+        variants = fetchedVariants;
+        // Cache the variants
+        variantsCache.set(product.id, fetchedVariants);
+      }
       
       // Transform database variants to our format
-      const transformedVariants = variants.map(variant => ({
+      const transformedVariants = (variants as any[]).map(variant => ({
         id: variant.id,
         product_id: product.id,
         color: variant.color || 'Unknown',

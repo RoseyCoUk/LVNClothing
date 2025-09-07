@@ -552,7 +552,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
         const hoodieVariant = findHoodieVariant ? findHoodieVariant(variantSize, hoodieColor) : null;
         console.log('📦 Hoodie variant found:', hoodieVariant);
         if (hoodieVariant) {
-          variantId = hoodieVariant.catalogVariantId || hoodieVariant.externalId;
+          variantId = hoodieVariant.catalogVariantId;
           console.log('✅ Hoodie variant ID:', variantId);
         } else {
           console.error('❌ No hoodie variant found!');
@@ -578,7 +578,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
         console.log('📦 T-shirt variant found:', tshirtVariant);
         
         if (tshirtVariant) {
-          variantId = tshirtVariant.externalId || tshirtVariant.catalogVariantId;
+          variantId = tshirtVariant.catalogVariantId;
           console.log('✅ T-shirt variant ID:', variantId);
         } else {
           console.error('❌ No T-shirt variant found!');
@@ -591,7 +591,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
         const capVariant = selectedCapVariant || findCapVariantByColor(capColor);
         console.log('📦 Cap variant found:', capVariant);
         if (capVariant) {
-          variantId = capVariant.externalId || capVariant.catalogVariantId;
+          variantId = capVariant.catalogVariantId;
           console.log('✅ Cap variant ID:', variantId);
         } else {
           console.error('❌ No cap variant found!');
@@ -602,7 +602,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
       if (item.product.category === 'tote') {
         const totebagVariant = TotebagVariants[0]; // There's only one tote bag variant
         if (totebagVariant) {
-          variantId = totebagVariant.externalId || totebagVariant.catalogVariantId;
+          variantId = totebagVariant.catalogVariantId;
         }
       }
       

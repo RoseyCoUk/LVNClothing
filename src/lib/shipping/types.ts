@@ -11,7 +11,7 @@ export type Recipient = {
 }
 
 export type CartItem = {
-  printful_variant_id: number
+  printful_variant_id: number | string // Support both catalog variant IDs (number) and sync variant IDs (string)
   quantity: number
   // optional: title, price, etc. (ignored here)
 }

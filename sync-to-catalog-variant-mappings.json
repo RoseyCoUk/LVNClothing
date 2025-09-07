@@ -1,0 +1,4208 @@
+[
+  {
+    "sync_variant_id": 4938952082,
+    "catalog_variant_id": 10163,
+    "product_id": 390637627,
+    "product_name": "Reform UK Sticker",
+    "variant_name": "",
+    "retail_price": "2.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866418363,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938946337,
+    "catalog_variant_id": 1320,
+    "product_id": 390637302,
+    "product_name": "Reform UK Mug",
+    "variant_name": "",
+    "retail_price": "9.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866416061,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866416072,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938942751,
+    "catalog_variant_id": 13097,
+    "product_id": 390637071,
+    "product_name": "Reform UK Mouse Pad",
+    "variant_name": "",
+    "retail_price": "14.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866414668,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938941055,
+    "catalog_variant_id": 20175,
+    "product_id": 390636972,
+    "product_name": "Reform UK Water Bottle",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866417273,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866417286,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938937571,
+    "catalog_variant_id": 7854,
+    "product_id": 390636644,
+    "product_name": "Reform UK Cap",
+    "variant_name": "",
+    "retail_price": "19.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_dtf_hat",
+        "url": null
+      },
+      {
+        "id": 866412403,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938937572,
+    "catalog_variant_id": 7857,
+    "product_id": 390636644,
+    "product_name": "Reform UK Cap",
+    "variant_name": "",
+    "retail_price": "19.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_dtf_hat",
+        "url": null
+      },
+      {
+        "id": 866412404,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938937573,
+    "catalog_variant_id": 12736,
+    "product_id": 390636644,
+    "product_name": "Reform UK Cap",
+    "variant_name": "",
+    "retail_price": "19.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_dtf_hat",
+        "url": null
+      },
+      {
+        "id": 866412405,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938937574,
+    "catalog_variant_id": 7855,
+    "product_id": 390636644,
+    "product_name": "Reform UK Cap",
+    "variant_name": "",
+    "retail_price": "19.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_dtf_hat",
+        "url": null
+      },
+      {
+        "id": 866412406,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938937575,
+    "catalog_variant_id": 7859,
+    "product_id": 390636644,
+    "product_name": "Reform UK Cap",
+    "variant_name": "",
+    "retail_price": "19.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_dtf_hat",
+        "url": null
+      },
+      {
+        "id": 866412407,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938937576,
+    "catalog_variant_id": 7858,
+    "product_id": 390636644,
+    "product_name": "Reform UK Cap",
+    "variant_name": "",
+    "retail_price": "19.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_dtf_hat",
+        "url": null
+      },
+      {
+        "id": 866412408,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938937577,
+    "catalog_variant_id": 7856,
+    "product_id": 390636644,
+    "product_name": "Reform UK Cap",
+    "variant_name": "",
+    "retail_price": "19.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_dtf_hat",
+        "url": null
+      },
+      {
+        "id": 866412409,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938937578,
+    "catalog_variant_id": 7853,
+    "product_id": 390636644,
+    "product_name": "Reform UK Cap",
+    "variant_name": "",
+    "retail_price": "19.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_dtf_hat",
+        "url": null
+      },
+      {
+        "id": 866412410,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821282,
+    "catalog_variant_id": 8923,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380681,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821283,
+    "catalog_variant_id": 8924,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380681,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821284,
+    "catalog_variant_id": 8925,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380681,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821285,
+    "catalog_variant_id": 8926,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380681,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821286,
+    "catalog_variant_id": 8927,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380681,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821287,
+    "catalog_variant_id": 4016,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380682,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821288,
+    "catalog_variant_id": 4017,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380682,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821289,
+    "catalog_variant_id": 4018,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380682,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821290,
+    "catalog_variant_id": 4019,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380682,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821291,
+    "catalog_variant_id": 4020,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380682,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821292,
+    "catalog_variant_id": 4111,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380683,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821293,
+    "catalog_variant_id": 4112,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380683,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821294,
+    "catalog_variant_id": 4113,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380683,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821295,
+    "catalog_variant_id": 4114,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380683,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821296,
+    "catalog_variant_id": 4115,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380683,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821297,
+    "catalog_variant_id": 4141,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380685,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821298,
+    "catalog_variant_id": 4142,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380685,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821299,
+    "catalog_variant_id": 4143,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380685,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821300,
+    "catalog_variant_id": 4144,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380685,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821301,
+    "catalog_variant_id": 4145,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380685,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821302,
+    "catalog_variant_id": 8460,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380687,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821303,
+    "catalog_variant_id": 8461,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380687,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821304,
+    "catalog_variant_id": 8462,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380687,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821305,
+    "catalog_variant_id": 8463,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380687,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821306,
+    "catalog_variant_id": 8464,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380687,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821307,
+    "catalog_variant_id": 4031,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380691,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821308,
+    "catalog_variant_id": 4032,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380691,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821309,
+    "catalog_variant_id": 4033,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380691,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821310,
+    "catalog_variant_id": 4034,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380691,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821311,
+    "catalog_variant_id": 4035,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380691,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821312,
+    "catalog_variant_id": 8440,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380693,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821313,
+    "catalog_variant_id": 8441,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380693,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821314,
+    "catalog_variant_id": 8442,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380693,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821315,
+    "catalog_variant_id": 8443,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380693,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821316,
+    "catalog_variant_id": 8444,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380693,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821317,
+    "catalog_variant_id": 4121,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380697,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821318,
+    "catalog_variant_id": 4122,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380697,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821319,
+    "catalog_variant_id": 4123,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380697,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821320,
+    "catalog_variant_id": 4124,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380697,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821321,
+    "catalog_variant_id": 4125,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380697,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821322,
+    "catalog_variant_id": 10384,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380700,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821323,
+    "catalog_variant_id": 10385,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380700,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821324,
+    "catalog_variant_id": 10386,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380700,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821325,
+    "catalog_variant_id": 10387,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380700,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821326,
+    "catalog_variant_id": 10388,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380700,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821327,
+    "catalog_variant_id": 8481,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380702,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821328,
+    "catalog_variant_id": 8482,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380702,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821329,
+    "catalog_variant_id": 8483,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380702,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821330,
+    "catalog_variant_id": 8484,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380702,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821331,
+    "catalog_variant_id": 8485,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380702,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821332,
+    "catalog_variant_id": 9395,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380703,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821333,
+    "catalog_variant_id": 9396,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380703,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821334,
+    "catalog_variant_id": 9397,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380703,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821335,
+    "catalog_variant_id": 9398,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380703,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821336,
+    "catalog_variant_id": 9399,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380703,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821337,
+    "catalog_variant_id": 4161,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380704,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821338,
+    "catalog_variant_id": 4162,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380704,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821339,
+    "catalog_variant_id": 4163,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380704,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821340,
+    "catalog_variant_id": 4164,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380704,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938821341,
+    "catalog_variant_id": 4165,
+    "product_id": 390630122,
+    "product_name": "Unisex t-shirt DARK",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866380704,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814128,
+    "catalog_variant_id": 10376,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378086,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814129,
+    "catalog_variant_id": 10377,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378086,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814130,
+    "catalog_variant_id": 10378,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378086,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814131,
+    "catalog_variant_id": 10379,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378086,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814132,
+    "catalog_variant_id": 10380,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378086,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814133,
+    "catalog_variant_id": 9367,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378090,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814134,
+    "catalog_variant_id": 9368,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378090,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814135,
+    "catalog_variant_id": 9369,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378090,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814136,
+    "catalog_variant_id": 9370,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378090,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814137,
+    "catalog_variant_id": 9371,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378090,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814138,
+    "catalog_variant_id": 4136,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378092,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814139,
+    "catalog_variant_id": 4137,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378092,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814140,
+    "catalog_variant_id": 4138,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378092,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814141,
+    "catalog_variant_id": 4139,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378092,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814142,
+    "catalog_variant_id": 4140,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378092,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814143,
+    "catalog_variant_id": 6948,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378095,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814144,
+    "catalog_variant_id": 6949,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378095,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814145,
+    "catalog_variant_id": 6950,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378095,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814146,
+    "catalog_variant_id": 6951,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378095,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814147,
+    "catalog_variant_id": 6952,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378095,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814148,
+    "catalog_variant_id": 4181,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378097,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814149,
+    "catalog_variant_id": 4182,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378097,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814150,
+    "catalog_variant_id": 4183,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378097,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814151,
+    "catalog_variant_id": 4184,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378097,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814152,
+    "catalog_variant_id": 4185,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378097,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814153,
+    "catalog_variant_id": 10360,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378100,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814154,
+    "catalog_variant_id": 10361,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378100,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814155,
+    "catalog_variant_id": 10362,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378100,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814156,
+    "catalog_variant_id": 10363,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378100,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814157,
+    "catalog_variant_id": 10364,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378100,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814158,
+    "catalog_variant_id": 4026,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378102,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814159,
+    "catalog_variant_id": 4027,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378102,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814160,
+    "catalog_variant_id": 4028,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378102,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814161,
+    "catalog_variant_id": 4029,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378102,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814162,
+    "catalog_variant_id": 4030,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378102,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814163,
+    "catalog_variant_id": 4011,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378106,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814164,
+    "catalog_variant_id": 4012,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378106,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814165,
+    "catalog_variant_id": 4013,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378106,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814166,
+    "catalog_variant_id": 4014,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378106,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938814167,
+    "catalog_variant_id": 4015,
+    "product_id": 390629811,
+    "product_name": "Unisex t-shirt LIGHT",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "front_large",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866378106,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800533,
+    "catalog_variant_id": 5530,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371415,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800534,
+    "catalog_variant_id": 5531,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371415,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800535,
+    "catalog_variant_id": 5532,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371415,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800536,
+    "catalog_variant_id": 5533,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371415,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800537,
+    "catalog_variant_id": 5534,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371415,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800538,
+    "catalog_variant_id": 5594,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371416,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800539,
+    "catalog_variant_id": 5595,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371416,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800540,
+    "catalog_variant_id": 5596,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371416,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800541,
+    "catalog_variant_id": 5597,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371416,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800542,
+    "catalog_variant_id": 5598,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371416,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800543,
+    "catalog_variant_id": 5538,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371417,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800544,
+    "catalog_variant_id": 5539,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371417,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800545,
+    "catalog_variant_id": 5540,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371417,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800546,
+    "catalog_variant_id": 5541,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371417,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800547,
+    "catalog_variant_id": 5542,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371417,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800548,
+    "catalog_variant_id": 10806,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371419,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800549,
+    "catalog_variant_id": 10807,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371419,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800550,
+    "catalog_variant_id": 10808,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371419,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800551,
+    "catalog_variant_id": 10809,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371419,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800552,
+    "catalog_variant_id": 10810,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371419,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800553,
+    "catalog_variant_id": 5562,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371423,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800554,
+    "catalog_variant_id": 5563,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371423,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800555,
+    "catalog_variant_id": 5564,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371423,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800556,
+    "catalog_variant_id": 5565,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371423,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938800557,
+    "catalog_variant_id": 5566,
+    "product_id": 390628740,
+    "product_name": "Unisex Hoodie DARK",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866371423,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797545,
+    "catalog_variant_id": 5610,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370341,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797546,
+    "catalog_variant_id": 5611,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370341,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797547,
+    "catalog_variant_id": 5612,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370341,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797548,
+    "catalog_variant_id": 5613,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370341,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797549,
+    "catalog_variant_id": 5614,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370341,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797550,
+    "catalog_variant_id": 10841,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370342,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797551,
+    "catalog_variant_id": 10842,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370342,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797552,
+    "catalog_variant_id": 10843,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370342,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797553,
+    "catalog_variant_id": 10844,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370342,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797554,
+    "catalog_variant_id": 10845,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370342,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797555,
+    "catalog_variant_id": 10849,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370344,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797556,
+    "catalog_variant_id": 10850,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370344,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797557,
+    "catalog_variant_id": 10851,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370344,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797558,
+    "catalog_variant_id": 10852,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370344,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797559,
+    "catalog_variant_id": 10853,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370344,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797560,
+    "catalog_variant_id": 5522,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370346,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797561,
+    "catalog_variant_id": 5523,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370346,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797562,
+    "catalog_variant_id": 5524,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370346,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797563,
+    "catalog_variant_id": 5525,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370346,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4938797564,
+    "catalog_variant_id": 5526,
+    "product_id": 390628620,
+    "product_name": "Unisex Hoodie LIGHT",
+    "variant_name": "",
+    "retail_price": "39.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866367171,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866370346,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  },
+  {
+    "sync_variant_id": 4937855201,
+    "catalog_variant_id": 10457,
+    "product_id": 390552402,
+    "product_name": "Reform UK Tote Bag",
+    "variant_name": "",
+    "retail_price": "24.99",
+    "currency": "GBP",
+    "is_printify_premium": false,
+    "files": [
+      {
+        "id": 866366184,
+        "type": "default",
+        "url": null
+      },
+      {
+        "id": 866370730,
+        "type": "back",
+        "url": null
+      },
+      {
+        "id": 866373843,
+        "type": "preview",
+        "url": null
+      }
+    ]
+  }
+]

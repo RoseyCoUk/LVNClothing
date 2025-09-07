@@ -21,13 +21,6 @@ const BundleCard: React.FC<BundleCardProps> = ({
   const discount = DISCOUNTS[bundleKey];
   const savings = originalPrice - price;
 
-  // Bundle images (using product images for visual appeal)
-  const bundleImages: Record<BundleKey, string> = {
-    starter: '/images/bundles/starter-bundle.jpg',
-    champion: '/images/bundles/champion-bundle.jpg',
-    activist: '/images/bundles/activist-bundle.jpg'
-  };
-
   // Bundle descriptions
   const bundleDescriptions: Record<BundleKey, string> = {
     starter: 'Perfect for new supporters. Get the essentials to show your support.',
@@ -44,7 +37,7 @@ const BundleCard: React.FC<BundleCardProps> = ({
 
   const handleClick = () => {
     // Navigate to the specific bundle page
-    navigate(`/bundles/${bundleKey}`);
+    navigate(`/product/${bundleKey}-bundle`);
   };
 
   return (
@@ -90,15 +83,11 @@ const BundleCard: React.FC<BundleCardProps> = ({
             </div>
           </div>
 
-          {/* Add to Cart Button */}
+          {/* View Bundle Button - Always navigate to bundle page */}
           <button
             onClick={(e) => {
               e.stopPropagation();
-              if (onAddToCart) {
-                onAddToCart();
-              } else {
-                handleClick();
-              }
+              handleClick(); // Always navigate to the bundle page
             }}
             className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
           >

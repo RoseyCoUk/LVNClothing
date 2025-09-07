@@ -10,6 +10,7 @@ export interface CartItem {
   image?: string;
   color?: string;  // Product color variant (e.g., Black, White, Navy)
   size?: string;   // Product size variant (e.g., S, M, L, XL, 11 oz)
+  isDiscount?: boolean; // Whether this item is a discount (not to be sent to Printful)
 }
 
 export interface ShippingAddress {
@@ -57,20 +58,33 @@ export interface ConfirmPaymentResponse {
  */
 export async function createPaymentIntent(request: PaymentIntentRequest): Promise<PaymentIntentResponse> {
   try {
+    console.log('📤 Sending to edge function:', JSON.stringify(request, null, 2));
+    
     const { data, error } = await supabase.functions.invoke('create-payment-intent', {
       body: request,
     });
 
+    console.log('📥 Edge function response:', JSON.stringify(data));
+    console.log('📥 Edge function error:', error);
+
     if (error) {
+      console.error('Edge function error details:', error);
       throw new Error(error.message || 'Failed to create payment intent');
     }
 
     if (!data) {
       throw new Error('No data returned from payment intent function');
     }
+    
+    // Check if data contains an error (edge function returned 500 with error details)
+    if (data.error) {
+      console.error('Payment intent error from edge function:', data);
+      throw new Error(data.details || data.error || 'Failed to create payment intent');
+    }
 
     return data;
   } catch (error) {
+    console.error('Payment intent creation failed:', error);
     throw error instanceof Error 
       ? error 
       : new Error('Failed to create payment intent');
@@ -107,6 +121,15 @@ export async function confirmPaymentIntent(request: ConfirmPaymentRequest): Prom
  */
 export async function getShippingRates(items: CartItem[], shippingAddress: ShippingAddress) {
   try {
+    // Filter out discount items - they should not be sent to Printful for shipping calculations
+    const shippableItems = items.filter(item => !item.isDiscount);
+    const discountItems = items.filter(item => item.isDiscount);
+    
+    console.log(`🚚 Shipping: ${shippableItems.length} shippable items, ${discountItems.length} discount items excluded:`, {
+      shippableItems: shippableItems.map(item => ({ id: item.id, name: item.name })),
+      discountItems: discountItems.map(item => ({ id: item.id, name: item.name }))
+    });
+    
     const shippingRequest = {
       recipient: {
         name: shippingAddress.name,
@@ -116,20 +139,36 @@ export async function getShippingRates(items: CartItem[], shippingAddress: Shipp
         country_code: shippingAddress.country_code,
         zip: shippingAddress.zip,
       },
-      items: items.map(item => ({
+      items: shippableItems.map(item => ({
         printful_variant_id: /^\d+$/.test(item.printful_variant_id) 
           ? parseInt(item.printful_variant_id) 
-          : item.printful_variant_id, // Keep as string if not numeric
+          : item.printful_variant_id,
         quantity: item.quantity
       }))
     };
 
+    console.log('📤 Sending to edge function:', JSON.stringify(shippingRequest, null, 2));
+    
     const { data, error } = await supabase.functions.invoke('shipping-quotes', {
       body: shippingRequest,
     });
 
+    console.log('📥 Edge function response:', JSON.stringify(data, null, 2));
+    console.log('📥 Edge function error:', error);
+
     if (error) {
       throw new Error(error.message || 'Failed to get shipping rates');
+    }
+
+    // HYBRID SOLUTION: Use Printful's accurate pricing but override delivery days
+    if (data && data.options && shippingAddress.country_code === 'GB') {
+      console.log('🔧 Overriding delivery days to 3-5 business days for UK');
+      data.options = data.options.map((option: any) => ({
+        ...option,
+        minDeliveryDays: 3,
+        maxDeliveryDays: 5
+      }));
+      console.log('📦 Updated shipping options:', JSON.stringify(data.options, null, 2));
     }
 
     return data;

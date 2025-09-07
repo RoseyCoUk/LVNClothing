@@ -61,12 +61,21 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
   const productData = tshirtProduct ? {
     id: tshirtProduct.id,
     name: tshirtProduct.name,
-    description: tshirtProduct.description || "Comfortable cotton t-shirt featuring the Reform UK logo. Available in multiple beautiful colors and sizes. Made from premium cotton for all-day comfort and durability. A classic fit that works for any occasion.",
-    features: ["100% premium cotton", "Classic fit", "Reinforced seams", "Pre-shrunk fabric", "Tagless for comfort", "Screen-printed logo", `${tshirtProduct.colorOptions.length} color options`],
+    description: tshirtProduct.description || "The Unisex Staple T-Shirt feels soft and light with just the right amount of stretch. It's comfortable and flattering for all. We can't compliment this shirt enough–it's one of our crowd favorites, and it's sure to be your next favorite too!",
+    features: [
+      "100% Airlume combed and ring-spun cotton (solid colors)",
+      "52% combed and ring-spun cotton, 48% polyester (heather colors)",
+      "Fabric weight: 4.2 oz./yd.² (142 g/m²)",
+      "Pre-shrunk fabric",
+      "Side-seamed construction",
+      "Tear-away label",
+      "Shoulder-to-shoulder taping",
+      `${tshirtProduct.colorOptions.length} color options`
+    ],
     careInstructions: "Machine wash cold. Tumble dry low. Do not bleach.",
-    materials: "100% cotton",
+    materials: "Solid colors: 100% Airlume combed and ring-spun cotton\nAsh: 99% cotton, 1% polyester\nHeather colors: 52% cotton, 48% polyester\nAthletic/Black Heather: 90% cotton, 10% polyester\nHeather Prism: 99% cotton, 1% polyester",
     category: tshirtProduct.category || 'apparel',
-    shipping: "Ships in 48H",
+    shipping: "Fast UK Delivery",
     priceRange: tshirtProduct.priceRange,
     variantDetails: {
       sizes: tshirtProduct.sizeOptions,
@@ -382,8 +391,8 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                   </span>
                 </div>
                 <div className="flex items-center space-x-2 text-green-600 mb-6">
-                  <Clock className="w-4 h-4" />
-                  <span className="font-semibold">{productData.shipping}</span>
+                  <Truck className="w-4 h-4" />
+                  <span className="font-semibold">{productData.shipping} • 3-5 Business Days</span>
                 </div>
               </div>
 
@@ -430,6 +439,11 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                   >
                     Size Guide
                   </button>
+                </div>
+                <div className="bg-pink-50 border border-pink-200 rounded-lg p-3 mb-3">
+                  <p className="text-sm text-pink-800">
+                    <strong>Women's Fit Recommendation:</strong> It is recommended women size down one size for a better fit.
+                  </p>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
                   {tshirtProduct.sizeOptions.map((size) => (

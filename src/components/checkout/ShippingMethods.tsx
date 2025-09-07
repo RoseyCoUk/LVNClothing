@@ -92,11 +92,64 @@ export default function ShippingMethods({
       >
         {options.map(opt => {
           const isSelected = selected === opt.id
+          
+          // Calculate estimated delivery date range from Printful's delivery days
+          const getDeliveryDateRange = () => {
+            if (!opt.minDeliveryDays || !opt.maxDeliveryDays) {
+              return null;
+            }
+            
+            const today = new Date();
+            const minDate = new Date(today);
+            const maxDate = new Date(today);
+            
+            // Add business days (excluding weekends)
+            let daysToAdd = opt.minDeliveryDays;
+            let daysAdded = 0;
+            while (daysAdded < daysToAdd) {
+              minDate.setDate(minDate.getDate() + 1);
+              // Skip weekends (0 = Sunday, 6 = Saturday)
+              if (minDate.getDay() !== 0 && minDate.getDay() !== 6) {
+                daysAdded++;
+              }
+            }
+            
+            daysToAdd = opt.maxDeliveryDays;
+            daysAdded = 0;
+            while (daysAdded < daysToAdd) {
+              maxDate.setDate(maxDate.getDate() + 1);
+              // Skip weekends
+              if (maxDate.getDay() !== 0 && maxDate.getDay() !== 6) {
+                daysAdded++;
+              }
+            }
+            
+            const formatDate = (date: Date) => {
+              return date.toLocaleDateString('en-GB', { 
+                month: 'short', 
+                day: 'numeric' 
+              });
+            };
+            
+            if (opt.minDeliveryDays === opt.maxDeliveryDays) {
+              return formatDate(minDate);
+            } else {
+              // If dates are in the same month, show "Sep 9-11" format
+              if (minDate.getMonth() === maxDate.getMonth()) {
+                return `${formatDate(minDate)}–${maxDate.getDate()}`;
+              } else {
+                return `${formatDate(minDate)}–${formatDate(maxDate)}`;
+              }
+            }
+          };
+          
           const deliveryDays = opt.minDeliveryDays && opt.maxDeliveryDays
             ? opt.minDeliveryDays === opt.maxDeliveryDays
-              ? `${opt.minDeliveryDays} day${opt.minDeliveryDays !== 1 ? 's' : ''}`
-              : `${opt.minDeliveryDays}-${opt.maxDeliveryDays} days`
+              ? `${opt.minDeliveryDays} business day${opt.minDeliveryDays !== 1 ? 's' : ''}`
+              : `${opt.minDeliveryDays}-${opt.maxDeliveryDays} business days`
             : null
+          
+          const estimatedDelivery = getDeliveryDateRange();
 
           return (
             <label 
@@ -123,15 +176,31 @@ export default function ShippingMethods({
                 </div>
                 
                 <div>
-                  <div className="font-medium text-gray-900">{opt.name}</div>
-                  {deliveryDays && (
-                    <div className="flex items-center space-x-1 text-sm text-gray-500">
+                  <div className="font-medium text-gray-900">
+                    {opt.name}
+                    {opt.minDeliveryDays !== undefined && opt.maxDeliveryDays !== undefined ? (
+                      <span className="ml-2 text-sm text-gray-500 font-normal">
+                        (Est. {opt.minDeliveryDays}-{opt.maxDeliveryDays} business days)
+                      </span>
+                    ) : (
+                      <span className="ml-2 text-sm text-orange-500 font-normal">
+                        (Delivery time not available)
+                      </span>
+                    )}
+                  </div>
+                  {estimatedDelivery && (
+                    <div className="flex items-center space-x-1 text-sm text-green-600 mt-1">
                       <Clock className="w-3 h-3" />
-                      <span>{deliveryDays}</span>
+                      <span>Delivery by: {estimatedDelivery}</span>
+                    </div>
+                  )}
+                  {!estimatedDelivery && opt.minDeliveryDays && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Standard UK delivery
                     </div>
                   )}
                   {opt.carrier && (
-                    <div className="text-xs text-gray-400">{opt.carrier}</div>
+                    <div className="text-xs text-gray-400 mt-1">{opt.carrier}</div>
                   )}
                 </div>
               </div>

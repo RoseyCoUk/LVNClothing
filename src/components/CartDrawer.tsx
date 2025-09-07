@@ -68,89 +68,167 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
               </div>
             ) : (
               <div className="space-y-4">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-center space-x-4 mb-3">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-16 h-16 object-cover rounded-lg"
-                      />
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
-                        {/* Show variant information if available */}
-                        {(item.color || item.size) && (
-                          <p className="text-sm text-gray-600 mb-1">
-                            {item.color && item.size ? `${item.color}, ${item.size}` : 
-                             item.color ? item.color : item.size}
-                          </p>
-                        )}
-                        <p className="text-[#009fe3] font-bold">£{item.price.toFixed(2)}</p>
-                        {item.isBundle && (
-                          <div className="flex items-center space-x-1 mt-1">
-                            <Package className="w-3 h-3 text-green-600" />
-                            <span className="text-xs text-green-600 font-medium">Bundle Deal</span>
+                {/* Group bundle items together */}
+                {(() => {
+                  const bundleGroups = new Map<string, typeof cartItems>();
+                  const regularItems: typeof cartItems = [];
+                  
+                  cartItems.forEach(item => {
+                    if (item.isPartOfBundle && item.bundleId) {
+                      if (!bundleGroups.has(item.bundleId)) {
+                        bundleGroups.set(item.bundleId, []);
+                      }
+                      bundleGroups.get(item.bundleId)?.push(item);
+                    } else {
+                      regularItems.push(item);
+                    }
+                  });
+                  
+                  return (
+                    <>
+                      {/* Display bundle groups */}
+                      {Array.from(bundleGroups.entries()).map(([bundleId, bundleItems]) => (
+                        <div key={bundleId} className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-4 border border-blue-200">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <Package className="w-5 h-5 text-blue-600" />
+                            <h4 className="font-semibold text-gray-900">{bundleItems[0]?.bundleName || 'Bundle'}</h4>
+                            <span className="text-xs text-green-600 font-medium bg-green-100 px-2 py-1 rounded">Bundle Deal</span>
                           </div>
-                        )}
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => {
-                            try {
-                              updateQuantity(item.id, item.quantity - 1);
-                            } catch (error) {
-                              console.error('Failed to update quantity:', error);
-                            }
-                          }}
-                          className="p-1 hover:bg-gray-200 rounded-full transition-colors"
-                          disabled={item.quantity <= 1}
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-8 text-center font-semibold">{item.quantity}</span>
-                        <button
-                          onClick={() => {
-                            try {
-                              updateQuantity(item.id, item.quantity + 1);
-                            } catch (error) {
-                              console.error('Failed to update quantity:', error);
-                            }
-                          }}
-                          className="p-1 hover:bg-gray-200 rounded-full transition-colors"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                    
-                    {/* Bundle Contents */}
-                    {item.isBundle && item.bundleContents && (
-                      <div className="mt-3 pt-3 border-t border-gray-200">
-                        <p className="text-xs font-medium text-gray-700 mb-2">Bundle includes:</p>
-                        <div className="space-y-1">
-                          {item.bundleContents.map((content, index) => (
-                            <div key={index} className="flex items-center space-x-2">
-                              <img 
-                                src={content.image} 
-                                alt={content.name}
-                                className="w-6 h-6 object-cover rounded"
-                              />
-                              <span className="text-xs text-gray-600">
-                                {content.name} ({content.variant})
+                          <div className="space-y-2">
+                            {bundleItems.map((item) => (
+                              <div key={item.id} className="flex items-center space-x-3 bg-white/50 rounded p-2">
+                                <img
+                                  src={item.image}
+                                  alt={item.name}
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                                <div className="flex-1">
+                                  <h5 className="text-sm font-medium text-gray-900">{item.name}</h5>
+                                  {(item.color || item.size) && (
+                                    <p className="text-xs text-gray-600">
+                                      {item.color && item.size ? `${item.color}, ${item.size}` : 
+                                       item.color ? item.color : item.size}
+                                    </p>
+                                  )}
+                                  {item.price !== 0 && (
+                                    item.isDiscount ? (
+                                      <p className="text-sm text-green-600 font-bold flex items-center space-x-1">
+                                        <span>💸</span>
+                                        <span>{item.price < 0 ? '-' : ''}£{Math.abs(item.price).toFixed(2)} discount</span>
+                                      </p>
+                                    ) : (
+                                      <p className="text-sm text-[#009fe3] font-bold">£{item.price.toFixed(2)}</p>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          {/* Bundle total price and savings */}
+                          <div className="mt-3 pt-3 border-t border-blue-200">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-gray-700">Bundle Total:</span>
+                              <span className="text-lg font-bold text-[#009fe3]">
+                                £{bundleItems.reduce((sum, item) => sum + item.price, 0).toFixed(2)}
                               </span>
                             </div>
-                          ))}
+                            {/* Show bundle savings if this is a known bundle */}
+                            {bundleId.includes('bundle') && (
+                              <div className="mt-1 text-xs text-green-600">
+                                Bundle savings applied!
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      ))}
+                      
+                      {/* Display regular items */}
+                      {regularItems.map((item) => (
+                        <div key={item.id} className="bg-gray-50 rounded-lg p-4">
+                          <div className="flex items-center space-x-4 mb-3">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-16 h-16 object-cover rounded-lg"
+                            />
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
+                              {/* Show variant information if available */}
+                              {(item.color || item.size) && (
+                                <p className="text-sm text-gray-600 mb-1">
+                                  {item.color && item.size ? `${item.color}, ${item.size}` : 
+                                   item.color ? item.color : item.size}
+                                </p>
+                              )}
+                              <p className="text-[#009fe3] font-bold">£{item.price.toFixed(2)}</p>
+                              {item.isBundle && (
+                                <div className="flex items-center space-x-1 mt-1">
+                                  <Package className="w-3 h-3 text-green-600" />
+                                  <span className="text-xs text-green-600 font-medium">Bundle Deal</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <button
+                                onClick={() => {
+                                  try {
+                                    updateQuantity(item.id, item.quantity - 1);
+                                  } catch (error) {
+                                    console.error('Failed to update quantity:', error);
+                                  }
+                                }}
+                                className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                                disabled={item.quantity <= 1}
+                              >
+                                <Minus className="w-4 h-4" />
+                              </button>
+                              <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                              <button
+                                onClick={() => {
+                                  try {
+                                    updateQuantity(item.id, item.quantity + 1);
+                                  } catch (error) {
+                                    console.error('Failed to update quantity:', error);
+                                  }
+                                }}
+                                className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </div>
+                            <button
+                              onClick={() => removeFromCart(item.id)}
+                              className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                          
+                          {/* Bundle Contents */}
+                          {item.isBundle && item.bundleContents && (
+                            <div className="mt-3 pt-3 border-t border-gray-200">
+                              <p className="text-xs font-medium text-gray-700 mb-2">Bundle includes:</p>
+                              <div className="space-y-1">
+                                {item.bundleContents.map((content, index) => (
+                                  <div key={index} className="flex items-center space-x-2">
+                                    <img 
+                                      src={content.image} 
+                                      alt={content.name}
+                                      className="w-6 h-6 object-cover rounded"
+                                    />
+                                    <span className="text-xs text-gray-600">
+                                      {content.name} ({content.variant})
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </>
+                  );
+                })()}
               </div>
             )}
           </div>
