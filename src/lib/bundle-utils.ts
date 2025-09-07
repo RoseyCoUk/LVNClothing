@@ -1,12 +1,15 @@
 import { CartItem } from '../contexts/CartContext';
 import { BUNDLES } from './bundle-pricing';
 
-// Printful variant IDs for bundle items
+// Printful sync variant IDs for bundle items (from database)
 const BUNDLE_VARIANT_IDS = {
-  tshirt: 15451, // Default t-shirt variant ID (white, medium)
-  hoodie: 15463, // Default hoodie variant ID (white, medium)  
-  mug: 601,      // Mug variant ID
-  cap: 301       // Cap variant ID
+  tshirt: 4938821288, // Default t-shirt variant ID (Black, Size M)
+  hoodie: 4938800535, // Default hoodie variant ID (Black, Size L)  
+  mug: 4938946337,    // Mug variant ID
+  cap: 4938937571,    // Cap variant ID (Black)
+  tote: 4937855201,   // Tote bag variant ID
+  water: 4938941055,  // Water bottle variant ID
+  mousepad: 4938942751 // Mouse pad variant ID
 };
 
 /**

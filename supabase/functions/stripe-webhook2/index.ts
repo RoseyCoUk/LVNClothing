@@ -467,19 +467,21 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
           
           console.log(`Bundle item detected: ${item.id} -> ${bundleType} bundle ${productType}`);
           
-          // Use hardcoded Printful variant IDs that match bundle-utils.ts
+          // Use correct Printful sync variant IDs from database
           const BUNDLE_VARIANT_IDS: Record<string, number> = {
-            'tshirt': 15451,  // Default t-shirt variant ID
-            't-shirt': 15451, 
-            'hoodie': 15463,  // Default hoodie variant ID
-            'cap': 301,       // Cap variant ID
-            'mug': 601,       // Mug variant ID
-            'totebag': 15451, // Fallback to t-shirt variant
-            'tote': 15451,
-            'waterbottle': 15451, // Fallback to t-shirt variant
-            'water-bottle': 15451,
-            'mousepad': 15451, // Fallback to t-shirt variant
-            'mouse-pad': 15451
+            'tshirt': 4938821288,  // Default t-shirt variant ID (Black, Size M)
+            't-shirt': 4938821288, 
+            'hoodie': 4938800535,  // Default hoodie variant ID (Black, Size L)
+            'cap': 4938937571,     // Cap variant ID (Black)
+            'mug': 4938946337,     // Mug variant ID
+            'totebag': 4937855201, // Tote bag variant ID
+            'tote': 4937855201,
+            'waterbottle': 4938941055, // Water bottle variant ID
+            'water-bottle': 4938941055,
+            'water': 4938941055,
+            'mousepad': 4938942751, // Mouse pad variant ID
+            'mouse-pad': 4938942751,
+            'mouse': 4938942751
           };
           
           const printfulVariantId = BUNDLE_VARIANT_IDS[productType];
