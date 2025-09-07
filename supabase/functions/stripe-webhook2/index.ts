@@ -521,7 +521,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     });
     
     // Send order confirmation emails (non-blocking)
-    sendOrderEmails(newOrder.id, customerEmail, items, shippingAddress, {
+    sendOrderEmails(newOrder.id, customerEmail, formattedItems, formattedShippingAddress, {
       subtotal: parseFloat(metadata.subtotal || '0'),
       shipping_cost: parseFloat(metadata.shipping_cost || '0'),
       total_amount: paymentIntent.amount / 100,
