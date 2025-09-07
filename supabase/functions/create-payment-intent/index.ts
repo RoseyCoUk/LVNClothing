@@ -342,6 +342,7 @@ Deno.serve(async (req: Request) => {
     const simplifiedItems = enrichedItems.map(item => ({
       // Use last 8 chars of ID to save space
       id: item.id.slice(-8),
+      n: item.name ? item.name.substring(0, 30) : item.id.slice(-8), // Short name (max 30 chars)
       q: item.quantity,
       p: item.real_price || item.price,
       // Include printful_variant_id as 'pv' to save space

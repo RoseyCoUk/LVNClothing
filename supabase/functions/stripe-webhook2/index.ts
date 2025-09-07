@@ -474,6 +474,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
       if (item.q !== undefined && item.p !== undefined) {
         return {
           id: item.id,
+          name: item.n || item.id, // Use name from metadata, fallback to ID
           quantity: item.q,
           price: item.p,
           printful_variant_id: item.pv || null, // Extract printful_variant_id from 'pv' field
@@ -853,17 +854,22 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     };
     
     // Transform items to the format expected by email template
-    // Items from metadata have {id, qty, price} but email expects {product_name, quantity, unit_price}
+    // Items from metadata have {id, name, quantity, price} but email expects {product_name, quantity, unit_price}
     const formattedItems = itemsWithPrintfulIds.map(item => {
-      // Extract product name from ID (e.g., "activist-bundle-hoodie-0" -> "Activist Bundle Hoodie")
-      let productName = item.id || 'Product';
+      // Use the name from metadata if available, otherwise try to parse from ID
+      let productName = item.name || item.id || 'Product';
       
       // Handle special cases like discounts
-      if (productName.includes('discount')) {
-        productName = 'Bundle Discount';
-      } else {
-        // Convert ID to readable name
-        productName = productName
+      if (productName.includes('discount') || productName.includes('Discount')) {
+        // Already has a good name like "Bundle Discount" or "Activist Bundle Discount (20%)"
+        // Just ensure it's properly formatted
+        if (!productName.includes('Bundle') && !productName.includes('Discount')) {
+          productName = 'Bundle Discount';
+        }
+      } else if (!item.name && item.id) {
+        // Only try to parse from ID if we don't have a name
+        // Convert ID to readable name (e.g., "activist-bundle-hoodie-0" -> "Activist Bundle Hoodie")
+        productName = item.id
           .replace(/-\d+$/, '') // Remove trailing number
           .split('-')
           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -872,7 +878,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
       
       return {
         product_name: productName,
-        quantity: item.qty || 1,
+        quantity: item.quantity || item.qty || 1,
         unit_price: Math.round((item.price || 0) * 100), // Convert to pence
         variants: {} // Add variants if available
       };
