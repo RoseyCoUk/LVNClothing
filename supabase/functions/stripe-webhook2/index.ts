@@ -54,18 +54,33 @@ async function sendOrderEmails(
     return;
   }
 
-  // Format items for email
-  const itemsHtml = items.map(item => `
+  // Format items for email with images
+  const itemsHtml = items.map(item => {
+    // Handle image URLs - ensure they're absolute
+    let imageHtml = '';
+    if (item.image_url) {
+      const imageUrl = item.image_url.startsWith('http') 
+        ? item.image_url 
+        : `https://backreform.co.uk${item.image_url}`;
+      imageHtml = `<img src="${imageUrl}" alt="${item.product_name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px; margin-right: 12px;">`;
+    }
+    
+    return `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
-        <strong>${item.product_name}</strong>
-        ${item.variants ? `<br><small style="color: #6b7280;">${formatVariants(item.variants)}</small>` : ''}
+        <div style="display: flex; align-items: center;">
+          ${imageHtml}
+          <div>
+            <strong>${item.product_name}</strong>
+            ${item.variants ? `<br><small style="color: #6b7280;">${formatVariants(item.variants)}</small>` : ''}
+          </div>
+        </div>
       </td>
-      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">${item.quantity}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">£${(item.unit_price / 100).toFixed(2)}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">£${((item.unit_price * item.quantity) / 100).toFixed(2)}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center; vertical-align: middle;">${item.quantity}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right; vertical-align: middle;">£${(item.unit_price / 100).toFixed(2)}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right; vertical-align: middle;">£${((item.unit_price * item.quantity) / 100).toFixed(2)}</td>
     </tr>
-  `).join('');
+  `}).join('');
 
   // Customer email template
   const customerEmailHtml = `
@@ -478,6 +493,9 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
           quantity: item.q,
           price: item.p,
           printful_variant_id: item.pv || null, // Extract printful_variant_id from 'pv' field
+          color: item.c || null, // Extract color
+          size: item.s || null, // Extract size
+          image: item.img || null, // Extract image URL
           // Preserve any additional fields
           ...item
         };
@@ -876,11 +894,17 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
           .join(' ');
       }
       
+      // Build variants object for email display
+      const variants: Record<string, string> = {};
+      if (item.color) variants.color = item.color;
+      if (item.size) variants.size = item.size;
+      
       return {
         product_name: productName,
         quantity: item.quantity || item.qty || 1,
         unit_price: Math.round((item.price || 0) * 100), // Convert to pence
-        variants: {} // Add variants if available
+        variants: Object.keys(variants).length > 0 ? variants : null,
+        image_url: item.image || null
       };
     });
     

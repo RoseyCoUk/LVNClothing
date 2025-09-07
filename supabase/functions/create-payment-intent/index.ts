@@ -346,7 +346,12 @@ Deno.serve(async (req: Request) => {
       q: item.quantity,
       p: item.real_price || item.price,
       // Include printful_variant_id as 'pv' to save space
-      pv: item.printful_variant_id ? String(item.printful_variant_id) : null
+      pv: item.printful_variant_id ? String(item.printful_variant_id) : null,
+      // Add variant info (color/size) if available
+      c: item.color ? item.color.substring(0, 15) : undefined, // Color (max 15 chars)
+      s: item.size ? item.size.substring(0, 5) : undefined, // Size (max 5 chars)
+      // Image URL - we'll store these separately due to length
+      img: item.image ? item.image.substring(0, 100) : undefined // Truncate long URLs
     }));
     
     // Split items into chunks that fit within 500 chars
