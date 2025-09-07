@@ -445,6 +445,43 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
       throw new Error('Items must be an array');
     }
     
+    // Look up printful_variant_id for each item from the database
+    // The item.id should be the product_variant ID
+    const itemsWithPrintfulIds = await Promise.all(items.map(async (item) => {
+      // Skip discount items
+      if (item.id && item.id.includes('discount')) {
+        return {
+          ...item,
+          printful_variant_id: null // Discounts don't have Printful IDs
+        };
+      }
+      
+      // Try to look up the variant from the database
+      const { data: variant, error } = await supabase
+        .from('product_variants')
+        .select('printful_variant_id')
+        .eq('id', item.id)
+        .single();
+      
+      if (error || !variant) {
+        console.warn(`Could not find variant for item ${item.id}:`, error);
+        return {
+          ...item,
+          printful_variant_id: null
+        };
+      }
+      
+      return {
+        ...item,
+        printful_variant_id: variant.printful_variant_id
+      };
+    }));
+    
+    console.log('Items with Printful IDs:', itemsWithPrintfulIds.map(i => ({
+      id: i.id,
+      printful_variant_id: i.printful_variant_id
+    })));
+    
     // Create the order
     const readableOrderId = generateReadableOrderId();
     const orderData = {
@@ -456,7 +493,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
       status: 'paid',
       total_amount: paymentIntent.amount / 100, // Convert from cents to pounds
       currency: paymentIntent.currency.toUpperCase(),
-      items: items,
+      items: itemsWithPrintfulIds, // Use items with Printful IDs
       shipping_address: shippingAddress,
       shipping_cost: parseFloat(metadata.shipping_cost || '0'),
       subtotal: parseFloat(metadata.subtotal || '0'),
@@ -496,7 +533,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     
     // Transform items to the format expected by email template
     // Items from metadata have {id, qty, price} but email expects {product_name, quantity, unit_price}
-    const formattedItems = items.map(item => {
+    const formattedItems = itemsWithPrintfulIds.map(item => {
       // Extract product name from ID (e.g., "activist-bundle-hoodie-0" -> "Activist Bundle Hoodie")
       let productName = item.id || 'Product';
       
@@ -537,7 +574,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event): Promise<Respon
     const fulfillmentData: OrderData = {
       id: newOrder.id,
       customer_email: customerEmail,
-      items: items,
+      items: itemsWithPrintfulIds, // Use items with Printful IDs for fulfillment
       shipping_address: shippingAddress,
       shipping_cost: parseFloat(metadata.shipping_cost || '0'),
       subtotal: parseFloat(metadata.subtotal || '0'),

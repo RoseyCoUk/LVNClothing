@@ -49,11 +49,11 @@ export async function createPrintfulFulfillment(orderData: OrderData): Promise<P
   try {
     // Filter items that have printful_variant_id
     const printfulItems = orderData.items
-      .filter(item => item.printful_variant_id && item.printful_variant_id.trim() !== '')
+      .filter(item => item.printful_variant_id && String(item.printful_variant_id).trim() !== '')
       .map(item => ({
-        sync_variant_id: parseInt(item.printful_variant_id!),
-        quantity: item.quantity,
-        retail_price: item.price.toFixed(2)
+        sync_variant_id: parseInt(String(item.printful_variant_id)),
+        quantity: item.qty || item.quantity || 1, // Support both qty and quantity fields
+        retail_price: (item.price || 0).toFixed(2)
       }));
 
     if (printfulItems.length === 0) {
