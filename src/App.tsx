@@ -44,6 +44,10 @@ import StarterBundlePage from './components/products/StarterBundlePage';
 import ChampionBundlePage from './components/products/ChampionBundlePage';
 import ActivistBundlePage from './components/products/ActivistBundlePage';
 
+// Test Pages
+import VariantTestPage from './pages/VariantTestPage';
+import VariantTestPageSimple from './pages/VariantTestPageSimple';
+
 import { CartProvider, AuthProvider, ShippingProvider } from '@/contexts';
 import { AdminProvider, AdminProductsProvider } from '@/admin/contexts';
 import PrintfulStatus from '@/components/PrintfulStatus';
@@ -240,6 +244,8 @@ const App = () => {
             <Route path="/printful-test" element={<PrintfulTest />} />
             <Route path="/shipping-test" element={<ShippingTest />} />
             <Route path="/shipping-dashboard" element={<ShippingTestDashboard />} />
+            <Route path="/variant-test" element={<VariantTestPage />} />
+            <Route path="/variant-test-simple" element={<VariantTestPageSimple />} />
             <Route path="/shipping-example" element={<ShippingExample />} />
             <Route path="/printful-product/:id" element={<PrintfulProductDetailWrapper />} />
             
