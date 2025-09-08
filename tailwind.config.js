@@ -8,8 +8,9 @@ export default {
       },
       colors: {
         lvn: {
-          black: '#000000',
-          'off-white': '#F8F6F1',
+          black: '#101010',
+          'off-white': '#f1ece1',
+          'light-yellow': '#f2efe3',
           maroon: '#800000',
           'maroon-dark': '#600000',
         }
