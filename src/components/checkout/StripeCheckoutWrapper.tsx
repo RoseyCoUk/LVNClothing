@@ -7,7 +7,7 @@ import type { CartItem, ShippingAddress } from '../../lib/payment-intents';
 
 // Load Stripe with your publishable key
 const stripePromise = loadStripe(
-  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_...'
+  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_YOUR_STRIPE_PUBLISHABLE_KEY_HERE'
 );
 
 interface StripeCheckoutWrapperProps {

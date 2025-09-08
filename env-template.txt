@@ -1,16 +1,24 @@
+# LVN Clothing Environment Variables
 # Copy this file to .env.local and fill in your actual values
 
 # Supabase Configuration
 VITE_SUPABASE_URL=https://your-project-ref.supabase.co
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
-# Stripe Configuration (if using Stripe)
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key_here
+# Stripe Configuration
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
+VITE_STRIPE_MODE=test
+VITE_STRIPE_CURRENCY=gbp
+VITE_STRIPE_COUNTRY=GB
 
 # Printful Configuration
-PRINTFUL_TOKEN=your_printful_private_token_here
-PRINTFUL_STORE_ID=your_printful_store_id_here
+VITE_PRINTFUL_TOKEN=your_printful_api_token_here
 
-# Other Configuration
-VITE_APP_NAME=Reform UK Store
+# Optional: Debug Settings
+VITE_ENABLE_DEBUG=false
+VITE_ENABLE_ANALYTICS=true
+VITE_ENABLE_ERROR_REPORTING=true
+
+# App Configuration
+VITE_APP_NAME=LVN Clothing
 VITE_APP_VERSION=1.0.0
