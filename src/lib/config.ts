@@ -2,8 +2,8 @@
 export const config = {
   // Supabase Configuration
   supabase: {
-    url: import.meta.env.VITE_SUPABASE_URL || 'YOUR_SUPABASE_URL_HERE',
-    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY_HERE',
+    url: import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co',
+    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder_key',
   },
   
   // Environment Detection

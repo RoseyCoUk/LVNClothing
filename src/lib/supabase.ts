@@ -5,9 +5,17 @@ import { config } from './config';
 const supabaseUrl = config.supabase.url;
 const supabaseAnonKey = config.supabase.anonKey;
 
+// Check if we have valid configuration (not placeholder values)
+const isPlaceholderConfig = supabaseUrl.includes('placeholder') || supabaseAnonKey === 'placeholder_key';
+
 // Validate configuration
 if (!config.validate()) {
   throw new Error('Invalid Supabase configuration. Please check your environment variables.');
+}
+
+// If using placeholder config, show a warning but don't break the app
+if (isPlaceholderConfig) {
+  console.warn('⚠️ Using placeholder Supabase configuration. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.');
 }
 
 
