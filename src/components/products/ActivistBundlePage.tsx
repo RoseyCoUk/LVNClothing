@@ -52,11 +52,11 @@ interface OrderToConfirm {
   bundleContents: BundleContent[];
 }
 
-interface ActivistBundlePageProps {
+interface FaithBundlePageProps {
   onBack: () => void;
 }
 
-const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
+const FaithBundlePage = ({ onBack }: FaithBundlePageProps) => {
   const { addToCart, addToCartAndGetUpdated, clearCart, cartItems: getCartItems, addMultipleToCart } = useCart();
   const { isVisible, message, showToast, hideToast } = useToast();
   const navigate = useNavigate();
@@ -142,11 +142,11 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const productData = {
-    name: "Activist Bundle",
+    name: "Faith Bundle",
     originalPrice: "£159.93",
     bundlePrice: 127.99,
     savings: "Save £31.94",
-    description: "The ultimate bundle for Reform UK activists. This comprehensive collection includes a premium hoodie, T-shirt, cap, tote bag, water bottle, mug, and mouse pad - everything you need to make a statement and show your commitment to the movement.",
+    description: "The ultimate bundle for Kingdom ambassadors. This comprehensive collection includes a premium hoodie, T-shirt, cap, tote bag, water bottle, mug, and mouse pad - everything you need to herald the Gospel and show your commitment to spreading the Kingdom message.",
     shipping: "Fast UK Shipping",
     urgency: "Limited Time Offer",
     popular: false,
@@ -155,14 +155,14 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
     materials: "Premium cotton hoodie and T-shirt, adjustable cap, durable canvas tote bag, stainless steel water bottle, ceramic mug, and high-quality mouse pad",
     careInstructions: "Machine wash hoodie and T-shirt at 30°C. Cap can be hand washed. Tote bag spot clean. Water bottle dishwasher safe. Mug dishwasher safe.",
     features: [
-      "Premium cotton hoodie with Reform UK branding",
+      "Premium cotton hoodie with LVN Clothing branding",
       "Comfortable cotton T-shirt for everyday wear",
       "Adjustable cap for perfect fit",
       "Durable canvas tote bag for daily use",
       "Stainless steel water bottle keeps drinks cold for 24 hours",
       "Ceramic mug perfect for home or office",
       "High-quality mouse pad for desk setup",
-      "Complete activist starter kit",
+      "Complete faith starter kit",
       "Excellent value bundle with significant savings",
       "Fast UK shipping available",
       "30-day money-back guarantee"
@@ -170,10 +170,10 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
     bundleItems: [
       {
         type: 'hoodie',
-        name: 'Reform UK Hoodie',
+        name: 'LVN Clothing Hoodie',
         customizable: true,
         baseImage: '/Hoodie/Men/ReformMenHoodieBlack1.webp',
-        description: 'Premium cotton hoodie featuring the Reform UK logo and branding.',
+        description: 'Premium cotton hoodie featuring the LVN Clothing logo and Kingdom messaging.',
         images: [
           '/Hoodie/Men/ReformMenHoodieBlack1.webp',
           '/Hoodie/Men/ReformMenHoodieBlack2.webp',
@@ -185,10 +185,10 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       },
       {
         type: 'tshirt',
-        name: 'Reform UK T-Shirt',
+        name: 'LVN Clothing T-Shirt',
         customizable: true,
         baseImage: '/Tshirt/Men/ReformMenTshirtBlack1.webp',
-        description: 'Premium cotton T-shirt featuring the Reform UK logo and branding.',
+        description: 'Premium cotton T-shirt featuring the LVN Clothing logo and Kingdom messaging.',
         images: [
           '/Tshirt/Men/ReformMenTshirtBlack1.webp',
           '/Tshirt/Men/ReformMenTshirtBlack2.webp',
@@ -199,10 +199,10 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       },
       {
         type: 'cap',
-        name: 'Reform UK Cap',
+        name: 'LVN Clothing Cap',
         customizable: true,
         baseImage: '/Cap/ReformCapBlack1.webp',
-        description: 'Adjustable cap with embroidered Reform UK logo.',
+        description: 'Adjustable cap with embroidered LVN Clothing logo.',
         images: [
           '/Cap/ReformCapBlack1.webp',
           '/Cap/ReformCapBlack2.webp',
@@ -215,7 +215,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       },
       {
         type: 'totebag',
-        name: 'Reform UK Tote Bag',
+        name: 'LVN Clothing Tote Bag',
         customizable: false,
         baseImage: '/StickerToteWater/ReformToteBagBlack1.webp',
         description: 'Durable canvas tote bag perfect for shopping, work, or daily use.',
@@ -227,10 +227,10 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       },
       {
         type: 'waterbottle',
-        name: 'Reform UK Water Bottle',
+        name: 'LVN Clothing Water Bottle',
         customizable: false,
         baseImage: '/StickerToteWater/ReformWaterBottleWhite1.webp',
-        description: 'Stainless steel water bottle with Reform UK branding.',
+        description: 'Stainless steel water bottle with LVN Clothing branding.',
         images: [
           '/StickerToteWater/ReformWaterBottleWhite1.webp',
           '/StickerToteWater/ReformWaterBottleWhite2.webp',
@@ -240,10 +240,10 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       },
       {
         type: 'mug',
-        name: 'Reform UK Mug',
+        name: 'LVN Clothing Mug',
         customizable: false,
         baseImage: '/MugMouse/ReformMug1.webp',
-        description: 'Ceramic mug with Reform UK branding.',
+        description: 'Ceramic mug with LVN Clothing branding.',
         images: [
           '/MugMouse/ReformMug1.webp',
           '/MugMouse/ReformMug2.webp',
@@ -254,10 +254,10 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       },
       {
         type: 'mousepad',
-        name: 'Reform UK Mouse Pad',
+        name: 'LVN Clothing Mouse Pad',
         customizable: false,
         baseImage: '/MugMouse/ReformMousePadWhite1.webp',
-        description: 'High-quality mouse pad with Reform UK branding.',
+        description: 'High-quality mouse pad with LVN Clothing branding.',
         images: [
           '/MugMouse/ReformMousePadWhite1.webp',
           '/MugMouse/ReformMousePadWhite2.webp'
@@ -383,7 +383,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       const waterBottleBundleItem = {
         product: {
           id: 'water-bottle-product',
-          name: 'Reform UK Water Bottle',
+          name: 'LVN Clothing Water Bottle',
           category: 'water-bottle',
           image: '/StickerToteWater/ReformWaterBottleWhite1.webp',
           images: [
@@ -417,7 +417,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       const mousepadBundleItem = {
         product: {
           id: 'mouse-pad-product',
-          name: 'Reform UK Mouse Pad',
+          name: 'LVN Clothing Mouse Pad',
           category: 'mouse-pad',
           image: '/MugMouse/ReformMousePadWhite1.webp',
           images: [
@@ -546,7 +546,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-[#009fe3]" />
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-[lvn-maroon]" />
           <p className="text-gray-600">Loading bundle details...</p>
         </div>
       </div>
@@ -555,7 +555,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
 
   // Get Hoodie images based on selected color (same logic as HoodiePage)
   const getHoodieImages = () => {
-    if (!hoodieProduct?.baseProduct?.images) return ['/BackReformLogo.png'];
+    if (!hoodieProduct?.baseProduct?.images) return ['/images/Leaven Logo.png'];
     const mergedImages = hoodieProduct.baseProduct.images;
     
     if (hoodieColor) {
@@ -569,12 +569,12 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
     }
     
     const generalImages = mergedImages.filter(img => !img.variant_type || img.variant_type === 'product');
-    return generalImages.length > 0 ? generalImages.map(img => img.image_url) : ['/BackReformLogo.png'];
+    return generalImages.length > 0 ? generalImages.map(img => img.image_url) : ['/images/Leaven Logo.png'];
   };
   
   // Get T-shirt images
   const getTshirtImages = () => {
-    if (!tshirtProduct?.baseProduct?.images) return ['/BackReformLogo.png'];
+    if (!tshirtProduct?.baseProduct?.images) return ['/images/Leaven Logo.png'];
     const mergedImages = tshirtProduct.baseProduct.images;
     
     if (tshirtColor) {
@@ -590,7 +590,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   
   // Get Cap images
   const getCapImages = () => {
-    if (!capProduct?.baseProduct?.images) return ['/BackReformLogo.png'];
+    if (!capProduct?.baseProduct?.images) return ['/images/Leaven Logo.png'];
     const mergedImages = capProduct.baseProduct.images;
     
     if (capColor) {
@@ -607,7 +607,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   // Get Totebag images
   const getTotebagImages = () => {
     if (!totebagProduct?.baseProduct?.images || totebagProduct.baseProduct.images.length === 0) {
-      return ['/BackReformLogo.png'];
+      return ['/images/Leaven Logo.png'];
     }
     return totebagProduct.baseProduct.images.map(img => img.image_url);
   };
@@ -625,7 +625,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   // Get Mug images
   const getMugImages = () => {
     if (!mugProduct?.baseProduct?.images || mugProduct.baseProduct.images.length === 0) {
-      return ['/BackReformLogo.png'];
+      return ['/images/Leaven Logo.png'];
     }
     return mugProduct.baseProduct.images.map(img => img.image_url);
   };
@@ -657,7 +657,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
     if (category === 'water-bottle') return getWaterbottleImages()[0];
     if (category === 'mug') return getMugImages()[0];
     if (category === 'mouse-pad') return getMousepadImages()[0];
-    return '/BackReformLogo.png';
+    return '/images/Leaven Logo.png';
   };
 
   const getCurrentImage = () => {
@@ -901,7 +901,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       const itemPrice = individualPrice;
 
       // Use correct variant images based on selected colors
-      let itemImage = '/BackReformLogo.png';
+      let itemImage = '/images/Leaven Logo.png';
       if (item.product.category === 'hoodie') {
         itemImage = getHoodieImages()[0];
       } else if (item.product.category === 'tshirt') {
@@ -982,18 +982,18 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
     
     // Add discount item as the 7th item with negative price
     const discountAmount = bundleSavings; // This is the savings amount (31.94)
-    const discountItem = {
-      id: `activist-bundle-discount`,
-      name: 'Activist Bundle Discount (20%)',
-      price: -discountAmount, // Negative price for discount
-      image: '/BackReformLogo.png', // Use logo for discount item
-      printful_variant_id: 'BUNDLE_DISCOUNT_ACTIVIST', // Placeholder that won't break checkout
-      external_id: 'BUNDLE_DISCOUNT_ACTIVIST',
-      isPartOfBundle: true,
-      bundleName: 'Activist Bundle',
-      bundleId: 'activist-bundle',
-      isDiscount: true // Special flag to identify as discount
-    };
+      const discountItem = {
+        id: `faith-bundle-discount`,
+        name: 'Faith Bundle Discount (20%)',
+        price: -discountAmount, // Negative price for discount
+        image: '/images/Leaven Logo.png', // Use logo for discount item
+        printful_variant_id: 'BUNDLE_DISCOUNT_FAITH', // Placeholder that won't break checkout
+        external_id: 'BUNDLE_DISCOUNT_FAITH',
+        isPartOfBundle: true,
+        bundleName: 'Faith Bundle',
+        bundleId: 'faith-bundle',
+        isDiscount: true // Special flag to identify as discount
+      };
     
     // Add the discount item to the cart items
     cartItems.push(discountItem);
@@ -1008,7 +1008,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
     addMultipleToCart(cartItems);
     
     // Show success message - don't redirect to checkout
-    showToast(`Activist Bundle (${bundleProducts.length} items) added to cart!`);
+    showToast(`Faith Bundle (${bundleProducts.length} items) added to cart!`);
   };
 
   const handleBuyNow = () => {
@@ -1064,7 +1064,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       name: "Robert M.",
       rating: 5,
       date: "2 days ago",
-      comment: "Incredible bundle! Everything is top quality and the variety is perfect for any Reform UK activist. The hoodie is my favorite piece.",
+      comment: "Incredible bundle! Everything is top quality and the variety is perfect for any Kingdom ambassador. The hoodie is my favorite piece.",
       verified: true
     },
     {
@@ -1072,7 +1072,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
       name: "Emma L.",
       rating: 5,
       date: "1 week ago",
-      comment: "This is the ultimate activist kit! The stickers are high quality and the badges are beautifully embroidered. Excellent value.",
+      comment: "This is the ultimate faith kit! The quality is excellent and the Kingdom messaging is beautifully designed. Excellent value.",
       verified: true
     },
     {
@@ -1151,7 +1151,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                 {/* Viewing Indicator */}
                 {selectedItemData && (
                   <div className="absolute top-4 right-4 z-10">
-                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-lvn-maroon/10 text-lvn-maroon">
                       Viewing: {selectedItemData.name}
                       {selectedItem === 'hoodie' && ` - ${hoodieColor}`}
                       {selectedItem === 'tshirt' && ` - ${tshirtColor}`}
@@ -1169,7 +1169,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                     onClick={() => handleItemClick(item.product.category)}
                     className={`text-center transition-all duration-200 ${
                       selectedItem === item.product.category 
-                        ? 'ring-2 ring-[#009fe3] ring-offset-2' 
+                        ? 'ring-2 ring-[lvn-maroon] ring-offset-2' 
                         : 'hover:ring-2 hover:ring-gray-300'
                     }`}
                   >
@@ -1178,16 +1178,16 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                       alt={item.product.name} 
                       className={`w-full object-cover rounded-lg border-2 transition-all duration-200 aspect-square ${
                         selectedItem === item.product.category 
-                          ? 'border-[#009fe3]' 
+                          ? 'border-[lvn-maroon]' 
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     />
                     <p className={`text-xs mt-1 font-medium ${
                       selectedItem === item.product.category 
-                        ? 'text-[#009fe3]' 
+                        ? 'text-lvn-maroon' 
                         : 'text-gray-600'
                     }`}>
-                      {item.product.name.replace('Reform UK ', '')}
+                      {item.product.name.replace('LVN Clothing ', '')}
                     </p>
                   </button>
                 ))}
@@ -1202,7 +1202,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                       onClick={() => setCurrentImageIndex(index)} 
                       className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
                         currentImageIndex === index 
-                          ? 'border-[#009fe3]' 
+                          ? 'border-[lvn-maroon]' 
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -1230,7 +1230,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                   <span className="text-gray-600">({productData.reviews} reviews)</span>
                 </div>
                 <div className="flex items-center space-x-3 mb-4">
-                  <span className="text-3xl font-bold text-[#009fe3]">£{productData.bundlePrice.toFixed(2)}</span>
+                  <span className="text-3xl font-bold text-[lvn-maroon]">£{productData.bundlePrice.toFixed(2)}</span>
                   <span className="text-lg text-gray-500 line-through">{productData.originalPrice}</span>
                   <span className="text-lg font-semibold text-green-600">{productData.savings}</span>
                 </div>
@@ -1250,7 +1250,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                     <label className="block text-sm font-medium text-gray-700">Size</label>
                     <button 
                       onClick={() => navigate('/size-guide')}
-                      className="text-sm text-[#009fe3] hover:text-blue-600 underline"
+                      className="text-sm text-[lvn-maroon] hover:text-lvn-maroon-dark underline"
                     >
                       Size Guide
                     </button>
@@ -1267,8 +1267,8 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                         onClick={() => handleHoodieVariantChange('size', size)} 
                         className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
                           hoodieSize === size 
-                            ? 'border-[#009fe3] bg-[#009fe3] text-white' 
-                            : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
+                            ? 'border-[lvn-maroon] bg-[lvn-maroon] text-white' 
+                            : 'border-gray-300 text-gray-700 hover:border-[lvn-maroon] hover:text-[lvn-maroon]'
                         }`}
                       >
                         {size}
@@ -1287,7 +1287,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                         onClick={() => handleHoodieVariantChange('color', color.name)} 
                         className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
                           hoodieColor === color.name 
-                            ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
+                            ? 'border-[lvn-maroon] ring-2 ring-[lvn-maroon] ring-offset-2' 
                             : color.border 
                               ? 'border-gray-300 hover:border-gray-400' 
                               : 'border-gray-200 hover:border-gray-300'
@@ -1316,7 +1316,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                     <label className="block text-sm font-medium text-gray-700">Size</label>
                     <button 
                       onClick={() => navigate('/size-guide')}
-                      className="text-sm text-[#009fe3] hover:text-blue-600 underline"
+                      className="text-sm text-[lvn-maroon] hover:text-lvn-maroon-dark underline"
                     >
                       Size Guide
                     </button>
@@ -1333,8 +1333,8 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                         onClick={() => handleTshirtVariantChange('size', size)} 
                         className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
                           tshirtSize === size 
-                            ? 'border-[#009fe3] bg-[#009fe3] text-white' 
-                            : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
+                            ? 'border-[lvn-maroon] bg-[lvn-maroon] text-white' 
+                            : 'border-gray-300 text-gray-700 hover:border-[lvn-maroon] hover:text-[lvn-maroon]'
                         }`}
                       >
                         {size}
@@ -1378,7 +1378,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                         onClick={() => handleTshirtVariantChange('color', color.name)} 
                         className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
                           tshirtColor === color.name 
-                            ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
+                            ? 'border-[lvn-maroon] ring-2 ring-[lvn-maroon] ring-offset-2' 
                             : color.border 
                               ? 'border-gray-300 hover:border-gray-400' 
                               : 'border-gray-200 hover:border-gray-300'
@@ -1422,7 +1422,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                         onClick={() => handleCapColorChange(color.name)} 
                         className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
                           capColor === color.name 
-                            ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
+                            ? 'border-[lvn-maroon] ring-2 ring-[lvn-maroon] ring-offset-2' 
                             : color.border 
                               ? 'border-gray-300 hover:border-gray-400' 
                               : 'border-gray-200 hover:border-gray-300'
@@ -1445,13 +1445,13 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
 
               {/* Bundle Pricing */}
               {activistPricing && (
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-4">
-                  <h4 className="font-semibold text-blue-900 mb-2">Bundle Savings</h4>
-                  <div className="space-y-2 text-sm text-blue-800">
+                <div className="bg-lvn-maroon/10 rounded-lg p-4 border border-lvn-maroon/20 mb-4">
+                  <h4 className="font-semibold text-lvn-maroon mb-2">Bundle Savings</h4>
+                  <div className="space-y-2 text-sm text-lvn-maroon">
                     <p>• Individual Price: <span className="font-medium">£{activistPricing.originalPrice.toFixed(2)}</span></p>
                     <p>• Bundle Price: <span className="font-medium text-green-600">£{activistPricing.price.toFixed(2)}</span></p>
                     <p>• You Save: <span className="font-medium text-green-600">£{activistPricing.savings.absolute.toFixed(2)} ({activistPricing.savings.percentage.toFixed(0)}%)</span></p>
-                    <div className="flex items-center space-x-2 text-blue-700">
+                    <div className="flex items-center space-x-2 text-lvn-maroon">
                       <Truck className="w-4 h-4" />
                       <span className="font-medium">Best shipping rates applied</span>
                     </div>
@@ -1463,13 +1463,13 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <h4 className="font-semibold text-gray-900 mb-3">Bundle Contents:</h4>
                 <div className="space-y-2 text-sm text-gray-700">
-                  <p>• Reform UK Hoodie: <span className="font-medium text-gray-900">{hoodieColor} (Size {hoodieSize}) - £39.99</span></p>
-                  <p>• Reform UK T-shirt: <span className="font-medium text-gray-900">{tshirtColor} (Size {tshirtSize}) - £24.99</span></p>
-                  <p>• Reform UK Cap: <span className="font-medium text-gray-900">{capColor} - £19.99</span></p>
-                  <p>• Reform UK Tote Bag: <span className="font-medium text-gray-900">Black - £24.99</span></p>
-                  <p>• Reform UK Water Bottle: <span className="font-medium text-gray-900">White - £24.99</span></p>
-                  <p>• Reform UK Mug: <span className="font-medium text-gray-900">White - £9.99</span></p>
-                  <p>• Reform UK Mouse Pad: <span className="font-medium text-gray-900">White - £14.99</span></p>
+                  <p>• LVN Clothing Hoodie: <span className="font-medium text-gray-900">{hoodieColor} (Size {hoodieSize}) - £39.99</span></p>
+                  <p>• LVN Clothing T-shirt: <span className="font-medium text-gray-900">{tshirtColor} (Size {tshirtSize}) - £24.99</span></p>
+                  <p>• LVN Clothing Cap: <span className="font-medium text-gray-900">{capColor} - £19.99</span></p>
+                  <p>• LVN Clothing Tote Bag: <span className="font-medium text-gray-900">Black - £24.99</span></p>
+                  <p>• LVN Clothing Water Bottle: <span className="font-medium text-gray-900">White - £24.99</span></p>
+                  <p>• LVN Clothing Mug: <span className="font-medium text-gray-900">White - £9.99</span></p>
+                  <p>• LVN Clothing Mouse Pad: <span className="font-medium text-gray-900">White - £14.99</span></p>
                 </div>
               </div>
 
@@ -1492,7 +1492,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                 <button 
                   onClick={handleBuyNow}
                   disabled={isLoading}
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   {isLoading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -1504,7 +1504,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                   )}
                 </button>
                 
-                <button onClick={handleAddToCart} className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
+                <button onClick={handleAddToCart} className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
                   <ShoppingCart className="w-5 h-5" />
                   <span>Add to Cart - £{(productData.bundlePrice * quantity).toFixed(2)}</span>
                 </button>
@@ -1513,15 +1513,15 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
               {/* Trust Badges */}
               <div className="grid grid-cols-3 gap-4 pt-6 border-t">
                 <div className="text-center">
-                  <Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <Truck className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Best Shipping Rates</p>
                 </div>
                 <div className="text-center">
-                  <Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <Shield className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Secure Checkout</p>
                 </div>
                 <div className="text-center">
-                  <RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <RotateCcw className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Easy Returns</p>
                 </div>
               </div>
@@ -1537,7 +1537,7 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
                     key={tab} 
                     onClick={() => setActiveTab(tab)} 
                     className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                      activeTab === tab ? 'border-[#009fe3] text-[#009fe3]' : 'border-transparent text-gray-500 hover:text-gray-700'
+                      activeTab === tab ? 'border-[lvn-maroon] text-[lvn-maroon]' : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}
                   >
                     {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -1607,10 +1607,10 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
               {activeTab === 'care' && (
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Care Instructions</h3>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-4">
                     <div className="flex items-start space-x-2">
-                      <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <p className="text-blue-800">{productData.careInstructions}</p>
+                      <Info className="w-5 h-5 text-lvn-maroon-dark flex-shrink-0 mt-0.5" />
+                      <p className="text-lvn-maroon">{productData.careInstructions}</p>
                     </div>
                   </div>
                 </div>
@@ -1632,4 +1632,4 @@ const ActivistBundlePage = ({ onBack }: ActivistBundlePageProps) => {
   );
 };
 
-export default ActivistBundlePage; 
+export default FaithBundlePage; 

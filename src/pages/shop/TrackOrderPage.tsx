@@ -52,13 +52,13 @@ const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
           <div className="flex items-center space-x-4">
             <button
               onClick={onBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-[#009fe3] transition-colors"
+              className="flex items-center space-x-2 text-gray-600 hover:text-[lvn-maroon] transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Back</span>
             </button>
             <div className="flex items-center space-x-3">
-              <Package className="w-6 h-6 text-[#009fe3]" />
+              <Package className="w-6 h-6 text-[lvn-maroon]" />
               <h1 className="text-2xl font-bold text-gray-900">Track Your Order</h1>
             </div>
           </div>
@@ -70,7 +70,7 @@ const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
         <div className="bg-white rounded-lg shadow-md p-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Track Your Reform UK Order
+              Track Your LVN Clothing Order
             </h2>
             <p className="text-lg text-gray-600">
               Enter your order details to see the latest shipping updates
@@ -89,7 +89,7 @@ const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
                   value={orderNumber}
                   onChange={(e) => setOrderNumber(e.target.value)}
                   placeholder="REFORM-2025-0001"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent"
                   required
                   disabled={isLoading}
                 />
@@ -104,7 +104,7 @@ const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent"
                   required
                   disabled={isLoading}
                 />
@@ -113,7 +113,7 @@ const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
               >
                 {isLoading ? (
                   <>
@@ -230,7 +230,7 @@ const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
               </div>
               
               <div className="flex items-center space-x-4">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-lvn-maroon/100 rounded-full flex items-center justify-center">
                   <Truck className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -251,10 +251,10 @@ const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-6">
             <h3 className="font-semibold text-blue-900 mb-2">Order Tracking Information</h3>
-            <p className="text-blue-800">
-              You can track your Reform UK merchandise orders using your order number and email address. 
+            <p className="text-lvn-maroon">
+              You can track your LVN Clothing merchandise orders using your order number and email address. 
               The order number can be found in your order confirmation email or on your order receipt.
             </p>
           </div>
@@ -262,7 +262,7 @@ const TrackOrderPage = ({ onBack }: TrackOrderPageProps) => {
           <div className="mt-8 text-center">
             <button
               onClick={onBack}
-              className="bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              className="bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-3 px-6 rounded-lg transition-colors"
             >
               Back to Shop
             </button>

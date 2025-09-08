@@ -60,7 +60,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, onClose })
             <div className="text-gray-500 text-sm">No item details available.</div>
           )}
         </div>
-        <button onClick={onClose} className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors mt-2">Close</button>
+        <button onClick={onClose} className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-3 px-6 rounded-lg transition-colors mt-2">Close</button>
       </div>
     </div>
   );
@@ -266,13 +266,13 @@ const OrdersPage = ({ onBack }: OrdersPageProps) => {
             <div className="flex items-center space-x-4">
               <button
                 onClick={onBack}
-                className="flex items-center space-x-2 text-gray-600 hover:text-[#009fe3] transition-colors"
+                className="flex items-center space-x-2 text-gray-600 hover:text-[lvn-maroon] transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
                 <span>Back</span>
               </button>
               <div className="flex items-center space-x-3">
-                <Package className="w-6 h-6 text-[#009fe3]" />
+                <Package className="w-6 h-6 text-[lvn-maroon]" />
                 <h1 className="text-2xl font-bold text-gray-900">My Orders</h1>
               </div>
             </div>
@@ -300,13 +300,13 @@ const OrdersPage = ({ onBack }: OrdersPageProps) => {
           <div className="flex items-center space-x-4">
             <button
               onClick={onBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-[#009fe3] transition-colors"
+              className="flex items-center space-x-2 text-gray-600 hover:text-[lvn-maroon] transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Back</span>
             </button>
             <div className="flex items-center space-x-3">
-              <Package className="w-6 h-6 text-[#009fe3]" />
+              <Package className="w-6 h-6 text-[lvn-maroon]" />
               <h1 className="text-2xl font-bold text-gray-900">My Orders</h1>
             </div>
           </div>
@@ -324,7 +324,7 @@ const OrdersPage = ({ onBack }: OrdersPageProps) => {
             </p>
             <button
               onClick={onBack}
-              className="bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              className="bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-3 px-6 rounded-lg transition-colors"
             >
               Start Shopping
             </button>
@@ -336,7 +336,7 @@ const OrdersPage = ({ onBack }: OrdersPageProps) => {
                 Order History ({orders.length})
               </h2>
               <p className="text-gray-600">
-                View and manage your Reform UK merchandise orders
+                View and manage your LVN Clothing merchandise orders
               </p>
             </div>
 
@@ -350,7 +350,7 @@ const OrdersPage = ({ onBack }: OrdersPageProps) => {
                     <p className="text-sm text-gray-600">{formatDate(order.created_at)}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-[#009fe3]">
+                    <p className="text-lg font-bold text-[lvn-maroon]">
                       {formatCurrency(order.amount_total || 0)}
                     </p>
                     <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
@@ -361,7 +361,7 @@ const OrdersPage = ({ onBack }: OrdersPageProps) => {
 
                 <div className="flex space-x-3 mt-4 pt-4 border-t border-gray-200">
                   <button 
-                    className="flex items-center space-x-2 text-[#009fe3] hover:text-blue-600 font-medium text-sm" 
+                    className="flex items-center space-x-2 text-[lvn-maroon] hover:text-lvn-maroon-dark font-medium text-sm" 
                     onClick={() => setViewOrder(order)}
                   >
                     <Eye className="w-4 h-4" />

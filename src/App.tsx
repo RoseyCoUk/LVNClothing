@@ -199,7 +199,7 @@ const App = () => {
         <AdminProductsProvider>
           <CartProvider>
             <ShippingProvider>
-          <div className="min-h-screen bg-white" role="application" aria-label="Reform UK E-commerce Platform">
+          <div className="min-h-screen bg-white" role="application" aria-label="LVN Clothing E-commerce Platform">
           {!location.pathname.startsWith('/admin') && (
             <Header currentPage={currentPage} setCurrentPage={handleNavigation} onLoginClick={handleLoginClick} onSignupClick={handleSignupClick} />
           )}

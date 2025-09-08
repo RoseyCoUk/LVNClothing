@@ -14,8 +14,8 @@ import { MousepadVariants } from './mousepad-variants';
 const mockProducts: PrintfulProduct[] = [
   {
     id: 1,
-    name: "Reform UK T-Shirt",
-    description: "Premium cotton t-shirt with Reform UK branding",
+    name: "LVN Clothing T-Shirt",
+    description: "Premium cotton t-shirt with LVN Clothing branding",
     category: 'tshirt',
     variants: (() => {
       try {
@@ -48,7 +48,7 @@ const mockProducts: PrintfulProduct[] = [
     isUnisex: true,
     hasDarkLightVariants: true,
     image: "https://files.cdn.printful.com/products/71/black_tshirt_m_mockup.jpg",
-    brand: "Reform UK",
+    brand: "LVN Clothing",
     model: "Premium Cotton",
     currency: "GBP",
     is_discontinued: false,
@@ -57,8 +57,8 @@ const mockProducts: PrintfulProduct[] = [
   },
   {
     id: 2,
-    name: "Reform UK Hoodie",
-    description: "Premium cotton hoodie with Reform UK branding",
+    name: "LVN Clothing Hoodie",
+    description: "Premium cotton hoodie with LVN Clothing branding",
     category: 'hoodie',
     variants: HoodieVariants.map(variant => ({
       ...variant,
@@ -77,7 +77,7 @@ const mockProducts: PrintfulProduct[] = [
     isUnisex: true,
     hasDarkLightVariants: false,
     image: "https://files.cdn.printful.com/products/71/black_hoodie_m_mockup.jpg",
-    brand: "Reform UK",
+    brand: "LVN Clothing",
     model: "Premium Cotton",
     currency: "GBP",
     is_discontinued: false,
@@ -86,8 +86,8 @@ const mockProducts: PrintfulProduct[] = [
   },
   {
     id: 3,
-    name: "Reform UK Cap",
-    description: "Adjustable cap with Reform UK logo",
+    name: "LVN Clothing Cap",
+    description: "Adjustable cap with LVN Clothing logo",
     category: 'cap',
     variants: [
       {
@@ -160,7 +160,7 @@ const mockProducts: PrintfulProduct[] = [
     isUnisex: true,
     hasDarkLightVariants: false,
     image: "/Cap/ReformCapBlack1.webp",
-    brand: "Reform UK",
+    brand: "LVN Clothing",
     model: "Adjustable Cap",
     currency: "GBP",
     is_discontinued: false,
@@ -169,8 +169,8 @@ const mockProducts: PrintfulProduct[] = [
   },
   {
     id: 4,
-    name: "Reform UK Mug",
-    description: "Ceramic mug with Reform UK logo",
+    name: "LVN Clothing Mug",
+    description: "Ceramic mug with LVN Clothing logo",
     category: 'mug',
     variants: [
       {
@@ -188,7 +188,7 @@ const mockProducts: PrintfulProduct[] = [
     isUnisex: true,
     hasDarkLightVariants: false,
     image: "/MugMouse/ReformMug1.webp",
-    brand: "Reform UK",
+    brand: "LVN Clothing",
     model: "Ceramic Mug",
     currency: "GBP",
     is_discontinued: false,
@@ -197,14 +197,14 @@ const mockProducts: PrintfulProduct[] = [
   },
   {
     id: 5,
-    name: "Reform UK Tote Bag",
-    description: "Eco-friendly canvas tote bag with Reform UK branding",
+    name: "LVN Clothing Tote Bag",
+    description: "Eco-friendly canvas tote bag with LVN Clothing branding",
     category: 'tote',
     variants: TotebagVariants,
     isUnisex: true,
     hasDarkLightVariants: false,
     image: "/StickerToteWater/ReformToteBagBlack1.webp",
-    brand: "Reform UK",
+    brand: "LVN Clothing",
     model: "Canvas Tote",
     currency: "GBP",
     is_discontinued: false,
@@ -213,14 +213,14 @@ const mockProducts: PrintfulProduct[] = [
   },
   {
     id: 6,
-    name: "Reform UK Water Bottle",
-    description: "Stainless steel water bottle with Reform UK logo",
+    name: "LVN Clothing Water Bottle",
+    description: "Stainless steel water bottle with LVN Clothing logo",
     category: 'water-bottle',
     variants: WaterbottleVariants,
     isUnisex: true,
     hasDarkLightVariants: false,
     image: "/StickerToteWater/ReformWaterBottleWhite1.webp",
-    brand: "Reform UK",
+    brand: "LVN Clothing",
     model: "Stainless Steel",
     currency: "GBP",
     is_discontinued: false,
@@ -229,14 +229,14 @@ const mockProducts: PrintfulProduct[] = [
   },
   {
     id: 7,
-    name: "Reform UK Mouse Pad",
-    description: "High-quality mouse pad with Reform UK branding",
+    name: "LVN Clothing Mouse Pad",
+    description: "High-quality mouse pad with LVN Clothing branding",
     category: 'mouse-pad',
     variants: MousepadVariants,
     isUnisex: true,
     hasDarkLightVariants: false,
     image: "/MugMouse/ReformMousePadWhite1.webp",
-    brand: "Reform UK",
+    brand: "LVN Clothing",
     model: "Premium Mouse Pad",
     currency: "GBP",
     is_discontinued: false,

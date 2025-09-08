@@ -283,7 +283,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-lvn-maroon-dark" />
           <p className="text-gray-600">Loading Hoodie details...</p>
         </div>
       </div>
@@ -337,11 +337,11 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
           <div className="max-w-7xl mx-auto px-4 py-4">
             <nav className="text-sm text-gray-600">
               <div className="flex items-center space-x-2">
-                <button onClick={onBack} className="hover:text-[#009fe3] transition-colors">Home</button>
+                <button onClick={onBack} className="hover:text-[lvn-maroon] transition-colors">Home</button>
                 <span className="text-gray-400">/</span>
-                <button onClick={onBack} className="hover:text-[#009fe3] transition-colors">Shop</button>
+                <button onClick={onBack} className="hover:text-[lvn-maroon] transition-colors">Shop</button>
                 <span className="text-gray-400">/</span>
-                <span className="text-[#009fe3] font-semibold">Reform UK Hoodie</span>
+                <span className="text-[lvn-maroon] font-semibold">LVN Clothing Hoodie</span>
               </div>
             </nav>
           </div>
@@ -354,7 +354,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
               <div className="relative aspect-square bg-white rounded-lg overflow-hidden shadow-lg">
                 <img
                   src={currentImage}
-                  alt={`Reform UK Hoodie - ${selectedColor}`}
+                  alt={`LVN Clothing Hoodie - ${selectedColor}`}
                   className="w-full h-full object-cover aspect-square"
                 />
                 
@@ -390,7 +390,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
                       className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
-                        index === currentImageIndex ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'
+                        index === currentImageIndex ? 'border-[lvn-maroon]' : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
                       <img
@@ -407,7 +407,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
             {/* Product Details */}
             <div className="space-y-6">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Reform UK Hoodie</h1>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">LVN Clothing Hoodie</h1>
                 <div className="flex items-center space-x-2 mb-4">
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
@@ -417,7 +417,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                   <span className="text-gray-600">({hoodieProduct?.baseProduct?.reviews || product?.reviews || 89} reviews)</span>
                 </div>
                 <div className="flex items-center space-x-3 mb-6">
-                  <span className="text-3xl font-bold text-[#009fe3]">£{selectedVariant?.price || '39.99'}</span>
+                  <span className="text-3xl font-bold text-[lvn-maroon]">£{selectedVariant?.price || '39.99'}</span>
                   <span className="text-lg text-gray-500 line-through">£49.99</span>
                   <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm font-medium">
                     Save £10.00
@@ -443,8 +443,8 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                       onClick={() => handleColorChange(color.name)}
                       className={`relative w-12 h-12 border-2 rounded-full transition-all duration-200 hover:scale-110 ${
                         selectedColor === color.name
-                          ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2'
-                          : `border-gray-300 hover:border-[#009fe3] ${color.border ? 'border-gray-400' : ''}`
+                          ? 'border-[lvn-maroon] ring-2 ring-[lvn-maroon] ring-offset-2'
+                          : `border-gray-300 hover:border-[lvn-maroon] ${color.border ? 'border-gray-400' : ''}`
                       }`}
                       title={color.name}
                     >
@@ -468,7 +468,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                   <label className="block text-sm font-medium text-gray-700">Size</label>
                   <button
                     onClick={() => navigate('/size-guide')}
-                    className="text-sm text-blue-600 hover:text-blue-700 underline"
+                    className="text-sm text-lvn-maroon-dark hover:text-lvn-maroon underline"
                   >
                     Size Guide
                   </button>
@@ -486,9 +486,9 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                       disabled={!isSizeAvailableForColor(size, selectedColor)}
                       className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
                         selectedSize === size
-                          ? 'border-[#009fe3] bg-[#009fe3] text-white'
+                          ? 'border-[lvn-maroon] bg-[lvn-maroon] text-white'
                           : isSizeAvailableForColor(size, selectedColor)
-                            ? 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
+                            ? 'border-gray-300 text-gray-700 hover:border-[lvn-maroon] hover:text-[lvn-maroon]'
                             : 'border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50'
                       }`}
                     >
@@ -533,7 +533,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                 <button 
                   onClick={handleBuyNow}
                   disabled={!selectedVariant}
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   <span>Buy Now - £{((selectedVariant?.price || 39.99) * quantity).toFixed(2)}</span>
@@ -542,7 +542,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                 <button 
                   onClick={handleAddToCart}
                   disabled={!selectedVariant}
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   <span>Add to Cart - £{((selectedVariant?.price || 39.99) * quantity).toFixed(2)}</span>
@@ -554,15 +554,15 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
               {/* Trust Badges */}
               <div className="grid grid-cols-3 gap-4 pt-6 border-t">
                 <div className="text-center">
-                  <Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <Truck className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Fast UK Shipping</p>
                 </div>
                 <div className="text-center">
-                  <Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <Shield className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Secure Checkout</p>
                 </div>
                 <div className="text-center">
-                  <RefreshCw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <RefreshCw className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Easy Returns</p>
                 </div>
               </div>
@@ -578,7 +578,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
                     key={tab} 
                     onClick={() => setActiveTab(tab)} 
                     className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                      activeTab === tab ? 'border-[#009fe3] text-[#009fe3]' : 'border-transparent text-gray-500 hover:text-gray-700'
+                      activeTab === tab ? 'border-[lvn-maroon] text-[lvn-maroon]' : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}
                   >
                     {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -591,7 +591,7 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
               {activeTab === 'description' && (
                 <div className="prose max-w-none">
                   <p className="text-gray-700 leading-relaxed">
-                    Premium cotton hoodie featuring the Reform UK logo and branding. Made from high-quality materials for comfort and durability. Perfect for everyday wear and casual occasions.
+                    Premium cotton hoodie featuring the LVN Clothing logo and branding. Made from high-quality materials for comfort and durability. Perfect for everyday wear and casual occasions.
                   </p>
                   <div className="mt-6">
                     <h4 className="font-semibold text-gray-900 mb-2">Materials:</h4>
@@ -672,10 +672,10 @@ const HoodiePage: React.FC<HoodiePageProps> = ({ onBack }) => {
               {activeTab === 'care' && (
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Care Instructions</h3>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-4">
                     <div className="flex items-start space-x-2">
-                      <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <p className="text-blue-800">Machine wash at 30°C. Do not bleach. Tumble dry low. Iron on low heat if needed.</p>
+                      <Info className="w-5 h-5 text-lvn-maroon-dark flex-shrink-0 mt-0.5" />
+                      <p className="text-lvn-maroon">Machine wash at 30°C. Do not bleach. Tumble dry low. Iron on low heat if needed.</p>
                     </div>
                   </div>
                 </div>

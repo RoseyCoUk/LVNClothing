@@ -14,13 +14,13 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
           <div className="flex items-center space-x-4">
             <button
               onClick={onBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-[#009fe3] transition-colors"
+              className="flex items-center space-x-2 text-gray-600 hover:text-[lvn-maroon] transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Back</span>
             </button>
             <div className="flex items-center space-x-3">
-              <Cookie className="w-6 h-6 text-[#009fe3]" />
+              <Cookie className="w-6 h-6 text-[lvn-maroon]" />
               <h1 className="text-2xl font-bold text-gray-900">Cookie Policy</h1>
             </div>
           </div>
@@ -34,32 +34,32 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Cookie Policy
             </h2>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-blue-800 font-semibold">
+            <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-4 mb-6">
+              <p className="text-lvn-maroon font-semibold">
                 Last updated: January 1, 2025
               </p>
             </div>
             <p className="text-lg text-gray-600">
-              This Cookie Policy explains how Back Reform ("we", "us", or "our") uses cookies and similar technologies when you visit our website www.backreform.co.uk (the "Service").
+              This Cookie Policy explains how LVN Clothing ("we", "us", or "our") uses cookies and similar technologies when you visit our website www.backreform.co.uk (the "Service").
             </p>
           </div>
 
           {/* What Are Cookies */}
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <Cookie className="w-5 h-5 mr-2 text-[#009fe3]" />
+              <Cookie className="w-5 h-5 mr-2 text-[lvn-maroon]" />
               What Are Cookies?
             </h3>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <p className="text-blue-800 mb-4 text-sm">
+            <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-6">
+              <p className="text-lvn-maroon mb-4 text-sm">
                 Cookies are small text files that are placed on your computer or mobile device when you visit a website. They are widely used to make websites work more efficiently and to provide information to website owners.
               </p>
-              <p className="text-blue-800 mb-4 text-sm">
+              <p className="text-lvn-maroon mb-4 text-sm">
                 Cookies allow websites to recognize your device and store some information about your preferences or past actions. This helps us provide you with a better, more personalized experience when you browse our website.
               </p>
-              <div className="bg-blue-100 rounded-lg p-4">
+              <div className="bg-lvn-maroon/10 rounded-lg p-4">
                 <h4 className="font-semibold text-blue-900 mb-2">Key Points About Cookies:</h4>
-                <ul className="space-y-1 text-blue-800 text-sm">
+                <ul className="space-y-1 text-lvn-maroon text-sm">
                   <li>• They don't contain personal information that can identify you directly</li>
                   <li>• They help us understand how you use our website</li>
                   <li>• They improve your browsing experience</li>
@@ -72,7 +72,7 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
           {/* How We Use Cookies */}
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <Settings className="w-5 h-5 mr-2 text-[#009fe3]" />
+              <Settings className="w-5 h-5 mr-2 text-[lvn-maroon]" />
               How We Use Cookies
             </h3>
             <div className="bg-green-50 border border-green-200 rounded-lg p-6">
@@ -146,16 +146,16 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
             {/* Performance Cookies */}
             <div className="mb-6">
               <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                <Eye className="w-4 h-4 mr-2 text-blue-500" />
+                <Eye className="w-4 h-4 mr-2 text-lvn-maroon/100" />
                 Performance and Analytics Cookies
               </h4>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-blue-800 mb-3 text-sm">
+              <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-4">
+                <p className="text-lvn-maroon mb-3 text-sm">
                   These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously.
                 </p>
-                <div className="bg-blue-100 rounded-lg p-3">
+                <div className="bg-lvn-maroon/10 rounded-lg p-3">
                   <h5 className="font-semibold text-blue-900 mb-2">What they do:</h5>
-                  <ul className="space-y-1 text-blue-800 text-sm">
+                  <ul className="space-y-1 text-lvn-maroon text-sm">
                     <li>• Count the number of visitors to our website</li>
                     <li>• See which pages are most and least popular</li>
                     <li>• Track how visitors move around the website</li>
@@ -163,7 +163,7 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
                   </ul>
                 </div>
                 <div className="mt-3">
-                  <p className="text-blue-800 text-sm">
+                  <p className="text-lvn-maroon text-sm">
                     <strong>Third-party services:</strong> We use Google Analytics to collect this information. You can opt-out of Google Analytics by installing the Google Analytics opt-out browser add-on.
                   </p>
                 </div>
@@ -213,7 +213,7 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
                 </div>
                 <div className="mt-3">
                   <p className="text-purple-800 text-sm">
-                    <strong>Note:</strong> We may work with advertising partners who use these cookies to show you Reform UK advertisements on other websites.
+                    <strong>Note:</strong> We may work with advertising partners who use these cookies to show you LVN Clothing advertisements on other websites.
                   </p>
                 </div>
               </div>
@@ -223,7 +223,7 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
           {/* Third-Party Cookies */}
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <Globe className="w-5 h-5 mr-2 text-[#009fe3]" />
+              <Globe className="w-5 h-5 mr-2 text-[lvn-maroon]" />
               Third-Party Cookies
             </h3>
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
@@ -256,7 +256,7 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
           {/* Managing Your Cookie Preferences */}
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <Settings className="w-5 h-5 mr-2 text-[#009fe3]" />
+              <Settings className="w-5 h-5 mr-2 text-[lvn-maroon]" />
               Managing Your Cookie Preferences
             </h3>
             <div className="bg-gray-50 rounded-lg p-6">
@@ -306,9 +306,9 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
                     You can also use these tools to opt out of specific tracking:
                   </p>
                   <ul className="space-y-1 text-gray-700 text-sm">
-                    <li>• <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-[#009fe3] hover:underline">Google Analytics Opt-out Browser Add-on</a></li>
-                    <li>• <a href="https://www.youronlinechoices.com/" target="_blank" rel="noopener noreferrer" className="text-[#009fe3] hover:underline">Your Online Choices (EU)</a></li>
-                    <li>• <a href="https://optout.networkadvertising.org/" target="_blank" rel="noopener noreferrer" className="text-[#009fe3] hover:underline">Network Advertising Initiative Opt-out</a></li>
+                    <li>• <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-[lvn-maroon] hover:underline">Google Analytics Opt-out Browser Add-on</a></li>
+                    <li>• <a href="https://www.youronlinechoices.com/" target="_blank" rel="noopener noreferrer" className="text-[lvn-maroon] hover:underline">Your Online Choices (EU)</a></li>
+                    <li>• <a href="https://optout.networkadvertising.org/" target="_blank" rel="noopener noreferrer" className="text-[lvn-maroon] hover:underline">Network Advertising Initiative Opt-out</a></li>
                   </ul>
                 </div>
               </div>
@@ -330,17 +330,17 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
           {/* Cookie Consent */}
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Cookie Consent</h3>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-blue-800 mb-3 text-sm">
+            <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-4">
+              <p className="text-lvn-maroon mb-3 text-sm">
                 When you first visit our website, you'll see a cookie banner asking for your consent to use non-essential cookies. You can:
               </p>
-              <ul className="space-y-1 text-blue-800 text-sm">
+              <ul className="space-y-1 text-lvn-maroon text-sm">
                 <li>• Accept all cookies</li>
                 <li>• Reject non-essential cookies</li>
                 <li>• Customize your cookie preferences</li>
                 <li>• Change your preferences at any time</li>
               </ul>
-              <p className="text-blue-800 mt-3 text-sm">
+              <p className="text-lvn-maroon mt-3 text-sm">
                 Your consent choices are stored in a cookie so we can remember your preferences for future visits.
               </p>
             </div>
@@ -365,7 +365,7 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
           {/* More Information */}
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <Info className="w-5 h-5 mr-2 text-[#009fe3]" />
+              <Info className="w-5 h-5 mr-2 text-[lvn-maroon]" />
               More Information
             </h3>
             <div className="bg-gray-50 rounded-lg p-4">
@@ -373,9 +373,9 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
                 For more information about cookies and how they work, you can visit:
               </p>
               <ul className="space-y-1 text-gray-700 text-sm">
-                <li>• <a href="https://www.allaboutcookies.org/" target="_blank" rel="noopener noreferrer" className="text-[#009fe3] hover:underline">All About Cookies</a></li>
-                <li>• <a href="https://ico.org.uk/for-the-public/online/cookies/" target="_blank" rel="noopener noreferrer" className="text-[#009fe3] hover:underline">ICO Guidance on Cookies</a></li>
-                <li>• <a href="https://www.cookiepedia.co.uk/" target="_blank" rel="noopener noreferrer" className="text-[#009fe3] hover:underline">Cookiepedia</a></li>
+                <li>• <a href="https://www.allaboutcookies.org/" target="_blank" rel="noopener noreferrer" className="text-[lvn-maroon] hover:underline">All About Cookies</a></li>
+                <li>• <a href="https://ico.org.uk/for-the-public/online/cookies/" target="_blank" rel="noopener noreferrer" className="text-[lvn-maroon] hover:underline">ICO Guidance on Cookies</a></li>
+                <li>• <a href="https://www.cookiepedia.co.uk/" target="_blank" rel="noopener noreferrer" className="text-[lvn-maroon] hover:underline">Cookiepedia</a></li>
               </ul>
             </div>
           </div>
@@ -383,16 +383,16 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
           {/* Contact Us */}
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <Mail className="w-5 h-5 mr-2 text-[#009fe3]" />
+              <Mail className="w-5 h-5 mr-2 text-[lvn-maroon]" />
               Contact Us
             </h3>
-            <div className="bg-[#009fe3]/5 border border-[#009fe3]/20 rounded-lg p-4">
+            <div className="bg-[lvn-maroon]/5 border border-[lvn-maroon]/20 rounded-lg p-4">
               <p className="text-gray-700 mb-2 text-sm">
                 If you have any questions about this Cookie Policy or our use of cookies, please contact us:
               </p>
               <p className="text-gray-700 text-sm">
                 By email: 
-                <a href="mailto:support@backreform.co.uk" className="text-[#009fe3] font-semibold hover:underline ml-1">
+                <a href="mailto:support@backreform.co.uk" className="text-[lvn-maroon] font-semibold hover:underline ml-1">
                   support@backreform.co.uk
                 </a>
               </p>
@@ -405,7 +405,7 @@ const CookiePolicyPage = ({ onBack }: CookiePolicyPageProps) => {
           <div className="text-center">
             <button
               onClick={onBack}
-              className="bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              className="bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-3 px-6 rounded-lg transition-colors"
             >
               Back to Shop
             </button>

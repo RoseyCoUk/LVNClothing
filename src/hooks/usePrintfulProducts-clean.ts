@@ -7,8 +7,8 @@ import { tshirtVariants } from './tshirt-variants';
 const mockProducts: PrintfulProduct[] = [
   {
     id: 1,
-    name: "Reform UK T-Shirt",
-    description: "Premium cotton t-shirt with Reform UK branding",
+    name: "LVN Clothing T-Shirt",
+    description: "Premium cotton t-shirt with LVN Clothing branding",
     category: 'tshirt',
     variants: tshirtVariants.map(variant => ({
       ...variant,
@@ -17,7 +17,7 @@ const mockProducts: PrintfulProduct[] = [
     isUnisex: true,
     hasDarkLightVariants: true,
     image: "https://files.cdn.printful.com/products/71/black_tshirt_m_mockup.jpg",
-    brand: "Reform UK",
+    brand: "LVN Clothing",
     model: "Premium Cotton",
     currency: "GBP",
     is_discontinued: false,
@@ -26,8 +26,8 @@ const mockProducts: PrintfulProduct[] = [
   },
   {
     id: 2,
-    name: "Reform UK Hoodie",
-    description: "Premium cotton hoodie with Reform UK branding",
+    name: "LVN Clothing Hoodie",
+    description: "Premium cotton hoodie with LVN Clothing branding",
     category: 'hoodie',
     variants: [
       // Black variants
@@ -146,7 +146,7 @@ const mockProducts: PrintfulProduct[] = [
     isUnisex: true,
     hasDarkLightVariants: true,
     image: "https://files.cdn.printful.com/products/71/black_hoodie_m_mockup.jpg",
-    brand: "Reform UK",
+    brand: "LVN Clothing",
     model: "Premium Cotton",
     currency: "GBP",
     is_discontinued: false,

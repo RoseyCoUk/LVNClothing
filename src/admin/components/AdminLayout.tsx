@@ -49,7 +49,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center justify-center h-16 px-4 border-b border-gray-200">
-            <h1 className="text-xl font-bold text-gray-900">Reform UK Admin</h1>
+            <h1 className="text-xl font-bold text-gray-900">LVN Clothing Admin</h1>
           </div>
 
           {/* Navigation */}
@@ -66,7 +66,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   }}
                   className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
                     isActiveRoute(item.href)
-                      ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-700'
+                      ? 'bg-lvn-maroon/10 text-lvn-maroon border-r-2 border-lvn-maroon'
                       : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
@@ -80,7 +80,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           {/* User Info & Sign Out */}
           <div className="p-4 border-t border-gray-200">
             <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-lvn-maroon-dark rounded-full flex items-center justify-center">
                 <span className="text-white text-sm font-medium">
                   {user.email?.charAt(0).toUpperCase()}
                 </span>

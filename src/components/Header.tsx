@@ -46,7 +46,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
 
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-white shadow-md'
+      isScrolled ? 'bg-lvn-off-white/95 backdrop-blur-md shadow-lg' : 'bg-lvn-off-white shadow-md'
     }`} role="banner">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
@@ -59,7 +59,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
             <img
               src="/images/Leaven Logo.png"
               alt="LVN Clothing Logo"
-              className="h-6 w-auto sm:h-8 md:h-10 lg:h-12"
+              className="h-8 w-auto sm:h-10 md:h-12 lg:h-14"
               loading="eager"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
@@ -67,11 +67,10 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                 // Fallback to text logo if image fails
                 const fallback = document.createElement('span');
                 fallback.className = 'font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl text-lvn-maroon';
-                fallback.textContent = 'LVN Clothing';
+                fallback.textContent = 'LVN';
                 target.parentNode?.insertBefore(fallback, target);
               }}
             />
-            <span className="font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-900">LVN Clothing</span>
           </button>
 
           {/* Desktop Navigation */}
@@ -220,7 +219,7 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div id="mobile-menu" className="md:hidden py-4 border-t bg-white/95 backdrop-blur-md" role="navigation" aria-label="Mobile navigation">
+          <div id="mobile-menu" className="md:hidden py-4 border-t bg-lvn-off-white/95 backdrop-blur-md" role="navigation" aria-label="Mobile navigation">
             <nav className="flex flex-col space-y-4">
               <button
                 onClick={() => handleNavigation('shop')}

@@ -29,11 +29,11 @@ import { useAllProductVariants } from '../../hooks/useProductVariantsFromDB';
 import type { PrintfulProduct, PrintfulVariant, BundleProduct, BundleItem } from '../../types/printful';
 import { Toast, useToast } from '../../components/ui/Toast';
 
-interface BundlePageProps {
+interface FaithStarterBundlePageProps {
   onBack: () => void;
 }
 
-const StarterBundlePage = ({ onBack }: BundlePageProps) => {
+const FaithStarterBundlePage = ({ onBack }: FaithStarterBundlePageProps) => {
   const { addToCart, addToCartAndGetUpdated, addMultipleToCart } = useCart();
   const { isVisible, message, showToast, hideToast } = useToast();
   const navigate = useNavigate();
@@ -244,7 +244,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-[#009fe3]" />
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-[lvn-maroon]" />
           <p className="text-gray-600">Loading bundle details...</p>
         </div>
       </div>
@@ -254,22 +254,22 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
   // Default bundle data - HARDCODED FOR IMMEDIATE FIX
   // TODO: Fix the pricing calculation issue causing £58.99 display
   const bundleData = {
-    name: "Starter Bundle",
+    name: "Faith Starter Bundle",
     originalPrice: "£54.97",
     bundlePrice: 49.99,  // MUST match Stripe price_1RhsUsGDbOGEgNLw2LAVZoGb
     savings: "Save £4.98",
-    description: "Perfect for newcomers to the Reform UK movement. This starter bundle includes our signature T-shirt, cap, and mug, giving you everything you need to show your support.",
+    description: "Perfect for newcomers to the Kingdom mission. This faith starter bundle includes our signature T-shirt, cap, and mug, giving you everything you need to herald the Gospel message.",
     shipping: "Fast UK Shipping",
     urgency: "Limited Time Offer",
     popular: true,
     rating: 4.8,
     reviews: 156,
     features: [
-      "High-quality cotton T-shirt with Reform UK branding",
-      "Adjustable cap with Reform UK logo",
-      "Ceramic mug with Reform UK branding",
+      "High-quality cotton T-shirt with LVN Clothing branding",
+      "Adjustable cap with LVN Clothing logo",
+      "Ceramic mug with LVN Clothing branding",
       "Great value bundle with significant savings",
-      "Perfect introduction to Reform UK merchandise",
+      "Perfect introduction to LVN Clothing merchandise",
       "Fast UK shipping available",
       "30-day money-back guarantee"
     ],
@@ -599,8 +599,8 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
         // For mug, add volume instead of size
         volume: item.product.category === 'mug' ? '11 oz' : undefined,
         isPartOfBundle: true,
-        bundleName: 'Starter Bundle',
-        bundleId: 'starter-bundle'
+        bundleName: 'Faith Starter Bundle',
+        bundleId: 'faith-starter-bundle'
       };
       
       console.log(`DEBUG: Prepared cart item ${index}:`, cartItem);
@@ -614,15 +614,15 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
     // Add discount item as the 4th item with negative price
     const discountAmount = bundleSavings; // This is the savings amount (4.98)
     const discountItem = {
-      id: `starter-bundle-discount`,
-      name: 'Starter Bundle Discount (10%)',
+      id: `faith-starter-bundle-discount`,
+      name: 'Faith Starter Bundle Discount (10%)',
       price: -discountAmount, // Negative price for discount
-      image: '/BackReformLogo.png', // Use logo for discount item
-      printful_variant_id: 'BUNDLE_DISCOUNT_STARTER', // Placeholder that won't break checkout
-      external_id: 'BUNDLE_DISCOUNT_STARTER',
+      image: '/images/Leaven Logo.png', // Use logo for discount item
+      printful_variant_id: 'BUNDLE_DISCOUNT_FAITH_STARTER', // Placeholder that won't break checkout
+      external_id: 'BUNDLE_DISCOUNT_FAITH_STARTER',
       isPartOfBundle: true,
-      bundleName: 'Starter Bundle',
-      bundleId: 'starter-bundle',
+      bundleName: 'Faith Starter Bundle',
+      bundleId: 'faith-starter-bundle',
       isDiscount: true // Special flag to identify as discount
     };
     
@@ -640,7 +640,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
     
     console.log('DEBUG: Finished adding to cart');
     // Show success message - don't redirect to checkout
-    showToast(`Starter Bundle (3 items + discount) added to cart!`);
+    showToast(`Faith Starter Bundle (3 items + discount) added to cart!`);
   };
 
   const handleBuyNow = () => {
@@ -675,7 +675,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
       name: "Emma R.",
       rating: 4,
       date: "2 weeks ago",
-      comment: "Great introduction to Reform UK merchandise. All items arrived quickly and in perfect condition.",
+      comment: "Great introduction to LVN Clothing merchandise. All items arrived quickly and in perfect condition.",
       verified: true
     }
   ];
@@ -748,7 +748,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                 {/* Viewing Indicator */}
                 {selectedItemData && (
                   <div className="absolute top-4 right-4 z-10">
-                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-lvn-maroon/10 text-lvn-maroon">
                       Viewing: {selectedItemData?.name}
                       {selectedItem === 'tshirt' && ` - ${tshirtColor}`}
                       {selectedItem === 'cap' && ` - ${capColor}`}
@@ -766,7 +766,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                     onClick={() => handleItemClick(item.product.category)}
                     className={`text-center transition-all duration-200 ${
                       selectedItem === item.product.category 
-                        ? 'ring-2 ring-[#009fe3] ring-offset-2' 
+                        ? 'ring-2 ring-[lvn-maroon] ring-offset-2' 
                         : 'hover:ring-2 hover:ring-gray-300'
                     }`}
                   >
@@ -780,13 +780,13 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                       alt={item.product.name} 
                       className={`w-full object-cover rounded-lg border-2 transition-all duration-200 aspect-square ${
                         selectedItem === item.product.category 
-                          ? 'border-[#009fe3]' 
+                          ? 'border-[lvn-maroon]' 
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     />
                     <p className={`text-sm mt-2 font-medium ${
                       selectedItem === item.product.category 
-                        ? 'text-[#009fe3]' 
+                        ? 'text-[lvn-maroon]' 
                         : 'text-gray-600'
                     }`}>
                       {item.product.name}
@@ -804,7 +804,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                       onClick={() => setCurrentImageIndex(index)} 
                       className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
                         currentImageIndex === index 
-                          ? 'border-[#009fe3]' 
+                          ? 'border-[lvn-maroon]' 
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -832,7 +832,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                   <span className="text-gray-600">({bundleData.reviews} reviews)</span>
                 </div>
                 <div className="flex items-center space-x-3 mb-4">
-                  <span className="text-3xl font-bold text-[#009fe3]">£{bundleData.bundlePrice.toFixed(2)}</span>
+                  <span className="text-3xl font-bold text-[lvn-maroon]">£{bundleData.bundlePrice.toFixed(2)}</span>
                   <span className="text-lg text-gray-500 line-through">{bundleData.originalPrice}</span>
                   <span className="text-lg font-semibold text-green-600">{bundleData.savings}</span>
                 </div>
@@ -852,7 +852,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                     <label className="block text-sm font-medium text-gray-700">Size</label>
                     <button 
                       onClick={() => navigate('/size-guide')}
-                      className="text-sm text-[#009fe3] hover:text-blue-600 underline"
+                      className="text-sm text-[lvn-maroon] hover:text-lvn-maroon-dark underline"
                     >
                       Size Guide
                     </button>
@@ -869,8 +869,8 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                         onClick={() => handleTshirtVariantChange('size', size)} 
                         className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
                           tshirtSize === size 
-                            ? 'border-[#009fe3] bg-[#009fe3] text-white' 
-                            : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
+                            ? 'border-[lvn-maroon] bg-[lvn-maroon] text-white' 
+                            : 'border-gray-300 text-gray-700 hover:border-[lvn-maroon] hover:text-[lvn-maroon]'
                         }`}
                       >
                         {size}
@@ -914,7 +914,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                         onClick={() => handleTshirtVariantChange('color', color.name)} 
                         className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
                           tshirtColor === color.name 
-                            ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
+                            ? 'border-[lvn-maroon] ring-2 ring-[lvn-maroon] ring-offset-2' 
                             : color.border 
                               ? 'border-gray-300 hover:border-gray-400' 
                               : 'border-gray-200 hover:border-gray-300'
@@ -958,7 +958,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                         onClick={() => handleCapColorChange(color.name)} 
                         className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
                           capColor === color.name 
-                            ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
+                            ? 'border-[lvn-maroon] ring-2 ring-[lvn-maroon] ring-offset-2' 
                             : color.border 
                               ? 'border-gray-300 hover:border-gray-400' 
                               : 'border-gray-200 hover:border-gray-300'
@@ -979,13 +979,13 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
 
               {/* Bundle Pricing */}
               {starterPricing && (
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-4">
-                  <h4 className="font-semibold text-blue-900 mb-2">Bundle Savings</h4>
-                  <div className="space-y-2 text-sm text-blue-800">
+                <div className="bg-lvn-maroon/10 rounded-lg p-4 border border-lvn-maroon/20 mb-4">
+                  <h4 className="font-semibold text-lvn-maroon mb-2">Bundle Savings</h4>
+                  <div className="space-y-2 text-sm text-lvn-maroon">
                     <p>• Individual Price: <span className="font-medium">£{starterPricing.originalPrice.toFixed(2)}</span></p>
                     <p>• Bundle Price: <span className="font-medium text-green-600">£{starterPricing.price.toFixed(2)}</span></p>
                     <p>• You Save: <span className="font-medium text-green-600">£{starterPricing.savings.absolute.toFixed(2)} ({starterPricing.savings.percentage.toFixed(0)}%)</span></p>
-                    <p className="text-blue-700">• Shipping: <span className="font-medium">Best rates applied</span></p>
+                    <p className="text-lvn-maroon">• Shipping: <span className="font-medium">Best rates applied</span></p>
                   </div>
                 </div>
               )}
@@ -994,14 +994,14 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <h4 className="font-semibold text-gray-900 mb-3">Bundle Contents:</h4>
                 <div className="space-y-2 text-sm text-gray-700">
-                  <p>• Reform UK T-shirt: <span className="font-medium text-gray-900">
+                  <p>• LVN Clothing T-shirt: <span className="font-medium text-gray-900">
                     {tshirtColor} (Size {tshirtSize}) - £24.99
                     {!selectedTshirtVariant && <span className="text-red-600 ml-2">(Not Available)</span>}
                   </span></p>
-                  <p>• Reform UK Cap: <span className="font-medium text-gray-900">
+                  <p>• LVN Clothing Cap: <span className="font-medium text-gray-900">
                     {capColor} - £19.99
                   </span></p>
-                  <p>• Reform UK Mug: <span className="font-medium text-gray-900">White - £9.99</span></p>
+                  <p>• LVN Clothing Mug: <span className="font-medium text-gray-900">White - £9.99</span></p>
                 </div>
               </div>
 
@@ -1024,7 +1024,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                 <button 
                   onClick={handleBuyNow}
                   disabled={isLoading || bundleProducts.length === 0 || !selectedTshirtVariant}
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   {isLoading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -1039,7 +1039,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                 <button 
                   onClick={handleAddToCart} 
                   disabled={bundleProducts.length === 0 || !selectedTshirtVariant}
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   <span>Add to Cart - £{(bundleData.bundlePrice * quantity).toFixed(2)}</span>
@@ -1049,15 +1049,15 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
               {/* Trust Badges */}
               <div className="grid grid-cols-3 gap-4 pt-6 border-t">
                 <div className="text-center">
-                  <Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <Truck className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Best Shipping Rates</p>
                 </div>
                 <div className="text-center">
-                  <Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <Shield className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Secure Checkout</p>
                 </div>
                 <div className="text-center">
-                  <RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <RotateCcw className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Easy Returns</p>
                 </div>
               </div>
@@ -1073,7 +1073,7 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
                     key={tab} 
                     onClick={() => setActiveTab(tab)} 
                     className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                      activeTab === tab ? 'border-[#009fe3] text-[#009fe3]' : 'border-transparent text-gray-500 hover:text-gray-700'
+                      activeTab === tab ? 'border-[lvn-maroon] text-[lvn-maroon]' : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}
                   >
                     {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -1143,10 +1143,10 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
               {activeTab === 'care' && (
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Care Instructions</h3>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-4">
                     <div className="flex items-start space-x-2">
-                      <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <p className="text-blue-800">{bundleData.careInstructions}</p>
+                      <Info className="w-5 h-5 text-lvn-maroon-dark flex-shrink-0 mt-0.5" />
+                      <p className="text-lvn-maroon">{bundleData.careInstructions}</p>
                     </div>
                   </div>
                 </div>
@@ -1180,4 +1180,4 @@ const StarterBundlePage = ({ onBack }: BundlePageProps) => {
   );
 };
 
-export default StarterBundlePage; 
+export default FaithStarterBundlePage; 

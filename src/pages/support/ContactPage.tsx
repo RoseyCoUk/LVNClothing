@@ -119,7 +119,7 @@ const ContactPage = () => {
                         value={formData.fullName}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent transition-colors"
                         placeholder="Enter your full name"
                       />
                     </div>
@@ -136,7 +136,7 @@ const ContactPage = () => {
                         value={formData.email}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent transition-colors"
                         placeholder="Enter your email address"
                       />
                     </div>
@@ -151,7 +151,7 @@ const ContactPage = () => {
                         name="subject"
                         value={formData.subject}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent transition-colors"
                       >
                         <option value="">Select a topic (optional)</option>
                         <option value="order-question">Order Question</option>
@@ -174,7 +174,7 @@ const ContactPage = () => {
                         onChange={handleInputChange}
                         required
                         rows={6}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors resize-vertical"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent transition-colors resize-vertical"
                         placeholder="Tell us how we can help you..."
                       />
                     </div>
@@ -182,7 +182,7 @@ const ContactPage = () => {
                     {/* Submit Button */}
                     <button
                       type="submit"
-                      className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                      className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                     >
                       <Send className="w-5 h-5" />
                       <span>Send Message</span>
@@ -200,7 +200,7 @@ const ContactPage = () => {
                   </p>
                   <button
                     onClick={() => setIsSubmitted(false)}
-                    className="text-[#009fe3] hover:text-blue-600 font-semibold underline"
+                    className="text-[lvn-maroon] hover:text-lvn-maroon-dark font-semibold underline"
                   >
                     Send another message
                   </button>
@@ -217,20 +217,20 @@ const ContactPage = () => {
               
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <Mail className="w-5 h-5 text-[#009fe3] mt-1" />
+                  <Mail className="w-5 h-5 text-[lvn-maroon] mt-1" />
                   <div>
                     <p className="font-medium text-gray-900">Email</p>
-                    <a href="mailto:support@backreform.co.uk" className="text-gray-600 hover:text-[#009fe3] transition-colors">
+                    <a href="mailto:support@backreform.co.uk" className="text-gray-600 hover:text-[lvn-maroon] transition-colors">
                       support@backreform.co.uk
                     </a>
                   </div>
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <Phone className="w-5 h-5 text-[#009fe3] mt-1" />
+                  <Phone className="w-5 h-5 text-[lvn-maroon] mt-1" />
                   <div>
                     <p className="font-medium text-gray-900">Phone</p>
-                    <a href="https://wa.me/447405853303" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-[#009fe3] transition-colors">
+                    <a href="https://wa.me/447405853303" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-[lvn-maroon] transition-colors">
                       WhatsApp Support
                     </a>
                     <p className="text-sm text-gray-500">Mon-Fri, 9am-5pm GMT</p>
@@ -238,11 +238,11 @@ const ContactPage = () => {
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <MapPin className="w-5 h-5 text-[#009fe3] mt-1" />
+                  <MapPin className="w-5 h-5 text-[lvn-maroon] mt-1" />
                   <div>
                     <p className="font-medium text-gray-900">Address</p>
                     <p className="text-gray-600">
-                      Reform UK HQ<br />
+                      LVN Clothing HQ<br />
                       London, United Kingdom
                     </p>
                   </div>
@@ -253,16 +253,16 @@ const ContactPage = () => {
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <p className="font-medium text-gray-900 mb-3">Follow Us</p>
                 <div className="flex space-x-3">
-                  <a href="https://www.facebook.com/profile.php?id=61578282817124" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                  <a href="https://www.facebook.com/profile.php?id=61578282817124" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[lvn-maroon] transition-colors">
                     <Facebook className="w-5 h-5" />
                   </a>
-                  <a href="https://www.instagram.com/backreformuk/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                  <a href="https://www.instagram.com/backreformuk/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[lvn-maroon] transition-colors">
                     <Instagram className="w-5 h-5" />
                   </a>
-                  <a href="https://x.com/backreformuk" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                  <a href="https://x.com/backreformuk" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[lvn-maroon] transition-colors">
                     <SiX className="w-5 h-5" />
                   </a>
-                  <a href="https://www.tiktok.com/@backreformuk?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#009fe3] transition-colors">
+                  <a href="https://www.tiktok.com/@backreformuk?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[lvn-maroon] transition-colors">
                     <SiTiktok className="w-5 h-5" />
                   </a>
                 </div>
@@ -276,13 +276,13 @@ const ContactPage = () => {
               <div className="space-y-3">
                 <button 
                   onClick={() => navigate('/track-order')}
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <Package className="w-4 h-4" />
                   <span>Track My Order</span>
                 </button>
                 
-                <button className="w-full border-2 border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3] font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2">
+                <button className="w-full border-2 border-gray-300 text-gray-700 hover:border-[lvn-maroon] hover:text-[lvn-maroon] font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2">
                   <RotateCcw className="w-4 h-4" />
                   <span>Start a Return</span>
                 </button>
@@ -290,7 +290,7 @@ const ContactPage = () => {
             </div> */}
 
             {/* Support Hours */}
-            <div className="bg-gradient-to-br from-[#009fe3] to-blue-600 text-white rounded-lg p-6">
+            <div className="bg-gradient-to-br from-[lvn-maroon] to-lvn-maroon-dark text-white rounded-lg p-6">
               <div className="flex items-center space-x-2 mb-3">
                 <Clock className="w-5 h-5" />
                 <h3 className="text-lg font-bold">Support Hours</h3>
@@ -309,7 +309,7 @@ const ContactPage = () => {
                   <span>Closed</span>
                 </div>
               </div>
-              <p className="text-xs text-blue-100 mt-3">
+              <p className="text-xs text-lvn-maroon/10 mt-3">
                 All times are GMT. We aim to respond to all emails within 24 hours during business days.
               </p>
             </div>

@@ -572,7 +572,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Order Confirmed!</h2>
           <p className="text-gray-600 mb-6">
-            Thank you for supporting Reform UK. Your order has been confirmed and will be shipped within 48 hours.
+            Thank you for supporting LVN Clothing. Your order has been confirmed and will be shipped within 48 hours.
           </p>
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <p className="text-sm text-gray-600">Order Number</p>
@@ -580,7 +580,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
           </div>
           <button
             onClick={onBack}
-            className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-3 px-6 rounded-lg transition-colors"
           >
             Continue Shopping
           </button>
@@ -607,7 +607,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
       return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#009fe3] mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[lvn-maroon] mx-auto mb-4"></div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading Checkout...</h2>
             <p className="text-gray-600">Please wait while we prepare your checkout.</p>
           </div>
@@ -627,7 +627,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
           </p>
           <button
             onClick={onBack}
-            className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-3 px-6 rounded-lg transition-colors"
           >
             Continue Shopping
           </button>
@@ -654,7 +654,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
               <span>Back to Cart</span>
             </button>
             <div className="flex items-center space-x-3">
-              <img src="/BackReformLogo.png" alt="Reform UK" className="h-8 w-auto" />
+              <img src="/images/Leaven Logo.png" alt="LVN Clothing" className="h-8 w-auto" />
               <span className="font-bold text-xl text-gray-900">Secure Checkout</span>
             </div>
             <div className="flex items-center space-x-2 text-green-600">
@@ -676,11 +676,11 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
             ].map(({ step, title, icon: Icon }) => (
               <div key={step} className="flex items-center space-x-2">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  currentStep >= step ? 'bg-[#009fe3] text-white' : 'bg-gray-200 text-gray-500'
+                  currentStep >= step ? 'bg-[lvn-maroon] text-white' : 'bg-gray-200 text-gray-500'
                 }`}>
                   {currentStep > step ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                 </div>
-                <span className={`font-medium ${currentStep >= step ? 'text-[#009fe3]' : 'text-gray-500'}`}>
+                <span className={`font-medium ${currentStep >= step ? 'text-[lvn-maroon]' : 'text-gray-500'}`}>
                   {title}
                 </span>
               </div>
@@ -709,7 +709,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                         value={shippingInfo.email}
                         onChange={(e) => handleInputChange('shipping', 'email', e.target.value)}
                         onBlur={handleEmailBlur}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors ${
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent transition-colors ${
                           emailError ? 'border-red-500 bg-red-50' : 'border-gray-300'
                         }`}
                         placeholder="your@email.com"
@@ -745,7 +745,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                         type="text"
                         value={shippingInfo.firstName}
                         onChange={(e) => handleInputChange('shipping', 'firstName', e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent"
                         placeholder="John"
                       />
                     </div>
@@ -757,7 +757,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                         type="text"
                         value={shippingInfo.lastName}
                         onChange={(e) => handleInputChange('shipping', 'lastName', e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent"
                         placeholder="Smith"
                       />
                     </div>
@@ -771,7 +771,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                       type="text"
                       value={shippingInfo.address}
                       onChange={(e) => handleInputChange('shipping', 'address', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent"
                       placeholder="123 Main Street"
                     />
                   </div>
@@ -782,7 +782,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                       type="text"
                       value={shippingInfo.apartment}
                       onChange={(e) => handleInputChange('shipping', 'apartment', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent"
                       placeholder="Apartment 4B"
                     />
                   </div>
@@ -796,7 +796,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                         type="text"
                         value={shippingInfo.city}
                         onChange={(e) => handleInputChange('shipping', 'city', e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent"
                         placeholder="London"
                       />
                     </div>
@@ -808,7 +808,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                         type="text"
                         value={shippingInfo.postcode}
                         onChange={(e) => handleInputChange('shipping', 'postcode', e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent"
                         placeholder="SW1A 1AA"
                       />
                     </div>
@@ -817,7 +817,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                       <select
                         value={shippingInfo.country}
                         onChange={(e) => handleInputChange('shipping', 'country', e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent"
                       >
                         <option value="United Kingdom">United Kingdom</option>
                       </select>
@@ -830,7 +830,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                       type="tel"
                       value={shippingInfo.phone}
                       onChange={(e) => handleInputChange('shipping', 'phone', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent"
                       placeholder="+44 7700 900123"
                     />
                   </div>
@@ -851,9 +851,9 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                 
                 {/* Show loading state while fetching shipping options */}
                 {shippingLoading && (
-                  <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center space-x-2 text-blue-700">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  <div className="mt-8 p-4 bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg">
+                    <div className="flex items-center space-x-2 text-lvn-maroon">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-lvn-maroon-dark"></div>
                       <span>Loading shipping options...</span>
                     </div>
                   </div>
@@ -871,8 +871,8 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                 
                 {/* PaymentIntent Integration Note */}
                 {selectedShipping && (
-                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center space-x-2 text-blue-700">
+                  <div className="mt-4 p-3 bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg">
+                    <div className="flex items-center space-x-2 text-lvn-maroon">
                       <Check className="w-4 h-4" />
                       <span className="text-sm">
                         <strong>Shipping Selected:</strong> {selectedShipping.name} - {selectedShipping.currency} {selectedShipping.rate}
@@ -881,7 +881,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                         }
                       </span>
                     </div>
-                    <p className="text-xs text-blue-600 mt-1">
+                    <p className="text-xs text-lvn-maroon-dark mt-1">
                       When you proceed to payment, this shipping cost will be automatically added to your order total.
                     </p>
                   </div>
@@ -889,14 +889,14 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                 
                 {/* Guest Checkout Notice */}
                 {isGuestCheckout && (
-                  <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="mt-6 p-4 bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg">
                     <div className="flex items-start space-x-3">
-                      <div className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0">
+                      <div className="w-5 h-5 text-lvn-maroon/100 mt-0.5 flex-shrink-0">
                         <Shield className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium text-blue-800 mb-1">Guest Checkout</h4>
-                        <p className="text-sm text-blue-700">
+                        <h4 className="text-sm font-medium text-lvn-maroon mb-1">Guest Checkout</h4>
+                        <p className="text-sm text-lvn-maroon">
                           You're checking out as a guest. After your order is complete, you can optionally create an account to track your order and save your information for future purchases.
                         </p>
                       </div>
@@ -920,7 +920,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                   <button
                     onClick={handleNext}
                     disabled={!validateStep(1) || !!emailError}
-                    className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                    className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                   >
                     <span>Continue to Payment</span>
                     {validateStep(1) && !emailError && <Check className="w-4 h-4" />}
@@ -997,7 +997,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                   <button
                     onClick={handleCheckout}
                     disabled={isProcessing}
-                    className="flex-1 bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                    className="flex-1 bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                   >
                     {isProcessing ? (
                       <>
@@ -1074,7 +1074,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                           <button
                             onClick={handleCheckout}
                             disabled={isProcessing}
-                            className="flex-1 bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                            className="flex-1 bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                           >
                             {isProcessing ? (
                               <>
@@ -1131,7 +1131,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                       value={promoCode}
                       onChange={(e) => setPromoCode(e.target.value)}
                       placeholder="Promo code"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#009fe3] focus:border-transparent"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent"
                     />
                     <button
                       onClick={applyPromoCode}
@@ -1195,7 +1195,7 @@ const CheckoutPage = ({ onBack }: CheckoutPageProps) => {
                   <span>SSL Encrypted Checkout</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Truck className="w-4 h-4 text-blue-500" />
+                  <Truck className="w-4 h-4 text-lvn-maroon/100" />
                   <span>Best Shipping Rates</span>
                 </div>
                 <div className="flex items-center space-x-2">

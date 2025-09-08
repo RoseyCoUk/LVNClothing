@@ -100,8 +100,8 @@ export const getAvailableStickers = (productCategory: string): StickerAddon[] =>
   const allStickers: StickerAddon[] = [
     {
       id: 'sticker-set-1',
-      name: 'Reform UK Sticker Set',
-      description: 'High-quality vinyl stickers featuring Reform UK branding',
+      name: 'LVN Clothing Sticker Set',
+      description: 'High-quality vinyl stickers featuring LVN Clothing branding',
       price: 4.99,
       image: '/StickerToteWater/ReformStickersMain1.webp',
       printful_variant_id: 1001,

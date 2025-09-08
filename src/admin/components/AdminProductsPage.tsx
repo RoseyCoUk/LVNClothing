@@ -544,7 +544,7 @@ const AdminProductsPage: React.FC = () => {
             <button
               onClick={handleRefresh}
               disabled={productsLoading}
-              className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+              className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-lvn-maroon/100 focus:ring-offset-2 disabled:opacity-50"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${productsLoading ? 'animate-spin' : ''}`} />
               Refresh
@@ -563,7 +563,7 @@ const AdminProductsPage: React.FC = () => {
               <Activity className="h-4 w-4 mr-2" />
               Sync Monitor
             </button>
-            <button className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <button className="flex items-center px-4 py-2 text-sm font-medium text-white bg-lvn-maroon-dark border border-transparent rounded-md hover:bg-lvn-maroon focus:outline-none focus:ring-2 focus:ring-lvn-maroon/100 focus:ring-offset-2">
               <Plus className="h-4 w-4 mr-2" />
               Add Product
             </button>
@@ -598,7 +598,7 @@ const AdminProductsPage: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <RefreshCw className={`h-5 w-5 ${syncStatus.isSyncing ? 'animate-spin text-blue-500' : 'text-gray-400'}`} />
+                <RefreshCw className={`h-5 w-5 ${syncStatus.isSyncing ? 'animate-spin text-lvn-maroon/100' : 'text-gray-400'}`} />
                 <span className="text-sm font-medium text-gray-700">
                   {syncStatus.isSyncing ? 'Syncing...' : 'Sync Status'}
                 </span>
@@ -620,7 +620,7 @@ const AdminProductsPage: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <div className="w-32 bg-gray-200 rounded-full h-2">
                     <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      className="bg-lvn-maroon-dark h-2 rounded-full transition-all duration-300"
                       style={{ width: `${syncStatus.syncProgress}%` }}
                     ></div>
                   </div>
@@ -654,7 +654,7 @@ const AdminProductsPage: React.FC = () => {
             placeholder="Search products by name or description..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-lvn-maroon/100 focus:border-transparent"
           />
         </div>
 
@@ -667,7 +667,7 @@ const AdminProductsPage: React.FC = () => {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lvn-maroon/100 focus:border-transparent"
               >
                 <option value="all">All Categories</option>
                 {categories.map(category => (
@@ -682,7 +682,7 @@ const AdminProductsPage: React.FC = () => {
               <select
                 value={availabilityFilter}
                 onChange={(e) => setAvailabilityFilter(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lvn-maroon/100 focus:border-transparent"
               >
                 <option value="all">All</option>
                 <option value="available">Available</option>
@@ -697,7 +697,7 @@ const AdminProductsPage: React.FC = () => {
                 type="number"
                 value={priceRange.min}
                 onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) }))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lvn-maroon/100 focus:border-transparent"
                 min="0"
               />
             </div>
@@ -708,7 +708,7 @@ const AdminProductsPage: React.FC = () => {
                 type="number"
                 value={priceRange.max}
                 onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) }))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lvn-maroon/100 focus:border-transparent"
                 min="0"
               />
             </div>
@@ -737,7 +737,7 @@ const AdminProductsPage: React.FC = () => {
                 }}
                 className={`flex items-center px-3 py-1 text-sm rounded-md transition-colors ${
                   sortBy === option.key
-                    ? 'bg-blue-100 text-blue-700'
+                    ? 'bg-lvn-maroon/10 text-lvn-maroon'
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
@@ -755,7 +755,7 @@ const AdminProductsPage: React.FC = () => {
       <div className="bg-white border border-gray-200 rounded-lg">
         {productsLoading ? (
           <div className="p-8 text-center">
-            <RefreshCw className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-4" />
+            <RefreshCw className="h-8 w-8 animate-spin text-lvn-maroon/100 mx-auto mb-4" />
             <p className="text-gray-600">Loading products...</p>
           </div>
         ) : productsError ? (
@@ -793,7 +793,7 @@ const AdminProductsPage: React.FC = () => {
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = '/BackReformLogo.png'; // Fallback image
+                          target.src = '/images/Leaven Logo.png'; // Fallback image
                         }}
                       />
                     ) : product.image_url ? (
@@ -803,7 +803,7 @@ const AdminProductsPage: React.FC = () => {
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = '/BackReformLogo.png'; // Fallback image
+                          target.src = '/images/Leaven Logo.png'; // Fallback image
                         }}
                       />
                     ) : (
@@ -852,7 +852,7 @@ const AdminProductsPage: React.FC = () => {
                     <div className="space-y-2 mb-4">
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Custom Price:</span>
-                        <span className="text-lg font-semibold text-blue-600">
+                        <span className="text-lg font-semibold text-lvn-maroon-dark">
                           £{(product.custom_retail_price || product.retail_price).toFixed(2)}
                         </span>
                       </div>
@@ -880,7 +880,7 @@ const AdminProductsPage: React.FC = () => {
                     <div className="flex space-x-2">
                                              <button 
                          onClick={() => handleEditProduct(product)}
-                         className="flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                         className="flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium text-lvn-maroon-dark bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-md hover:bg-lvn-maroon/10 focus:outline-none focus:ring-2 focus:ring-lvn-maroon/100 focus:ring-offset-2"
                        >
                          <Edit3 className="h-4 w-4 mr-2" />
                          Edit

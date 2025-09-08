@@ -14,13 +14,13 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
           <div className="flex items-center space-x-4">
             <button
               onClick={onBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-[#009fe3] transition-colors"
+              className="flex items-center space-x-2 text-gray-600 hover:text-[lvn-maroon] transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Back</span>
             </button>
             <div className="flex items-center space-x-3">
-              <Truck className="w-6 h-6 text-[#009fe3]" />
+              <Truck className="w-6 h-6 text-[lvn-maroon]" />
               <h1 className="text-2xl font-bold text-gray-900">Shipping Information</h1>
             </div>
           </div>
@@ -35,7 +35,7 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
               Shipping & Delivery Information
             </h2>
             <p className="text-lg text-gray-600">
-              Everything you need to know about getting your Reform UK merchandise
+              Everything you need to know about getting your LVN Clothing merchandise
             </p>
           </div>
 
@@ -49,8 +49,8 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-8 h-8 text-blue-600" />
+              <div className="w-16 h-16 bg-lvn-maroon/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-8 h-8 text-lvn-maroon-dark" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Fast Processing</h3>
               <p className="text-sm text-gray-600">Ships within 48 hours</p>
@@ -83,7 +83,7 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-gray-900">Calculated at checkout</p>
-                  <p className="text-xs text-blue-600">Based on location and items</p>
+                  <p className="text-xs text-lvn-maroon-dark">Based on location and items</p>
                 </div>
               </div>
               
@@ -94,26 +94,26 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-gray-900">Calculated at checkout</p>
-                  <p className="text-xs text-blue-600">Priority shipping available</p>
+                  <p className="text-xs text-lvn-maroon-dark">Priority shipping available</p>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-between p-4 bg-lvn-maroon/10 rounded-lg border border-lvn-maroon/20">
                 <div>
                   <h4 className="font-medium text-blue-900">Bulk Shipping</h4>
-                  <p className="text-sm text-blue-700">Best rates for multiple items</p>
+                  <p className="text-sm text-lvn-maroon">Best rates for multiple items</p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-blue-900">Optimized</p>
-                  <p className="text-xs text-blue-600">Combined shipping</p>
+                  <p className="text-xs text-lvn-maroon-dark">Combined shipping</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-6">
             <h3 className="font-semibold text-blue-900 mb-2">Processing & Delivery Information</h3>
-            <div className="text-blue-800 space-y-2">
+            <div className="text-lvn-maroon space-y-2">
               <p><strong>Processing Time:</strong> All orders are processed and shipped within 48 hours of purchase.</p>
               <p><strong>Tracking:</strong> You'll receive a tracking email once your order has been dispatched.</p>
               <p><strong>Business Days:</strong> Delivery times are based on business days (Monday-Friday, excluding bank holidays).</p>
@@ -124,7 +124,7 @@ const ShippingInfoPage = ({ onBack }: ShippingInfoPageProps) => {
           <div className="mt-8 text-center">
             <button
               onClick={onBack}
-              className="bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              className="bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-3 px-6 rounded-lg transition-colors"
             >
               Back to Shop
             </button>

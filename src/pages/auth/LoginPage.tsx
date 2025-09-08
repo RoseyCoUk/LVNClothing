@@ -67,7 +67,7 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
         <div>
           <button
             onClick={onBack}
-            className="flex items-center space-x-2 text-gray-600 hover:text-[#009fe3] transition-colors mb-8"
+            className="flex items-center space-x-2 text-gray-600 hover:text-[lvn-maroon] transition-colors mb-8"
           >
             <ArrowLeft className="w-5 h-5" />
             <span>Back to Shop</span>
@@ -76,14 +76,14 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
           <div className="text-center">
             <img 
               src="/BackReformLogo.png" 
-              alt="Reform UK" 
+              alt="LVN Clothing" 
               className="h-12 w-auto mx-auto mb-4"
             />
             <h2 className="text-3xl font-bold text-gray-900">
               Sign in to your account
             </h2>
             <p className="mt-2 text-sm text-gray-600">
-              Access your Reform UK merchandise orders and account
+              Access your LVN Clothing merchandise orders and account
             </p>
           </div>
         </div>
@@ -110,7 +110,7 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent transition-colors"
                   placeholder="Enter your email"
                 />
               </div>
@@ -130,7 +130,7 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent transition-colors"
                   placeholder="Enter your password"
                 />
                 <button
@@ -170,7 +170,7 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
               type="submit"
               disabled={isLoading}
               onClick={handleLogin}  // Add direct click handler as fallback
-              className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
             >
               {isLoading ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -186,7 +186,7 @@ const LoginPage = ({ onBack, onSignupClick }: LoginPageProps) => {
               <button
                 type="button"
                 onClick={onSignupClick}
-                className="text-[#009fe3] hover:text-blue-600 font-semibold"
+                className="text-[lvn-maroon] hover:text-lvn-maroon-dark font-semibold"
               >
                 Sign up here
               </button>

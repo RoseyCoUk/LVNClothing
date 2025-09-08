@@ -127,7 +127,7 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
         <div>
           <button
             onClick={onBack}
-            className="flex items-center space-x-2 text-gray-600 hover:text-[#009fe3] transition-colors mb-8"
+            className="flex items-center space-x-2 text-gray-600 hover:text-[lvn-maroon] transition-colors mb-8"
           >
             <ArrowLeft className="w-5 h-5" />
             <span>Back to Shop</span>
@@ -136,14 +136,14 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
           <div className="text-center">
             <img 
               src="/BackReformLogo.png" 
-              alt="Reform UK" 
+              alt="LVN Clothing" 
               className="h-12 w-auto mx-auto mb-4"
             />
             <h2 className="text-3xl font-bold text-gray-900">
               Create your account
             </h2>
             <p className="mt-2 text-sm text-gray-600">
-              Join the Reform UK community and start shopping
+              Join the LVN Clothing community and start shopping
             </p>
           </div>
         </div>
@@ -163,7 +163,7 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
                   required
                   value={formData.firstName}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent transition-colors"
                   placeholder="First name"
                 />
               </div>
@@ -181,7 +181,7 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
                   required
                   value={formData.lastName}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent transition-colors"
                   placeholder="Last name"
                 />
               </div>
@@ -201,7 +201,7 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent transition-colors"
                   placeholder="Enter your email"
                 />
               </div>
@@ -221,7 +221,7 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
                   required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent transition-colors"
                   placeholder="Create a password"
                 />
                 <button
@@ -249,7 +249,7 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
                   required
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009fe3] focus:border-transparent transition-colors"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[lvn-maroon] focus:border-transparent transition-colors"
                   placeholder="Confirm your password"
                 />
                 <button
@@ -270,7 +270,7 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
                 type="checkbox"
                 checked={formData.newsletter}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-[#009fe3] border-gray-300 rounded focus:ring-[#009fe3]"
+                className="h-4 w-4 text-[lvn-maroon] border-gray-300 rounded focus:ring-[lvn-maroon]"
               />
               <label htmlFor="newsletter" className="ml-2 block text-sm text-gray-700">
                 Subscribe to our newsletter
@@ -289,7 +289,7 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+              className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
             >
               {isLoading ? (
                 <span>Signing up...</span>
@@ -304,7 +304,7 @@ const SignupPage = ({ onBack, onLoginClick }: SignupPageProps) => {
             <button
               type="button"
               onClick={onLoginClick}
-              className="text-[#009fe3] hover:underline font-medium"
+              className="text-[lvn-maroon] hover:underline font-medium"
             >
               Sign in
             </button>

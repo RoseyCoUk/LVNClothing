@@ -40,7 +40,7 @@ const AccessibilityPage = ({ onBack }: AccessibilityPageProps) => {
               </p>
             </div>
             <p className="text-lg text-gray-600">
-              Back Reform is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone and applying the relevant accessibility standards.
+              LVN Clothing is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone and applying the relevant accessibility standards.
             </p>
           </div>
 
@@ -52,7 +52,7 @@ const AccessibilityPage = ({ onBack }: AccessibilityPageProps) => {
             </h3>
             <div className="bg-green-50 border border-green-200 rounded-lg p-6">
               <p className="text-green-800 mb-4 text-sm">
-                At Back Reform, we believe that everyone should have equal access to information and functionality on our website. We are committed to providing an inclusive experience that allows all users to successfully access our Reform UK merchandise and information.
+                At LVN Clothing, we believe that everyone should have equal access to information and functionality on our website. We are committed to providing an inclusive experience that allows all users to successfully access our LVN Clothing merchandise and information.
               </p>
               <div className="bg-green-100 rounded-lg p-4">
                 <h4 className="font-semibold text-green-900 mb-2">Our accessibility goals include:</h4>
@@ -467,7 +467,7 @@ const AccessibilityPage = ({ onBack }: AccessibilityPageProps) => {
             <h3 className="text-xl font-bold text-gray-900 mb-4">Legal Information</h3>
             <div className="bg-gray-50 rounded-lg p-4">
               <p className="text-gray-700 mb-3 text-sm">
-                This accessibility statement applies to the Back Reform website (www.backreform.co.uk). It was prepared in accordance with the UK's Public Sector Bodies (Websites and Mobile Applications) Accessibility Regulations 2018.
+                This accessibility statement applies to the LVN Clothing website (www.backreform.co.uk). It was prepared in accordance with the UK's Public Sector Bodies (Websites and Mobile Applications) Accessibility Regulations 2018.
               </p>
               <p className="text-gray-700 mb-3 text-sm">
                 This statement was last reviewed and updated on January 1, 2025. We review and update this statement regularly to ensure it remains accurate and up-to-date.

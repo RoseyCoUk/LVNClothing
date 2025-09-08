@@ -37,10 +37,10 @@ const AboutPage = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-[#009fe3] text-white overflow-hidden">
+      <section className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-lvn-maroon text-white overflow-hidden">
         {/* Background Image with Low Opacity */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 via-gray-800/70 to-[#009fe3]/80"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 via-gray-800/70 to-lvn-maroon/80"></div>
         </div>
 
         {/* Background Pattern */}
@@ -51,17 +51,17 @@ const AboutPage = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 py-20">
           <div className="text-center max-w-4xl mx-auto">
             <div className="mb-6">
-              <Flag className="w-16 h-16 mx-auto mb-4 text-[#009fe3]" />
+              <Heart className="w-16 h-16 mx-auto mb-4 text-lvn-maroon" />
             </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              About Reform UK Merch
+              About LVN Clothing
             </h1>
             <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto leading-relaxed">
-              It's not just clothing. It's a cause.
+              Faith woven into culture. Kingdom herald through clothing.
             </p>
             <button 
               onClick={scrollToShop}
-              className="bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center space-x-2"
+              className="bg-lvn-maroon hover:bg-lvn-maroon-dark text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center space-x-2"
             >
               <span>Shop Now</span>
               <ArrowRight className="w-5 h-5" />
@@ -75,24 +75,24 @@ const AboutPage = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
-              Why We Created This Store
+              Why We Created LVN Clothing
             </h2>
             <p className="text-lg text-gray-700 leading-relaxed mb-12">
-              This isn't just about t-shirts and mugs. Reform UK merchandise is a way for everyday citizens to show what they stand for—real change, honest politics, and a better Britain. Every item supports the movement, raises awareness, and funds Reform UK's grassroots campaigns across the country.
+              This isn't just about t-shirts and mugs. LVN Clothing is a way for Kingdom ambassadors to herald the Gospel message—faith that spreads, Kingdom mission, and Christ's love in action. Every item supports the mission, raises awareness of the Kingdom, and funds outreach to spread the Good News.
             </p>
             
             {/* Supporting Icons */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="w-16 h-16 bg-[#009fe3] rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-lvn-maroon rounded-full flex items-center justify-center mx-auto mb-4">
                   <Heart className="w-8 h-8 text-white fill-current" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Back the Mission</h3>
-                <p className="text-gray-600">Sales help fund awareness, outreach, and materials that support Reform UK's message.</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Back the Kingdom Mission</h3>
+                <p className="text-gray-600">Sales help fund awareness, outreach, and materials that support the Gospel message.</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-[#009fe3] rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-lvn-maroon rounded-full flex items-center justify-center mx-auto mb-4">
                   <Flag className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Printed in the UK</h3>
@@ -100,11 +100,11 @@ const AboutPage = () => {
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-[#009fe3] rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-lvn-maroon rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Built by Supporters</h3>
-                <p className="text-gray-600">Created and managed by dedicated volunteers and Reform UK supporters</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Built by Kingdom Ambassadors</h3>
+                <p className="text-gray-600">Created and managed by dedicated volunteers and Kingdom ambassadors</p>
               </div>
             </div>
           </div>
@@ -118,44 +118,44 @@ const AboutPage = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Our Values
             </h2>
-            {/* Reform Blue Divider Line */}
-            <div className="w-24 h-1 bg-[#009fe3] mx-auto mb-6"></div>
+            {/* LVN Maroon Divider Line */}
+            <div className="w-24 h-1 bg-lvn-maroon mx-auto mb-6"></div>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Every piece of merchandise reflects the principles that drive Reform UK forward
+              Every piece of merchandise reflects the principles that drive the Kingdom mission forward
             </p>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Real Change */}
             <div className="bg-gray-50 rounded-xl p-8 text-center hover:shadow-lg transition-shadow duration-300">
-              <div className="w-20 h-20 bg-gradient-to-br from-[#009fe3] to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-lvn-maroon to-lvn-maroon-dark rounded-full flex items-center justify-center mx-auto mb-6">
                 <Target className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Real Change</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Kingdom Mission</h3>
               <p className="text-gray-700 leading-relaxed">
-                We believe in action, not lip service. Our merchandise represents a commitment to genuine political reform and meaningful change for Britain's future.
+                We believe in action, not lip service. Our merchandise represents a commitment to spreading the Gospel and advancing the Kingdom of God.
               </p>
             </div>
             
             {/* Power to the People */}
             <div className="bg-gray-50 rounded-xl p-8 text-center hover:shadow-lg transition-shadow duration-300">
-              <div className="w-20 h-20 bg-gradient-to-br from-[#009fe3] to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-lvn-maroon to-lvn-maroon-dark rounded-full flex items-center justify-center mx-auto mb-6">
                 <Users className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Power to the People</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Faith That Spreads</h3>
               <p className="text-gray-700 leading-relaxed">
-                This merch helps spread the message, street by street. Every person wearing Reform UK gear is a walking ambassador for democratic change and citizen empowerment.
+                This merch helps spread the Gospel message, street by street. Every person wearing LVN Clothing is a walking ambassador for the Kingdom and Christ's love.
               </p>
             </div>
             
             {/* Transparent & Ethical */}
             <div className="bg-gray-50 rounded-xl p-8 text-center hover:shadow-lg transition-shadow duration-300">
-              <div className="w-20 h-20 bg-gradient-to-br from-[#009fe3] to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-lvn-maroon to-lvn-maroon-dark rounded-full flex items-center justify-center mx-auto mb-6">
                 <Shield className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Transparent & Ethical</h3>
               <p className="text-gray-700 leading-relaxed">
-                No gimmicks. No greed. Just purpose-driven gear. We're completely transparent about where your money goes and how it supports the movement.
+                No gimmicks. No greed. Just purpose-driven gear. We're completely transparent about where your money goes and how it supports the Kingdom mission.
               </p>
             </div>
           </div>
@@ -163,7 +163,7 @@ const AboutPage = () => {
       </section>
 
       {/* Supporter Testimonial Block */}
-      <section className="py-16 bg-gradient-to-r from-[#009fe3] to-blue-600 text-white">
+      <section className="py-16 bg-gradient-to-r from-lvn-maroon to-lvn-maroon-dark text-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
@@ -184,11 +184,11 @@ const AboutPage = () => {
                   />
                   <div>
                     <h4 className="font-semibold">Sarah Mitchell</h4>
-                    <p className="text-blue-100 text-sm">Manchester Supporter</p>
+                    <p className="text-lvn-maroon/80 text-sm">Manchester Ambassador</p>
                   </div>
                 </div>
-                <p className="text-blue-100 italic leading-relaxed">
-                  "I wear it because it sparks conversations. That's where change begins. When people ask about my Reform UK hoodie, it opens the door to real discussions about Britain's future."
+                <p className="text-lvn-maroon/80 italic leading-relaxed">
+                  "I wear it because it sparks conversations. That's where the Gospel spreads. When people ask about my LVN Clothing hoodie, it opens the door to real discussions about faith and the Kingdom."
                 </p>
               </div>
               
@@ -202,11 +202,11 @@ const AboutPage = () => {
                   />
                   <div>
                     <h4 className="font-semibold">David Thompson</h4>
-                    <p className="text-blue-100 text-sm">Birmingham Volunteer</p>
+                    <p className="text-lvn-maroon/80 text-sm">Birmingham Ambassador</p>
                   </div>
                 </div>
-                <p className="text-blue-100 italic leading-relaxed">
-                  "Every item I've bought has been excellent quality. But more importantly, I know my purchase is directly funding the grassroots movement we desperately need."
+                <p className="text-lvn-maroon/80 italic leading-relaxed">
+                  "Every item I've bought has been excellent quality. But more importantly, I know my purchase is directly funding the Kingdom mission and Gospel outreach."
                 </p>
               </div>
             </div>
@@ -216,22 +216,22 @@ const AboutPage = () => {
               <div className="flex flex-col items-center">
                 <Package className="w-8 h-8 mb-2 opacity-80" />
                 <div className="text-3xl font-bold mb-2">15,000+</div>
-                <div className="text-blue-100 text-sm">Items Sold</div>
+                <div className="text-lvn-maroon/80 text-sm">Items Sold</div>
               </div>
               <div className="flex flex-col items-center">
                 <DollarSign className="w-8 h-8 mb-2 opacity-80" />
                 <div className="text-3xl font-bold mb-2">£180k+</div>
-                <div className="text-blue-100 text-sm">Raised for Reform</div>
+                <div className="text-lvn-maroon/80 text-sm">Raised for Kingdom</div>
               </div>
               <div className="flex flex-col items-center">
                 <MapPin className="w-8 h-8 mb-2 opacity-80" />
                 <div className="text-3xl font-bold mb-2">650+</div>
-                <div className="text-blue-100 text-sm">Cities Reached</div>
+                <div className="text-lvn-maroon/80 text-sm">Cities Reached</div>
               </div>
               <div className="flex flex-col items-center">
                 <Star className="w-8 h-8 mb-2 opacity-80 fill-current" />
                 <div className="text-3xl font-bold mb-2">98%</div>
-                <div className="text-blue-100 text-sm">Satisfaction Rate</div>
+                <div className="text-lvn-maroon/80 text-sm">Satisfaction Rate</div>
               </div>
             </div>
           </div>
@@ -247,7 +247,7 @@ const AboutPage = () => {
             </h2>
             {/* Enhanced Summary Line */}
             <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
-              Every item we ship reflects the care, integrity, and professionalism behind Reform UK.
+              Every item we ship reflects the care, integrity, and professionalism behind LVN Clothing.
             </p>
           </div>
           
@@ -261,11 +261,11 @@ const AboutPage = () => {
             </div>
             
             <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="w-8 h-8 text-blue-600 fill-current" />
+              <div className="w-16 h-16 bg-lvn-maroon/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="w-8 h-8 text-lvn-maroon fill-current" />
               </div>
               <h3 className="font-bold text-gray-900 mb-2">5-Star Reviews</h3>
-              <p className="text-sm text-gray-600">Consistently rated excellent by supporters</p>
+              <p className="text-sm text-gray-600">Consistently rated excellent by Kingdom ambassadors</p>
             </div>
             
             <div className="text-center">
@@ -288,20 +288,20 @@ const AboutPage = () => {
       </section>
 
       {/* CTA Block */}
-      <section className="py-16 bg-gradient-to-br from-gray-900 to-[#009fe3] text-white">
+      <section className="py-16 bg-gradient-to-br from-gray-900 to-lvn-maroon text-white">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Ready to Wear the Change?
+              Ready to Herald the Kingdom?
             </h2>
             <p className="text-xl text-gray-200 mb-8 leading-relaxed">
-              Every item is a statement. Every order supports the mission. Join thousands of supporters who are already making their voices heard.
+              Every item is a statement. Every order supports the mission. Join thousands of Kingdom ambassadors who are already spreading the Gospel.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <button 
                 onClick={scrollToShop}
-                className="bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center space-x-2"
+                className="bg-lvn-maroon hover:bg-lvn-maroon-dark text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center space-x-2"
               >
                 <span>View the Shop</span>
                 <ArrowRight className="w-5 h-5" />

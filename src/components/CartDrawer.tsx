@@ -58,10 +58,10 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
               <div className="text-center py-12">
                 <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Your cart is empty</h3>
-                <p className="text-gray-600 mb-6">Add some Reform UK merchandise to get started!</p>
+                <p className="text-gray-600 mb-6">Add some LVN Clothing merchandise to get started!</p>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  className="bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-3 px-6 rounded-lg transition-colors"
                 >
                   Continue Shopping
                 </button>
@@ -88,9 +88,9 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
                     <>
                       {/* Display bundle groups */}
                       {Array.from(bundleGroups.entries()).map(([bundleId, bundleItems]) => (
-                        <div key={bundleId} className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-4 border border-blue-200">
+                        <div key={bundleId} className="bg-gradient-to-r from-lvn-maroon/10 to-cyan-50 rounded-lg p-4 border border-lvn-maroon/20">
                           <div className="flex items-center space-x-2 mb-3">
-                            <Package className="w-5 h-5 text-blue-600" />
+                            <Package className="w-5 h-5 text-lvn-maroon-dark" />
                             <h4 className="font-semibold text-gray-900">{bundleItems[0]?.bundleName || 'Bundle'}</h4>
                             <span className="text-xs text-green-600 font-medium bg-green-100 px-2 py-1 rounded">Bundle Deal</span>
                           </div>
@@ -117,7 +117,7 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
                                         <span>{item.price < 0 ? '-' : ''}£{Math.abs(item.price).toFixed(2)} discount</span>
                                       </p>
                                     ) : (
-                                      <p className="text-sm text-[#009fe3] font-bold">£{item.price.toFixed(2)}</p>
+                                      <p className="text-sm text-[lvn-maroon] font-bold">£{item.price.toFixed(2)}</p>
                                     )
                                   )}
                                 </div>
@@ -125,10 +125,10 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
                             ))}
                           </div>
                           {/* Bundle total price and savings */}
-                          <div className="mt-3 pt-3 border-t border-blue-200">
+                          <div className="mt-3 pt-3 border-t border-lvn-maroon/20">
                             <div className="flex justify-between items-center">
                               <span className="text-sm font-medium text-gray-700">Bundle Total:</span>
-                              <span className="text-lg font-bold text-[#009fe3]">
+                              <span className="text-lg font-bold text-[lvn-maroon]">
                                 £{bundleItems.reduce((sum, item) => sum + item.price, 0).toFixed(2)}
                               </span>
                             </div>
@@ -160,7 +160,7 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
                                    item.color ? item.color : item.size}
                                 </p>
                               )}
-                              <p className="text-[#009fe3] font-bold">£{item.price.toFixed(2)}</p>
+                              <p className="text-[lvn-maroon] font-bold">£{item.price.toFixed(2)}</p>
                               {item.isBundle && (
                                 <div className="flex items-center space-x-1 mt-1">
                                   <Package className="w-3 h-3 text-green-600" />
@@ -238,13 +238,13 @@ const CartDrawer = ({ onCheckoutClick }: CartDrawerProps) => {
             <div className="border-t p-6 space-y-4">
               <div className="flex items-center justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span className="text-[#009fe3]">£{getTotalPrice().toFixed(2)}</span>
+                <span className="text-[lvn-maroon]">£{getTotalPrice().toFixed(2)}</span>
               </div>
               
               <div className="space-y-3">
                 <button 
                   onClick={handleCheckout}
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-3 px-6 rounded-lg transition-colors"
                 >
                   Proceed to Checkout
                 </button>

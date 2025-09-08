@@ -162,7 +162,7 @@ const EnhancedImageManagement: React.FC<ImageManagementProps> = ({
   // Determine if this product has variants
   const hasVariants = (() => {
     const normalized = productCategory?.toLowerCase() || '';
-    // Use includes() to match partial product names like "Reform UK T-Shirt"
+    // Use includes() to match partial product names like "LVN Clothing T-Shirt"
     return normalized.includes('t-shirt') || 
            normalized.includes('tshirt') || 
            normalized.includes('hoodie') || 
@@ -176,7 +176,7 @@ const EnhancedImageManagement: React.FC<ImageManagementProps> = ({
 
   const hasColors = (() => {
     const normalized = productCategory?.toLowerCase() || '';
-    // Use includes() to match partial product names like "Reform UK T-Shirt"
+    // Use includes() to match partial product names like "LVN Clothing T-Shirt"
     return normalized.includes('t-shirt') || 
            normalized.includes('tshirt') || 
            normalized.includes('hoodie') || 
@@ -190,7 +190,7 @@ const EnhancedImageManagement: React.FC<ImageManagementProps> = ({
 
   const hasSizes = (() => {
     const normalized = productCategory?.toLowerCase() || '';
-    // Use includes() to match partial product names like "Reform UK T-Shirt"
+    // Use includes() to match partial product names like "LVN Clothing T-Shirt"
     return normalized.includes('t-shirt') || 
            normalized.includes('tshirt') || 
            normalized.includes('hoodie');

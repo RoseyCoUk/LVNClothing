@@ -40,7 +40,7 @@ const PrivacyPolicyPage = ({ onBack }: PrivacyPolicyPageProps) => {
               </p>
             </div>
             <p className="text-lg text-gray-600">
-              Back Reform ("us", "we", or "our") operates the www.backreform.co.uk website (the "Service").
+              LVN Clothing ("us", "we", or "our") operates the www.backreform.co.uk website (the "Service").
             </p>
           </div>
 
@@ -137,7 +137,7 @@ const PrivacyPolicyPage = ({ onBack }: PrivacyPolicyPageProps) => {
             <h3 className="text-xl font-bold text-gray-900 mb-4">Use of Data</h3>
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <p className="text-green-800 mb-3 text-sm">
-                Back Reform uses the collected data for various purposes:
+                LVN Clothing uses the collected data for various purposes:
               </p>
               <ul className="space-y-1 text-green-800 text-sm">
                 <li>• To provide and maintain the Service</li>
@@ -169,7 +169,7 @@ const PrivacyPolicyPage = ({ onBack }: PrivacyPolicyPageProps) => {
                 Your consent to this Privacy Policy followed by your submission of such information represents your agreement to that transfer.
               </p>
               <p className="text-purple-800 text-sm">
-                Back Reform UK will take all steps reasonably necessary to ensure that your data is treated securely and in accordance with this Privacy Policy and no transfer of your Personal Data will take place to an organization or a country unless there are adequate controls in place including the security of your data and other personal information.
+                LVN Clothing UK will take all steps reasonably necessary to ensure that your data is treated securely and in accordance with this Privacy Policy and no transfer of your Personal Data will take place to an organization or a country unless there are adequate controls in place including the security of your data and other personal information.
               </p>
             </div>
           </div>
@@ -181,11 +181,11 @@ const PrivacyPolicyPage = ({ onBack }: PrivacyPolicyPageProps) => {
               <h4 className="text-lg font-semibold text-gray-900 mb-3">Legal Requirements</h4>
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <p className="text-red-800 mb-3 text-sm">
-                  Back Reform may disclose your Personal Data in the good faith belief that such action is necessary to:
+                  LVN Clothing may disclose your Personal Data in the good faith belief that such action is necessary to:
                 </p>
                 <ul className="space-y-1 text-red-800 text-sm">
                   <li>• To comply with a legal obligation</li>
-                  <li>• To protect and defend the rights or property of Back Reform</li>
+                  <li>• To protect and defend the rights or property of LVN Clothing</li>
                   <li>• To prevent or investigate possible wrongdoing in connection with the Service</li>
                   <li>• To protect the personal safety of users of the Service or the public</li>
                   <li>• To protect against legal liability</li>

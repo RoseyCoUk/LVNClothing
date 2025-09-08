@@ -40,11 +40,11 @@ interface OrderToConfirm {
   bundleContents: BundleContent[];
 }
 
-interface ChampionBundlePageProps {
+interface KingdomBundlePageProps {
   onBack: () => void;
 }
 
-const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
+const KingdomBundlePage = ({ onBack }: KingdomBundlePageProps) => {
   const { addToCart, addToCartAndGetUpdated, addMultipleToCart } = useCart();
   const { isVisible, message, showToast, hideToast } = useToast();
   const navigate = useNavigate();
@@ -222,7 +222,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-[#009fe3]" />
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-[lvn-maroon]" />
           <p className="text-gray-600">Loading bundle details...</p>
         </div>
       </div>
@@ -230,11 +230,11 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
   }
 
   const productData = {
-    name: "Champion Bundle",
+    name: "Kingdom Bundle",
     originalPrice: "£109.96",
     bundlePrice: 93.99,
     savings: "Save £15.97",
-    description: "For the dedicated Reform UK supporter. This champion bundle includes a premium hoodie, classic t-shirt, stylish cap, and practical tote bag - everything you need to show your commitment to the movement in style and comfort.",
+    description: "For the dedicated Kingdom ambassador. This kingdom bundle includes a premium hoodie, classic t-shirt, stylish cap, and practical tote bag - everything you need to herald the Gospel message in style and comfort.",
     shipping: "Fast UK Shipping",
     urgency: "Limited Time Offer",
     popular: true,
@@ -243,22 +243,22 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
     materials: "Premium cotton hoodie, high-quality cotton t-shirt, adjustable cap, and durable canvas tote bag",
     careInstructions: "Machine wash hoodie and t-shirt at 30°C. Hand wash cap. Tote bag spot clean.",
     features: [
-      "Premium cotton hoodie with Reform UK branding",
-      "High-quality cotton t-shirt with Reform UK design",
-      "Adjustable cap with Reform UK logo",
+      "Premium cotton hoodie with LVN Clothing branding",
+      "High-quality cotton t-shirt with LVN Clothing design",
+      "Adjustable cap with LVN Clothing logo",
       "Durable canvas tote bag for daily use",
       "Excellent value bundle with significant savings",
-      "Perfect for dedicated supporters",
+      "Perfect for dedicated Kingdom ambassadors",
       "Fast UK shipping available",
       "30-day money-back guarantee"
     ],
     bundleItems: [
       {
         type: 'hoodie',
-        name: 'Reform UK Hoodie',
+        name: 'LVN Clothing Hoodie',
         customizable: true,
         baseImage: '/Hoodie/Men/ReformMenHoodieBlack1.webp',
-        description: 'Premium cotton hoodie featuring the Reform UK logo and branding.',
+        description: 'Premium cotton hoodie featuring the LVN Clothing logo and Kingdom messaging.',
         images: [
           '/Hoodie/Men/ReformMenHoodieBlack1.webp',
           '/Hoodie/Men/ReformMenHoodieBlack2.webp',
@@ -270,7 +270,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
       },
       {
         type: 'totebag',
-        name: 'Reform UK Tote Bag',
+        name: 'LVN Clothing Tote Bag',
         customizable: false,
         baseImage: '/StickerToteWater/ReformToteBagBlack1.webp',
         description: 'Durable canvas tote bag perfect for shopping, work, or daily use.',
@@ -282,10 +282,10 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
       },
       {
         type: 'waterbottle',
-        name: 'Reform UK Water Bottle',
+        name: 'LVN Clothing Water Bottle',
         customizable: false,
         baseImage: '/StickerToteWater/ReformWaterBottleWhite1.webp',
-        description: 'Stainless steel water bottle with Reform UK branding.',
+        description: 'Stainless steel water bottle with LVN Clothing branding.',
         images: [
           '/StickerToteWater/ReformWaterBottleWhite1.webp',
           '/StickerToteWater/ReformWaterBottleWhite2.webp',
@@ -295,10 +295,10 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
       },
       {
         type: 'mousepad',
-        name: 'Reform UK Mouse Pad',
+        name: 'LVN Clothing Mouse Pad',
         customizable: false,
         baseImage: '/MugMouse/ReformMousePadWhite1.webp',
-        description: 'High-quality mouse pad with Reform UK branding.',
+        description: 'High-quality mouse pad with LVN Clothing branding.',
         images: [
           '/MugMouse/ReformMousePadWhite1.webp',
           '/MugMouse/ReformMousePadWhite2.webp'
@@ -798,7 +798,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
       name: "James R.",
       rating: 4,
       date: "1 week ago",
-      comment: "Great bundle for Reform UK supporters. The hoodie fits perfectly and the cap is adjustable. Highly recommend!",
+      comment: "Great bundle for Kingdom ambassadors. The hoodie fits perfectly and the cap is adjustable. Highly recommend!",
       verified: true
     }
   ];
@@ -869,7 +869,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                 {/* Viewing Indicator */}
                 {selectedItem && (
                   <div className="absolute top-4 right-4 z-10">
-                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-lvn-maroon/10 text-lvn-maroon">
                       Viewing: {selectedItem === 'hoodie' ? 'Hoodie' :
                                selectedItem === 'tshirt' ? 'T-shirt' :
                                selectedItem === 'cap' ? 'Cap' :
@@ -891,7 +891,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                     onClick={() => handleItemClick(item.product.category)}
                     className={`text-center transition-all duration-200 ${
                       selectedItem === item.product.category 
-                        ? 'ring-2 ring-[#009fe3] ring-offset-2' 
+                        ? 'ring-2 ring-[lvn-maroon] ring-offset-2' 
                         : 'hover:ring-2 hover:ring-gray-300'
                     }`}
                   >
@@ -906,13 +906,13 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                       alt={item.product.name} 
                       className={`w-full object-cover rounded-lg border-2 transition-all duration-200 aspect-square ${
                         selectedItem === item.product.category 
-                          ? 'border-[#009fe3]' 
+                          ? 'border-[lvn-maroon]' 
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     />
                     <p className={`text-sm mt-2 font-medium ${
                       selectedItem === item.product.category 
-                        ? 'text-[#009fe3]' 
+                        ? 'text-[lvn-maroon]' 
                         : 'text-gray-600'
                     }`}>
                       {item.product.name}
@@ -930,7 +930,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                       onClick={() => setCurrentImageIndex(index)} 
                       className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
                         currentImageIndex === index 
-                          ? 'border-[#009fe3]' 
+                          ? 'border-[lvn-maroon]' 
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -958,7 +958,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                   <span className="text-gray-600">({productData.reviews} reviews)</span>
                 </div>
                 <div className="flex items-center space-x-3 mb-4">
-                  <span className="text-3xl font-bold text-[#009fe3]">£{productData.bundlePrice.toFixed(2)}</span>
+                  <span className="text-3xl font-bold text-[lvn-maroon]">£{productData.bundlePrice.toFixed(2)}</span>
                   <span className="text-lg text-gray-500 line-through">{productData.originalPrice}</span>
                   <span className="text-lg font-semibold text-green-600">{productData.savings}</span>
                 </div>
@@ -978,7 +978,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                     <label className="block text-sm font-medium text-gray-700">Size</label>
                     <button 
                       onClick={() => navigate('/size-guide')}
-                      className="text-sm text-[#009fe3] hover:text-blue-600 underline"
+                      className="text-sm text-[lvn-maroon] hover:text-lvn-maroon-dark underline"
                     >
                       Size Guide
                     </button>
@@ -995,8 +995,8 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                         onClick={() => handleHoodieVariantChange('size', size)} 
                         className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
                           hoodieSize === size 
-                            ? 'border-[#009fe3] bg-[#009fe3] text-white' 
-                            : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
+                            ? 'border-[lvn-maroon] bg-[lvn-maroon] text-white' 
+                            : 'border-gray-300 text-gray-700 hover:border-[lvn-maroon] hover:text-[lvn-maroon]'
                         }`}
                       >
                         {size}
@@ -1015,7 +1015,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                         onClick={() => handleHoodieVariantChange('color', color.name)} 
                         className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
                           hoodieColor === color.name 
-                            ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
+                            ? 'border-[lvn-maroon] ring-2 ring-[lvn-maroon] ring-offset-2' 
                             : color.border 
                               ? 'border-gray-300 hover:border-gray-400' 
                               : 'border-gray-200 hover:border-gray-300'
@@ -1044,7 +1044,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                     <label className="block text-sm font-medium text-gray-700">Size</label>
                     <button 
                       onClick={() => navigate('/size-guide')}
-                      className="text-sm text-[#009fe3] hover:text-blue-600 underline"
+                      className="text-sm text-[lvn-maroon] hover:text-lvn-maroon-dark underline"
                     >
                       Size Guide
                     </button>
@@ -1061,8 +1061,8 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                         onClick={() => handleTshirtVariantChange('size', size)} 
                         className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
                           tshirtSize === size 
-                            ? 'border-[#009fe3] bg-[#009fe3] text-white' 
-                            : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
+                            ? 'border-[lvn-maroon] bg-[lvn-maroon] text-white' 
+                            : 'border-gray-300 text-gray-700 hover:border-[lvn-maroon] hover:text-[lvn-maroon]'
                         }`}
                       >
                         {size}
@@ -1106,7 +1106,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                         onClick={() => handleTshirtVariantChange('color', color.name)} 
                         className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
                           tshirtColor === color.name 
-                            ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
+                            ? 'border-[lvn-maroon] ring-2 ring-[lvn-maroon] ring-offset-2' 
                             : color.border 
                               ? 'border-gray-300 hover:border-gray-400' 
                               : 'border-gray-200 hover:border-gray-300'
@@ -1150,7 +1150,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                         onClick={() => handleCapColorChange(color.name)} 
                         className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
                           capColor === color.name 
-                            ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
+                            ? 'border-[lvn-maroon] ring-2 ring-[lvn-maroon] ring-offset-2' 
                             : color.border 
                               ? 'border-gray-300 hover:border-gray-400' 
                               : 'border-gray-200 hover:border-gray-300'
@@ -1173,13 +1173,13 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
 
               {/* Bundle Pricing */}
               {championPricing && (
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-4">
-                  <h4 className="font-semibold text-blue-900 mb-2">Bundle Savings</h4>
-                  <div className="space-y-2 text-sm text-blue-800">
+                <div className="bg-lvn-maroon/10 rounded-lg p-4 border border-lvn-maroon/20 mb-4">
+                  <h4 className="font-semibold text-lvn-maroon mb-2">Bundle Savings</h4>
+                  <div className="space-y-2 text-sm text-lvn-maroon">
                     <p>• Individual Price: <span className="font-medium">£{championPricing.originalPrice.toFixed(2)}</span></p>
                     <p>• Bundle Price: <span className="font-medium text-green-600">£{championPricing.price.toFixed(2)}</span></p>
                     <p>• You Save: <span className="font-medium text-green-600">£{championPricing.savings.absolute.toFixed(2)} ({championPricing.savings.percentage.toFixed(0)}%)</span></p>
-                    <div className="flex items-center space-x-2 text-blue-700">
+                    <div className="flex items-center space-x-2 text-lvn-maroon">
                       <Truck className="w-4 h-4" />
                       <span className="font-medium">Best shipping rates applied</span>
                     </div>
@@ -1191,10 +1191,10 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <h4 className="font-semibold text-gray-900 mb-3">Bundle Contents:</h4>
                 <div className="space-y-2 text-sm text-gray-700">
-                  <p>• Reform UK Hoodie: <span className="font-medium text-gray-900">{hoodieColor} (Size {hoodieSize}) - £39.99</span></p>
-                  <p>• Reform UK T-shirt: <span className="font-medium text-gray-900">{tshirtColor} (Size {tshirtSize}) - £24.99</span></p>
-                  <p>• Reform UK Cap: <span className="font-medium text-gray-900">{capColor} - £19.99</span></p>
-                  <p>• Reform UK Tote Bag: <span className="font-medium text-gray-900">Black - £24.99</span></p>
+                  <p>• LVN Clothing Hoodie: <span className="font-medium text-gray-900">{hoodieColor} (Size {hoodieSize}) - £39.99</span></p>
+                  <p>• LVN Clothing T-shirt: <span className="font-medium text-gray-900">{tshirtColor} (Size {tshirtSize}) - £24.99</span></p>
+                  <p>• LVN Clothing Cap: <span className="font-medium text-gray-900">{capColor} - £19.99</span></p>
+                  <p>• LVN Clothing Tote Bag: <span className="font-medium text-gray-900">Black - £24.99</span></p>
                 </div>
               </div>
 
@@ -1217,7 +1217,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                 <button 
                   onClick={handleBuyNow}
                   disabled={isLoading}
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   {isLoading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -1229,7 +1229,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                   )}
                 </button>
                 
-                <button onClick={handleAddToCart} className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
+                <button onClick={handleAddToCart} className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
                   <ShoppingCart className="w-5 h-5" />
                   <span>Add to Cart - £{(productData.bundlePrice * quantity).toFixed(2)}</span>
                 </button>
@@ -1238,15 +1238,15 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
               {/* Trust Badges */}
               <div className="grid grid-cols-3 gap-4 pt-6 border-t">
                 <div className="text-center">
-                  <Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <Truck className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Best Shipping Rates</p>
                 </div>
                 <div className="text-center">
-                  <Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <Shield className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Secure Checkout</p>
                 </div>
                 <div className="text-center">
-                  <RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <RotateCcw className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Easy Returns</p>
                 </div>
               </div>
@@ -1262,7 +1262,7 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
                     key={tab} 
                     onClick={() => setActiveTab(tab)} 
                     className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                      activeTab === tab ? 'border-[#009fe3] text-[#009fe3]' : 'border-transparent text-gray-500 hover:text-gray-700'
+                      activeTab === tab ? 'border-[lvn-maroon] text-[lvn-maroon]' : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}
                   >
                     {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -1332,10 +1332,10 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
               {activeTab === 'care' && (
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Care Instructions</h3>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-4">
                     <div className="flex items-start space-x-2">
-                      <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <p className="text-blue-800">{productData.careInstructions}</p>
+                      <Info className="w-5 h-5 text-lvn-maroon-dark flex-shrink-0 mt-0.5" />
+                      <p className="text-lvn-maroon">{productData.careInstructions}</p>
                     </div>
                   </div>
                 </div>
@@ -1357,4 +1357,4 @@ const ChampionBundlePage = ({ onBack }: ChampionBundlePageProps) => {
   );
 };
 
-export default ChampionBundlePage; 
+export default KingdomBundlePage; 

@@ -51,17 +51,17 @@ export interface UseMergedProductsReturn {
 const MERGE_RULES = {
   hoodie: {
     searchTerms: ['hoodie'], // Will match products with "hoodie" in name
-    mergedName: 'Reform UK Hoodie',
+    mergedName: 'LVN Clothing Hoodie',
     category: 'apparel'
   },
   tshirt: {
     searchTerms: ['t-shirt', 'tshirt'], // Will match products with these terms
-    mergedName: 'Reform UK T-Shirt', 
+    mergedName: 'LVN Clothing T-Shirt', 
     category: 'apparel'
   },
   cap: {
     searchTerms: ['cap', 'hat'], // Will match products with these terms
-    mergedName: 'Reform UK Cap',
+    mergedName: 'LVN Clothing Cap',
     category: 'apparel'
   }
 } as const;
@@ -224,7 +224,7 @@ function aggregateProductMetadata(products: any[]) {
     rating: averageRating,
     reviews: totalReviews,
     category: products[0].category, // Use first product's category
-    image_url: products[0].image_url || '/BackReformLogo.png'
+    image_url: products[0].image_url || '/images/Leaven Logo.png'
   };
 }
 
@@ -340,12 +340,12 @@ function createFallbackProducts(): MergedProduct[] {
   // Create hoodie fallback product
   const hoodieProduct: MergedProduct = {
     id: 'hoodie',
-    name: 'Reform UK Hoodie',
-    description: 'Premium cotton blend hoodie featuring the Reform UK logo. Available in multiple beautiful colors and sizes. Made from high-quality materials for comfort and durability.',
+    name: 'LVN Clothing Hoodie',
+    description: 'Premium cotton blend hoodie featuring the LVN Clothing logo. Available in multiple beautiful colors and sizes. Made from high-quality materials for comfort and durability.',
     category: 'apparel',
     baseProduct: { 
       id: 'fallback-hoodie', 
-      name: 'Reform UK Hoodie',
+      name: 'LVN Clothing Hoodie',
       rating: 4.8,
       reviews: 89,
       images: [
@@ -368,18 +368,18 @@ function createFallbackProducts(): MergedProduct[] {
     colorOptions: hoodieColors,
     sizeOptions: hoodieSizes as any,
     priceRange: { min: 39.99, max: 39.99 },
-    image_url: '/BackReformLogo.png'
+    image_url: '/images/Leaven Logo.png'
   };
   
   // Create t-shirt fallback product
   const tshirtProduct: MergedProduct = {
     id: 'tshirt',
-    name: 'Reform UK T-Shirt',
-    description: 'Comfortable cotton t-shirt featuring the Reform UK logo. Available in multiple beautiful colors and sizes. Made from premium cotton for all-day comfort and durability.',
+    name: 'LVN Clothing T-Shirt',
+    description: 'Comfortable cotton t-shirt featuring the LVN Clothing logo. Available in multiple beautiful colors and sizes. Made from premium cotton for all-day comfort and durability.',
     category: 'apparel',
     baseProduct: { 
       id: 'fallback-tshirt', 
-      name: 'Reform UK T-Shirt',
+      name: 'LVN Clothing T-Shirt',
       rating: 4.8,
       reviews: 156,
       images: [
@@ -402,18 +402,18 @@ function createFallbackProducts(): MergedProduct[] {
     colorOptions: tshirtColors,
     sizeOptions: tshirtSizes as any,
     priceRange: { min: 24.99, max: 24.99 },
-    image_url: '/BackReformLogo.png'
+    image_url: '/images/Leaven Logo.png'
   };
   
   // Create cap fallback product
   const capProduct: MergedProduct = {
     id: 'cap',
-    name: 'Reform UK Cap',
-    description: 'Adjustable cap with embroidered Reform UK logo. Features a classic 6-panel design with a curved visor and adjustable strap for the perfect fit.',
+    name: 'LVN Clothing Cap',
+    description: 'Adjustable cap with embroidered LVN Clothing logo. Features a classic 6-panel design with a curved visor and adjustable strap for the perfect fit.',
     category: 'apparel',
     baseProduct: { 
       id: 'fallback-cap', 
-      name: 'Reform UK Cap',
+      name: 'LVN Clothing Cap',
       rating: 4.8,
       reviews: 92,
       images: [
@@ -445,7 +445,7 @@ function createFallbackProducts(): MergedProduct[] {
     ],
     sizeOptions: ['One Size'],
     priceRange: { min: 19.99, max: 19.99 },
-    image_url: '/BackReformLogo.png'
+    image_url: '/images/Leaven Logo.png'
   };
 
   fallbackProducts.push(hoodieProduct, tshirtProduct, capProduct);

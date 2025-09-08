@@ -16,25 +16,25 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
   };
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-lvn-off-white text-gray-900 border-t border-gray-200">
       {/* Trust Badges */}
-      <div className="border-b border-gray-800">
+      <div className="border-b border-gray-300">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-wrap justify-center md:justify-between items-center gap-6">
-            <div className="flex items-center space-x-2 text-sm">
-              <Shield className="w-5 h-5 text-green-400" />
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <Shield className="w-5 h-5 text-green-600" />
               <span>Secure Checkout</span>
             </div>
-            <div className="flex items-center space-x-2 text-sm">
-              <Truck className="w-5 h-5 text-blue-400" />
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <Truck className="w-5 h-5 text-blue-600" />
               <span>Best Shipping Rates</span>
             </div>
-            <div className="flex items-center space-x-2 text-sm">
-              <CreditCard className="w-5 h-5 text-purple-400" />
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <CreditCard className="w-5 h-5 text-purple-600" />
               <span>Easy Returns</span>
             </div>
-            <div className="flex items-center space-x-2 text-sm">
-              <span className="text-yellow-400">🇬🇧</span>
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <span className="text-yellow-600">🇬🇧</span>
               <span>Printed in Britain</span>
             </div>
           </div>
@@ -45,32 +45,31 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <div className="flex items-center space-x-3 mb-4">
+            <div className="flex items-center mb-4">
               <img 
                 src="/images/Leaven Logo.png" 
                 alt="LVN Clothing" 
-                className="h-8 w-auto"
+                className="h-10 w-auto"
               />
-              <span className="font-bold text-lg">LVN Clothing</span>
             </div>
-            <p className="text-gray-400 mb-3 text-sm leading-relaxed">
+            <p className="text-gray-600 mb-3 text-sm leading-relaxed">
               Premium Christian streetwear inspired by Matthew 13:33. 
               Faith woven into culture through every piece.
             </p>
-            <p className="text-gray-400 mb-4 text-sm leading-relaxed">
+            <p className="text-gray-600 mb-4 text-sm leading-relaxed">
               Just as leaven spreads through dough, faith spreads through culture.
             </p>
             <div className="flex space-x-4">
-              <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-lvn-maroon transition-colors">
+              <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-lvn-maroon transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-lvn-maroon transition-colors">
+              <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-lvn-maroon transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-lvn-maroon transition-colors">
+              <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-lvn-maroon transition-colors">
                 <SiX className="w-5 h-5" />
               </a>
-              <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-lvn-maroon transition-colors">
+              <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-lvn-maroon transition-colors">
                 <SiTiktok className="w-5 h-5" />
               </a>
             </div>
@@ -106,7 +105,7 @@ const Footer = ({ onPageNavigation }: FooterProps) => {
             <div className="space-y-3 text-sm">
               <div className="flex items-center space-x-2">
                 <MessageCircle className="w-4 h-4 text-lvn-maroon" />
-                <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-lvn-maroon transition-colors">
+                <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-lvn-maroon transition-colors">
                   WhatsApp Support
                 </a>
               </div>

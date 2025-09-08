@@ -110,7 +110,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
   const getProductImages = () => {
     if (!tshirtProduct?.baseProduct?.images || tshirtProduct.baseProduct.images.length === 0) {
       // Fallback to logo if no images in merged product
-      return ['/BackReformLogo.png'];
+      return ['/images/Leaven Logo.png'];
     }
     
     const mergedImages = tshirtProduct.baseProduct.images;
@@ -165,7 +165,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
       ? mergedImages
           .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
           .map(img => img.image_url)
-      : [tshirtProduct.image_url || '/BackReformLogo.png'];
+      : [tshirtProduct.image_url || '/images/Leaven Logo.png'];
   };
   
   // Generate variant data for display
@@ -197,7 +197,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#009fe3] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[lvn-maroon] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading product...</p>
         </div>
       </div>
@@ -240,7 +240,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
       quantity: quantity,
       size: selectedSize,
       color: selectedColor,
-      image: getProductImages()[0] || '/BackReformLogo.png',
+      image: getProductImages()[0] || '/images/Leaven Logo.png',
       printful_variant_id: selectedVariant.catalogVariantId,
       external_id: selectedVariant.externalId
     };
@@ -314,11 +314,11 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
           <div className="max-w-7xl mx-auto px-4 py-4">
             <nav className="text-sm text-gray-600">
               <div className="flex items-center space-x-2">
-                <button onClick={onBack} className="hover:text-[#009fe3] transition-colors">Home</button>
+                <button onClick={onBack} className="hover:text-[lvn-maroon] transition-colors">Home</button>
                 <span className="text-gray-400">/</span>
-                <button onClick={onBack} className="hover:text-[#009fe3] transition-colors">Shop</button>
+                <button onClick={onBack} className="hover:text-[lvn-maroon] transition-colors">Shop</button>
                 <span className="text-gray-400">/</span>
-                <span className="text-[#009fe3] font-semibold">{productData.name}</span>
+                <span className="text-[lvn-maroon] font-semibold">{productData.name}</span>
               </div>
             </nav>
           </div>
@@ -330,7 +330,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
             <div key={variantData.id} className="space-y-4">
               <div className="relative aspect-square bg-white rounded-lg overflow-hidden shadow-lg">
                 <img
-                  src={getProductImages()[selectedImage] || getProductImages()[0] || '/BackReformLogo.png'}
+                  src={getProductImages()[selectedImage] || getProductImages()[0] || '/images/Leaven Logo.png'}
                   alt={`${productData.name} - ${variantData.color} - Image ${selectedImage + 1}`}
                   className="w-full h-full object-cover aspect-square"
                 />
@@ -363,7 +363,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
               {getProductImages().length > 1 && (
                 <div className="flex space-x-2 overflow-x-auto pb-2">
                   {getProductImages().map((image, index) => (
-                    <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[lvn-maroon]' : 'border-gray-200 hover:border-gray-300'}`}>
                       <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover aspect-square" />
                     </button>
                   ))}
@@ -384,7 +384,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                   <span className="text-gray-600">({variantData.reviews} reviews)</span>
                 </div>
                 <div className="flex items-center space-x-3 mb-6">
-                  <span className="text-3xl font-bold text-[#009fe3]">£{variantData.price.toFixed(2)}</span>
+                  <span className="text-3xl font-bold text-[lvn-maroon]">£{variantData.price.toFixed(2)}</span>
                   <span className="text-lg text-gray-500 line-through">£29.99</span>
                   <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm font-medium">
                     Save £5.00
@@ -410,8 +410,8 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                       onClick={() => handleColorChange(color.name)} 
                       className={`relative w-12 h-12 border-2 rounded-full transition-all duration-200 hover:scale-110 ${
                         selectedColor === color.name
-                          ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2'
-                          : `border-gray-300 hover:border-[#009fe3] ${color.border ? 'border-gray-400' : ''}`
+                          ? 'border-[lvn-maroon] ring-2 ring-[lvn-maroon] ring-offset-2'
+                          : `border-gray-300 hover:border-[lvn-maroon] ${color.border ? 'border-gray-400' : ''}`
                       }`}
                       title={color.name}
                     >
@@ -435,7 +435,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                   <label className="block text-sm font-medium text-gray-700">Size</label>
                   <button 
                     onClick={() => navigate('/size-guide')}
-                    className="text-sm text-[#009fe3] hover:text-blue-600 underline"
+                    className="text-sm text-[lvn-maroon] hover:text-lvn-maroon-dark underline"
                   >
                     Size Guide
                   </button>
@@ -452,8 +452,8 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                       onClick={() => handleSizeChange(size)} 
                       className={`px-4 py-3 border-2 rounded-lg font-medium transition-all duration-200 ${
                         selectedSize === size 
-                          ? 'border-[#009fe3] bg-[#009fe3] text-white' 
-                          : 'border-gray-300 text-gray-700 hover:border-[#009fe3] hover:text-[#009fe3]'
+                          ? 'border-[lvn-maroon] bg-[lvn-maroon] text-white' 
+                          : 'border-gray-300 text-gray-700 hover:border-[lvn-maroon] hover:text-[lvn-maroon]'
                       }`}
                     >
                       {size}
@@ -496,7 +496,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
               <div className="space-y-3">
                 <button 
                   onClick={handleBuyNow}
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   <span>Buy Now - £{(variantData.price * quantity).toFixed(2)}</span>
@@ -504,7 +504,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                 
                 <button 
                   onClick={handleAddToCart} 
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   <span>Add to Cart - £{(variantData.price * quantity).toFixed(2)}</span>
@@ -514,15 +514,15 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
               {/* Trust Badges */}
               <div className="grid grid-cols-3 gap-4 pt-6 border-t">
                 <div className="text-center">
-                  <Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <Truck className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Best Shipping Rates</p>
                 </div>
                 <div className="text-center">
-                  <Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <Shield className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Secure Checkout</p>
                 </div>
                 <div className="text-center">
-                  <RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <RotateCcw className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Easy Returns</p>
                 </div>
               </div>
@@ -539,7 +539,7 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
                     onClick={() => setActiveTab(tab)} 
                     className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                       activeTab === tab 
-                        ? 'border-[#009fe3] text-[#009fe3]' 
+                        ? 'border-[lvn-maroon] text-[lvn-maroon]' 
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}
                   >
@@ -614,10 +614,10 @@ const TshirtPage = ({ onBack }: TshirtPageProps) => {
               {activeTab === 'care' && (
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Care Instructions</h3>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-4">
                     <div className="flex items-start space-x-2">
-                      <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <p className="text-blue-800">{productData.careInstructions}</p>
+                      <Info className="w-5 h-5 text-lvn-maroon-dark flex-shrink-0 mt-0.5" />
+                      <p className="text-lvn-maroon">{productData.careInstructions}</p>
                     </div>
                   </div>
                 </div>

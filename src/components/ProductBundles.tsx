@@ -155,7 +155,7 @@ const ProductBundles = () => {
   const bundles: Record<string, Bundle> = {
     starter: {
       id: 1,
-      name: "Starter Bundle",
+      name: "Faith Starter Bundle",
       originalPrice: "£54.97",  // HARDCODED: T-shirt £24.99 + Cap £19.99 + Mug £9.99
       bundlePrice: 49.99,  // HARDCODED: Must match Stripe price
       savings: "Save £4.98",  // HARDCODED: 10% discount
@@ -165,25 +165,25 @@ const ProductBundles = () => {
       product: {
         id: 'prod_ScXwG3hpBhqNZW',
         priceId: 'price_1RhsUsGDbOGEgNLw2LAVZoGb',
-        name: 'Starter Bundle',
+        name: 'Faith Starter Bundle',
         price: pricingLoading ? 0 : bundlePricing.starter?.price || 49.99
       },
       items: [
         {
           type: 'tshirt',
-          name: 'Reform UK T-Shirt',
+          name: 'LVN Clothing T-Shirt',
           customizable: true,
           baseImage: 'Tshirt/Men/ReformMenTshirtBlack1.webp'
         },
         {
           type: 'cap',
-          name: 'Reform UK Cap',
+          name: 'LVN Clothing Cap',
           customizable: true,
           baseImage: 'Cap/ReformCapBlack1.webp'
         },
         {
           type: 'mug',
-          name: 'Reform UK Mug',
+          name: 'LVN Clothing Mug',
           customizable: false,
           baseImage: 'MugMouse/ReformMug1.webp'
         }
@@ -191,7 +191,7 @@ const ProductBundles = () => {
     },
     champion: {
       id: 2,
-      name: "Champion Bundle",
+      name: "Kingdom Bundle",
       originalPrice: pricingLoading ? "..." : `£${bundlePricing.champion?.originalPrice.toFixed(2) || '104.96'}`,
       bundlePrice: pricingLoading ? 0 : bundlePricing.champion?.price || 89.99,
       savings: pricingLoading ? "..." : `Save £${bundlePricing.champion?.savings.absolute.toFixed(2) || '14.97'}`,
@@ -201,33 +201,33 @@ const ProductBundles = () => {
       product: {
         id: 'prod_ScXvVATO8FKCvG',
         priceId: 'price_1RhsW8GDbOGEgNLwahSqdPDz',
-        name: 'Champion Bundle',
+        name: 'Kingdom Bundle',
         price: pricingLoading ? 0 : bundlePricing.champion?.price || 89.99
       },
       items: [
         {
           type: 'hoodie',
-          name: 'Reform UK Hoodie',
+          name: 'LVN Clothing Hoodie',
           customizable: true,
           baseImage: 'Hoodie/Men/ReformMenHoodieBlack1.webp'
         },
         {
           type: 'totebag',
-          name: 'Reform UK Tote Bag',
+          name: 'LVN Clothing Tote Bag',
           variant: 'Black',
           customizable: false,
           baseImage: 'StickerToteWater/ReformToteBagBlack1.webp'
         },
         {
           type: 'waterbottle',
-          name: 'Reform UK Water Bottle',
+          name: 'LVN Clothing Water Bottle',
           variant: 'White',
           customizable: false,
           baseImage: 'StickerToteWater/ReformWaterBottleWhite1.webp'
         },
         {
           type: 'mousepad',
-          name: 'Reform UK Mouse Pad',
+          name: 'LVN Clothing Mouse Pad',
           variant: 'White',
           customizable: false,
           baseImage: 'MugMouse/ReformMousePadWhite1.webp'
@@ -236,7 +236,7 @@ const ProductBundles = () => {
     },
     activist: {
       id: 3,
-      name: "Activist Bundle",
+      name: "Faith Bundle",
       originalPrice: pricingLoading ? "..." : `£${bundlePricing.activist?.originalPrice.toFixed(2) || '159.93'}`,
       bundlePrice: pricingLoading ? 0 : bundlePricing.activist?.price || 127.99,
       savings: pricingLoading ? "..." : `Save £${bundlePricing.activist?.savings.absolute.toFixed(2) || '31.94'}`,
@@ -246,52 +246,52 @@ const ProductBundles = () => {
       product: {
         id: 'prod_ScXuloowrz4FVk',
         priceId: 'price_1RhsXRGDbOGEgNLwiiZNVuie',
-        name: 'Activist Bundle',
+        name: 'Faith Bundle',
         price: pricingLoading ? 0 : bundlePricing.activist?.price || 127.99
       },
       items: [
         {
           type: 'hoodie',
-          name: 'Reform UK Hoodie',
+          name: 'LVN Clothing Hoodie',
           customizable: true,
           baseImage: 'Hoodie/Men/ReformMenHoodieBlack1.webp'
         },
         {
           type: 'tshirt',
-          name: 'Reform UK T-Shirt',
+          name: 'LVN Clothing T-Shirt',
           customizable: true,
           baseImage: 'Tshirt/Men/ReformMenTshirtWhite1.webp'
         },
         {
           type: 'cap',
-          name: 'Reform UK Cap',
+          name: 'LVN Clothing Cap',
           customizable: true,
           baseImage: 'Cap/ReformCapBlue1.webp'
         },
         {
           type: 'totebag',
-          name: 'Reform UK Tote Bag',
+          name: 'LVN Clothing Tote Bag',
           variant: 'Black',
           customizable: false,
           baseImage: 'StickerToteWater/ReformToteBagBlack1.webp'
         },
         {
           type: 'waterbottle',
-          name: 'Reform UK Water Bottle',
+          name: 'LVN Clothing Water Bottle',
           variant: 'White',
           customizable: false,
           baseImage: 'StickerToteWater/ReformWaterBottleWhite1.webp'
         },
         {
           type: 'mug',
-          name: 'Reform UK Mug',
+          name: 'LVN Clothing Mug',
           variant: 'White',
           customizable: false,
           baseImage: 'MugMouse/ReformMug1.webp'
         },
         {
           type: 'mousepad',
-          name: 'Reform UK Mouse Pad',
+          name: 'LVN Clothing Mouse Pad',
           variant: 'White',
           customizable: false,
           baseImage: 'MugMouse/ReformMousePadWhite1.webp'
@@ -394,7 +394,7 @@ const ProductBundles = () => {
       onClick={onClick}
       className={`relative w-8 h-8 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
         isSelected 
-          ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' 
+          ? 'border-[lvn-maroon] ring-2 ring-[lvn-maroon] ring-offset-2' 
           : color.border 
             ? 'border-gray-300 hover:border-gray-400' 
             : 'border-gray-200 hover:border-gray-300'
@@ -482,13 +482,13 @@ const ProductBundles = () => {
         onClick={() => setActiveBundle(bundleKey)}
         className={`relative cursor-pointer rounded-lg border-2 p-4 transition-all duration-200 ${
           isActive
-            ? 'border-[#009fe3] bg-blue-50 shadow-lg'
+            ? 'border-[lvn-maroon] bg-blue-50 shadow-lg'
             : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
         }`}
       >
         {/* Popular badge */}
         {bundle.popular && (
-          <div className="absolute -top-2 -right-2 bg-[#009fe3] text-white text-xs font-bold px-2 py-1 rounded-full">
+          <div className="absolute -top-2 -right-2 bg-[lvn-maroon] text-white text-xs font-bold px-2 py-1 rounded-full">
             POPULAR
           </div>
         )}
@@ -514,7 +514,7 @@ const ProductBundles = () => {
                 {bundle.originalPrice}
               </span>
               <div className="flex items-center space-x-2">
-                <span className="text-2xl font-bold text-[#009fe3]">
+                <span className="text-2xl font-bold text-[lvn-maroon]">
                   £{bundle.bundlePrice.toFixed(2)}
                 </span>
 
@@ -554,7 +554,7 @@ const ProductBundles = () => {
                 onClick={() => setActiveBundle(key as BundleKey)}
                 className={`px-6 py-3 rounded-md font-semibold transition-all duration-200 relative ${
                   activeBundle === key as BundleKey
-                    ? 'bg-[#009fe3] text-white'
+                    ? 'bg-[lvn-maroon] text-white'
                     : 'text-gray-300 hover:text-white'
                 }`}
               >
@@ -581,7 +581,7 @@ const ProductBundles = () => {
           <div className="bg-white text-gray-900 rounded-lg overflow-hidden shadow-lg relative">
             {currentBundle.popular && (
               <div className="absolute top-4 right-4 z-10">
-                <span className="bg-[#009fe3] text-white px-3 py-1 rounded-full text-sm font-bold flex items-center">
+                <span className="bg-[lvn-maroon] text-white px-3 py-1 rounded-full text-sm font-bold flex items-center">
                   <Star className="w-3 h-3 mr-1 fill-current" />
                   Most Popular
                 </span>
@@ -598,7 +598,7 @@ const ProductBundles = () => {
                   <span className="text-green-600 font-semibold">{currentBundle.savings}</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span className="text-3xl font-bold text-[#009fe3]">£{currentBundle.bundlePrice.toFixed(2)}</span>
+                  <span className="text-3xl font-bold text-[lvn-maroon]">£{currentBundle.bundlePrice.toFixed(2)}</span>
 
                 </div>
                 {/* Show savings percentage if available */}
@@ -637,8 +637,8 @@ const ProductBundles = () => {
                                         onClick={() => updateSelection(item.type, 'size', size)}
                                         className={`px-2 py-1 text-xs border rounded transition-colors ${
                                           currentSelections[item.type as keyof typeof currentSelections]?.size === size
-                                            ? 'border-[#009fe3] bg-[#009fe3] text-white'
-                                            : 'border-gray-300 text-gray-700 hover:border-[#009fe3]'
+                                            ? 'border-[lvn-maroon] bg-[lvn-maroon] text-white'
+                                            : 'border-gray-300 text-gray-700 hover:border-[lvn-maroon]'
                                         }`}
                                       >
                                         {size}
@@ -679,7 +679,7 @@ const ProductBundles = () => {
                 <button 
                   onClick={handleBuyNow}
                   disabled={isLoading}
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+                  className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
                 >
                   {isLoading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -693,7 +693,7 @@ const ProductBundles = () => {
                 
                 <button 
                   onClick={handleAddBundleToCart}
-                  className="w-full border-2 border-[#009fe3] text-[#009fe3] hover:bg-[#009fe3] hover:text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                  className="w-full border-2 border-[lvn-maroon] text-[lvn-maroon] hover:bg-[lvn-maroon] hover:text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   <span>Add Bundle to Cart</span>

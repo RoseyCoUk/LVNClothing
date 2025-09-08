@@ -1,4 +1,4 @@
-// Error handling utilities for ReformUK application
+// Error handling utilities for LVNClothing application
 
 export interface ErrorDetails {
   code?: string;
@@ -10,12 +10,12 @@ export interface ErrorDetails {
   sessionId?: string;
 }
 
-export class ReformUKError extends Error {
+export class LVNClothingError extends Error {
   public details: ErrorDetails;
   
   constructor(message: string, details: Partial<ErrorDetails> = {}) {
     super(message);
-    this.name = 'ReformUKError';
+    this.name = 'LVNClothingError';
     this.details = {
       message,
       timestamp: new Date().toISOString(),
@@ -24,21 +24,21 @@ export class ReformUKError extends Error {
   }
 }
 
-export class AuthenticationError extends ReformUKError {
+export class AuthenticationError extends LVNClothingError {
   constructor(message: string, details: Partial<ErrorDetails> = {}) {
     super(message, { ...details, context: 'authentication' });
     this.name = 'AuthenticationError';
   }
 }
 
-export class APIError extends ReformUKError {
+export class APIError extends LVNClothingError {
   constructor(message: string, details: Partial<ErrorDetails> = {}) {
     super(message, { ...details, context: 'api' });
     this.name = 'APIError';
   }
 }
 
-export class DatabaseError extends ReformUKError {
+export class DatabaseError extends LVNClothingError {
   constructor(message: string, details: Partial<ErrorDetails> = {}) {
     super(message, { ...details, context: 'database' });
     this.name = 'DatabaseError';
@@ -74,11 +74,11 @@ export const ERROR_MESSAGES = {
 };
 
 // Error handler function
-export function handleError(error: any, context?: string): ReformUKError {
-  let reformError: ReformUKError;
+export function handleError(error: any, context?: string): LVNClothingError {
+  let reformError: LVNClothingError;
   
-  // If it's already a ReformUKError, return it
-  if (error instanceof ReformUKError) {
+  // If it's already a LVNClothingError, return it
+  if (error instanceof LVNClothingError) {
     return error;
   }
   
@@ -123,7 +123,7 @@ export function handleError(error: any, context?: string): ReformUKError {
     const message = error?.message || 'An unexpected error occurred';
     const userMessage = ERROR_MESSAGES[message as keyof typeof ERROR_MESSAGES] || message;
     
-    reformError = new ReformUKError(userMessage, {
+    reformError = new LVNClothingError(userMessage, {
       context: context || 'unknown'
     });
   }
@@ -163,7 +163,7 @@ export function logError(error: any, context?: string, additionalInfo?: Record<s
 
 // Error recovery utilities
 export function isRecoverableError(error: any): boolean {
-  if (error instanceof ReformUKError) {
+  if (error instanceof LVNClothingError) {
     // Network errors are usually recoverable
     if (error.details.context === 'network') {
       return true;

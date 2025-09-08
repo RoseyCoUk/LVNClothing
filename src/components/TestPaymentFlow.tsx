@@ -150,8 +150,8 @@ const TestPaymentFlow = () => {
         addTestResult('Products', 'error', 'Failed to load products', error.message);
         // Fallback to test products if loading fails
         setSelectedProducts([
-          { id: 'test-hoodie', name: 'Test Reform UK Hoodie', price: 34.99, price_pence: 3499, quantity: 1, selected: true, variants: { size: 'M', color: 'Black', gender: 'Men' } },
-          { id: 'test-tshirt', name: 'Test Reform UK T-Shirt', price: 19.99, price_pence: 1999, quantity: 1, selected: false, variants: { size: 'M', color: 'White', gender: 'Men' } }
+          { id: 'test-hoodie', name: 'Test LVN Clothing Hoodie', price: 34.99, price_pence: 3499, quantity: 1, selected: true, variants: { size: 'M', color: 'Black', gender: 'Men' } },
+          { id: 'test-tshirt', name: 'Test LVN Clothing T-Shirt', price: 19.99, price_pence: 1999, quantity: 1, selected: false, variants: { size: 'M', color: 'White', gender: 'Men' } }
         ]);
       } finally {
         setProductsLoading(false);
@@ -1035,7 +1035,7 @@ const TestPaymentFlow = () => {
     // Simulate the email notification content
     const emailContent = {
       to: 'support@backreform.co.uk',
-      subject: `New Order #${mockWebhookData.id} - Reform UK Shop`,
+      subject: `New Order #${mockWebhookData.id} - LVN Clothing Shop`,
       orderDetails: {
         orderId: mockWebhookData.id,
         customerId: mockWebhookData.customer_id,
@@ -1063,7 +1063,7 @@ const TestPaymentFlow = () => {
         items: [
           {
             id: 'test-hoodie',
-            name: 'Test Reform UK Hoodie',
+            name: 'Test LVN Clothing Hoodie',
             price: 3499,
             quantity: 1
           }

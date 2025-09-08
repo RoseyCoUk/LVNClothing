@@ -40,7 +40,7 @@ const TermsOfServicePage = ({ onBack }: TermsOfServicePageProps) => {
               </p>
             </div>
             <p className="text-lg text-gray-600">
-              Please read these Terms of Service ("Terms", "Terms of Service") carefully before using the Back Reform website (the "Service") operated by Back Reform ("us", "we", or "our").
+              Please read these Terms of Service ("Terms", "Terms of Service") carefully before using the LVN Clothing website (the "Service") operated by LVN Clothing ("us", "we", or "our").
             </p>
           </div>
 
@@ -72,7 +72,7 @@ const TermsOfServicePage = ({ onBack }: TermsOfServicePageProps) => {
             <h3 className="text-xl font-bold text-gray-900 mb-4">Use License</h3>
             <div className="bg-gray-50 rounded-lg p-6">
               <p className="text-gray-700 mb-4 text-sm">
-                Permission is granted to temporarily download one copy of the materials on Back Reform's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
+                Permission is granted to temporarily download one copy of the materials on LVN Clothing's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
               </p>
               <ul className="space-y-2 text-gray-700 text-sm">
                 <li className="flex items-start">
@@ -93,7 +93,7 @@ const TermsOfServicePage = ({ onBack }: TermsOfServicePageProps) => {
                 </li>
               </ul>
               <p className="text-gray-700 mt-4 text-sm">
-                This license shall automatically terminate if you violate any of these restrictions and may be terminated by Back Reform at any time. Upon terminating your viewing of these materials or upon the termination of this license, you must destroy any downloaded materials in your possession whether in electronic or printed format.
+                This license shall automatically terminate if you violate any of these restrictions and may be terminated by LVN Clothing at any time. Upon terminating your viewing of these materials or upon the termination of this license, you must destroy any downloaded materials in your possession whether in electronic or printed format.
               </p>
             </div>
           </div>
@@ -185,10 +185,10 @@ const TermsOfServicePage = ({ onBack }: TermsOfServicePageProps) => {
             <h3 className="text-xl font-bold text-gray-900 mb-4">Intellectual Property Rights</h3>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-blue-800 mb-3 text-sm">
-                The Service and its original content, features and functionality are and will remain the exclusive property of Back Reform and its licensors. The Service is protected by copyright, trademark, and other laws. Our trademarks and trade dress may not be used in connection with any product or service without our prior written consent.
+                The Service and its original content, features and functionality are and will remain the exclusive property of LVN Clothing and its licensors. The Service is protected by copyright, trademark, and other laws. Our trademarks and trade dress may not be used in connection with any product or service without our prior written consent.
               </p>
               <p className="text-blue-800 text-sm">
-                All Reform UK logos, designs, and branding materials are the intellectual property of Reform UK and are used under license.
+                All LVN Clothing logos, designs, and branding materials are the intellectual property of LVN Clothing and are used under license.
               </p>
             </div>
           </div>
@@ -215,7 +215,7 @@ const TermsOfServicePage = ({ onBack }: TermsOfServicePageProps) => {
             <h3 className="text-xl font-bold text-gray-900 mb-4">Limitations</h3>
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <p className="text-yellow-800 text-sm">
-                In no event shall Back Reform or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Back Reform's website, even if Back Reform or a Back Reform authorized representative has been notified orally or in writing of the possibility of such damage. Because some jurisdictions do not allow limitations on implied warranties, or limitations of liability for consequential or incidental damages, these limitations may not apply to you.
+                In no event shall LVN Clothing or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on LVN Clothing's website, even if LVN Clothing or a LVN Clothing authorized representative has been notified orally or in writing of the possibility of such damage. Because some jurisdictions do not allow limitations on implied warranties, or limitations of liability for consequential or incidental damages, these limitations may not apply to you.
               </p>
             </div>
           </div>
@@ -225,7 +225,7 @@ const TermsOfServicePage = ({ onBack }: TermsOfServicePageProps) => {
             <h3 className="text-xl font-bold text-gray-900 mb-4">Accuracy of Materials</h3>
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
               <p className="text-purple-800 text-sm">
-                The materials appearing on Back Reform's website could include technical, typographical, or photographic errors. Back Reform does not warrant that any of the materials on its website are accurate, complete, or current. Back Reform may make changes to the materials contained on its website at any time without notice. However, Back Reform does not make any commitment to update the materials.
+                The materials appearing on LVN Clothing's website could include technical, typographical, or photographic errors. LVN Clothing does not warrant that any of the materials on its website are accurate, complete, or current. LVN Clothing may make changes to the materials contained on its website at any time without notice. However, LVN Clothing does not make any commitment to update the materials.
               </p>
             </div>
           </div>
@@ -238,7 +238,7 @@ const TermsOfServicePage = ({ onBack }: TermsOfServicePageProps) => {
             </h3>
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <p className="text-green-800 mb-3 text-sm">
-                Back Reform has not reviewed all of the sites linked to our website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by Back Reform of the site. Use of any such linked website is at the user's own risk.
+                LVN Clothing has not reviewed all of the sites linked to our website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by LVN Clothing of the site. Use of any such linked website is at the user's own risk.
               </p>
               <p className="text-green-800 text-sm">
                 We may provide links to third-party websites or services that we do not own or control. We have no control over, and assume no responsibility for, the content, privacy policies, or practices of any third-party websites or services.
@@ -251,7 +251,7 @@ const TermsOfServicePage = ({ onBack }: TermsOfServicePageProps) => {
             <h3 className="text-xl font-bold text-gray-900 mb-4">Modifications</h3>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-blue-800 mb-3 text-sm">
-                Back Reform may revise these terms of service for its website at any time without notice. By using this website, you are agreeing to be bound by the then current version of these terms of service.
+                LVN Clothing may revise these terms of service for its website at any time without notice. By using this website, you are agreeing to be bound by the then current version of these terms of service.
               </p>
               <p className="text-blue-800 text-sm">
                 We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material, we will try to provide at least 30 days notice prior to any new terms taking effect.

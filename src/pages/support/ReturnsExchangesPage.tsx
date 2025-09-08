@@ -14,13 +14,13 @@ const ReturnsExchangesPage = ({ onBack }: ReturnsExchangesPageProps) => {
           <div className="flex items-center space-x-4">
             <button
               onClick={onBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-[#009fe3] transition-colors"
+              className="flex items-center space-x-2 text-gray-600 hover:text-[lvn-maroon] transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Back</span>
             </button>
             <div className="flex items-center space-x-3">
-              <RotateCcw className="w-6 h-6 text-[#009fe3]" />
+              <RotateCcw className="w-6 h-6 text-[lvn-maroon]" />
               <h1 className="text-2xl font-bold text-gray-900">Returns & Exchanges</h1>
             </div>
           </div>
@@ -35,7 +35,7 @@ const ReturnsExchangesPage = ({ onBack }: ReturnsExchangesPageProps) => {
               Returns & Exchanges Policy
             </h2>
             <p className="text-lg text-gray-600">
-              At Reform UK, we aim to provide exceptional customer service while maintaining fairness and transparency. Please carefully review our Refund & Return Policy to ensure you understand the conditions and procedures before initiating a return or exchange.
+              At LVN Clothing, we aim to provide exceptional customer service while maintaining fairness and transparency. Please carefully review our Refund & Return Policy to ensure you understand the conditions and procedures before initiating a return or exchange.
             </p>
           </div>
 
@@ -49,8 +49,8 @@ const ReturnsExchangesPage = ({ onBack }: ReturnsExchangesPageProps) => {
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-blue-600" />
+              <div className="w-16 h-16 bg-lvn-maroon/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-lvn-maroon-dark" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Original Condition</h3>
               <p className="text-sm text-gray-600">Items must be unused with all tags</p>
@@ -68,7 +68,7 @@ const ReturnsExchangesPage = ({ onBack }: ReturnsExchangesPageProps) => {
           {/* Condition of Returns */}
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <Package className="w-5 h-5 mr-2 text-[#009fe3]" />
+              <Package className="w-5 h-5 mr-2 text-[lvn-maroon]" />
               Condition of Returns
             </h3>
             <div className="bg-gray-50 rounded-lg p-6">
@@ -107,9 +107,9 @@ const ReturnsExchangesPage = ({ onBack }: ReturnsExchangesPageProps) => {
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Refunds & Store Credit</h3>
             <div className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-4">
                 <h4 className="font-semibold text-blue-900 mb-2">For the Original Purchaser:</h4>
-                <p className="text-blue-800 text-sm">
+                <p className="text-lvn-maroon text-sm">
                   Refunds will be processed to the original payment method once we receive and inspect the returned item. The item must meet the required conditions of being unused and returned with all original packaging and tags.
                 </p>
               </div>
@@ -154,13 +154,13 @@ const ReturnsExchangesPage = ({ onBack }: ReturnsExchangesPageProps) => {
           {/* How to Initiate a Return */}
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <Mail className="w-5 h-5 mr-2 text-[#009fe3]" />
+              <Mail className="w-5 h-5 mr-2 text-[lvn-maroon]" />
               How to Initiate a Return
             </h3>
-            <div className="bg-[#009fe3]/5 border border-[#009fe3]/20 rounded-lg p-6">
+            <div className="bg-[lvn-maroon]/5 border border-[lvn-maroon]/20 rounded-lg p-6">
               <p className="text-gray-700 mb-4">
-                To initiate a return, please contact our Reform UK Support Team at{' '}
-                <a href="mailto:support@backreform.co.uk" className="text-[#009fe3] font-semibold hover:underline">
+                To initiate a return, please contact our LVN Clothing Support Team at{' '}
+                <a href="mailto:support@backreform.co.uk" className="text-[lvn-maroon] font-semibold hover:underline">
                   support@backreform.co.uk
                 </a>{' '}
                 to request a Return Authorisation. This will ensure your request is escalated to the relevant department for swift processing.
@@ -169,15 +169,15 @@ const ReturnsExchangesPage = ({ onBack }: ReturnsExchangesPageProps) => {
               <h4 className="font-semibold text-gray-900 mb-3">To expedite your request, please include the following details in your email:</h4>
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-center">
-                  <div className="w-2 h-2 bg-[#009fe3] rounded-full mr-3"></div>
+                  <div className="w-2 h-2 bg-[lvn-maroon] rounded-full mr-3"></div>
                   Order Number
                 </li>
                 <li className="flex items-center">
-                  <div className="w-2 h-2 bg-[#009fe3] rounded-full mr-3"></div>
+                  <div className="w-2 h-2 bg-[lvn-maroon] rounded-full mr-3"></div>
                   Full Name
                 </li>
                 <li className="flex items-center">
-                  <div className="w-2 h-2 bg-[#009fe3] rounded-full mr-3"></div>
+                  <div className="w-2 h-2 bg-[lvn-maroon] rounded-full mr-3"></div>
                   Brief Reason for the Return
                 </li>
               </ul>
@@ -208,7 +208,7 @@ const ReturnsExchangesPage = ({ onBack }: ReturnsExchangesPageProps) => {
           <div className="text-center">
             <button
               onClick={onBack}
-              className="bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              className="bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-3 px-6 rounded-lg transition-colors"
             >
               Back to Shop
             </button>

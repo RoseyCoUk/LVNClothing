@@ -58,7 +58,7 @@ const UnsubscribePage: React.FC = () => {
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
         {status === 'loading' && (
           <div className="text-center">
-            <Loader2 className="w-12 h-12 mx-auto text-[#009fe3] animate-spin mb-4" />
+            <Loader2 className="w-12 h-12 mx-auto text-[lvn-maroon] animate-spin mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               Processing your request...
             </h2>
@@ -92,13 +92,13 @@ const UnsubscribePage: React.FC = () => {
               <div className="pt-4 space-y-2">
                 <Link
                   to="/"
-                  className="block w-full bg-[#009fe3] text-white py-2 px-4 rounded-lg hover:bg-[#0088cc] transition-colors duration-200"
+                  className="block w-full bg-[lvn-maroon] text-white py-2 px-4 rounded-lg hover:bg-[#0088cc] transition-colors duration-200"
                 >
                   Return to Homepage
                 </Link>
                 <Link
                   to="/#email-signup"
-                  className="block w-full border border-[#009fe3] text-[#009fe3] py-2 px-4 rounded-lg hover:bg-[#009fe3] hover:text-white transition-colors duration-200"
+                  className="block w-full border border-[lvn-maroon] text-[lvn-maroon] py-2 px-4 rounded-lg hover:bg-[lvn-maroon] hover:text-white transition-colors duration-200"
                 >
                   Sign Up Again
                 </Link>
@@ -124,13 +124,13 @@ const UnsubscribePage: React.FC = () => {
             <div className="pt-4 space-y-2">
               <Link
                 to="/"
-                className="block w-full bg-[#009fe3] text-white py-2 px-4 rounded-lg hover:bg-[#0088cc] transition-colors duration-200"
+                className="block w-full bg-[lvn-maroon] text-white py-2 px-4 rounded-lg hover:bg-[#0088cc] transition-colors duration-200"
               >
                 Return to Homepage
               </Link>
               <Link
                 to="/#email-signup"
-                className="block w-full border border-[#009fe3] text-[#009fe3] py-2 px-4 rounded-lg hover:bg-[#009fe3] hover:text-white transition-colors duration-200"
+                className="block w-full border border-[lvn-maroon] text-[lvn-maroon] py-2 px-4 rounded-lg hover:bg-[lvn-maroon] hover:text-white transition-colors duration-200"
               >
                 Sign Up for Newsletter
               </Link>
@@ -150,7 +150,7 @@ const UnsubscribePage: React.FC = () => {
             <div className="space-y-2">
               <Link
                 to="/"
-                className="block w-full bg-[#009fe3] text-white py-2 px-4 rounded-lg hover:bg-[#0088cc] transition-colors duration-200"
+                className="block w-full bg-[lvn-maroon] text-white py-2 px-4 rounded-lg hover:bg-[#0088cc] transition-colors duration-200"
               >
                 Return to Homepage
               </Link>
@@ -170,7 +170,7 @@ const UnsubscribePage: React.FC = () => {
             className="flex items-center justify-center text-sm text-gray-500 hover:text-gray-700 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to Reform UK
+            Back to LVN Clothing
           </Link>
         </div>
       </div>

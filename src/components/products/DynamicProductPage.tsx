@@ -202,7 +202,7 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
   const getProductImages = () => {
     if (productImages.length === 0) {
       // Fallback to product image or logo if no images in database
-      return [product?.image_url || '/BackReformLogo.png'];
+      return [product?.image_url || '/images/Leaven Logo.png'];
     }
     
     // If a color is selected, try to get color-specific images first
@@ -255,7 +255,7 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
       ? productImages
           .sort((a, b) => (a.image_order || 0) - (b.image_order || 0))
           .map(img => img.image_url)
-      : [product?.image_url || '/BackReformLogo.png'];
+      : [product?.image_url || '/images/Leaven Logo.png'];
   };
 
   // Get available colors and sizes
@@ -329,7 +329,7 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#009fe3] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[lvn-maroon] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading product...</p>
         </div>
       </div>
@@ -345,7 +345,7 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
           <p className="text-gray-600 mb-4">{error || 'The requested product could not be found.'}</p>
           <button
             onClick={() => onBack ? onBack() : navigate('/shop')}
-            className="px-4 py-2 bg-[#009fe3] text-white rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-4 py-2 bg-[lvn-maroon] text-white rounded-lg hover:bg-lvn-maroon-dark transition-colors"
           >
             Back to Shop
           </button>
@@ -372,15 +372,15 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
           <div className="max-w-7xl mx-auto px-4 py-4">
             <nav className="text-sm text-gray-600">
               <div className="flex items-center space-x-2">
-                <button onClick={() => onBack ? onBack() : navigate('/shop')} className="hover:text-[#009fe3] transition-colors">
+                <button onClick={() => onBack ? onBack() : navigate('/shop')} className="hover:text-[lvn-maroon] transition-colors">
                   Home
                 </button>
                 <span className="text-gray-400">/</span>
-                <button onClick={() => onBack ? onBack() : navigate('/shop')} className="hover:text-[#009fe3] transition-colors">
+                <button onClick={() => onBack ? onBack() : navigate('/shop')} className="hover:text-[lvn-maroon] transition-colors">
                   Shop
                 </button>
                 <span className="text-gray-400">/</span>
-                <span className="text-[#009fe3] font-semibold">{product.name}</span>
+                <span className="text-[lvn-maroon] font-semibold">{product.name}</span>
               </div>
             </nav>
           </div>
@@ -429,7 +429,7 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
                     <button 
                       key={index} 
                       onClick={() => setSelectedImage(index)} 
-                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}
+                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[lvn-maroon]' : 'border-gray-200 hover:border-gray-300'}`}
                     >
                       <img src={image} alt={`${product.name} thumbnail ${index + 1}`} className="w-full h-full object-cover aspect-square" />
                     </button>
@@ -452,7 +452,7 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
                 </div>
                 {selectedVariant && (
                   <div className="flex items-center space-x-3 mb-6">
-                    <span className="text-3xl font-bold text-[#009fe3]">£{selectedVariant.price.toFixed(2)}</span>
+                    <span className="text-3xl font-bold text-[lvn-maroon]">£{selectedVariant.price.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex items-center space-x-2 text-green-600 mb-6">
@@ -480,14 +480,14 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
                             if (newVariant) setSelectedVariant(newVariant);
                           }}
                           className={`w-10 h-10 rounded-full border-2 transition-colors ${
-                            isSelected ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' : 'border-gray-300 hover:border-gray-400'
+                            isSelected ? 'border-[lvn-maroon] ring-2 ring-[lvn-maroon] ring-offset-2' : 'border-gray-300 hover:border-gray-400'
                           }`}
                           style={{ 
                             backgroundColor: color?.toLowerCase() === 'white' ? '#FFFFFF' : 
                                              color?.toLowerCase() === 'black' ? '#000000' :
                                              color?.toLowerCase() === 'navy' ? '#1c2330' :
                                              color?.toLowerCase() === 'red' ? '#8e0a1f' :
-                                             color?.toLowerCase() === 'blue' ? '#009fe3' :
+                                             color?.toLowerCase() === 'blue' ? 'lvn-maroon' :
                                              '#6B7280'
                           }}
                           title={color}
@@ -519,9 +519,9 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
                           }}
                           className={`py-2 px-3 text-sm border rounded-lg transition-colors ${
                             isSelected 
-                              ? 'border-[#009fe3] bg-[#009fe3] text-white' 
+                              ? 'border-[lvn-maroon] bg-[lvn-maroon] text-white' 
                               : sizeVariant?.is_available
-                              ? 'border-gray-300 hover:border-[#009fe3] hover:text-[#009fe3]'
+                              ? 'border-gray-300 hover:border-[lvn-maroon] hover:text-[lvn-maroon]'
                               : 'border-gray-200 text-gray-400 cursor-not-allowed'
                           }`}
                           disabled={!sizeVariant?.is_available}
@@ -559,7 +559,7 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
                 <button 
                   onClick={handleBuyNow}
                   disabled={!selectedVariant || !selectedVariant.is_available}
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   {selectedVariant ? `Buy Now - £${selectedVariant.price.toFixed(2)}` : 'Select Variant'}
@@ -568,7 +568,7 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
                 <button 
                   onClick={handleAddToCart}
                   disabled={!selectedVariant || !selectedVariant.is_available}
-                  className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   <span>Add to Cart{selectedVariant ? ` - £${(selectedVariant.price * quantity).toFixed(2)}` : ''}</span>
@@ -579,15 +579,15 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
               {/* Trust Badges */}
               <div className="grid grid-cols-3 gap-4 pt-6 border-t">
                 <div className="text-center">
-                  <Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <Truck className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Free UK Shipping Over £30</p>
                 </div>
                 <div className="text-center">
-                  <Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <Shield className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Secure Checkout</p>
                 </div>
                 <div className="text-center">
-                  <RefreshCw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" />
+                  <RefreshCw className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" />
                   <p className="text-xs text-gray-600">Easy Returns</p>
                 </div>
               </div>
@@ -603,7 +603,7 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
                     key={tab} 
                     onClick={() => setActiveTab(tab)} 
                     className={`py-4 px-6 border-b-2 font-medium text-sm transition-all duration-200 relative ${
-                      activeTab === tab ? 'border-[#009fe3] text-[#009fe3] bg-blue-50/50' : 'border-transparent text-gray-600 hover:text-[#009fe3] hover:bg-gray-50'
+                      activeTab === tab ? 'border-[lvn-maroon] text-[lvn-maroon] bg-lvn-maroon/10/50' : 'border-transparent text-gray-600 hover:text-[lvn-maroon] hover:bg-gray-50'
                     }`}
                   >
                     {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -616,7 +616,7 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
               {activeTab === 'description' && (
                 <div className="prose max-w-none">
                   <p className="text-gray-700 leading-relaxed">
-                    {product.description || 'High-quality Reform UK merchandise. Show your support with our premium products.'}
+                    {product.description || 'High-quality LVN Clothing merchandise. Show your support with our premium products.'}
                   </p>
                   <div className="mt-6">
                     <h4 className="font-semibold text-gray-900 mb-2">Category:</h4>
@@ -644,7 +644,7 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="font-semibold text-[#009fe3]">£{variant.price.toFixed(2)}</p>
+                            <p className="font-semibold text-[lvn-maroon]">£{variant.price.toFixed(2)}</p>
                             <p className={`text-xs ${variant.is_available ? 'text-green-600' : 'text-red-600'}`}>
                               {variant.is_available ? 'In Stock' : 'Out of Stock'}
                             </p>
@@ -676,12 +676,12 @@ export default function DynamicProductPage({ onBack }: DynamicProductPageProps) 
               {activeTab === 'shipping' && (
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Shipping Information</h3>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-4">
                     <div className="flex items-start space-x-2">
-                      <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <Info className="w-5 h-5 text-lvn-maroon-dark flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-blue-800 font-medium">Fast & Reliable Shipping</p>
-                        <p className="text-blue-700 text-sm mt-1">
+                        <p className="text-lvn-maroon font-medium">Fast & Reliable Shipping</p>
+                        <p className="text-lvn-maroon text-sm mt-1">
                           We use Printful for fulfillment with shipping times of 3-7 business days in the UK.
                           Free shipping on orders over £30.
                         </p>

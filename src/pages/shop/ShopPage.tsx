@@ -279,7 +279,7 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lvn-maroon-dark mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading products...</p>
           </div>
         </div>
@@ -307,7 +307,7 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
       <section className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center mb-6">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Shop Official Reform UK Merch</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Shop Official LVN Clothing Merch</h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">Support the movement. Every purchase powers the mission.</p>
           </div>
         </div>
@@ -369,7 +369,7 @@ const ShopPage: React.FC<ShopPageProps> = ({ onProductClick }) => {
                 </div>
                 <button
                   onClick={clearFilters}
-                  className="text-[#009fe3] hover:text-blue-600 font-medium"
+                  className="text-[lvn-maroon] hover:text-lvn-maroon-dark font-medium"
                 >
                   Clear all filters
                 </button>

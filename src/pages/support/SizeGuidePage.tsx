@@ -17,13 +17,13 @@ const SizeGuidePage = ({ onBack }: SizeGuidePageProps) => {
           <div className="flex items-center space-x-4">
             <button
               onClick={onBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-[#009fe3] transition-colors"
+              className="flex items-center space-x-2 text-gray-600 hover:text-[lvn-maroon] transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Back</span>
             </button>
             <div className="flex items-center space-x-3">
-              <Ruler className="w-6 h-6 text-[#009fe3]" />
+              <Ruler className="w-6 h-6 text-[lvn-maroon]" />
               <h1 className="text-2xl font-bold text-gray-900">Size Guide</h1>
             </div>
           </div>
@@ -35,7 +35,7 @@ const SizeGuidePage = ({ onBack }: SizeGuidePageProps) => {
         <div className="bg-white rounded-lg shadow-md p-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Reform UK Size Guide
+              LVN Clothing Size Guide
             </h2>
             <p className="text-lg text-gray-600">
               Find your perfect fit with our comprehensive sizing information
@@ -48,7 +48,7 @@ const SizeGuidePage = ({ onBack }: SizeGuidePageProps) => {
               onClick={() => setActiveTab('tshirt')}
               className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
                 activeTab === 'tshirt'
-                  ? 'bg-[#009fe3] text-white'
+                  ? 'bg-[lvn-maroon] text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -58,7 +58,7 @@ const SizeGuidePage = ({ onBack }: SizeGuidePageProps) => {
               onClick={() => setActiveTab('hoodie')}
               className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
                 activeTab === 'hoodie'
-                  ? 'bg-[#009fe3] text-white'
+                  ? 'bg-[lvn-maroon] text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -93,12 +93,12 @@ const SizeGuidePage = ({ onBack }: SizeGuidePageProps) => {
           </div>
 
           {/* Pro Tip */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+          <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-6 mb-8">
             <div className="flex items-start space-x-3">
-              <Info className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+              <Info className="w-6 h-6 text-lvn-maroon-dark flex-shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-semibold text-blue-900 mb-2">Pro Tip!</h3>
-                <p className="text-blue-800">
+                <p className="text-lvn-maroon">
                   Measure one of your products at home and compare with the measurements you see in this guide.
                   Product measurements may vary by up to 2" (5 cm).
                 </p>
@@ -430,7 +430,7 @@ const SizeGuidePage = ({ onBack }: SizeGuidePageProps) => {
               </p>
               <button
                 onClick={() => window.location.href = 'mailto:support@backreform.co.uk'}
-                className="bg-[#009fe3] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#008acc] transition-colors"
+                className="bg-[lvn-maroon] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#008acc] transition-colors"
               >
                 Contact Support
               </button>

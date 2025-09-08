@@ -435,12 +435,12 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
           )}
 
           {/* What's Next */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+          <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-6 mb-8">
             <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center justify-center">
               <Package className="w-5 h-5 mr-2" />
               What happens next?
             </h3>
-            <div className="space-y-3 text-sm text-blue-800">
+            <div className="space-y-3 text-sm text-lvn-maroon">
               <div className="flex items-start space-x-3">
                 <Mail className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <p>You'll receive an order confirmation email shortly</p>
@@ -460,7 +460,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
           <div className="space-y-4">
             <button
               onClick={onBackToShop}
-              className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+              className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
             >
               <span>Continue Shopping</span>
               <ArrowRight className="w-5 h-5" />
@@ -471,7 +471,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
           <div className="mt-8 pt-6 border-t border-gray-200">
             <p className="text-sm text-gray-600">
               Need help? Contact our support team at{' '}
-              <a href="mailto:support@backreform.co.uk" className="text-[#009fe3] hover:underline">
+              <a href="mailto:support@backreform.co.uk" className="text-[lvn-maroon] hover:underline">
                 support@backreform.co.uk
               </a>
             </p>
@@ -481,15 +481,15 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToShop, sessionId, emai
         {/* Additional Information */}
         <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Thank you for supporting Reform UK
+            Thank you for supporting LVN Clothing
           </h3>
           <p className="text-gray-600 mb-4">
-            Your purchase directly supports Reform UK's mission to bring real change to Britain. 
+            Your purchase directly supports LVN Clothing's mission to bring real change to Britain. 
             Every item you buy helps fund our campaigns and initiatives across the country.
           </p>
-          <div className="bg-[#009fe3]/5 border border-[#009fe3]/20 rounded-lg p-4">
-            <p className="text-[#009fe3] font-semibold text-center">
-              🇬🇧 100% of proceeds support Reform UK initiatives
+          <div className="bg-[lvn-maroon]/5 border border-[lvn-maroon]/20 rounded-lg p-4">
+            <p className="text-[lvn-maroon] font-semibold text-center">
+              🇬🇧 100% of proceeds support LVN Clothing initiatives
             </p>
           </div>
         </div>

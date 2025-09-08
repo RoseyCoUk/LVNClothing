@@ -26,8 +26,8 @@ import { sortColorsByBrightness } from '../../lib/colorUtils';
 // --- FIX: Cap data is moved OUTSIDE the component to ensure it's a stable constant ---
 const getCapProductData = (mergedProduct: any) => ({
   id: mergedProduct?.id || 3,
-  name: mergedProduct?.name || "Reform UK Cap",
-  description: mergedProduct?.description || "Adjustable cap with embroidered Reform UK logo. Features a classic 6-panel design with a curved visor and adjustable strap for the perfect fit.",
+  name: mergedProduct?.name || "LVN Clothing Cap",
+  description: mergedProduct?.description || "Adjustable cap with embroidered LVN Clothing logo. Features a classic 6-panel design with a curved visor and adjustable strap for the perfect fit.",
   features: ["Embroidered logo", "Adjustable strap", "Curved visor", "6-panel construction", "Breathable fabric", "One size fits most"],
   careInstructions: "Spot clean only. Air dry.",
   materials: "100% cotton twill",
@@ -345,7 +345,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#009fe3] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[lvn-maroon] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading Cap details...</p>
         </div>
       </div>
@@ -378,11 +378,11 @@ const CapPage = ({ onBack }: CapPageProps) => {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <nav className="text-sm text-gray-600">
             <div className="flex items-center space-x-2">
-              <button onClick={onBack} className="hover:text-[#009fe3] transition-colors">Home</button>
+              <button onClick={onBack} className="hover:text-[lvn-maroon] transition-colors">Home</button>
               <span className="text-gray-400">/</span>
-              <button onClick={onBack} className="hover:text-[#009fe3] transition-colors">Shop</button>
+              <button onClick={onBack} className="hover:text-[lvn-maroon] transition-colors">Shop</button>
               <span className="text-gray-400">/</span>
-              <span className="text-[#009fe3] font-semibold">{productData.name}</span>
+              <span className="text-[lvn-maroon] font-semibold">{productData.name}</span>
             </div>
           </nav>
         </div>
@@ -422,7 +422,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
             {getProductImages().length > 1 && (
               <div className="flex space-x-2 overflow-x-auto pb-2">
                 {getProductImages().map((image, index) => (
-                  <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[lvn-maroon]' : 'border-gray-200 hover:border-gray-300'}`}>
                     <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover aspect-square" />
                   </button>
                 ))}
@@ -441,7 +441,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
                 <span className="text-gray-600">({currentVariant.reviews} reviews)</span>
               </div>
               <div className="flex items-center space-x-3 mb-6">
-                <span className="text-3xl font-bold text-[#009fe3]">£{currentVariant.price.toFixed(2)}</span>
+                <span className="text-3xl font-bold text-[lvn-maroon]">£{currentVariant.price.toFixed(2)}</span>
               </div>
               <div className="flex items-center space-x-2 text-green-600 mb-6">
                 <Clock className="w-4 h-4" />
@@ -454,7 +454,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
               <label className="block text-sm font-medium text-gray-700 mb-3">Color: <span className="font-semibold text-gray-900">{selectedColor}</span></label>
               <div className="flex flex-wrap gap-3">
                 {sortColorsByBrightness(productData.variantDetails.colors).map((color) => (
-                  <button key={color.name} onClick={() => handleColorSelect(color.name)} className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${selectedColor === color.name ? 'border-[#009fe3] ring-2 ring-[#009fe3] ring-offset-2' : color.border ? 'border-gray-300 hover:border-gray-400' : 'border-gray-200 hover:border-gray-300'}`} style={{ backgroundColor: color.hex }} title={color.name}>
+                  <button key={color.name} onClick={() => handleColorSelect(color.name)} className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-110 ${selectedColor === color.name ? 'border-[lvn-maroon] ring-2 ring-[lvn-maroon] ring-offset-2' : color.border ? 'border-gray-300 hover:border-gray-400' : 'border-gray-200 hover:border-gray-300'}`} style={{ backgroundColor: color.hex }} title={color.name}>
                     {selectedColor === color.name && (<div className="absolute inset-0 flex items-center justify-center"><Check className={`w-5 h-5 ${color.name === 'White' || color.name === 'Light Blue' ? 'text-gray-600' : 'text-white'}`} /></div>)}
                   </button>
                 ))}
@@ -486,7 +486,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
               <button 
                 onClick={handleBuyNow}
                 disabled={isLoading}
-                className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
               >
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -498,7 +498,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
                 )}
               </button>
               
-              <button onClick={handleAddToCart} className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
+              <button onClick={handleAddToCart} className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
                 <ShoppingCart className="w-5 h-5" />
                 <span>Add to Cart - £{(currentVariant.price * quantity).toFixed(2)}</span>
               </button>
@@ -507,9 +507,9 @@ const CapPage = ({ onBack }: CapPageProps) => {
 
             {/* Trust Badges */}
             <div className="grid grid-cols-3 gap-4 pt-6 border-t">
-              <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Fast UK Shipping</p></div>
-              <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
-              <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
+              <div className="text-center"><Truck className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" /><p className="text-xs text-gray-600">Fast UK Shipping</p></div>
+              <div className="text-center"><Shield className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
+              <div className="text-center"><RotateCcw className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
             </div>
           </div>
         </div>
@@ -519,7 +519,7 @@ const CapPage = ({ onBack }: CapPageProps) => {
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8">
               {['description', 'features', 'reviews', 'care'].map((tab) => (
-                <button key={tab} onClick={() => setActiveTab(tab)} className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab ? 'border-[#009fe3] text-[#009fe3]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                <button key={tab} onClick={() => setActiveTab(tab)} className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab ? 'border-[lvn-maroon] text-[lvn-maroon]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
@@ -566,8 +566,8 @@ const CapPage = ({ onBack }: CapPageProps) => {
             {activeTab === 'care' && (
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Care Instructions</h3>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start space-x-2"><Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" /><p className="text-blue-800">{productData.careInstructions}</p></div>
+                <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-4">
+                  <div className="flex items-start space-x-2"><Info className="w-5 h-5 text-lvn-maroon-dark flex-shrink-0 mt-0.5" /><p className="text-lvn-maroon">{productData.careInstructions}</p></div>
                 </div>
               </div>
             )}

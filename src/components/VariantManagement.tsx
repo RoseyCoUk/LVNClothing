@@ -352,7 +352,7 @@ const VariantManagement: React.FC<VariantManagementProps> = ({
   // Determine if this product has color variants
   const hasColors = (() => {
     const normalized = productName?.toLowerCase() || '';
-    // Use includes() to match partial product names like "Reform UK T-Shirt"
+    // Use includes() to match partial product names like "LVN Clothing T-Shirt"
     const result = normalized.includes('t-shirt') || 
                    normalized.includes('tshirt') || 
                    normalized.includes('hoodie') || 

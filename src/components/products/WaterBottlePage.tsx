@@ -60,8 +60,8 @@ interface OrderToConfirm {
 // Fix 3: Add proper typing to variants object
 const productData = {
   id: 5,
-  name: "Reform UK Water Bottle",
-  description: "Insulated stainless steel water bottle with Reform UK branding. Keeps drinks cold for 24 hours or hot for 12 hours.",
+  name: "LVN Clothing Water Bottle",
+  description: "Insulated stainless steel water bottle with LVN Clothing branding. Keeps drinks cold for 24 hours or hot for 12 hours.",
   features: ["Double-wall insulation", "Leak-proof cap", "BPA-free materials", "500ml capacity", "Dishwasher safe", "Laser-engraved logo"],
   careInstructions: "Dishwasher safe. Hand wash recommended for longevity.",
   materials: "Stainless steel, BPA-free plastic",
@@ -252,11 +252,11 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <nav className="text-sm text-gray-600">
             <div className="flex items-center space-x-2">
-              <button onClick={onBack} className="hover:text-[#009fe3] transition-colors">Home</button>
+              <button onClick={onBack} className="hover:text-[lvn-maroon] transition-colors">Home</button>
               <span className="text-gray-400">/</span>
-              <button onClick={onBack} className="hover:text-[#009fe3] transition-colors">Shop</button>
+              <button onClick={onBack} className="hover:text-[lvn-maroon] transition-colors">Shop</button>
               <span className="text-gray-400">/</span>
-              <span className="text-[#009fe3] font-semibold">{productData.name}</span>
+              <span className="text-[lvn-maroon] font-semibold">{productData.name}</span>
             </div>
           </nav>
         </div>
@@ -296,7 +296,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
             {currentVariant.images.length > 1 && (
               <div className="flex space-x-2 overflow-x-auto pb-2">
                 {currentVariant.images.map((image: string, index: number) => (
-                  <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[#009fe3]' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <button key={index} onClick={() => setSelectedImage(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-[lvn-maroon]' : 'border-gray-200 hover:border-gray-300'}`}>
                     <img src={image} alt={`${productData.name} thumbnail ${index + 1}`} className="w-full h-full object-cover aspect-square" />
                   </button>
                 ))}
@@ -315,7 +315,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
                 <span className="text-gray-600">({currentVariant.reviews} reviews)</span>
               </div>
               <div className="flex items-center space-x-3 mb-6">
-                <span className="text-3xl font-bold text-[#009fe3]">£{currentVariant.price.toFixed(2)}</span>
+                <span className="text-3xl font-bold text-[lvn-maroon]">£{currentVariant.price.toFixed(2)}</span>
               </div>
               <div className="flex items-center space-x-2 text-green-600 mb-6">
                 <Clock className="w-4 h-4" />
@@ -352,7 +352,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
               <button 
                 onClick={handleBuyNow}
                 disabled={isLoading}
-                className="w-full bg-[#009fe3] hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
               >
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -364,7 +364,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
                 )}
               </button>
               
-              <button onClick={handleAddToCart} className="w-full bg-[#009fe3] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
+              <button onClick={handleAddToCart} className="w-full bg-[lvn-maroon] hover:bg-lvn-maroon-dark text-white font-bold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2">
                 <ShoppingCart className="w-5 h-5" />
                 <span>Add to Cart - £{(currentVariant.price * quantity).toFixed(2)}</span>
               </button>
@@ -373,9 +373,9 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
 
             {/* Trust Badges */}
             <div className="grid grid-cols-3 gap-4 pt-6 border-t">
-              <div className="text-center"><Truck className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Fast UK Shipping</p></div>
-              <div className="text-center"><Shield className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
-              <div className="text-center"><RotateCcw className="w-6 h-6 text-[#009fe3] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
+              <div className="text-center"><Truck className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" /><p className="text-xs text-gray-600">Fast UK Shipping</p></div>
+              <div className="text-center"><Shield className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" /><p className="text-xs text-gray-600">Secure Checkout</p></div>
+              <div className="text-center"><RotateCcw className="w-6 h-6 text-[lvn-maroon] mx-auto mb-2" /><p className="text-xs text-gray-600">Easy Returns</p></div>
             </div>
           </div>
         </div>
@@ -385,7 +385,7 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8">
               {['description', 'features', 'reviews', 'care'].map((tab) => (
-                <button key={tab} onClick={() => setActiveTab(tab)} className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab ? 'border-[#009fe3] text-[#009fe3]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                <button key={tab} onClick={() => setActiveTab(tab)} className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab ? 'border-[lvn-maroon] text-[lvn-maroon]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
@@ -432,8 +432,8 @@ const WaterBottlePage = ({ onBack }: WaterBottlePageProps) => {
             {activeTab === 'care' && (
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Care Instructions</h3>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start space-x-2"><Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" /><p className="text-blue-800">{productData.careInstructions}</p></div>
+                <div className="bg-lvn-maroon/10 border border-lvn-maroon/20 rounded-lg p-4">
+                  <div className="flex items-start space-x-2"><Info className="w-5 h-5 text-lvn-maroon-dark flex-shrink-0 mt-0.5" /><p className="text-lvn-maroon">{productData.careInstructions}</p></div>
                 </div>
               </div>
             )}
