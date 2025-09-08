@@ -21,16 +21,16 @@ const AnnouncementBanner = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="relative bg-red-600 text-white">
+    <div className="relative bg-lvn-maroon text-white">
       <div className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-center text-sm md:text-base font-medium">
-          <span className="mr-2">🔥</span>
+          <span className="mr-2">❤️</span>
           <span>
-            <strong>Movement surging!</strong> Record demand - join thousands showing their support!
+            <strong>FREE UK SHIPPING OVER £60</strong> • PREMIUM CHRISTIAN STREETWEAR
           </span>
           <button
             onClick={handleDismiss}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-red-700 rounded transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-lvn-maroon-dark rounded transition-colors"
             aria-label="Dismiss banner"
           >
             <X className="w-4 h-4" />
