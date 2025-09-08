@@ -76,6 +76,17 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8" role="navigation" aria-label="Main navigation">
             <button
+              onClick={() => handleNavigation('home')}
+              className={`font-medium transition-colors ${
+                currentPage === 'home'
+                  ? 'text-lvn-maroon'
+                  : 'text-gray-700 hover:text-lvn-maroon'
+              }`}
+              aria-current={currentPage === 'home' ? 'page' : undefined}
+            >
+              Home
+            </button>
+            <button
               onClick={() => handleNavigation('shop')}
               className={`font-medium transition-colors ${
                 currentPage === 'shop'
@@ -222,11 +233,22 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
           <div id="mobile-menu" className="md:hidden py-4 border-t bg-lvn-off-white/95 backdrop-blur-md" role="navigation" aria-label="Mobile navigation">
             <nav className="flex flex-col space-y-4">
               <button
+                onClick={() => handleNavigation('home')}
+                className={`text-left font-medium transition-colors py-2 ${
+                  currentPage === 'home'
+                    ? 'text-lvn-maroon'
+                    : 'text-gray-700 hover:text-lvn-maroon'
+                }`}
+                aria-current={currentPage === 'home' ? 'page' : undefined}
+              >
+                Home
+              </button>
+              <button
                 onClick={() => handleNavigation('shop')}
                 className={`text-left font-medium transition-colors py-2 ${
                   currentPage === 'shop'
-                    ? 'text-[#009fe3]'
-                    : 'text-gray-700 hover:text-[#009fe3]'
+                    ? 'text-lvn-maroon'
+                    : 'text-gray-700 hover:text-lvn-maroon'
                 }`}
                 aria-current={currentPage === 'shop' ? 'page' : undefined}
               >
@@ -236,8 +258,8 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                 onClick={() => handleNavigation('about')}
                 className={`text-left font-medium transition-colors py-2 ${
                   currentPage === 'about'
-                    ? 'text-[#009fe3]'
-                    : 'text-gray-700 hover:text-[#009fe3]'
+                    ? 'text-lvn-maroon'
+                    : 'text-gray-700 hover:text-lvn-maroon'
                 }`}
                 aria-current={currentPage === 'about' ? 'page' : undefined}
               >
@@ -247,8 +269,8 @@ const Header = ({ currentPage, setCurrentPage, onLoginClick, onSignupClick }: He
                 onClick={() => handleNavigation('contact')}
                 className={`text-left font-medium transition-colors py-2 ${
                   currentPage === 'contact'
-                    ? 'text-[#009fe3]'
-                    : 'text-gray-700 hover:text-[#009fe3]'
+                    ? 'text-lvn-maroon'
+                    : 'text-gray-700 hover:text-lvn-maroon'
                 }`}
                 aria-current={currentPage === 'contact' ? 'page' : undefined}
               >
